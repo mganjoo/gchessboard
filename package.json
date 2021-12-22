@@ -1,0 +1,22 @@
+{
+  "name": "chessx",
+  "version": "0.1.0",
+  "description": "An dependency-free, customizable, and accessible JS chessboard.",
+  "author": "Milind Ganjoo",
+  "license": "MIT",
+  "main": "dist/chessx.js",
+  "module": "dist/chessx.esm.js",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8.3.0",
+    "rollup": "^2.61.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.4"
+  },
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c"
+  },
+  "files": [
+    "dist"
+  ]
+}
