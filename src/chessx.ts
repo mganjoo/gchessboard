@@ -1,9 +1,3 @@
-import helper from "./helper";
+import { Chessboard } from "./Chessboard";
 
-export function sum(a: number, b: number): number {
-  return a + b;
-}
-
-export function diff(date: Date): number {
-  return helper(date);
-}
+export { Chessboard as ChessX };

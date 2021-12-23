@@ -14,5 +14,10 @@ export default defineConfig({
       format: "es",
     },
   ],
-  plugins: [typescript({ tsconfig: "./tsconfig.json" })],
+  plugins: [
+    typescript({
+      tsconfig: "./tsconfig.json",
+      exclude: ["src/**/*.stories.(ts|tsx)"],
+    }),
+  ],
 });
