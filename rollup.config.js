@@ -1,23 +1,45 @@
 import typescript from "@rollup/plugin-typescript"
+import path from "path"
+import postcss from "rollup-plugin-postcss"
 import { defineConfig } from "rollup"
 import pkg from "./package.json"
 
-export default defineConfig({
-  input: "src/chessx.ts",
-  output: [
-    {
-      file: pkg.main,
-      format: "cjs",
+const typescriptConfig = {
+  tsconfig: "./tsconfig.json",
+  exclude: ["src/**/*.test.(ts|tsx)", "src/**/*.stories.(ts|tsx)"],
+}
+
+export default defineConfig([
+  {
+    input: "src/chessx.ts",
+    output: {
+      name: "chessx",
+      file: pkg.browser,
+      format: "umd",
     },
-    {
-      file: pkg.module,
-      format: "es",
-    },
-  ],
-  plugins: [
-    typescript({
-      tsconfig: "./tsconfig.json",
-      exclude: ["src/**/*.test.(ts|tsx)", "src/**/*.stories.(ts|tsx)"],
-    }),
-  ],
-})
+    plugins: [
+      typescript(typescriptConfig), // so Rollup can convert TypeScript to JavaScript
+      postcss({
+        minimize: true,
+      }),
+    ],
+  },
+  {
+    input: "src/chessx.ts",
+    external: ["src/styles.css"],
+    output: [
+      {
+        file: pkg.main,
+        format: "cjs",
+      },
+      {
+        file: pkg.module,
+        format: "es",
+      },
+    ],
+    plugins: [
+      typescript(typescriptConfig),
+      postcss({ extract: path.resolve("dist/chessx.css") }),
+    ],
+  },
+])

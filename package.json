@@ -6,6 +6,7 @@
   "license": "MIT",
   "main": "dist/chessx.js",
   "module": "dist/chessx.esm.js",
+  "browser": "dist/chessx.umd.js",
   "devDependencies": {
     "@babel/core": "^7.16.5",
     "@babel/preset-env": "^7.16.5",
@@ -23,10 +24,12 @@
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "husky": "^7.0.4",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^27.4.5",
     "lint-staged": "^12.1.3",
     "prettier": "^2.5.1",
     "rollup": "^2.61.1",
+    "rollup-plugin-postcss": "^4.0.2",
     "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
     "typescript": "^4.5.4"
