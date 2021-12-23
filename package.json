@@ -1,7 +1,7 @@
 {
   "name": "chessx",
   "version": "0.1.0",
-  "description": "An dependency-free, customizable, and accessible JS chessboard.",
+  "description": "A dependency-free, customizable, and accessible JS chessboard.",
   "author": "Milind Ganjoo",
   "license": "MIT",
   "main": "dist/chessx.js",
@@ -16,9 +16,16 @@
     "@storybook/addon-links": "^6.4.9",
     "@storybook/html": "^6.4.9",
     "@types/jest": "^27.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.8.0",
+    "@typescript-eslint/parser": "^5.8.0",
     "babel-jest": "^27.4.5",
     "babel-loader": "^8.2.3",
+    "eslint": "^8.5.0",
+    "eslint-config-prettier": "^8.3.0",
+    "husky": "^7.0.4",
     "jest": "^27.4.5",
+    "lint-staged": "^12.1.3",
+    "prettier": "^2.5.1",
     "rollup": "^2.61.1",
     "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
@@ -29,10 +36,19 @@
     "build": "rollup -c",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "typecheck": "tsc",
-    "test": "jest --watch"
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "types:check": "tsc",
+    "test": "jest --watch",
+    "prepare": "husky install"
   },
   "files": [
     "dist"
-  ]
+  ],
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
+    "*.{js,jsx,ts,tsx,css,md,json,yml,yaml}": "prettier --write"
+  }
 }

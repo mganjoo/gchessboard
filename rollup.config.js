@@ -1,6 +1,6 @@
-import typescript from "@rollup/plugin-typescript";
-import { defineConfig } from "rollup";
-import pkg from "./package.json";
+import typescript from "@rollup/plugin-typescript"
+import { defineConfig } from "rollup"
+import pkg from "./package.json"
 
 export default defineConfig({
   input: "src/chessx.ts",
@@ -20,4 +20,4 @@ export default defineConfig({
       exclude: ["src/**/*.test.(ts|tsx)", "src/**/*.stories.(ts|tsx)"],
     }),
   ],
-});
+})

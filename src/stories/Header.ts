@@ -1,18 +1,23 @@
-import './header.css';
-import { createButton } from './Button';
+import "./header.css"
+import { createButton } from "./Button"
 
 export interface HeaderProps {
-  user?: {};
-  onLogin: () => void;
-  onLogout: () => void;
-  onCreateAccount: () => void;
+  user?: unknown
+  onLogin: () => void
+  onLogout: () => void
+  onCreateAccount: () => void
 }
 
-export const createHeader = ({ user, onLogout, onLogin, onCreateAccount }: HeaderProps) => {
-  const header = document.createElement('header');
+export const createHeader = ({
+  user,
+  onLogout,
+  onLogin,
+  onCreateAccount,
+}: HeaderProps) => {
+  const header = document.createElement("header")
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'wrapper';
+  const wrapper = document.createElement("div")
+  wrapper.className = "wrapper"
 
   const logo = `<div>
     <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
@@ -27,26 +32,30 @@ export const createHeader = ({ user, onLogout, onLogin, onCreateAccount }: Heade
       </g>
     </svg>
     <h1>Acme</h1>
-  </div>`;
+  </div>`
 
-  wrapper.insertAdjacentHTML('afterbegin', logo);
+  wrapper.insertAdjacentHTML("afterbegin", logo)
 
-  const account = document.createElement('div');
+  const account = document.createElement("div")
   if (user) {
-    account.appendChild(createButton({ size: 'small', label: 'Log out', onClick: onLogout }));
+    account.appendChild(
+      createButton({ size: "small", label: "Log out", onClick: onLogout })
+    )
   } else {
-    account.appendChild(createButton({ size: 'small', label: 'Log in', onClick: onLogin }));
+    account.appendChild(
+      createButton({ size: "small", label: "Log in", onClick: onLogin })
+    )
     account.appendChild(
       createButton({
-        size: 'small',
-        label: 'Sign up',
+        size: "small",
+        label: "Sign up",
         onClick: onCreateAccount,
         primary: true,
       })
-    );
+    )
   }
-  wrapper.appendChild(account);
-  header.appendChild(wrapper);
+  wrapper.appendChild(account)
+  header.appendChild(wrapper)
 
-  return header;
-};
+  return header
+}

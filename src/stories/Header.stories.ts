@@ -1,21 +1,21 @@
-import { Story, Meta } from '@storybook/html';
-import { createHeader, HeaderProps } from './Header';
+import { Story, Meta } from "@storybook/html"
+import { createHeader, HeaderProps } from "./Header"
 
 export default {
-  title: 'Example/Header',
+  title: "Example/Header",
   argTypes: {
-    onLogin: { action: 'onLogin' },
-    onLogout: { action: 'onLogout' },
-    onCreateAccount: { action: 'onCreateAccount' },
+    onLogin: { action: "onLogin" },
+    onLogout: { action: "onLogout" },
+    onCreateAccount: { action: "onCreateAccount" },
   },
-} as Meta;
+} as Meta
 
-const Template: Story<HeaderProps> = (args) => createHeader(args);
+const Template: Story<HeaderProps> = (args) => createHeader(args)
 
-export const LoggedIn = Template.bind({});
+export const LoggedIn = Template.bind({})
 LoggedIn.args = {
   user: {},
-};
+}
 
-export const LoggedOut = Template.bind({});
-LoggedOut.args = {};
+export const LoggedOut = Template.bind({})
+LoggedOut.args = {}

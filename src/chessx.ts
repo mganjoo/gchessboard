@@ -1,3 +1,3 @@
-import { Chessboard } from "./Chessboard";
+import { Chessboard } from "./Chessboard"
 
-export { Chessboard as ChessX };
+export { Chessboard as ChessX }
