@@ -9,7 +9,8 @@ export class Chessboard {
   }
 
   private updateContent() {
-    this.boardElement.innerText = `Hello there, ${this.name || "stranger"}`;
+    this.boardElement.textContent = `Hello there, ${this.name || "stranger"}`;
+    // this.boardElement.innerText = `Hello there, ${this.name || "stranger"}`;
   }
 
   setName(name: string) {

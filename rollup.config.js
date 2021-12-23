@@ -17,7 +17,7 @@ export default defineConfig({
   plugins: [
     typescript({
       tsconfig: "./tsconfig.json",
-      exclude: ["src/**/*.stories.(ts|tsx)"],
+      exclude: ["src/**/*.test.(ts|tsx)", "src/**/*.stories.(ts|tsx)"],
     }),
   ],
 });
