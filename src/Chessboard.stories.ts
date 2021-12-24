@@ -27,8 +27,7 @@ export default {
 
 const Template: Story<ChessboardProps> = (args) => {
   const el = document.createElement("div")
-  const x = new Chessboard(el)
-  x.highlightSquare = args.highlightSquare
+  new Chessboard(el, args.highlightSquare)
   return el
 }
 

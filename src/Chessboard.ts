@@ -43,8 +43,6 @@ export class Chessboard {
     this._boardElement = document.createElement("div")
     this._boardElement.classList.add("board")
 
-    this.highlightSquare = highlightSquare
-
     for (let i = 0; i < 64; i++) {
       const square = document.createElement("div")
       square.dataset.square = SQUARES[i]
@@ -56,6 +54,8 @@ export class Chessboard {
       this._squareElements[i] = square
       this._boardElement.appendChild(square)
     }
+
+    this.highlightSquare = highlightSquare
 
     container.appendChild(this._boardElement)
   }
