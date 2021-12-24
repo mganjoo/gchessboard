@@ -1,3 +1,3 @@
-import { Chessboard } from "./Chessboard"
+import { ChessboardHtmlView } from "./ChessboardHtmlView"
 
-export { Chessboard as ChessX }
+export { ChessboardHtmlView }

@@ -1,5 +1,5 @@
 import { Meta, Story } from "@storybook/html"
-import { Chessboard } from "./Chessboard"
+import { ChessboardHtmlView } from "./ChessboardHtmlView"
 
 const DropdownOptions = ["e8", "e6", "c5", "d3"] as const
 type HighlightSquare = typeof DropdownOptions[number]
@@ -15,7 +15,7 @@ export default {
   decorators: [
     (story) => {
       const wrapperDiv = document.createElement("div")
-      wrapperDiv.style.maxWidth = "32rem"
+      wrapperDiv.style.maxWidth = "28rem"
       const wrappedStory = story()
       if (typeof wrappedStory !== "string") {
         wrapperDiv.appendChild(wrappedStory)
@@ -25,9 +25,9 @@ export default {
   ],
 } as Meta
 
-const Template: Story<ChessboardProps> = (args) => {
+const Template: Story<ChessboardProps> = () => {
   const el = document.createElement("div")
-  new Chessboard(el, args.highlightSquare)
+  new ChessboardHtmlView(el)
   return el
 }
 
