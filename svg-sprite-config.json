@@ -1,0 +1,23 @@
+{
+  "transform": [
+    {
+      "svgo": {
+        "js2svg": { "pretty": true },
+        "plugins": [
+          {
+            "name": "preset-default"
+          },
+          "convertStyleToAttrs"
+        ]
+      }
+    }
+  ],
+  "svg": {
+    "xmlDeclaration": false,
+    "doctypeDeclaration": false,
+    "namespaceIDs": false
+  },
+  "mode": {
+    "symbol": true
+  }
+}
