@@ -1,16 +1,17 @@
 import { Meta, Story } from "@storybook/html"
-import { ChessboardHtmlView } from "./ChessboardHtmlView"
-
-const DropdownOptions = ["e8", "e6", "c5", "d3"] as const
-type HighlightSquare = typeof DropdownOptions[number]
-
+import { ChessboardView } from "./ChessboardView"
+import { Side, SIDE_COLORS } from "./ChessLogic"
 interface ChessboardProps {
-  highlightSquare: HighlightSquare
+  orientation: Side
 }
 
 export default {
   argTypes: {
-    highlightSquare: { options: DropdownOptions, control: "select" },
+    orientation: {
+      options: SIDE_COLORS,
+      defaultValue: "white",
+      control: { type: "radio" },
+    },
   },
   decorators: [
     (story) => {
@@ -25,9 +26,16 @@ export default {
   ],
 } as Meta
 
-const Template: Story<ChessboardProps> = () => {
+const Template: Story<ChessboardProps> = ({ orientation }) => {
   const el = document.createElement("div")
-  new ChessboardHtmlView(el)
+  new ChessboardView(el, {
+    orientation: orientation,
+    pieces: {
+      e4: { color: "white", pieceType: "queen" },
+      g5: { color: "black", pieceType: "knight" },
+      b2: { color: "white", pieceType: "king" },
+    },
+  })
   return el
 }
 

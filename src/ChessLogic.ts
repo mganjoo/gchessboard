@@ -15,12 +15,20 @@ const SQUARES_MAP = {
   a2:  16, b2:  17, c2:  18, d2:  19, e2:  20, f2:  21, g2:  22, h2:  23,
   a1:   0, b1:   1, c1:   2, d1:   3, e1:   4, f1:   5, g1:   6, h1:   7,
 }
+export const SQUARE_COLORS = ["light", "dark"] as const
+export const SIDE_COLORS = ["white", "black"] as const
 
 export type Square = keyof typeof SQUARES_MAP
-export type SquareColor = "light" | "dark"
-export type Orientation = "white" | "black"
+export type SquareColor = typeof SQUARE_COLORS[number]
+export type Side = typeof SIDE_COLORS[number]
 
-export const SQUARES = Object.keys(SQUARES_MAP) as Square[]
+const REVERSE_SQUARES_MAP = (Object.keys(SQUARES_MAP) as Square[]).reduce(
+  (acc, key) => {
+    acc[SQUARES_MAP[key]] = key
+    return acc
+  },
+  {} as Record<number, Square>
+)
 
 /**
  * Get sequential index (0-63) for `square`. a1 corresponds to index 0 and
@@ -37,6 +45,16 @@ export function getSequentialIdx(square: Square) {
 }
 
 /**
+ * Return square identifier for sequential index `idx`.
+ *
+ * @param squareIdx sequential index to return square for
+ * @returns the square corresponding to the sequential index.
+ */
+export function getSquare(idx: number) {
+  return REVERSE_SQUARES_MAP[idx + (idx & ~7)]
+}
+
+/**
  * Get rank (row) and file (col) index corresponding to `square`.
  *
  * @param square square to return rank and file for.
@@ -44,7 +62,21 @@ export function getSequentialIdx(square: Square) {
  */
 export function getRankFile(square: Square) {
   const idx = SQUARES_MAP[square]
-  return [idx >> 3, idx & 0x7]
+  return [idx >> 4, idx & 0x7]
+}
+
+/**
+ * Get the "visual" row and column for `square` depending on `orientation`.
+ * If `orientation` is "white", then a1 is on the bottom left, otherwise h8 is
+ * on the bottom left.
+ * @param square square to convert to visual row and column.
+ * @param orientation  what side is at the bottom ("white" = a1 on bottom left)
+ * @returns a tuple for [row, column].
+ */
+export function getVisualRowColumn(square: Square, orientation: Side) {
+  const idx = getSequentialIdx(square)
+  const orientedIdx = orientation == "white" ? idx : 63 - idx
+  return [7 - (orientedIdx >> 3), orientedIdx & 0x7]
 }
 
 /**
@@ -57,4 +89,18 @@ export function getRankFile(square: Square) {
  */
 export function getSquareColor(square: Square): SquareColor {
   return ((getSequentialIdx(square) * 9) & 8) == 0 ? "dark" : "light"
+}
+
+/**
+ * Get color that is opposite to `color`.
+ */
+export function getOppositeColor(color: SquareColor): SquareColor {
+  return SQUARE_COLORS[1 - SQUARE_COLORS.indexOf(color)]
+}
+
+/**
+ * Type guard to check that key is a square.
+ */
+export function keyIsSquare(key: string): key is Square {
+  return key in SQUARES_MAP
 }

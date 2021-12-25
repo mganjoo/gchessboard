@@ -1,3 +1,3 @@
-import { ChessboardHtmlView } from "./ChessboardHtmlView"
+import { ChessboardView } from "./ChessboardView"
 
-export { ChessboardHtmlView }
+export { ChessboardView }
