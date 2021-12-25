@@ -33,20 +33,26 @@ export class ChessboardView {
   private svg: SVGElement
   private squareElements: SVGRectElement[]
   private pieceElementsGroup: SVGGElement
+  private labelsGroup: SVGGElement
   private pieceElements: Partial<Record<Square, SVGUseElement>>
+  private rankLabelElements: SVGTextElement[]
+  private fileLabelElements: SVGTextElement[]
+  private pieces: Partial<Record<Square, Piece>>
   private _orientation: Side
-  private _pieces: Partial<Record<Square, Piece>>
 
   constructor(container: HTMLElement, state: ChessboardState) {
     // Initialize fields
     this.squareElements = new Array(64)
     this.pieceElements = {}
     this._orientation = state.orientation
-    this._pieces = { ...state.pieces }
+    this.pieces = { ...state.pieces }
+    this.rankLabelElements = new Array(8)
+    this.fileLabelElements = new Array(8)
 
     // Build SVG container for chessboard
     const boardGroup = this.buildBoardGroup()
     this.pieceElementsGroup = this.makeElement("g", { classes: ["pieces"] })
+    this.labelsGroup = this.buildLabelsGroup()
     this.svg = this.makeElement("svg", {
       attributes: {
         viewbox: "0 0 100 100",
@@ -57,6 +63,7 @@ export class ChessboardView {
     })
     this.svg.appendChild(boardGroup)
     this.svg.appendChild(this.pieceElementsGroup)
+    this.svg.appendChild(this.labelsGroup)
 
     // Manual trigger of initial re-paint and redraw
     this.repaintBoard()
@@ -95,10 +102,45 @@ export class ChessboardView {
     return boardGroup
   }
 
+  private buildLabelsGroup() {
+    const labelsGroup = this.makeElement("g", { classes: ["labels"] })
+    // Rank labels
+    for (let i = 0; i < 8; i++) {
+      const elem = this.makeElement("text", {
+        attributes: {
+          x: "0.5%",
+          y: `${i * 12.5 + 1}%`,
+          width: "12.5%",
+          height: "12.5%",
+          "dominant-baseline": "hanging",
+        },
+        classes: [i % 2 == 0 ? "light" : "dark"],
+      })
+      this.rankLabelElements[i] = elem
+      labelsGroup.appendChild(elem)
+    }
+    // File labels
+    for (let i = 0; i < 8; i++) {
+      const elem = this.makeElement("text", {
+        attributes: {
+          x: `${(i + 1) * 12.5 - 0.75}%`,
+          y: "99%",
+          width: "12.5%",
+          height: "12.5%",
+          "text-anchor": "end",
+        },
+        classes: [i % 2 == 0 ? "dark" : "light"],
+      })
+      this.fileLabelElements[i] = elem
+      labelsGroup.appendChild(elem)
+    }
+    return labelsGroup
+  }
+
   private repaintBoard() {
     // Repaint square colors
     for (let i = 0; i < 64; i++) {
-      const square = getSquare(this.orientation == "white" ? i : 63 - i)
+      const square = getSquare(this.orientation === "white" ? i : 63 - i)
       const color = getSquareColor(square)
       this.squareElements[i].classList.remove(getOppositeColor(color))
       this.squareElements[i].classList.add(color)
@@ -106,7 +148,7 @@ export class ChessboardView {
     }
 
     // Remove old pieces, if any, and remove new ones
-    Object.entries(this._pieces).forEach(([key, piece]) => {
+    Object.entries(this.pieces).forEach(([key, piece]) => {
       if (keyIsSquare(key)) {
         const existingPiece = this.pieceElements[key]
         const [row, column] = getVisualRowColumn(key, this.orientation)
@@ -130,6 +172,16 @@ export class ChessboardView {
         this.pieceElementsGroup.appendChild(newPiece)
       }
     })
+
+    // Update labels
+    for (let i = 0; i < 8; i++) {
+      this.rankLabelElements[i].textContent = `${
+        this.orientation === "white" ? 8 - i : i + 1
+      }`
+      this.fileLabelElements[i].textContent = String.fromCharCode(
+        "a".charCodeAt(0) + (this.orientation === "white" ? i : 7 - i)
+      )
+    }
   }
 
   private makeElement<K extends keyof SVGElementTagNameMap>(

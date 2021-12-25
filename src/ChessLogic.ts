@@ -75,7 +75,7 @@ export function getRankFile(square: Square) {
  */
 export function getVisualRowColumn(square: Square, orientation: Side) {
   const idx = getSequentialIdx(square)
-  const orientedIdx = orientation == "white" ? idx : 63 - idx
+  const orientedIdx = orientation === "white" ? idx : 63 - idx
   return [7 - (orientedIdx >> 3), orientedIdx & 0x7]
 }
 
@@ -88,7 +88,7 @@ export function getVisualRowColumn(square: Square, orientation: Side) {
  * @returns color of the square.
  */
 export function getSquareColor(square: Square): SquareColor {
-  return ((getSequentialIdx(square) * 9) & 8) == 0 ? "dark" : "light"
+  return ((getSequentialIdx(square) * 9) & 8) === 0 ? "dark" : "light"
 }
 
 /**

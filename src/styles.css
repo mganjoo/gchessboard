@@ -14,3 +14,16 @@
 .board rect.light {
   fill: var(--light-square-green);
 }
+
+.labels text {
+  font-family: sans-serif;
+  font-size: 0.7rem;
+}
+
+.labels text.light {
+  stroke: var(--dark-square-green);
+}
+
+.labels text.dark {
+  stroke: var(--light-square-green);
+}
