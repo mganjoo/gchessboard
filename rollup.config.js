@@ -1,4 +1,5 @@
 import typescript from "@rollup/plugin-typescript"
+import images from "rollup-plugin-image-files"
 import postcss from "rollup-plugin-postcss"
 import { defineConfig } from "rollup"
 import pkg from "./package.json"
@@ -25,6 +26,7 @@ export default defineConfig([
     plugins: [
       typescript(typescriptConfig), // so Rollup can convert TypeScript to JavaScript
       postcss(postCssConfig),
+      images(),
     ],
   },
   {
@@ -40,6 +42,6 @@ export default defineConfig([
         format: "es",
       },
     ],
-    plugins: [typescript(typescriptConfig), postcss(postCssConfig)],
+    plugins: [typescript(typescriptConfig), postcss(postCssConfig), images()],
   },
 ])
