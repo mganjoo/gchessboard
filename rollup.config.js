@@ -23,24 +23,15 @@ const smartAssetConfig = {
 export default defineConfig([
   {
     input: "src/chessx.ts",
-    output: {
-      name: "chessx",
-      file: pkg.browser,
-      format: "umd",
-      globals: {
-        "./sprite.svg": "sprite",
-      },
-    },
-    plugins: [
-      smartAsset(smartAssetConfig),
-      typescript(typescriptConfig),
-      postcss(postCssConfig),
-    ],
-  },
-  {
-    input: "src/chessx.ts",
-    external: ["src/styles.css"],
     output: [
+      {
+        name: "chessx",
+        file: pkg.browser,
+        format: "umd",
+        globals: {
+          "./sprite.svg": "sprite",
+        },
+      },
       {
         file: pkg.main,
         format: "cjs",
