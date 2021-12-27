@@ -1,21 +1,21 @@
 import { Meta, Story } from "@storybook/html"
-import { Chessboard } from "./Chessboard"
-
-const DropdownOptions = ["e8", "e6", "c5", "d3"] as const
-type HighlightSquare = typeof DropdownOptions[number]
-
+import { ChessboardView } from "./ChessboardView"
+import { Side, SIDE_COLORS } from "./ChessLogic"
 interface ChessboardProps {
-  highlightSquare: HighlightSquare
+  orientation: Side
 }
 
 export default {
   argTypes: {
-    highlightSquare: { options: DropdownOptions, control: "select" },
+    orientation: {
+      options: SIDE_COLORS,
+      control: { type: "radio" },
+    },
   },
   decorators: [
     (story) => {
       const wrapperDiv = document.createElement("div")
-      wrapperDiv.style.maxWidth = "32rem"
+      wrapperDiv.style.maxWidth = "28rem"
       const wrappedStory = story()
       if (typeof wrappedStory !== "string") {
         wrapperDiv.appendChild(wrappedStory)
@@ -25,10 +25,20 @@ export default {
   ],
 } as Meta
 
-const Template: Story<ChessboardProps> = (args) => {
+const Template: Story<ChessboardProps> = ({ orientation }) => {
   const el = document.createElement("div")
-  new Chessboard(el, args.highlightSquare)
+  new ChessboardView(el, {
+    orientation: orientation,
+    pieces: {
+      e4: { color: "white", pieceType: "queen" },
+      g5: { color: "black", pieceType: "knight" },
+      b2: { color: "white", pieceType: "king" },
+    },
+  })
   return el
 }
 
 export const Default = Template.bind({})
+Default.args = {
+  orientation: "white",
+}

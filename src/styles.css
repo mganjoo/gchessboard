@@ -3,32 +3,27 @@
   --light-square-green: #e0ddcc;
 }
 
-.header {
-  background-color: yellow;
-}
-
-.board {
-  display: grid;
-  grid-template-rows: repeat(8, minmax(0, 1fr));
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-}
-
-[data-square] {
-  display: flex;
+.chessboard {
   aspect-ratio: 1 / 1;
-  justify-content: center;
-  align-items: center;
 }
 
-[data-square].dark {
-  background-color: var(--dark-square-green);
+.board rect.dark {
+  fill: var(--dark-square-green);
 }
 
-[data-square].light {
-  background-color: var(--light-square-green);
+.board rect.light {
+  fill: var(--light-square-green);
 }
 
-[data-selected="true"] {
-  font-size: 1.2rem;
-  font-weight: bold;
+.labels text {
+  font-family: sans-serif;
+  font-size: 0.7rem;
+}
+
+.labels text.light {
+  stroke: var(--dark-square-green);
+}
+
+.labels text.dark {
+  stroke: var(--light-square-green);
 }

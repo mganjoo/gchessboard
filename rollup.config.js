@@ -1,5 +1,6 @@
 import typescript from "@rollup/plugin-typescript"
 import postcss from "rollup-plugin-postcss"
+import smartAsset from "rollup-plugin-smart-asset"
 import { defineConfig } from "rollup"
 import pkg from "./package.json"
 
@@ -14,6 +15,11 @@ const postCssConfig = {
   minimize: true,
 }
 
+const smartAssetConfig = {
+  url: "copy",
+  keepImport: true,
+}
+
 export default defineConfig([
   {
     input: "src/chessx.ts",
@@ -21,9 +27,13 @@ export default defineConfig([
       name: "chessx",
       file: pkg.browser,
       format: "umd",
+      globals: {
+        "./sprite.svg": "sprite",
+      },
     },
     plugins: [
-      typescript(typescriptConfig), // so Rollup can convert TypeScript to JavaScript
+      smartAsset(smartAssetConfig),
+      typescript(typescriptConfig),
       postcss(postCssConfig),
     ],
   },
@@ -40,6 +50,10 @@ export default defineConfig([
         format: "es",
       },
     ],
-    plugins: [typescript(typescriptConfig), postcss(postCssConfig)],
+    plugins: [
+      smartAsset(smartAssetConfig),
+      typescript(typescriptConfig),
+      postcss(postCssConfig),
+    ],
   },
 ])

@@ -1,3 +1,3 @@
-import { Chessboard } from "./Chessboard"
+import { ChessboardView } from "./ChessboardView"
 
-export { Chessboard as ChessX }
+export { ChessboardView }
