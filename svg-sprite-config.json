@@ -18,6 +18,12 @@
     "namespaceIDs": false
   },
   "mode": {
-    "symbol": true
+    "symbol": {
+      "dest": "src",
+      "sprite": "sprite.svg",
+      "render": {
+        "css": false
+      }
+    }
   }
 }
