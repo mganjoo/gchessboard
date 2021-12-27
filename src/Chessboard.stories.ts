@@ -1,5 +1,5 @@
 import { Meta, Story } from "@storybook/html"
-import { ChessboardView } from "./ChessboardView"
+import { Chessboard } from "./Chessboard"
 import { Side, SIDE_COLORS } from "./ChessLogic"
 interface ChessboardProps {
   orientation: Side
@@ -27,7 +27,7 @@ export default {
 
 const Template: Story<ChessboardProps> = ({ orientation }) => {
   const el = document.createElement("div")
-  new ChessboardView(el, {
+  new Chessboard(el, {
     orientation: orientation,
     pieces: {
       e4: { color: "white", pieceType: "queen" },

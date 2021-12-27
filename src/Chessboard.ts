@@ -9,7 +9,18 @@ import {
 } from "./ChessLogic"
 import "./styles.css"
 import sprite from "./sprite.svg"
-import { ChessboardState, Piece, PieceType } from "./ChessboardState"
+
+export type PieceType = "queen" | "king" | "knight" | "bishop" | "pawn"
+
+export interface Piece {
+  pieceType: PieceType
+  color: Side
+}
+
+export interface ChessboardConfig {
+  orientation?: Side
+  pieces?: Partial<Record<Square, Piece>>
+}
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg"
 const SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
@@ -29,7 +40,7 @@ const SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
   },
 }
 
-export class ChessboardView {
+export class Chessboard {
   private svg: SVGElement
   private squareElements: SVGRectElement[]
   private pieceElementsGroup: SVGGElement
@@ -40,12 +51,19 @@ export class ChessboardView {
   private pieces: Partial<Record<Square, Piece>>
   private _orientation: Side
 
-  constructor(container: HTMLElement, state: ChessboardState) {
+  /**
+   *
+   *
+   * @param container HTML element that will contain chessboard (e.g. <div>).
+   *                  Rendered chessboard will be appended to this container.
+   * @param config Configuration for chessboard (see type definition for details)
+   */
+  constructor(container: HTMLElement, config: ChessboardConfig) {
     // Initialize fields
     this.squareElements = new Array(64)
     this.pieceElements = {}
-    this._orientation = state.orientation || "white"
-    this.pieces = { ...state.pieces }
+    this._orientation = config.orientation || "white"
+    this.pieces = { ...config.pieces }
     this.rankLabelElements = new Array(8)
     this.fileLabelElements = new Array(8)
 
@@ -78,6 +96,13 @@ export class ChessboardView {
   set orientation(o: Side) {
     this._orientation = o
     this.repaintBoard()
+  }
+
+  /**
+   * Remove chessboard from DOM, and de-register all event handlers.
+   */
+  destroy() {
+    this.removeElement(this.svg)
   }
 
   private buildBoardGroup() {
@@ -191,7 +216,7 @@ export class ChessboardView {
       data?: Record<string, string>
       classes?: string[]
     }
-  ) {
+  ): SVGElementTagNameMap[K] {
     const e = document.createElementNS(SVG_NAMESPACE, tag)
     if (options) {
       for (const key in options.attributes) {
