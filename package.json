@@ -30,6 +30,7 @@
     "prettier": "^2.5.1",
     "rollup": "^2.61.1",
     "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-smart-asset": "^2.1.2",
     "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
     "typescript": "^4.5.4"
@@ -53,8 +54,5 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "*.{js,jsx,ts,tsx,css,md,json,yml,yaml}": "prettier --write"
-  },
-  "dependencies": {
-    "rollup-plugin-smart-asset": "^2.1.2"
   }
 }
