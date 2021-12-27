@@ -44,7 +44,7 @@ export class ChessboardView {
     // Initialize fields
     this.squareElements = new Array(64)
     this.pieceElements = {}
-    this._orientation = state.orientation
+    this._orientation = state.orientation || "white"
     this.pieces = { ...state.pieces }
     this.rankLabelElements = new Array(8)
     this.fileLabelElements = new Array(8)

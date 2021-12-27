@@ -8,6 +8,6 @@ export interface Piece {
 }
 
 export interface ChessboardState {
-  orientation: Side
+  orientation?: Side
   pieces?: Partial<Record<Square, Piece>>
 }

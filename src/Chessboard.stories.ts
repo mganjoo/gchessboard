@@ -9,7 +9,6 @@ export default {
   argTypes: {
     orientation: {
       options: SIDE_COLORS,
-      defaultValue: "white",
       control: { type: "radio" },
     },
   },
@@ -40,3 +39,6 @@ const Template: Story<ChessboardProps> = ({ orientation }) => {
 }
 
 export const Default = Template.bind({})
+Default.args = {
+  orientation: "white",
+}
