@@ -4,6 +4,19 @@
  * https://www.chessprogramming.org/0x88
  */
 
+export const SQUARE_COLORS = ["light", "dark"] as const
+export type SquareColor = typeof SQUARE_COLORS[number]
+
+export const SIDE_COLORS = ["white", "black"] as const
+export type Side = typeof SIDE_COLORS[number]
+
+export type PieceType = "queen" | "king" | "knight" | "bishop" | "pawn"
+
+export interface Piece {
+  pieceType: PieceType
+  color: Side
+}
+
 // prettier-ignore
 const SQUARES_MAP = {
   a8: 112, b8: 113, c8: 114, d8: 115, e8: 116, f8: 117, g8: 118, h8: 119,
@@ -15,12 +28,7 @@ const SQUARES_MAP = {
   a2:  16, b2:  17, c2:  18, d2:  19, e2:  20, f2:  21, g2:  22, h2:  23,
   a1:   0, b1:   1, c1:   2, d1:   3, e1:   4, f1:   5, g1:   6, h1:   7,
 }
-export const SQUARE_COLORS = ["light", "dark"] as const
-export const SIDE_COLORS = ["white", "black"] as const
-
 export type Square = keyof typeof SQUARES_MAP
-export type SquareColor = typeof SQUARE_COLORS[number]
-export type Side = typeof SIDE_COLORS[number]
 
 const REVERSE_SQUARES_MAP = (Object.keys(SQUARES_MAP) as Square[]).reduce(
   (acc, key) => {
@@ -66,6 +74,14 @@ export function getRankFile(square: Square) {
 }
 
 /**
+ * Get "visual" row and column for square corresponding to sequential index
+ * `idx`.
+ */
+export function getVisualRowColumnFromIdx(idx: number) {
+  return [7 - (idx >> 3), idx & 0x7]
+}
+
+/**
  * Get the "visual" row and column for `square` depending on `orientation`.
  * If `orientation` is "white", then a1 is on the bottom left, otherwise h8 is
  * on the bottom left.
@@ -76,7 +92,7 @@ export function getRankFile(square: Square) {
 export function getVisualRowColumn(square: Square, orientation: Side) {
   const idx = getSequentialIdx(square)
   const orientedIdx = orientation === "white" ? idx : 63 - idx
-  return [7 - (orientedIdx >> 3), orientedIdx & 0x7]
+  return getVisualRowColumnFromIdx(orientedIdx)
 }
 
 /**

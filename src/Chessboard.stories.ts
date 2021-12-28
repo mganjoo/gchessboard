@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/html"
 import { Chessboard } from "./Chessboard"
-import { Side, SIDE_COLORS } from "./ChessLogic"
+import { Side, SIDE_COLORS } from "./common-types"
 interface ChessboardProps {
   orientation: Side
 }

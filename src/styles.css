@@ -17,13 +17,18 @@
 
 .labels text {
   font-family: sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
+  pointer-events: none;
 }
 
 .labels text.light {
-  stroke: var(--dark-square-green);
+  fill: var(--dark-square-green);
 }
 
 .labels text.dark {
-  stroke: var(--light-square-green);
+  fill: var(--light-square-green);
+}
+
+.pieces use {
+  pointer-events: none;
 }
