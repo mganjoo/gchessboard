@@ -15,6 +15,7 @@ const SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
     knight: "wn",
     pawn: "wp",
     bishop: "wb",
+    rook: "wr",
   },
   black: {
     queen: "bq",
@@ -22,6 +23,7 @@ const SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
     knight: "bn",
     pawn: "bp",
     bishop: "bb",
+    rook: "br",
   },
 }
 

@@ -41,7 +41,7 @@ export class Squares {
   private mouseUpHandler: (e: MouseEvent) => void
 
   constructor(
-    container: Element,
+    container: SVGSVGElement,
     orientation: Side,
     pieces?: Partial<Record<Square, Piece>>
   ) {
@@ -50,9 +50,7 @@ export class Squares {
     this.orientation = orientation
 
     // Build board and squares
-    this.group = makeSvgElement("g", {
-      classes: ["squares"],
-    })
+    this.group = makeSvgElement("g")
     for (let i = 0; i < 64; i++) {
       const [rank, file] = getVisualRowColumnFromIdx(i)
       const square = makeSvgElement("rect", {
@@ -101,7 +99,6 @@ export class Squares {
       this.squareElements[i].classList.remove(getOppositeColor(color))
       this.squareElements[i].classList.add(color)
       this.squareElements[i].dataset.square = square
-      // TODO: test that this is removed
       this.squareElements[i].classList.toggle(
         HAS_PIECE_CLASS,
         this.pieces.hasPieceOn(square)

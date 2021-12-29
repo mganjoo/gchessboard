@@ -98,7 +98,7 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["src"],
+  "include": ["src", "./jest-setup.ts"],
   /* Workaround for generation of nested dist/dist types:
    * https://github.com/rollup/plugins/tree/master/packages/typescript#declaration-output-with-outputfile
    */

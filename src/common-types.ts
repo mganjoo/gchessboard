@@ -10,7 +10,7 @@ export type SquareColor = typeof SQUARE_COLORS[number]
 export const SIDE_COLORS = ["white", "black"] as const
 export type Side = typeof SIDE_COLORS[number]
 
-export type PieceType = "queen" | "king" | "knight" | "bishop" | "pawn"
+export type PieceType = "queen" | "king" | "knight" | "bishop" | "rook" | "pawn"
 
 export interface Piece {
   pieceType: PieceType
