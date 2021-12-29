@@ -35,11 +35,8 @@ export class Chessboard {
       classes: ["chessboard"],
     })
 
-    this.squares = new Squares(this.svg, config.pieces)
-    this.labels = new Labels(this.svg)
-
-    // Manual trigger of initial re-paint and redraw
-    this.repaintBoard()
+    this.squares = new Squares(this.svg, this._orientation, config.pieces)
+    this.labels = new Labels(this.svg, this._orientation)
 
     container.appendChild(this.svg)
   }
@@ -50,7 +47,8 @@ export class Chessboard {
 
   set orientation(o: Side) {
     this._orientation = o
-    this.repaintBoard()
+    this.labels.updateOrientationAndRedraw(this._orientation)
+    this.squares.updateOrientationAndRedraw(this._orientation)
   }
 
   /**
@@ -60,10 +58,5 @@ export class Chessboard {
     this.squares.cleanup()
     this.labels.cleanup()
     removeSvgElement(this.svg)
-  }
-
-  private repaintBoard() {
-    this.squares.draw(this.orientation)
-    this.labels.draw(this.orientation)
   }
 }

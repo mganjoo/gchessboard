@@ -7,28 +7,36 @@
   aspect-ratio: 1 / 1;
 }
 
-.board rect.dark {
-  fill: var(--dark-square-green);
-}
-
-.board rect.light {
-  fill: var(--light-square-green);
-}
-
-.labels text {
+.labels {
   font-family: sans-serif;
   font-size: 0.75rem;
   pointer-events: none;
 }
 
-.labels text.light {
+/* Label colors for inline labels should be inverse of square color */
+.squares .dark,
+.labels .light {
   fill: var(--dark-square-green);
 }
 
-.labels text.dark {
+.squares .light,
+.labels .dark {
   fill: var(--light-square-green);
 }
 
 .pieces use {
   pointer-events: none;
+}
+
+rect.has-piece {
+  cursor: grab;
+}
+
+.touching-first-square rect {
+  cursor: grab;
+}
+
+.awaiting-second-touch rect,
+.awaiting-second-touch rect.has-piece {
+  cursor: pointer;
 }

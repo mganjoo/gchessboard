@@ -20,7 +20,9 @@ export function makeSvgElement<K extends keyof SVGElementTagNameMap>(
     for (const key in options.data) {
       e.dataset[key] = options.data[key]
     }
-    e.classList.add(...(options.classes || []))
+    if (options.classes) {
+      e.classList.add(...options.classes)
+    }
   }
   return e
 }

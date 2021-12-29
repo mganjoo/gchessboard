@@ -40,26 +40,22 @@ const REVERSE_SQUARES_MAP = (Object.keys(SQUARES_MAP) as Square[]).reduce(
 
 /**
  * Get sequential index (0-63) for `square`. a1 corresponds to index 0 and
- * h8 corresponds to 63.
+ * h8 corresponds to 63 (if a1 is at the bottom).
  *
  * https://www.chessprogramming.org/0x88#Coordinate_Transformation
- *
- * @param square square to return sequential index for
- * @returns the sequential index for the square.
  */
-export function getSequentialIdx(square: Square) {
-  const idx = SQUARES_MAP[square]
-  return (idx + (idx & 0x7)) >> 1
+export function getSequentialIdx(square: Square, orientation: Side) {
+  const idx0x88 = SQUARES_MAP[square]
+  const unorientedIdx = (idx0x88 + (idx0x88 & 0x7)) >> 1
+  return orientation === "white" ? unorientedIdx : 63 - unorientedIdx
 }
 
 /**
  * Return square identifier for sequential index `idx`.
- *
- * @param squareIdx sequential index to return square for
- * @returns the square corresponding to the sequential index.
  */
-export function getSquare(idx: number) {
-  return REVERSE_SQUARES_MAP[idx + (idx & ~7)]
+export function getSquare(idx: number, orientation: Side) {
+  const i = orientation === "white" ? idx : 63 - idx
+  return REVERSE_SQUARES_MAP[i + (i & ~7)]
 }
 
 /**
@@ -90,9 +86,8 @@ export function getVisualRowColumnFromIdx(idx: number) {
  * @returns a tuple for [row, column].
  */
 export function getVisualRowColumn(square: Square, orientation: Side) {
-  const idx = getSequentialIdx(square)
-  const orientedIdx = orientation === "white" ? idx : 63 - idx
-  return getVisualRowColumnFromIdx(orientedIdx)
+  const idx = getSequentialIdx(square, orientation)
+  return getVisualRowColumnFromIdx(idx)
 }
 
 /**
@@ -104,7 +99,9 @@ export function getVisualRowColumn(square: Square, orientation: Side) {
  * @returns color of the square.
  */
 export function getSquareColor(square: Square): SquareColor {
-  return ((getSequentialIdx(square) * 9) & 8) === 0 ? "dark" : "light"
+  // Can simply default to "white" orientation since the color
+  // for a square is same no matter what orientation
+  return ((getSequentialIdx(square, "white") * 9) & 8) === 0 ? "dark" : "light"
 }
 
 /**
@@ -114,9 +111,6 @@ export function getOppositeColor(color: SquareColor): SquareColor {
   return SQUARE_COLORS[1 - SQUARE_COLORS.indexOf(color)]
 }
 
-/**
- * Type guard to check that key is a square.
- */
-export function keyIsSquare(key: string): key is Square {
-  return key in SQUARES_MAP
+export function keyIsSquare(key: string | undefined): key is Square {
+  return key !== undefined && key in SQUARES_MAP
 }
