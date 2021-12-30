@@ -1,6 +1,8 @@
 :root {
   --dark-square-green: #4c946a;
+  --dark-square-highlight-green: #28cc6d;
   --light-square-green: #e0ddcc;
+  --light-square-highlight-green: #b2bc57;
 }
 
 .chessboard {
@@ -28,15 +30,30 @@
   pointer-events: none;
 }
 
-rect.has-piece {
-  cursor: grab;
+.square {
+  position: relative;
 }
 
-.touching-first-square rect {
-  cursor: grab;
-}
-
-.awaiting-second-touch rect,
-.awaiting-second-touch rect.has-piece {
+.awaiting-input .has-piece {
   cursor: pointer;
+}
+
+.touching-first-square .square {
+  cursor: grab;
+}
+
+.awaiting-second-touch .square {
+  cursor: pointer;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.dark:focus {
+  fill: var(--dark-square-highlight-green);
+}
+
+.light:focus {
+  fill: var(--light-square-highlight-green);
 }

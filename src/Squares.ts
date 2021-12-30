@@ -49,9 +49,9 @@ export class Squares {
     this.orientation = orientation
 
     // Build board and squares
-    this.group = makeSvgElement("g")
+    this.group = makeSvgElement("g", { attributes: { role: "grid" } })
     for (let i = 0; i < 8; i++) {
-      const rowGroup = makeSvgElement("g")
+      const rowGroup = makeSvgElement("g", { attributes: { role: "row" } })
       this.squareElements[i] = new Array(8)
       for (let j = 0; j < 8; j++) {
         const square = makeSvgElement("rect", {
@@ -61,6 +61,7 @@ export class Squares {
             width: "12.5%",
             height: "12.5%",
           },
+          classes: ["square"],
         })
         this.squareElements[i][j] = square
         rowGroup.appendChild(square)
@@ -183,7 +184,7 @@ export class Squares {
     const [row, column] = getVisualRowColumn(square, this.orientation)
     this.squareElements[row][column].classList.toggle(HAS_PIECE_CLASS, hasPiece)
     if (hasPiece) {
-      this.squareElements[row][column].setAttribute("role", "button")
+      this.squareElements[row][column].setAttribute("role", "gridcell")
       this.squareElements[row][column].setAttribute("aria-label", square)
       this.squareElements[row][column].tabIndex = 0
     } else {
