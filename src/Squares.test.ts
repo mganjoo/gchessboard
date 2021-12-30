@@ -1,92 +1,63 @@
 import * as fc from "fast-check"
 import {
-  getSequentialIdx,
+  getOppositeSide,
   getSquare,
   getSquareColor,
+  getVisualRowColumn,
   Piece,
   Side,
-  SIDE_COLORS,
   Square,
 } from "./common-types"
+import { waitFor, within } from "@testing-library/dom"
+import userEvent from "@testing-library/user-event"
 import { Squares } from "./Squares"
 
 function buildSquares(
   orientation: Side,
   pieces?: Partial<Record<Square, Piece>>
-): [Squares, SVGSVGElement] {
-  const wrapper = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-  return [new Squares(wrapper, orientation, pieces), wrapper]
+): [HTMLElement, Squares] {
+  const wrapper = document.createElement("svg")
+  return [wrapper, new Squares(wrapper, orientation, pieces)]
 }
 
-describe("Squares", () => {
-  it("should add correct classes and attributes to each square", () => {
+describe.each<{ side: Side; flip: boolean }>([
+  { side: "white", flip: false },
+  { side: "white", flip: true },
+  { side: "black", flip: false },
+  { side: "black", flip: true },
+])(
+  "Squares with orientation = $side, flip orientation after creation = $flip",
+  ({ side, flip }) => {
     const pieces = {
       b3: { color: "white", pieceType: "queen" },
       e6: { color: "black", pieceType: "knight" },
       g1: { color: "white", pieceType: "king" },
     } as const
-    SIDE_COLORS.forEach((color) => {
-      const [, wrapper] = buildSquares(color, pieces)
-      const idxsWithPieces = (
-        Object.keys(pieces) as (keyof typeof pieces)[]
-      ).map((s) => getSequentialIdx(s, color))
-      fc.assert(
-        fc.property(fc.nat({ max: 63 }), (idx) => {
-          const squareElement = wrapper.getElementsByTagName("rect")[idx]
-          expect(squareElement).toHaveAttribute(
-            "data-square",
-            getSquare(idx, color)
-          )
-          expect(squareElement).toHaveClass(
-            getSquareColor(getSquare(idx, color))
-          )
-        })
-      )
-      fc.assert(
-        fc.property(
-          fc.nat({ max: 63 }).filter((i) => !idxsWithPieces.includes(i)),
-          (idx) => {
-            expect(wrapper.getElementsByTagName("rect")[idx]).not.toHaveClass(
-              "has-piece"
-            )
-          }
-        )
-      )
-      idxsWithPieces.forEach((i) => {
-        expect(wrapper.getElementsByTagName("rect")[i]).toHaveClass("has-piece")
-      })
-    })
-  })
+    const [wrapper, squares] = buildSquares(side, pieces)
+    if (flip) {
+      squares.updateOrientationAndRedraw(getOppositeSide(side))
+    }
+    const finalSide = flip ? getOppositeSide(side) : side
+    const idxsWithPieces = (Object.keys(pieces) as (keyof typeof pieces)[])
+      .map((s) => getVisualRowColumn(s, finalSide))
+      .flatMap(([row, col]) => row * 8 + col)
 
-  it("should update classes and attributes when orientation changes", () => {
-    const pieces = {
-      c3: { color: "black", pieceType: "rook" },
-      f6: { color: "white", pieceType: "bishop" },
-      d1: { color: "black", pieceType: "pawn" },
-    } as const
-    ;[0, 1].forEach((i) => {
-      const color = SIDE_COLORS[i]
-      const flippedColor = SIDE_COLORS[1 - i]
-      const [squares, wrapper] = buildSquares(color, pieces)
-      squares.updateOrientationAndRedraw(flippedColor)
-      const idxsWithPieces = (
-        Object.keys(pieces) as (keyof typeof pieces)[]
-      ).map((s) => getSequentialIdx(s, flippedColor))
+    it("should add correct classes and attributes to squares", () => {
       fc.assert(
-        fc.property(fc.nat({ max: 63 }), (idx) => {
-          const squareElement = wrapper.getElementsByTagName("rect")[idx]
-          expect(squareElement).toHaveAttribute(
-            "data-square",
-            getSquare(idx, flippedColor)
-          )
-          expect(squareElement).toHaveClass(
-            getSquareColor(getSquare(idx, flippedColor))
-          )
+        fc.property(fc.nat({ max: 7 }), fc.nat({ max: 7 }), (row, col) => {
+          const squareElement =
+            wrapper.getElementsByTagName("rect")[row * 8 + col]
+          const expectedSquare = getSquare(row, col, finalSide)
+          expect(squareElement).toHaveAttribute("data-square", expectedSquare)
+          expect(squareElement).toHaveClass(getSquareColor(expectedSquare))
         })
       )
+    })
+
+    it("should not have the .has-piece class on squares without pieces", () => {
       fc.assert(
         fc.property(
-          fc.nat({ max: 63 }).filter((i) => !idxsWithPieces.includes(i)),
+          fc.nat({ max: 63 }).filter((idx) => !idxsWithPieces.includes(idx)),
           (idx) => {
             expect(wrapper.getElementsByTagName("rect")[idx]).not.toHaveClass(
               "has-piece"
@@ -94,9 +65,25 @@ describe("Squares", () => {
           }
         )
       )
+    })
+
+    it("should have the .has-piece class on squares with pieces", () => {
       idxsWithPieces.forEach((i) => {
         expect(wrapper.getElementsByTagName("rect")[i]).toHaveClass("has-piece")
       })
     })
+  }
+)
+
+describe("Squares", () => {
+  it.skip("should correctly handle two-click moves", async () => {
+    const [wrapper] = buildSquares("white", {
+      c3: { color: "black", pieceType: "rook" },
+    })
+    userEvent.click(within(wrapper).getByRole("button", { name: /c3/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveClass("awaiting-second-touch")
+    )
+    userEvent.click(within(wrapper).getByLabelText(/e7/i))
   })
 })

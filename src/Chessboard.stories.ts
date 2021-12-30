@@ -1,14 +1,16 @@
 import { Meta, Story } from "@storybook/html"
 import { Chessboard } from "./Chessboard"
-import { Side, SIDE_COLORS } from "./common-types"
+import { Side } from "./common-types"
 interface ChessboardProps {
   orientation: Side
 }
 
+const SIDE_OPTIONS: Side[] = ["white", "black"]
+
 export default {
   argTypes: {
     orientation: {
-      options: SIDE_COLORS,
+      options: SIDE_OPTIONS,
       control: { type: "radio" },
     },
   },

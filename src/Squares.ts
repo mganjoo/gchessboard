@@ -1,9 +1,8 @@
 import {
-  getOppositeColor,
-  getSequentialIdx,
+  getOppositeSquareColor,
   getSquare,
   getSquareColor,
-  getVisualRowColumnFromIdx,
+  getVisualRowColumn,
   keyIsSquare,
   Piece,
   Side,
@@ -31,7 +30,7 @@ type MoveState = AwaitingInput | ClickingFirstSquare | AwaitingSecondClick
 const HAS_PIECE_CLASS = "has-piece"
 export class Squares {
   private group: SVGGElement
-  private squareElements: SVGRectElement[]
+  private squareElements: SVGRectElement[][]
   private pieces: Pieces
   private moveState: MoveState
   private orientation: Side
@@ -41,28 +40,32 @@ export class Squares {
   private mouseUpHandler: (e: MouseEvent) => void
 
   constructor(
-    container: SVGSVGElement,
+    container: Element,
     orientation: Side,
     pieces?: Partial<Record<Square, Piece>>
   ) {
-    this.squareElements = new Array(64)
+    this.squareElements = new Array(8)
     this.moveState = { id: "awaiting-input" }
     this.orientation = orientation
 
     // Build board and squares
     this.group = makeSvgElement("g")
-    for (let i = 0; i < 64; i++) {
-      const [rank, file] = getVisualRowColumnFromIdx(i)
-      const square = makeSvgElement("rect", {
-        attributes: {
-          x: `${file * 12.5}%`,
-          y: `${rank * 12.5}%`,
-          width: "12.5%",
-          height: "12.5%",
-        },
-      })
-      this.squareElements[i] = square
-      this.group.appendChild(square)
+    for (let i = 0; i < 8; i++) {
+      const rowGroup = makeSvgElement("g")
+      this.squareElements[i] = new Array(8)
+      for (let j = 0; j < 8; j++) {
+        const square = makeSvgElement("rect", {
+          attributes: {
+            x: `${j * 12.5}%`,
+            y: `${i * 12.5}%`,
+            width: "12.5%",
+            height: "12.5%",
+          },
+        })
+        this.squareElements[i][j] = square
+        rowGroup.appendChild(square)
+      }
+      this.group.appendChild(rowGroup)
     }
     container.appendChild(this.group)
 
@@ -93,27 +96,24 @@ export class Squares {
   }
 
   private draw() {
-    for (let i = 0; i < 64; i++) {
-      const square = getSquare(i, this.orientation)
-      const color = getSquareColor(square)
-      this.squareElements[i].classList.remove(getOppositeColor(color))
-      this.squareElements[i].classList.add(color)
-      this.squareElements[i].dataset.square = square
-      this.squareElements[i].classList.toggle(
-        HAS_PIECE_CLASS,
-        this.pieces.hasPieceOn(square)
-      )
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        const square = getSquare(i, j, this.orientation)
+        const color = getSquareColor(square)
+        this.squareElements[i][j].classList.remove(
+          getOppositeSquareColor(color)
+        )
+        this.squareElements[i][j].classList.add(color)
+        this.squareElements[i][j].dataset.square = square
+        this.updatePieceContained(square)
+      }
     }
   }
 
   private movePiece(from: Square, to: Square) {
     if (this.pieces.movePiece(from, to)) {
-      this.squareElements[
-        getSequentialIdx(from, this.orientation)
-      ].classList.remove(HAS_PIECE_CLASS)
-      this.squareElements[getSequentialIdx(to, this.orientation)].classList.add(
-        HAS_PIECE_CLASS
-      )
+      this.updatePieceContained(from)
+      this.updatePieceContained(to)
     }
   }
 
@@ -172,6 +172,25 @@ export class Squares {
    */
   private updateClasses() {
     this.group.classList.value = `squares ${this.moveState.id}`
+  }
+
+  /**
+   * Update UI elements associated with a given square, depending
+   * on whether it contains a piece.
+   */
+  private updatePieceContained(square: Square) {
+    const hasPiece = this.pieces.hasPieceOn(square)
+    const [row, column] = getVisualRowColumn(square, this.orientation)
+    this.squareElements[row][column].classList.toggle(HAS_PIECE_CLASS, hasPiece)
+    if (hasPiece) {
+      this.squareElements[row][column].setAttribute("role", "button")
+      this.squareElements[row][column].setAttribute("aria-label", square)
+      this.squareElements[row][column].tabIndex = 0
+    } else {
+      this.squareElements[row][column].removeAttribute("role")
+      this.squareElements[row][column].removeAttribute("aria-label")
+      this.squareElements[row][column].removeAttribute("tabindex")
+    }
   }
 
   // TODO: mousemove

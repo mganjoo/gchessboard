@@ -4,12 +4,11 @@
  * https://www.chessprogramming.org/0x88
  */
 
-export const SQUARE_COLORS = ["light", "dark"] as const
+const SQUARE_COLORS = ["light", "dark"] as const
+const SIDE_COLORS = ["white", "black"] as const
+
 export type SquareColor = typeof SQUARE_COLORS[number]
-
-export const SIDE_COLORS = ["white", "black"] as const
 export type Side = typeof SIDE_COLORS[number]
-
 export type PieceType = "queen" | "king" | "knight" | "bishop" | "rook" | "pawn"
 
 export interface Piece {
@@ -39,78 +38,62 @@ const REVERSE_SQUARES_MAP = (Object.keys(SQUARES_MAP) as Square[]).reduce(
 )
 
 /**
- * Get sequential index (0-63) for `square`. a1 corresponds to index 0 and
- * h8 corresponds to 63 (if a1 is at the bottom).
+ * Return square identifier for visual `row` and `column` in a grid,
+ * depending on orientation.
  *
  * https://www.chessprogramming.org/0x88#Coordinate_Transformation
  */
-export function getSequentialIdx(square: Square, orientation: Side) {
-  const idx0x88 = SQUARES_MAP[square]
-  const unorientedIdx = (idx0x88 + (idx0x88 & 0x7)) >> 1
-  return orientation === "white" ? unorientedIdx : 63 - unorientedIdx
-}
-
-/**
- * Return square identifier for sequential index `idx`.
- */
-export function getSquare(idx: number, orientation: Side) {
-  const i = orientation === "white" ? idx : 63 - idx
-  return REVERSE_SQUARES_MAP[i + (i & ~7)]
-}
-
-/**
- * Get rank (row) and file (col) index corresponding to `square`.
- *
- * @param square square to return rank and file for.
- * @returns the [rank, file] coordinates for the square.
- */
-export function getRankFile(square: Square) {
-  const idx = SQUARES_MAP[square]
-  return [idx >> 4, idx & 0x7]
-}
-
-/**
- * Get "visual" row and column for square corresponding to sequential index
- * `idx`.
- */
-export function getVisualRowColumnFromIdx(idx: number) {
-  return [7 - (idx >> 3), idx & 0x7]
+export function getSquare(row: number, column: number, orientation: Side) {
+  const idx = 16 * (7 - row) + column
+  return REVERSE_SQUARES_MAP[orientation === "white" ? idx : 0x77 - idx]
 }
 
 /**
  * Get the "visual" row and column for `square` depending on `orientation`.
- * If `orientation` is "white", then a1 is on the bottom left, otherwise h8 is
- * on the bottom left.
+ * If `orientation` is "white", then a1 is on the bottom left (7, 0) and h8
+ * is on the top right (0, 7):
+ *
+ * .  ...... h8
+ * .  ...... .
+ * a1 ...... .
+ *
+ * otherwise h8 is on the bottom left:
+ * .  ...... a1
+ * .  ...... .
+ * h8 ...... .
+ *
+ * https://www.chessprogramming.org/0x88#Coordinate_Transformation
+ *
  * @param square square to convert to visual row and column.
  * @param orientation  what side is at the bottom ("white" = a1 on bottom left)
  * @returns a tuple for [row, column].
  */
 export function getVisualRowColumn(square: Square, orientation: Side) {
-  const idx = getSequentialIdx(square, orientation)
-  return getVisualRowColumnFromIdx(idx)
+  const idx = SQUARES_MAP[square]
+  const orientedIdx = orientation === "white" ? idx : 0x77 - idx
+  return [7 - (orientedIdx >> 4), orientedIdx & 0x7]
 }
 
 /**
- * Returns the color of `square`.
- *
  * https://www.chessprogramming.org/Color_of_a_Square#By_Anti-Diagonal_Index
- *
- * @param square
- * @returns color of the square.
  */
 export function getSquareColor(square: Square): SquareColor {
-  // Can simply default to "white" orientation since the color
-  // for a square is same no matter what orientation
-  return ((getSequentialIdx(square, "white") * 9) & 8) === 0 ? "dark" : "light"
+  const idx0x88 = SQUARES_MAP[square]
+  const idx = (idx0x88 + (idx0x88 & 0x7)) >> 1
+  return ((idx * 9) & 8) === 0 ? "dark" : "light"
 }
 
-/**
- * Get color that is opposite to `color`.
- */
-export function getOppositeColor(color: SquareColor): SquareColor {
+export function getOppositeSquareColor(color: SquareColor): SquareColor {
   return SQUARE_COLORS[1 - SQUARE_COLORS.indexOf(color)]
 }
 
+export function getOppositeSide(color: Side) {
+  return SIDE_COLORS[1 - SIDE_COLORS.indexOf(color)]
+}
+
+/**
+ * Type guard to check if `key` (string) is a valid chess square.
+ */
 export function keyIsSquare(key: string | undefined): key is Square {
   return key !== undefined && key in SQUARES_MAP
 }
