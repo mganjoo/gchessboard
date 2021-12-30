@@ -1,8 +1,6 @@
 import "./styles.css"
-import { Labels } from "./Labels"
-import { makeSvgElement, removeSvgElement } from "./svg-utils"
 import { Squares } from "./Squares"
-import { Piece, Side, Square } from "./common-types"
+import { Piece, Side, Square } from "./utils-chess"
 
 export interface ChessboardConfig {
   orientation?: Side
@@ -10,10 +8,7 @@ export interface ChessboardConfig {
 }
 
 export class Chessboard {
-  private svg: SVGSVGElement
   private squares: Squares
-  private labels: Labels
-  private _orientation: Side
 
   /**
    * Creates a Chessboard UI element and appends it to `container`.
@@ -23,32 +18,11 @@ export class Chessboard {
    * @param config Configuration for chessboard (see type definition for details)
    */
   constructor(container: HTMLElement, config: ChessboardConfig) {
-    this._orientation = config.orientation || "white"
-
-    // Build SVG container for chessboard
-    this.svg = makeSvgElement("svg", {
-      attributes: {
-        viewbox: "0 0 100 100",
-        width: "100%",
-        height: "100%",
-      },
-      classes: ["chessboard"],
-    })
-
-    this.squares = new Squares(this.svg, this._orientation, config.pieces)
-    this.labels = new Labels(this.svg, this._orientation)
-
-    container.appendChild(this.svg)
-  }
-
-  get orientation() {
-    return this._orientation
-  }
-
-  set orientation(o: Side) {
-    this._orientation = o
-    this.labels.updateOrientationAndRedraw(this._orientation)
-    this.squares.updateOrientationAndRedraw(this._orientation)
+    this.squares = new Squares(
+      container,
+      config.orientation || "white",
+      config.pieces
+    )
   }
 
   /**
@@ -56,7 +30,5 @@ export class Chessboard {
    */
   cleanup() {
     this.squares.cleanup()
-    this.labels.cleanup()
-    removeSvgElement(this.svg)
   }
 }

@@ -5,45 +5,60 @@
   --light-square-highlight-green: #b2bc57;
 }
 
-.chessboard {
-  aspect-ratio: 1 / 1;
+.squares {
+  position: relative;
+  display: table;
+  width: 100%;
 }
 
-.labels {
-  font-family: sans-serif;
-  font-size: 0.75rem;
-  pointer-events: none;
-}
-
-/* Label colors for inline labels should be inverse of square color */
-.squares .dark,
-.labels .light {
-  fill: var(--dark-square-green);
-}
-
-.squares .light,
-.labels .dark {
-  fill: var(--light-square-green);
-}
-
-.pieces use {
-  pointer-events: none;
+.squares-row {
+  display: table-row;
 }
 
 .square {
+  display: table-cell;
   position: relative;
+  width: 12.5%;
+  /* Aspect ratio trick for 1:1 square */
+  padding-top: 12.5%;
+  font-family: sans-serif;
+  font-size: 0.8rem;
 }
 
-.awaiting-input .has-piece {
-  cursor: pointer;
+.square[data-rank-label]::before {
+  content: attr(data-rank-label);
+  position: absolute;
+  top: 5%;
+  left: 5%;
 }
 
-.touching-first-square .square {
-  cursor: grab;
+.square[data-file-label]::after {
+  content: attr(data-file-label);
+  position: absolute;
+  bottom: 5%;
+  right: 5%;
 }
 
-.awaiting-second-touch .square {
-  cursor: pointer;
+.pieces {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.dark {
+  background-color: var(--dark-square-green);
+  /* Label colors for inline labels should be inverse of square color */
+  color: var(--light-square-green);
+}
+
+.light {
+  background-color: var(--light-square-green);
+  color: var(--dark-square-green);
 }
 
 .square:focus {
@@ -56,4 +71,16 @@
 
 .light:focus {
   fill: var(--light-square-highlight-green);
+}
+
+.awaiting-input .has-piece {
+  cursor: pointer;
+}
+
+.touching-first-square .square {
+  cursor: grab;
+}
+
+.awaiting-second-touch .square {
+  cursor: pointer;
 }

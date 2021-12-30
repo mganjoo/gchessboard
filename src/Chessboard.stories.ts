@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/html"
 import { Chessboard } from "./Chessboard"
-import { Side } from "./common-types"
+import { Side } from "./utils-chess"
 interface ChessboardProps {
   orientation: Side
 }
@@ -14,22 +14,12 @@ export default {
       control: { type: "radio" },
     },
   },
-  decorators: [
-    (story) => {
-      const wrapperDiv = document.createElement("div")
-      wrapperDiv.style.maxWidth = "28rem"
-      const wrappedStory = story()
-      if (typeof wrappedStory !== "string") {
-        wrapperDiv.appendChild(wrappedStory)
-      }
-      return wrapperDiv
-    },
-  ],
 } as Meta
 
 const Template: Story<ChessboardProps> = ({ orientation }) => {
-  const el = document.createElement("div")
-  new Chessboard(el, {
+  const wrapperDiv = document.createElement("div")
+  wrapperDiv.style.maxWidth = "28rem"
+  new Chessboard(wrapperDiv, {
     orientation: orientation,
     pieces: {
       e4: { color: "white", pieceType: "queen" },
@@ -37,7 +27,7 @@ const Template: Story<ChessboardProps> = ({ orientation }) => {
       b2: { color: "white", pieceType: "king" },
     },
   })
-  return el
+  return wrapperDiv
 }
 
 export const Default = Template.bind({})

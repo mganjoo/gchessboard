@@ -7,10 +7,10 @@ import {
   Piece,
   Side,
   Square,
-} from "./common-types"
+} from "./utils-chess"
 import { Pieces } from "./Pieces"
-import { makeSvgElement, removeSvgElement } from "./svg-utils"
-import { assertUnreachable } from "./typing-utils"
+import { makeHTMLElement, removeElement } from "./utils-dom"
+import { assertUnreachable } from "./utils-typing"
 
 interface AwaitingInput {
   id: "awaiting-input"
@@ -29,8 +29,8 @@ type MoveState = AwaitingInput | ClickingFirstSquare | AwaitingSecondClick
 
 const HAS_PIECE_CLASS = "has-piece"
 export class Squares {
-  private group: SVGGElement
-  private squareElements: SVGRectElement[][]
+  private group: HTMLDivElement
+  private squareElements: HTMLDivElement[][]
   private pieces: Pieces
   private moveState: MoveState
   private orientation: Side
@@ -48,30 +48,25 @@ export class Squares {
     this.moveState = { id: "awaiting-input" }
     this.orientation = orientation
 
-    // Build board and squares
-    this.group = makeSvgElement("g", { attributes: { role: "grid" } })
+    this.group = makeHTMLElement("div", { attributes: { role: "grid" } })
     for (let i = 0; i < 8; i++) {
-      const rowGroup = makeSvgElement("g", { attributes: { role: "row" } })
       this.squareElements[i] = new Array(8)
+      const row = makeHTMLElement("div", {
+        attributes: { role: "row" },
+        classes: ["squares-row"],
+      })
       for (let j = 0; j < 8; j++) {
-        const square = makeSvgElement("rect", {
-          attributes: {
-            x: `${j * 12.5}%`,
-            y: `${i * 12.5}%`,
-            width: "12.5%",
-            height: "12.5%",
-          },
+        this.squareElements[i][j] = makeHTMLElement("div", {
           classes: ["square"],
         })
-        this.squareElements[i][j] = square
-        rowGroup.appendChild(square)
+        row.appendChild(this.squareElements[i][j])
       }
-      this.group.appendChild(rowGroup)
+      this.group.appendChild(row)
     }
     container.appendChild(this.group)
 
     // Build pieces
-    this.pieces = new Pieces(container, orientation, pieces)
+    this.pieces = new Pieces(this.group, orientation, pieces)
 
     // Initial render
     this.updateClasses()
@@ -85,7 +80,7 @@ export class Squares {
   }
 
   cleanup() {
-    removeSvgElement(this.group)
+    removeElement(this.group)
     this.group.removeEventListener("mousedown", this.mouseDownHandler)
     this.group.removeEventListener("mouseup", this.mouseUpHandler)
   }
@@ -107,6 +102,20 @@ export class Squares {
         this.squareElements[i][j].classList.add(color)
         this.squareElements[i][j].dataset.square = square
         this.updatePieceContained(square)
+
+        // Rank labels
+        if (j === 0) {
+          this.squareElements[i][j].dataset.rankLabel = `${
+            this.orientation === "white" ? 8 - i : i + 1
+          }`
+        }
+
+        // File labels
+        if (i === 7) {
+          this.squareElements[i][j].dataset.fileLabel = String.fromCharCode(
+            "a".charCodeAt(0) + (this.orientation === "white" ? j : 7 - j)
+          )
+        }
       }
     }
   }

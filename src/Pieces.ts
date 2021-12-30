@@ -4,9 +4,9 @@ import {
   PieceType,
   Side,
   Square,
-} from "./common-types"
+} from "./utils-chess"
 import sprite from "./sprite.svg"
-import { makeSvgElement, removeSvgElement } from "./svg-utils"
+import { makeSvgElement, removeElement } from "./utils-dom"
 
 const SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
   white: {
@@ -33,7 +33,7 @@ interface PieceWrapper {
 }
 
 export class Pieces {
-  private group: SVGGElement
+  private group: SVGSVGElement
   pieces: Partial<Record<Square, PieceWrapper>>
   private orientation: Side
 
@@ -42,7 +42,14 @@ export class Pieces {
     orientation: Side,
     pieces?: Partial<Record<Square, Piece>>
   ) {
-    this.group = makeSvgElement("g", { classes: ["pieces"] })
+    this.group = makeSvgElement("svg", {
+      attributes: {
+        viewbox: "0 0 100 100",
+        width: "100%",
+        height: "100%",
+      },
+      classes: ["pieces"],
+    })
     this.orientation = orientation
     this.pieces = {}
     Object.entries(pieces || {}).forEach(([key, piece]) => {
@@ -58,7 +65,7 @@ export class Pieces {
   }
 
   cleanup() {
-    removeSvgElement(this.group)
+    removeElement(this.group)
   }
 
   updateOrientationAndRedraw(orientation: Side) {
@@ -81,7 +88,7 @@ export class Pieces {
 
         // TODO: animate removal
         if (existing) {
-          removeSvgElement(existing.element)
+          removeElement(existing.element)
         }
 
         this.pieces[endSquare] = piece

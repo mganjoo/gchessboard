@@ -7,7 +7,7 @@ import {
   Piece,
   Side,
   Square,
-} from "./common-types"
+} from "./utils-chess"
 import { waitFor, within } from "@testing-library/dom"
 import userEvent from "@testing-library/user-event"
 import { Squares } from "./Squares"
@@ -16,7 +16,7 @@ function buildSquares(
   orientation: Side,
   pieces?: Partial<Record<Square, Piece>>
 ): [HTMLElement, Squares] {
-  const wrapper = document.createElement("svg")
+  const wrapper = document.createElement("div")
   return [wrapper, new Squares(wrapper, orientation, pieces)]
 }
 
@@ -46,7 +46,7 @@ describe.each<{ side: Side; flip: boolean }>([
       fc.assert(
         fc.property(fc.nat({ max: 7 }), fc.nat({ max: 7 }), (row, col) => {
           const squareElement =
-            wrapper.getElementsByTagName("rect")[row * 8 + col]
+            wrapper.querySelectorAll(".square")[row * 8 + col]
           const expectedSquare = getSquare(row, col, finalSide)
           expect(squareElement).toHaveAttribute("data-square", expectedSquare)
           expect(squareElement).toHaveClass(getSquareColor(expectedSquare))
@@ -59,7 +59,7 @@ describe.each<{ side: Side; flip: boolean }>([
         fc.property(
           fc.nat({ max: 63 }).filter((idx) => !idxsWithPieces.includes(idx)),
           (idx) => {
-            expect(wrapper.getElementsByTagName("rect")[idx]).not.toHaveClass(
+            expect(wrapper.querySelectorAll(".square")[idx]).not.toHaveClass(
               "has-piece"
             )
           }
@@ -69,7 +69,7 @@ describe.each<{ side: Side; flip: boolean }>([
 
     it("should have the .has-piece class on squares with pieces", () => {
       idxsWithPieces.forEach((i) => {
-        expect(wrapper.getElementsByTagName("rect")[i]).toHaveClass("has-piece")
+        expect(wrapper.querySelectorAll(".square")[i]).toHaveClass("has-piece")
       })
     })
   }
