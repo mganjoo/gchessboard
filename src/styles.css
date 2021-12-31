@@ -5,38 +5,47 @@
   --light-square-highlight-green: #b2bc57;
 }
 
-.squares {
+.chessboard {
   position: relative;
   display: table;
   width: 100%;
 }
 
-.squares-row {
+/* Row containing squares. */
+.chessboard > div {
   display: table-row;
 }
 
-.square {
+/* A single square. */
+.chessboard > div > div {
   display: table-cell;
   position: relative;
   width: 12.5%;
   /* Aspect ratio trick for 1:1 square */
   padding-top: 12.5%;
-  font-family: sans-serif;
-  font-size: 0.8rem;
 }
 
-.square[data-rank-label]::before {
+.chessboard > div > div:focus {
+  outline: none;
+}
+
+[data-rank-label]::before {
   content: attr(data-rank-label);
   position: absolute;
   top: 5%;
   left: 5%;
 }
 
-.square[data-file-label]::after {
+[data-file-label]::after {
   content: attr(data-file-label);
   position: absolute;
   bottom: 5%;
   right: 5%;
+}
+
+[data-square] {
+  font-family: sans-serif;
+  font-size: 0.8rem;
 }
 
 .pieces {
@@ -59,10 +68,6 @@
 .light {
   background-color: var(--light-square-green);
   color: var(--dark-square-green);
-}
-
-.square:focus {
-  outline: none;
 }
 
 .dark:focus {
