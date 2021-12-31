@@ -46,10 +46,13 @@ describe.each<{ side: Side; flip: boolean }>([
       fc.assert(
         fc.property(fc.nat({ max: 7 }), fc.nat({ max: 7 }), (row, col) => {
           const squareElement =
-            wrapper.querySelectorAll(".square")[row * 8 + col]
+            wrapper.querySelectorAll("[data-square]")[row * 8 + col]
           const expectedSquare = getSquare(row, col, finalSide)
           expect(squareElement).toHaveAttribute("data-square", expectedSquare)
-          expect(squareElement).toHaveClass(getSquareColor(expectedSquare))
+          expect(squareElement).toHaveAttribute(
+            "data-square-color",
+            getSquareColor(expectedSquare)
+          )
         })
       )
     })
@@ -59,9 +62,9 @@ describe.each<{ side: Side; flip: boolean }>([
         fc.property(
           fc.nat({ max: 63 }).filter((idx) => !idxsWithPieces.includes(idx)),
           (idx) => {
-            expect(wrapper.querySelectorAll(".square")[idx]).not.toHaveClass(
-              "has-piece"
-            )
+            expect(
+              wrapper.querySelectorAll("[data-square]")[idx]
+            ).not.toHaveClass("has-piece")
           }
         )
       )
@@ -69,21 +72,31 @@ describe.each<{ side: Side; flip: boolean }>([
 
     it("should have the .has-piece class on chessboard with pieces", () => {
       idxsWithPieces.forEach((i) => {
-        expect(wrapper.querySelectorAll(".square")[i]).toHaveClass("has-piece")
+        expect(wrapper.querySelectorAll("[data-square]")[i]).toHaveClass(
+          "has-piece"
+        )
       })
     })
   }
 )
 
 describe("Chessboard", () => {
-  it.skip("should correctly handle two-click moves", async () => {
+  it("should correctly handle two-click moves", async () => {
     const [wrapper] = buildChessboard("white", {
       c3: { color: "black", pieceType: "rook" },
     })
-    userEvent.click(within(wrapper).getByRole("button", { name: /c3/i }))
+    userEvent.click(within(wrapper).getByRole("gridcell", { name: /c3/i }))
     await waitFor(() =>
-      expect(wrapper.firstElementChild).toHaveClass("awaiting-second-touch")
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "awaiting-second-touch"
+      )
     )
-    userEvent.click(within(wrapper).getByLabelText(/e7/i))
+    userEvent.click(within(wrapper).getByRole("gridcell", { name: /e7/i }))
+    await waitFor(() =>
+      expect(wrapper.querySelector('[data-square="e7"]')).toHaveClass(
+        "has-piece"
+      )
+    )
   })
 })

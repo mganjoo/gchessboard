@@ -1,5 +1,4 @@
 import {
-  getOppositeSquareColor,
   getSquare,
   getSquareColor,
   getVisualRowColumn,
@@ -57,7 +56,10 @@ export class Chessboard {
     this.moveState = { id: "awaiting-input" }
     this.orientation = config.orientation || "white"
 
-    this.group = makeHTMLElement("div", { attributes: { role: "grid" } })
+    this.group = makeHTMLElement("div", {
+      attributes: { role: "grid" },
+      classes: ["chessboard"],
+    })
     for (let i = 0; i < 8; i++) {
       this.squareElements[i] = new Array(8)
       const row = makeHTMLElement("div", {
@@ -65,7 +67,9 @@ export class Chessboard {
       })
       for (let j = 0; j < 8; j++) {
         this.squareElements[i][j] = makeHTMLElement("div", {
-          classes: ["square"],
+          attributes: {
+            role: "gridcell",
+          },
         })
         row.appendChild(this.squareElements[i][j])
       }
@@ -77,7 +81,6 @@ export class Chessboard {
     this.pieces = new Pieces(this.group, this.orientation, config.pieces)
 
     // Initial render
-    this.updateClasses()
     this.draw()
 
     // Add listeners
@@ -104,12 +107,12 @@ export class Chessboard {
       for (let j = 0; j < 8; j++) {
         const square = getSquare(i, j, this.orientation)
         const color = getSquareColor(square)
-        this.squareElements[i][j].classList.remove(
-          getOppositeSquareColor(color)
-        )
-        this.squareElements[i][j].classList.add(color)
         this.squareElements[i][j].dataset.square = square
-        this.updatePieceContained(square)
+        this.squareElements[i][j].dataset.squareColor = color
+        this.squareElements[i][j].classList.toggle(
+          HAS_PIECE_CLASS,
+          this.pieces.hasPieceOn(square)
+        )
 
         // Rank labels
         if (j === 0) {
@@ -126,12 +129,13 @@ export class Chessboard {
         }
       }
     }
+    this.updateMoveState()
   }
 
   private movePiece(from: Square, to: Square) {
     if (this.pieces.movePiece(from, to)) {
-      this.updatePieceContained(from)
-      this.updatePieceContained(to)
+      this.getSquareElement(from).classList.toggle(HAS_PIECE_CLASS, false)
+      this.getSquareElement(to).classList.toggle(HAS_PIECE_CLASS, true)
     }
   }
 
@@ -162,7 +166,7 @@ export class Chessboard {
           assertUnreachable(this.moveState)
       }
 
-      this.updateClasses()
+      this.updateMoveState()
     }
   }
 
@@ -181,35 +185,47 @@ export class Chessboard {
       }
     }
 
-    this.updateClasses()
+    this.updateMoveState()
   }
 
   /**
    * Update classes for squares group as well as any
    * highlighted/selected squares.
    */
-  private updateClasses() {
-    this.group.classList.value = `chessboard ${this.moveState.id}`
-  }
-
-  /**
-   * Update UI elements associated with a given square, depending
-   * on whether it contains a piece.
-   */
-  private updatePieceContained(square: Square) {
-    const hasPiece = this.pieces.hasPieceOn(square)
-    const [row, column] = getVisualRowColumn(square, this.orientation)
-    this.squareElements[row][column].classList.toggle(HAS_PIECE_CLASS, hasPiece)
-    if (hasPiece) {
-      this.squareElements[row][column].setAttribute("role", "gridcell")
-      this.squareElements[row][column].setAttribute("aria-label", square)
-      this.squareElements[row][column].tabIndex = 0
-    } else {
-      this.squareElements[row][column].removeAttribute("role")
-      this.squareElements[row][column].removeAttribute("aria-label")
-      this.squareElements[row][column].removeAttribute("tabindex")
+  private updateMoveState() {
+    this.group.dataset.moveState = this.moveState.id
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        const square = getSquare(i, j, this.orientation)
+        const hasPiece = this.pieces.hasPieceOn(square)
+        if (this.moveState.id === "awaiting-input") {
+          if (hasPiece) {
+            this.makeNavigable(this.squareElements[i][j], square)
+          } else {
+            this.makeUnnavigable(this.squareElements[i][j])
+          }
+        } else if (this.moveState.id === "awaiting-second-touch") {
+          // For now, just make all squares navigable
+          this.makeNavigable(this.squareElements[i][j], square)
+        }
+      }
     }
   }
 
-  // TODO: mousemove
+  private getSquareElement(square: Square) {
+    const [row, column] = getVisualRowColumn(square, this.orientation)
+    return this.squareElements[row][column]
+  }
+
+  private makeNavigable(element: HTMLDivElement, square: Square) {
+    element.setAttribute("role", "gridcell")
+    element.setAttribute("aria-label", square)
+    element.tabIndex = 0
+  }
+
+  private makeUnnavigable(element: HTMLDivElement) {
+    element.removeAttribute("role")
+    element.removeAttribute("aria-label")
+    element.removeAttribute("tabindex")
+  }
 }

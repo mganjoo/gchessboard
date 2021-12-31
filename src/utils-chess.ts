@@ -83,10 +83,6 @@ export function getSquareColor(square: Square): SquareColor {
   return ((idx * 9) & 8) === 0 ? "dark" : "light"
 }
 
-export function getOppositeSquareColor(color: SquareColor): SquareColor {
-  return SQUARE_COLORS[1 - SQUARE_COLORS.indexOf(color)]
-}
-
 export function getOppositeSide(color: Side) {
   return SIDE_COLORS[1 - SIDE_COLORS.indexOf(color)]
 }

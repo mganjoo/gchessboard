@@ -59,33 +59,33 @@
   pointer-events: none;
 }
 
-.dark {
+[data-square-color="dark"] {
   background-color: var(--dark-square-green);
   /* Label colors for inline labels should be inverse of square color */
   color: var(--light-square-green);
 }
 
-.light {
+[data-square-color="light"] {
   background-color: var(--light-square-green);
   color: var(--dark-square-green);
 }
 
-.dark:focus {
+[data-square-color="dark"]:focus {
   fill: var(--dark-square-highlight-green);
 }
 
-.light:focus {
+[data-square-color="light"]:focus {
   fill: var(--light-square-highlight-green);
 }
 
-.awaiting-input .has-piece {
+[data-move-state="awaiting-input"] .has-piece {
   cursor: pointer;
 }
 
-.touching-first-square .square {
+[data-move-state="touching-first-square"] [data-square] {
   cursor: grab;
 }
 
-.awaiting-second-touch .square {
+[data-move-state="awaiting-second-touch"] [data-square] {
   cursor: pointer;
 }
