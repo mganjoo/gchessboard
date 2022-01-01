@@ -9,35 +9,19 @@ import {
 } from "./utils/chess"
 import { Pieces } from "./Pieces"
 import { makeHTMLElement, removeElement } from "./utils/dom"
-import { assertUnreachable } from "./utils/typing"
 import "./styles.css"
+import { InteractionState } from "./InteractionState"
 
 export interface ChessboardConfig {
   orientation?: Side
   pieces?: Partial<Record<Square, Piece>>
 }
 
-interface AwaitingInput {
-  id: "awaiting-input"
-}
-interface ClickingFirstSquare {
-  id: "touching-first-square"
-  square: Square
-}
-
-interface AwaitingSecondClick {
-  id: "awaiting-second-touch"
-  startSquare: Square
-}
-
-type MoveState = AwaitingInput | ClickingFirstSquare | AwaitingSecondClick
-
-const HAS_PIECE_CLASS = "has-piece"
 export class Chessboard {
   private group: HTMLDivElement
   private squareElements: HTMLDivElement[][]
   private pieces: Pieces
-  private moveState: MoveState
+  private moveState: InteractionState
   private orientation: Side
 
   // Event handlers
@@ -67,11 +51,7 @@ export class Chessboard {
         attributes: { role: "row" },
       })
       for (let j = 0; j < 8; j++) {
-        this.squareElements[i][j] = makeHTMLElement("div", {
-          attributes: {
-            role: "gridcell",
-          },
-        })
+        this.squareElements[i][j] = document.createElement("div")
         row.appendChild(this.squareElements[i][j])
       }
       this.group.appendChild(row)
@@ -85,11 +65,11 @@ export class Chessboard {
     this.draw()
 
     // Add listeners
-    this.mouseDownHandler = this.handleMouseDown.bind(this)
-    this.group.addEventListener("mousedown", this.mouseDownHandler)
-    this.mouseUpHandler = this.handleMouseUp.bind(this)
-    this.group.addEventListener("mouseup", this.mouseUpHandler)
+    this.mouseDownHandler = this.makeMouseEventHandler(this.handleMouseDown)
+    this.mouseUpHandler = this.makeMouseEventHandler(this.handleMouseUp)
     this.keyDownHandler = this.handleKeyDown.bind(this)
+    this.group.addEventListener("mousedown", this.mouseDownHandler)
+    this.group.addEventListener("mouseup", this.mouseUpHandler)
     this.group.addEventListener("keydown", this.keyDownHandler)
   }
 
@@ -114,8 +94,8 @@ export class Chessboard {
         const color = getSquareColor(square)
         this.squareElements[i][j].dataset.square = square
         this.squareElements[i][j].dataset.squareColor = color
-        this.squareElements[i][j].classList.toggle(
-          HAS_PIECE_CLASS,
+        this.toggleElementHasPiece(
+          this.squareElements[i][j],
           this.pieces.hasPieceOn(square)
         )
 
@@ -137,65 +117,54 @@ export class Chessboard {
     this.updateMoveState()
   }
 
-  private handleMouseDown(e: MouseEvent) {
-    const target = e.target as HTMLElement
-    const clickedSquare = target.dataset.square
-
-    if (keyIsSquare(clickedSquare)) {
-      switch (this.moveState.id) {
-        case "awaiting-input":
-          if (this.pieces.hasPieceOn(clickedSquare)) {
-            this.moveState = {
-              id: "touching-first-square",
-              square: clickedSquare,
-            }
-          }
-          break
-        // istanbul ignore next
-        case "touching-first-square":
-          // We are in the middle of touching first square (which may turn into
-          // drag). Browser shouldn't have fired this event again.
-          console.warn(`Unexpected event: ${e}`)
-          break
-        case "awaiting-second-touch":
-          this.movePiece(this.moveState.startSquare, clickedSquare as Square)
-          this.moveState = { id: "awaiting-input" }
-          break
-        // istanbul ignore next
-        default:
-          assertUnreachable(this.moveState)
+  private makeMouseEventHandler(
+    handle: (this: Chessboard, square: Square) => void
+  ): (e: MouseEvent) => void {
+    const boundHandler = handle.bind(this)
+    return (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const square = target.dataset.square
+      if (keyIsSquare(square)) {
+        boundHandler(square)
       }
-
-      this.updateMoveState()
     }
   }
 
-  private handleMouseUp(e: MouseEvent) {
-    const target = e.target as HTMLElement
-    const clickedSquare = target.dataset.square
+  private handleMouseDown(this: Chessboard, clickedSquare: Square) {
+    if (this.moveState.id === "awaiting-input") {
+      if (this.pieces.hasPieceOn(clickedSquare)) {
+        this.moveState = {
+          id: "touching-first-square",
+          square: clickedSquare,
+        }
+      }
+    } else if (this.moveState.id === "awaiting-second-touch") {
+      this.movePiece(this.moveState.startSquare, clickedSquare as Square)
+      this.moveState = { id: "awaiting-input" }
+    }
 
-    if (keyIsSquare(clickedSquare)) {
-      switch (this.moveState.id) {
-        case "touching-first-square":
-          this.moveState = {
-            id: "awaiting-second-touch",
-            startSquare: this.moveState.square,
-          }
-          break
+    this.updateMoveState()
+  }
+
+  private handleMouseUp(this: Chessboard) {
+    if (this.moveState.id === "touching-first-square") {
+      this.moveState = {
+        id: "awaiting-second-touch",
+        startSquare: this.moveState.square,
       }
     }
 
     this.updateMoveState()
   }
 
-  private handleKeyDown(e: KeyboardEvent) {
+  private handleKeyDown(this: Chessboard, e: KeyboardEvent) {
     console.log(e.target, e.key)
   }
 
   private movePiece(from: Square, to: Square) {
     if (this.pieces.movePiece(from, to)) {
-      this.getSquareElement(from).classList.toggle(HAS_PIECE_CLASS, false)
-      this.getSquareElement(to).classList.toggle(HAS_PIECE_CLASS, true)
+      this.toggleElementHasPiece(this.getSquareElement(from), false)
+      this.toggleElementHasPiece(this.getSquareElement(to), true)
     }
   }
 
@@ -238,5 +207,9 @@ export class Chessboard {
     element.removeAttribute("role")
     element.removeAttribute("aria-label")
     element.removeAttribute("tabindex")
+  }
+
+  private toggleElementHasPiece(element: HTMLDivElement, force: boolean) {
+    element.classList.toggle("has-piece", force)
   }
 }

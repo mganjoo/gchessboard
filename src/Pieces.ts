@@ -8,34 +8,36 @@ import {
 import sprite from "./sprite.svg"
 import { makeSvgElement, removeElement } from "./utils/dom"
 
-const SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
-  white: {
-    queen: "wq",
-    king: "wk",
-    knight: "wn",
-    pawn: "wp",
-    bishop: "wb",
-    rook: "wr",
-  },
-  black: {
-    queen: "bq",
-    king: "bk",
-    knight: "bn",
-    pawn: "bp",
-    bishop: "bb",
-    rook: "br",
-  },
-}
-
-interface PieceWrapper {
-  piece: Piece
-  element: SVGUseElement
-}
-
 export class Pieces {
   private group: SVGSVGElement
-  private pieces: Partial<Record<Square, PieceWrapper>>
+  private pieces: Partial<
+    Record<
+      Square,
+      {
+        piece: Piece
+        element: SVGUseElement
+      }
+    >
+  >
   private orientation: Side
+  private static SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
+    white: {
+      queen: "wq",
+      king: "wk",
+      knight: "wn",
+      pawn: "wp",
+      bishop: "wb",
+      rook: "wr",
+    },
+    black: {
+      queen: "bq",
+      king: "bk",
+      knight: "bn",
+      pawn: "bp",
+      bishop: "bb",
+      rook: "br",
+    },
+  }
 
   constructor(
     container: Element,
@@ -119,7 +121,7 @@ export class Pieces {
   private makePieceElement(piece: Piece): SVGUseElement {
     return makeSvgElement("use", {
       attributes: {
-        href: `${sprite}#${SPRITE_ID_MAP[piece.color][piece.pieceType]}`,
+        href: `${sprite}#${Pieces.SPRITE_ID_MAP[piece.color][piece.pieceType]}`,
         width: "12.5%",
         height: "12.5%",
       },
