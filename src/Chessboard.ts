@@ -6,10 +6,10 @@ import {
   Piece,
   Side,
   Square,
-} from "./utils-chess"
+} from "./utils/chess"
 import { Pieces } from "./Pieces"
-import { makeHTMLElement, removeElement } from "./utils-dom"
-import { assertUnreachable } from "./utils-typing"
+import { makeHTMLElement, removeElement } from "./utils/dom"
+import { assertUnreachable } from "./utils/typing"
 import "./styles.css"
 
 export interface ChessboardConfig {
@@ -51,10 +51,10 @@ export class Chessboard {
    *                  Rendered chessboard will be appended to this container.
    * @param config Configuration for chessboard (see type definition for details)
    */
-  constructor(container: Element, config: ChessboardConfig) {
+  constructor(container: Element, config?: ChessboardConfig) {
     this.squareElements = new Array(8)
     this.moveState = { id: "awaiting-input" }
-    this.orientation = config.orientation || "white"
+    this.orientation = config?.orientation || "white"
 
     this.group = makeHTMLElement("div", {
       attributes: { role: "grid" },
@@ -78,7 +78,7 @@ export class Chessboard {
     container.appendChild(this.group)
 
     // Build pieces
-    this.pieces = new Pieces(this.group, this.orientation, config.pieces)
+    this.pieces = new Pieces(this.group, this.orientation, config?.pieces)
 
     // Initial render
     this.draw()
@@ -91,9 +91,10 @@ export class Chessboard {
   }
 
   cleanup() {
-    removeElement(this.group)
+    this.pieces.cleanup()
     this.group.removeEventListener("mousedown", this.mouseDownHandler)
     this.group.removeEventListener("mouseup", this.mouseUpHandler)
+    removeElement(this.group)
   }
 
   updateOrientationAndRedraw(orientation: Side) {
@@ -153,6 +154,7 @@ export class Chessboard {
             }
           }
           break
+        // istanbul ignore next
         case "touching-first-square":
           // We are in the middle of touching first square (which may turn into
           // drag). Browser shouldn't have fired this event again.
@@ -162,6 +164,7 @@ export class Chessboard {
           this.movePiece(this.moveState.startSquare, clickedSquare as Square)
           this.moveState = { id: "awaiting-input" }
           break
+        // istanbul ignore next
         default:
           assertUnreachable(this.moveState)
       }

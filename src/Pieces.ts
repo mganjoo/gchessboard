@@ -4,9 +4,9 @@ import {
   PieceType,
   Side,
   Square,
-} from "./utils-chess"
+} from "./utils/chess"
 import sprite from "./sprite.svg"
-import { makeSvgElement, removeElement } from "./utils-dom"
+import { makeSvgElement, removeElement } from "./utils/dom"
 
 const SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
   white: {
@@ -34,7 +34,7 @@ interface PieceWrapper {
 
 export class Pieces {
   private group: SVGSVGElement
-  pieces: Partial<Record<Square, PieceWrapper>>
+  private pieces: Partial<Record<Square, PieceWrapper>>
   private orientation: Side
 
   constructor(
@@ -73,10 +73,17 @@ export class Pieces {
     this.draw()
   }
 
+  /**
+   * Return true if `square` has a piece currently on it.
+   */
   hasPieceOn(square: Square): boolean {
     return square in this.pieces
   }
 
+  /**
+   * Move a piece (if it exists) from `startSquare` to `endSquare`, and
+   * return true if the move is successful.
+   */
   movePiece(startSquare: Square, endSquare: Square): boolean {
     const piece = this.pieces[startSquare]
     if (piece) {

@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/html"
 import { Chessboard } from "./Chessboard"
-import { Side } from "./utils-chess"
+import { Side } from "./utils/chess"
 interface ChessboardProps {
   orientation: Side
 }

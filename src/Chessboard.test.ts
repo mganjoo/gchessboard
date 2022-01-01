@@ -7,7 +7,7 @@ import {
   Piece,
   Side,
   Square,
-} from "./utils-chess"
+} from "./utils/chess"
 import { waitFor, within } from "@testing-library/dom"
 import userEvent from "@testing-library/user-event"
 import { Chessboard } from "./Chessboard"
@@ -80,23 +80,101 @@ describe.each<{ side: Side; flip: boolean }>([
   }
 )
 
-describe("Chessboard", () => {
-  it("should correctly handle two-click moves", async () => {
-    const [wrapper] = buildChessboard("white", {
-      c3: { color: "black", pieceType: "rook" },
-    })
-    userEvent.click(within(wrapper).getByRole("gridcell", { name: /c3/i }))
+it("cleanup() removes chessboard correctly", () => {
+  const el = document.createElement("div")
+  const board = new Chessboard(el)
+  expect(el.childNodes.length).toBeGreaterThan(0)
+  board.cleanup()
+  expect(el.childNodes.length).toEqual(0)
+})
+
+describe("Initial chessboard", () => {
+  it("should have the same number of clickable cells as number of pieces", () => {
+    const pieces = {
+      a4: { color: "white", pieceType: "queen" },
+      f7: { color: "black", pieceType: "pawn" },
+      h2: { color: "black", pieceType: "bishop" },
+    } as const
+    const [wrapper] = buildChessboard("white", pieces)
+
+    expect(within(wrapper).getAllByRole("gridcell")).toHaveLength(3)
+  })
+
+  it("should correctly remove and apply classes and attributes on two-click moves", async () => {
+    const pieces = {
+      f7: { color: "black", pieceType: "pawn" },
+    } as const
+    const [wrapper] = buildChessboard("white", pieces)
+
+    expect(wrapper.querySelector('[data-square="f7"]')).toHaveClass("has-piece")
+    userEvent.click(within(wrapper).getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
       expect(wrapper.firstElementChild).toHaveAttribute(
         "data-move-state",
         "awaiting-second-touch"
       )
     )
-    userEvent.click(within(wrapper).getByRole("gridcell", { name: /e7/i }))
+    userEvent.click(within(wrapper).getByRole("gridcell", { name: /e3/i }))
     await waitFor(() =>
-      expect(wrapper.querySelector('[data-square="e7"]')).toHaveClass(
-        "has-piece"
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "awaiting-input"
       )
     )
+    expect(wrapper.querySelector('[data-square="e3"]')).toHaveClass("has-piece")
+    expect(wrapper.querySelector('[data-square="f7"]')).not.toHaveClass(
+      "has-piece"
+    )
+  })
+
+  it("ignores click events when there is no piece on square", () => {
+    const pieces = {
+      f7: { color: "black", pieceType: "pawn" },
+    } as const
+    const [wrapper] = buildChessboard("white", pieces)
+    const square = wrapper.querySelector('[data-square="a3"]')
+    userEvent.click(square as Element)
+    expect(wrapper.firstElementChild).toHaveAttribute(
+      "data-move-state",
+      "awaiting-input"
+    )
+  })
+
+  it("ignores click events when data attributes are corrupted", () => {
+    const pieces = {
+      f7: { color: "black", pieceType: "pawn" },
+    } as const
+    const [wrapper] = buildChessboard("white", pieces)
+    const square = wrapper.querySelector('[data-square="f7"]')
+    square?.setAttribute("data-square", "foo")
+    userEvent.click(square as Element)
+    expect(wrapper.firstElementChild).toHaveAttribute(
+      "data-move-state",
+      "awaiting-input"
+    )
+  })
+
+  it("should keep classes and attributes when move is cancelled", async () => {
+    const pieces = {
+      f7: { color: "black", pieceType: "pawn" },
+    } as const
+    const [wrapper] = buildChessboard("white", pieces)
+
+    expect(wrapper.querySelector('[data-square="f7"]')).toHaveClass("has-piece")
+    userEvent.click(within(wrapper).getByRole("gridcell", { name: /f7/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "awaiting-second-touch"
+      )
+    )
+    userEvent.click(within(wrapper).getByRole("gridcell", { name: /f7/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "awaiting-input"
+      )
+    )
+    expect(wrapper.querySelector('[data-square="f7"]')).toHaveClass("has-piece")
   })
 })
