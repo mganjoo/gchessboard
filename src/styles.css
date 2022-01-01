@@ -1,7 +1,9 @@
 :root {
-  --dark-square-green: #4c946a;
-  --light-square-green: #e0ddcc;
-  --focus-outline-color: #f99338;
+  --dark-square-color: #4c946a;
+  --light-square-color: #e0ddcc;
+  --hover-light-square-color: #e3d798;
+  --hover-dark-square-color: #3f7b58;
+  --focus-outline-color: rgba(249, 147, 56, 0.85);
 }
 
 .chessboard {
@@ -16,7 +18,7 @@
 }
 
 /* A single square. */
-.chessboard > div > div {
+[data-square-color] {
   display: table-cell;
   position: relative;
   width: 12.5%;
@@ -24,9 +26,28 @@
   padding-top: 12.5%;
 }
 
-.chessboard > div > div:focus-visible {
+[data-square-color="dark"] {
+  background-color: var(--dark-square-color);
+  /* Label colors for inline labels should be inverse of square color */
+  color: var(--light-square-color);
+}
+
+[data-square-color="light"] {
+  background-color: var(--light-square-color);
+  color: var(--dark-square-color);
+}
+
+[data-square-color]:focus {
   outline: none;
-  box-shadow: inset 0 0 4px 5px var(--focus-outline-color);
+  box-shadow: inset 0 0 6px 6px var(--focus-outline-color);
+}
+
+[role="gridcell"][data-square-color="dark"]:hover {
+  background-color: var(--hover-dark-square-color);
+}
+
+[role="gridcell"][data-square-color="light"]:hover {
+  background-color: var(--hover-light-square-color);
 }
 
 [data-rank-label]::before {
@@ -57,17 +78,6 @@
   bottom: 0;
   right: 0;
   pointer-events: none;
-}
-
-[data-square-color="dark"] {
-  background-color: var(--dark-square-green);
-  /* Label colors for inline labels should be inverse of square color */
-  color: var(--light-square-green);
-}
-
-[data-square-color="light"] {
-  background-color: var(--light-square-green);
-  color: var(--dark-square-green);
 }
 
 [data-move-state="awaiting-input"] .has-piece {
