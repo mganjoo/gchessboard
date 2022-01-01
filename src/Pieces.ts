@@ -68,7 +68,7 @@ export class Pieces {
     removeElement(this.group)
   }
 
-  updateOrientationAndRedraw(orientation: Side) {
+  updateOrientation(orientation: Side) {
     this.orientation = orientation
     this.draw()
   }

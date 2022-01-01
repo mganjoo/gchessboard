@@ -22,7 +22,7 @@ interface AwaitingInput {
 }
 interface ClickingFirstSquare {
   id: "touching-first-square"
-  startSquare: Square
+  square: Square
 }
 
 interface AwaitingSecondClick {
@@ -43,6 +43,7 @@ export class Chessboard {
   // Event handlers
   private mouseDownHandler: (e: MouseEvent) => void
   private mouseUpHandler: (e: MouseEvent) => void
+  private keyDownHandler: (e: KeyboardEvent) => void
 
   /**
    * Creates a Chessboard UI element and appends it to `container`.
@@ -88,18 +89,21 @@ export class Chessboard {
     this.group.addEventListener("mousedown", this.mouseDownHandler)
     this.mouseUpHandler = this.handleMouseUp.bind(this)
     this.group.addEventListener("mouseup", this.mouseUpHandler)
+    this.keyDownHandler = this.handleKeyDown.bind(this)
+    this.group.addEventListener("keydown", this.keyDownHandler)
   }
 
   cleanup() {
     this.pieces.cleanup()
     this.group.removeEventListener("mousedown", this.mouseDownHandler)
     this.group.removeEventListener("mouseup", this.mouseUpHandler)
+    this.group.removeEventListener("keydown", this.keyDownHandler)
     removeElement(this.group)
   }
 
-  updateOrientationAndRedraw(orientation: Side) {
+  updateOrientation(orientation: Side) {
     this.orientation = orientation
-    this.pieces.updateOrientationAndRedraw(orientation)
+    this.pieces.updateOrientation(orientation)
     this.draw()
   }
 
@@ -133,13 +137,6 @@ export class Chessboard {
     this.updateMoveState()
   }
 
-  private movePiece(from: Square, to: Square) {
-    if (this.pieces.movePiece(from, to)) {
-      this.getSquareElement(from).classList.toggle(HAS_PIECE_CLASS, false)
-      this.getSquareElement(to).classList.toggle(HAS_PIECE_CLASS, true)
-    }
-  }
-
   private handleMouseDown(e: MouseEvent) {
     const target = e.target as HTMLElement
     const clickedSquare = target.dataset.square
@@ -150,7 +147,7 @@ export class Chessboard {
           if (this.pieces.hasPieceOn(clickedSquare)) {
             this.moveState = {
               id: "touching-first-square",
-              startSquare: clickedSquare,
+              square: clickedSquare,
             }
           }
           break
@@ -182,13 +179,24 @@ export class Chessboard {
         case "touching-first-square":
           this.moveState = {
             id: "awaiting-second-touch",
-            startSquare: this.moveState.startSquare,
+            startSquare: this.moveState.square,
           }
           break
       }
     }
 
     this.updateMoveState()
+  }
+
+  private handleKeyDown(e: KeyboardEvent) {
+    console.log(e.target, e.key)
+  }
+
+  private movePiece(from: Square, to: Square) {
+    if (this.pieces.movePiece(from, to)) {
+      this.getSquareElement(from).classList.toggle(HAS_PIECE_CLASS, false)
+      this.getSquareElement(to).classList.toggle(HAS_PIECE_CLASS, true)
+    }
   }
 
   /**
