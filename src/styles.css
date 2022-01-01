@@ -1,8 +1,7 @@
 :root {
   --dark-square-green: #4c946a;
-  --dark-square-highlight-green: #28cc6d;
   --light-square-green: #e0ddcc;
-  --light-square-highlight-green: #b2bc57;
+  --focus-outline-color: #f99338;
 }
 
 .chessboard {
@@ -25,8 +24,9 @@
   padding-top: 12.5%;
 }
 
-.chessboard > div > div:focus {
+.chessboard > div > div:focus-visible {
   outline: none;
+  box-shadow: inset 0 0 4px 5px var(--focus-outline-color);
 }
 
 [data-rank-label]::before {
@@ -68,14 +68,6 @@
 [data-square-color="light"] {
   background-color: var(--light-square-green);
   color: var(--dark-square-green);
-}
-
-[data-square-color="dark"]:focus {
-  fill: var(--dark-square-highlight-green);
-}
-
-[data-square-color="light"]:focus {
-  fill: var(--light-square-highlight-green);
 }
 
 [data-move-state="awaiting-input"] .has-piece {
