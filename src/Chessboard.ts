@@ -11,7 +11,7 @@ import { Pieces } from "./Pieces"
 import { makeHTMLElement, removeElement } from "./utils/dom"
 import "./styles.css"
 import { InteractionState } from "./InteractionState"
-import { assertUnreachable } from "./utils/typing"
+import { assertUnreachable, hasDataset, hasParentNode } from "./utils/typing"
 
 export interface ChessboardConfig {
   orientation?: Side
@@ -29,6 +29,8 @@ export class Chessboard {
   private mouseDownHandler: (e: MouseEvent) => void
   private mouseUpHandler: (e: MouseEvent) => void
   private mouseMoveHandler: (e: MouseEvent) => void
+  private focusInHandler: (e: FocusEvent) => void
+  private blurHandler: (e: FocusEvent) => void
 
   /**
    * Fraction of square width that mouse must be moved to be
@@ -75,16 +77,22 @@ export class Chessboard {
     this.mouseDownHandler = this.makeEventHandler(this.handleMouseDown)
     this.mouseUpHandler = this.makeEventHandler(this.handleMouseUp)
     this.mouseMoveHandler = this.makeEventHandler(this.handleMouseMove)
-    this.group.addEventListener("mousedown", this.mouseDownHandler)
-    this.group.addEventListener("mouseup", this.mouseUpHandler)
-    this.group.addEventListener("mousemove", this.mouseMoveHandler)
+    this.blurHandler = this.handleBlur.bind(this)
+    this.focusInHandler = this.makeEventHandler(this.handleFocusIn)
+    document.addEventListener("mousedown", this.mouseDownHandler)
+    document.addEventListener("mouseup", this.mouseUpHandler)
+    document.addEventListener("mousemove", this.mouseMoveHandler)
+    document.addEventListener("focusin", this.focusInHandler)
+    document.addEventListener("blur", this.blurHandler, true)
   }
 
   cleanup() {
     this.pieces.cleanup()
-    this.group.removeEventListener("mousedown", this.mouseDownHandler)
-    this.group.removeEventListener("mouseup", this.mouseUpHandler)
-    this.group.removeEventListener("mousemove", this.mouseMoveHandler)
+    document.removeEventListener("mousedown", this.mouseDownHandler)
+    document.removeEventListener("mouseup", this.mouseUpHandler)
+    document.removeEventListener("mousemove", this.mouseMoveHandler)
+    document.removeEventListener("focusin", this.focusInHandler)
+    document.removeEventListener("blur", this.blurHandler)
     removeElement(this.group)
   }
 
@@ -126,13 +134,14 @@ export class Chessboard {
 
   private handleMouseDown(
     this: Chessboard,
-    clickedSquare: Square,
+    clickedSquare: Square | undefined,
     e: MouseEvent
   ) {
     switch (this.interactionState.id) {
       case "awaiting-input":
       case "moving-piece-kb":
-        if (this.pieces.hasPieceOn(clickedSquare)) {
+        // Ignore clicks that are outside board or have no piece on them
+        if (clickedSquare && this.pieces.hasPieceOn(clickedSquare)) {
           this.updateInteractionState({
             id: "touching-first-square",
             square: clickedSquare,
@@ -142,7 +151,21 @@ export class Chessboard {
         }
         break
       case "awaiting-second-touch":
-        this.movePiece(this.interactionState.startSquare, clickedSquare)
+        if (
+          clickedSquare &&
+          this.interactionState.startSquare !== clickedSquare
+        ) {
+          this.movePiece(this.interactionState.startSquare, clickedSquare)
+        } else {
+          // Cancel move if touch was outside squares area or if start
+          // and end square are the same. Before canceling move, prevent
+          // default action if we clicked on the same square as start
+          // square (to prevent re-focusing)
+          if (this.interactionState.startSquare === clickedSquare) {
+            e.preventDefault()
+          }
+          this.cancelMove(this.interactionState.startSquare)
+        }
         break
       case "dragging":
       case "touching-first-square":
@@ -154,7 +177,7 @@ export class Chessboard {
     }
   }
 
-  private handleMouseUp(this: Chessboard, square: Square) {
+  private handleMouseUp(this: Chessboard, square: Square | undefined) {
     switch (this.interactionState.id) {
       case "touching-first-square":
         this.updateInteractionState({
@@ -163,7 +186,11 @@ export class Chessboard {
         })
         break
       case "dragging":
-        this.movePiece(this.interactionState.startSquare, square)
+        if (square && this.interactionState.startSquare !== square) {
+          this.movePiece(this.interactionState.startSquare, square)
+        } else {
+          this.cancelMove(this.interactionState.startSquare)
+        }
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -175,7 +202,11 @@ export class Chessboard {
     }
   }
 
-  private handleMouseMove(this: Chessboard, square: Square, e: MouseEvent) {
+  private handleMouseMove(
+    this: Chessboard,
+    square: Square | undefined,
+    e: MouseEvent
+  ) {
     switch (this.interactionState.id) {
       case "touching-first-square":
         {
@@ -183,7 +214,7 @@ export class Chessboard {
             (e.clientX - this.interactionState.touchStartX) ** 2 +
               (e.clientY - this.interactionState.touchStartY) ** 2
           )
-          const elem = this.getSquareElement(square)
+          const elem = this.getSquareElement(this.interactionState.square)
           // Consider a "dragging" action to be when we have moved the mouse a sufficient
           // threshold, or we are now in a different square from where we started.
           if (
@@ -211,6 +242,53 @@ export class Chessboard {
     }
   }
 
+  private handleFocusIn(this: Chessboard, square: Square | undefined) {
+    switch (this.interactionState.id) {
+      case "moving-piece-kb":
+      case "awaiting-second-touch":
+      case "dragging":
+        // If element does not have square (is outside of board), then cancel
+        // any moves in progress
+        if (!square) {
+          this.cancelMove(this.interactionState.startSquare)
+        }
+        break
+      case "touching-first-square":
+        if (!square) {
+          this.cancelMove(this.interactionState.square)
+        }
+        break
+      case "awaiting-input":
+        break
+      // istanbul ignore next
+      default:
+        assertUnreachable(this.interactionState)
+    }
+  }
+
+  private handleBlur(this: Chessboard, e: FocusEvent) {
+    switch (this.interactionState.id) {
+      case "awaiting-second-touch":
+      case "dragging":
+      case "moving-piece-kb":
+        // Lost focus from root document element - cancel any moves in progres
+        if (hasParentNode(e.target) && !e.target.parentNode) {
+          this.cancelMove(this.interactionState.startSquare)
+        }
+        break
+      case "touching-first-square":
+        if (hasParentNode(e.target) && !e.target.parentNode) {
+          this.cancelMove(this.interactionState.square)
+        }
+        break
+      case "awaiting-input":
+        break
+      // istanbul ignore next
+      default:
+        assertUnreachable(this.interactionState)
+    }
+  }
+
   private movePiece(from: Square, to: Square) {
     this.pieces.movePiece(from, to)
     this.toggleElementHasPiece(this.getSquareElement(from), false)
@@ -220,6 +298,13 @@ export class Chessboard {
     // Programmatically focus target square for cases where the browser
     // won't handle that automatically, e.g. through a drag operation
     toElement.focus()
+  }
+
+  private cancelMove(moveStartSquare: Square) {
+    this.updateInteractionState({ id: "awaiting-input" })
+    // Programmatically blur starting square for cases where the browser
+    // won't handle that automatically, (through a drag operation)
+    this.getSquareElement(moveStartSquare).blur()
   }
 
   private updateInteractionState(state: InteractionState) {
@@ -269,20 +354,17 @@ export class Chessboard {
   }
 
   /**
-   * Make mouse or keyboard event handler for square elements. Ensures
-   * that the square element has a square label associated with it, then
-   * passes square label and current event to `callback`.
+   * Convenience wrapper to make mouse, blur, or keyboard event handler for
+   * square elements. Attempts to extract square label from the element in
+   * question, then passes square label and current event to `callback`.
    */
-  private makeEventHandler<K extends MouseEvent | KeyboardEvent>(
-    callback: (this: Chessboard, square: Square, e: K) => void
+  private makeEventHandler<K extends MouseEvent | KeyboardEvent | FocusEvent>(
+    callback: (this: Chessboard, square: Square | undefined, e: K) => void
   ): (e: K) => void {
     const boundCallback = callback.bind(this)
     return (e: K) => {
-      const target = e.target as HTMLElement
-      const square = target.dataset.square
-      if (keyIsSquare(square)) {
-        boundCallback(square, e)
-      }
+      const square = hasDataset(e.target) ? e.target.dataset.square : undefined
+      boundCallback(keyIsSquare(square) ? square : undefined, e)
     }
   }
 

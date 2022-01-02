@@ -5,6 +5,7 @@ function buildPieces(
   pieces?: Partial<Record<Square, Piece>>
 ): [HTMLElement, Pieces] {
   const wrapper = document.createElement("div")
+  document.body.replaceChildren(wrapper)
   return [wrapper, new Pieces(wrapper, "white", pieces)]
 }
 

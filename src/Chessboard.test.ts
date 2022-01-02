@@ -8,7 +8,7 @@ import {
   Side,
   Square,
 } from "./utils/chess"
-import { waitFor, within } from "@testing-library/dom"
+import { screen, waitFor } from "@testing-library/dom"
 import userEvent from "@testing-library/user-event"
 import { Chessboard } from "./Chessboard"
 
@@ -17,6 +17,7 @@ function buildChessboard(
   pieces?: Partial<Record<Square, Piece>>
 ): [HTMLElement, Chessboard] {
   const wrapper = document.createElement("div")
+  document.body.replaceChildren(wrapper)
   return [wrapper, new Chessboard(wrapper, { orientation, pieces })]
 }
 
@@ -95,9 +96,9 @@ describe("Initial chessboard", () => {
       f7: { color: "black", pieceType: "pawn" },
       h2: { color: "black", pieceType: "bishop" },
     } as const
-    const [wrapper] = buildChessboard("white", pieces)
+    buildChessboard("white", pieces)
 
-    expect(within(wrapper).getAllByRole("gridcell")).toHaveLength(3)
+    expect(screen.getAllByRole("gridcell")).toHaveLength(3)
   })
 
   it("should correctly remove and apply classes and attributes on two-click moves", async () => {
@@ -107,14 +108,14 @@ describe("Initial chessboard", () => {
     const [wrapper] = buildChessboard("white", pieces)
 
     expect(wrapper.querySelector('[data-square="f7"]')).toHaveClass("has-piece")
-    userEvent.click(within(wrapper).getByRole("gridcell", { name: /f7/i }))
+    userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
       expect(wrapper.firstElementChild).toHaveAttribute(
         "data-move-state",
         "awaiting-second-touch"
       )
     )
-    userEvent.click(within(wrapper).getByRole("gridcell", { name: /e3/i }))
+    userEvent.click(screen.getByRole("gridcell", { name: /e3/i }))
     await waitFor(() =>
       expect(wrapper.firstElementChild).toHaveAttribute(
         "data-move-state",
@@ -154,21 +155,21 @@ describe("Initial chessboard", () => {
     )
   })
 
-  it("should keep classes and attributes when move is cancelled", async () => {
+  it("should go back to initial state when move is cancelled", async () => {
     const pieces = {
       f7: { color: "black", pieceType: "pawn" },
     } as const
     const [wrapper] = buildChessboard("white", pieces)
 
     expect(wrapper.querySelector('[data-square="f7"]')).toHaveClass("has-piece")
-    userEvent.click(within(wrapper).getByRole("gridcell", { name: /f7/i }))
+    userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
       expect(wrapper.firstElementChild).toHaveAttribute(
         "data-move-state",
         "awaiting-second-touch"
       )
     )
-    userEvent.click(within(wrapper).getByRole("gridcell", { name: /f7/i }))
+    userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
       expect(wrapper.firstElementChild).toHaveAttribute(
         "data-move-state",
