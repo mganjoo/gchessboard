@@ -18,6 +18,7 @@ export type InteractionState =
     }
   | {
       id: "moving-piece-kb"
+      startSquare: Square
     }
   | {
       id: "awaiting-second-touch"
