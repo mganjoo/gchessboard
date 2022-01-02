@@ -87,17 +87,15 @@ export class Pieces {
    */
   movePiece(startSquare: Square, endSquare: Square) {
     const piece = this.pieces[startSquare]
-    if (piece) {
-      if (endSquare !== startSquare) {
-        const existing = this.pieces[endSquare]
-        if (existing) {
-          removeElement(existing.element)
-        }
-        this.pieces[endSquare] = piece
-        // TODO: animate moving from original square
-        this.drawPiece(piece.element, endSquare)
-        delete this.pieces[startSquare]
+    if (piece && endSquare !== startSquare) {
+      const existing = this.pieces[endSquare]
+      if (existing) {
+        removeElement(existing.element)
       }
+      this.pieces[endSquare] = piece
+      // TODO: animate moving from original square
+      this.drawPiece(piece.element, endSquare)
+      delete this.pieces[startSquare]
     }
   }
 
