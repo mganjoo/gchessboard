@@ -53,14 +53,14 @@
 [data-rank-label]::before {
   content: attr(data-rank-label);
   position: absolute;
-  top: 4%;
+  top: 3%;
   left: 4%;
 }
 
 [data-file-label]::after {
   content: attr(data-file-label);
   position: absolute;
-  bottom: 4%;
+  bottom: 3%;
   right: 4%;
 }
 

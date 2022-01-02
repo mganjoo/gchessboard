@@ -39,6 +39,12 @@ export class Pieces {
     },
   }
 
+  /**
+   * Padding applied to a piece when placing a piece on a square,
+   * as a percentage of the width of the chessboard.
+   */
+  private static PIECE_PADDING_PCT = 0.4
+
   constructor(
     container: Element,
     orientation: Side,
@@ -109,8 +115,8 @@ export class Pieces {
     return makeSvgElement("use", {
       attributes: {
         href: `${sprite}#${Pieces.SPRITE_ID_MAP[piece.color][piece.pieceType]}`,
-        width: "12.5%",
-        height: "12.5%",
+        width: `${12.5 - Pieces.PIECE_PADDING_PCT * 2}%`,
+        height: `${12.5 - Pieces.PIECE_PADDING_PCT * 2}%`,
       },
       data: {
         piece: `${piece.color}-${piece.pieceType}`,
@@ -120,8 +126,8 @@ export class Pieces {
 
   private drawPiece(pieceElement: SVGUseElement, square: Square) {
     const [row, column] = getVisualRowColumn(square, this.orientation)
-    pieceElement.style.transform = `translate(${column * 12.5}%, ${
-      row * 12.5
-    }%)`
+    pieceElement.style.transform = `translate(${
+      column * 12.5 + Pieces.PIECE_PADDING_PCT
+    }%, ${row * 12.5 + Pieces.PIECE_PADDING_PCT}%)`
   }
 }
