@@ -7,7 +7,12 @@ import pkg from "./package.json"
 /** @type {import("@rollup/plugin-typescript").RollupTypescriptOptions } */
 const typescriptConfig = {
   tsconfig: "./tsconfig.json",
-  exclude: ["src/**/*.test.(ts|tsx)", "src/**/*.stories.(ts|tsx)", "./*.ts"],
+  exclude: [
+    "src/**/*.test.(ts|tsx)",
+    "src/**/*.stories.(ts|tsx)",
+    "src/stories/**/*.(ts|tsx)",
+    "./*.ts",
+  ],
 }
 
 /** @type {import("rollup-plugin-postcss").PostCSSPluginConf} */
