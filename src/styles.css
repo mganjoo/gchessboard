@@ -53,20 +53,20 @@
 [data-rank-label]::before {
   content: attr(data-rank-label);
   position: absolute;
-  top: 5%;
-  left: 5%;
+  top: 4%;
+  left: 4%;
 }
 
 [data-file-label]::after {
   content: attr(data-file-label);
   position: absolute;
-  bottom: 5%;
-  right: 5%;
+  bottom: 4%;
+  right: 4%;
 }
 
 [data-square] {
   font-family: sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 
 .pieces {
