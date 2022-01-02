@@ -271,13 +271,14 @@ export class Chessboard {
       case "awaiting-second-touch":
       case "dragging":
       case "moving-piece-kb":
-        // Lost focus from root document element - cancel any moves in progres
-        if (hasParentNode(e.target)) {
+        // If we lose focus from root document element, cancel any moves in progres
+        if (!hasParentNode(e.target)) {
           this.cancelMove(this.interactionState.startSquare)
         }
         break
       case "touching-first-square":
-        if (hasParentNode(e.target)) {
+        // If we lose focus from root document element, cancel any moves in progres
+        if (!hasParentNode(e.target)) {
           this.cancelMove(this.interactionState.square)
         }
         break
