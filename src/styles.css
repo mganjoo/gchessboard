@@ -84,7 +84,8 @@
   cursor: pointer;
 }
 
-[data-move-state="touching-first-square"] [data-square] {
+[data-move-state="touching-first-square"] [data-square],
+[data-move-state="dragging"] [data-square] {
   cursor: grab;
 }
 

@@ -7,13 +7,17 @@ export type InteractionState =
   | {
       id: "touching-first-square"
       square: Square
+      touchStartX: number
+      touchStartY: number
     }
   | {
       id: "dragging"
       startSquare: Square
+      x: number
+      y: number
     }
   | {
-      id: "moving-piece"
+      id: "moving-piece-kb"
     }
   | {
       id: "awaiting-second-touch"

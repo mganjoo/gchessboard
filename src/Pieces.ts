@@ -83,32 +83,21 @@ export class Pieces {
   }
 
   /**
-   * Move a piece (if it exists) from `startSquare` to `endSquare`, and
-   * return true if the move is successful.
+   * Move a piece (if it exists) from `startSquare` to `endSquare`.
    */
-  movePiece(startSquare: Square, endSquare: Square): boolean {
+  movePiece(startSquare: Square, endSquare: Square) {
     const piece = this.pieces[startSquare]
     if (piece) {
-      if (endSquare === startSquare) {
-        // noop
-        return false
-      } else {
+      if (endSquare !== startSquare) {
         const existing = this.pieces[endSquare]
-
-        // TODO: animate removal
         if (existing) {
           removeElement(existing.element)
         }
-
         this.pieces[endSquare] = piece
-        this.drawPiece(piece.element, endSquare)
         // TODO: animate moving from original square
+        this.drawPiece(piece.element, endSquare)
         delete this.pieces[startSquare]
-
-        return true
       }
-    } else {
-      return false
     }
   }
 
