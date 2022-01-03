@@ -39,6 +39,7 @@ export class Chessboard {
   private mouseMoveHandler: (e: MouseEvent) => void
   private focusInHandler: (e: FocusEvent) => void
   private blurHandler: (e: FocusEvent) => void
+  private keyDownHandler: (e: KeyboardEvent) => void
 
   /**
    * Fraction of square width that mouse must be moved to be
@@ -86,11 +87,15 @@ export class Chessboard {
     this.mouseMoveHandler = this.makeEventHandler(this.handleMouseMove)
     this.blurHandler = this.handleBlur.bind(this)
     this.focusInHandler = this.makeEventHandler(this.handleFocusIn)
+    this.keyDownHandler = this.makeEventHandler(this.handleKeyDown)
     document.addEventListener("mousedown", this.mouseDownHandler)
     document.addEventListener("mouseup", this.mouseUpHandler)
     document.addEventListener("mousemove", this.mouseMoveHandler)
     document.addEventListener("focusin", this.focusInHandler)
+    // Blur handler uses useCapture so that we can detect window blur
     document.addEventListener("blur", this.blurHandler, true)
+    // For keyboard, add listener only on the chessboard
+    this.group.addEventListener("keydown", this.keyDownHandler)
   }
 
   cleanup() {
@@ -114,7 +119,10 @@ export class Chessboard {
       const color = getSquareColor(square)
       squareElement.dataset.square = square
       squareElement.dataset.squareColor = color
-      this.toggleElementHasPiece(squareElement, this.pieces.hasPieceOn(square))
+      this.toggleElementHasPiece(
+        squareElement,
+        !!this.pieces.getPieceOn(square)
+      )
       const row = idx >> 3
       const col = idx & 0x7
 
@@ -144,7 +152,7 @@ export class Chessboard {
       case "awaiting-input":
       case "moving-piece-kb":
         // Ignore clicks that are outside board or have no piece on them
-        if (clickedSquare && this.pieces.hasPieceOn(clickedSquare)) {
+        if (clickedSquare && this.pieces.getPieceOn(clickedSquare)) {
           this.updateInteractionState({
             id: "touching-first-square",
             square: clickedSquare,
@@ -293,11 +301,77 @@ export class Chessboard {
     }
   }
 
+  private handleKeyDown(
+    this: Chessboard,
+    square: Square | undefined,
+    e: KeyboardEvent
+  ) {
+    if (this.tabbableSquare) {
+      const currentIdx = getVisualIndex(this.tabbableSquare, this.orientation)
+      const currentRow = currentIdx >> 3
+      const currentCol = currentIdx & 0x7
+      let newIdx = currentIdx
+      switch (e.key) {
+        case "ArrowRight":
+        case "Right":
+          for (let i = currentCol + 1; i < 8; i++) {
+            const idx = 8 * currentRow + i
+            if (this.squareIsNavigable(idx)) {
+              newIdx = idx
+              break
+            }
+          }
+          break
+        case "ArrowLeft":
+        case "Left":
+          for (let i = currentCol - 1; i >= 0; i--) {
+            const idx = 8 * currentRow + i
+            if (this.squareIsNavigable(idx)) {
+              newIdx = idx
+              break
+            }
+          }
+          break
+        case "ArrowDown":
+        case "Down":
+          for (let i = currentRow + 1; i < 8; i++) {
+            const idx = 8 * i + currentCol
+            if (this.squareIsNavigable(idx)) {
+              newIdx = idx
+              break
+            }
+          }
+          break
+        case "ArrowUp":
+        case "Up":
+          for (let i = currentRow - 1; i >= 0; i--) {
+            const idx = 8 * i + currentCol
+            if (this.squareIsNavigable(idx)) {
+              newIdx = idx
+              break
+            }
+          }
+          break
+        case "Home":
+          break
+        case "End":
+          break
+      }
+      if (newIdx !== currentIdx) {
+        this.squareElements[currentIdx].tabIndex = -1
+        this.squareElements[newIdx].tabIndex = 0
+        this.tabbableSquare = getSquare(newIdx, this.orientation)
+        this.squareElements[newIdx].focus()
+      }
+    }
+  }
+
   private movePiece(from: Square, to: Square) {
     this.pieces.movePiece(from, to)
     this.toggleElementHasPiece(this.getSquareElement(from), false)
     const toElement = this.getSquareElement(to)
     this.toggleElementHasPiece(toElement, true)
+    this.tabbableSquare = to
     this.updateInteractionState({ id: "awaiting-input" })
     // Programmatically focus target square for cases where the browser
     // won't handle that automatically, e.g. through a drag operation
@@ -319,18 +393,20 @@ export class Chessboard {
     // Reset tabbable index if this is a state switch, or
     // tabbable index is not set.
     if (
-      previousState != this.interactionState ||
+      previousState.id !== this.interactionState.id ||
       this.tabbableSquare === undefined
     ) {
       switch (this.interactionState.id) {
         case "awaiting-input":
-          // Find first square containing a piece that is visitable
-          // and set that as tabbable index.
-          for (let i = 0; i < 64; i++) {
-            const square = getSquare(i, this.orientation)
-            if (this.pieces.hasPieceOn(square)) {
-              this.tabbableSquare = square
-              break
+          if (this.tabbableSquare === undefined) {
+            // Find first square containing a piece that is visitable
+            // and set that as tabbable index.
+            for (let i = 0; i < 64; i++) {
+              const square = getSquare(i, this.orientation)
+              if (this.pieces.getPieceOn(square)) {
+                this.tabbableSquare = square
+                break
+              }
             }
           }
           break
@@ -352,7 +428,7 @@ export class Chessboard {
     this.forEachSquare((square, squareElement) => {
       switch (this.interactionState.id) {
         case "awaiting-input":
-          if (this.pieces.hasPieceOn(square)) {
+          if (this.pieces.getPieceOn(square)) {
             this.makeNavigable(squareElement, square)
           } else {
             this.makeUnnavigable(squareElement)
@@ -375,7 +451,11 @@ export class Chessboard {
 
   private makeNavigable(element: HTMLDivElement, square: Square) {
     element.setAttribute("role", "gridcell")
-    element.setAttribute("aria-label", square)
+    const piece = this.pieces.getPieceOn(square)
+    element.setAttribute(
+      "aria-label",
+      piece ? `${square}, ${piece.color} ${piece.pieceType}` : square
+    )
     element.tabIndex = square === this.tabbableSquare ? 0 : -1
   }
 
@@ -428,5 +508,12 @@ export class Chessboard {
       const square = getSquare(i, this.orientation)
       boundCallback(square, this.squareElements[i], i)
     }
+  }
+
+  /**
+   * Return true if square index corresponds to a navigable square (role = gridcell).
+   */
+  private squareIsNavigable(squareIdx: number) {
+    return this.squareElements[squareIdx].getAttribute("role") === "gridcell"
   }
 }

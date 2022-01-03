@@ -14,10 +14,10 @@ describe("Pieces.movePiece()", () => {
     const [, pieces] = buildPieces({
       b3: { color: "white", pieceType: "queen" },
     })
-    expect(pieces.hasPieceOn("b3")).toBeTruthy()
+    expect(pieces.getPieceOn("b3")).not.toBeUndefined()
     pieces.movePiece("b3", "d5")
-    expect(pieces.hasPieceOn("d5")).toBeTruthy()
-    expect(pieces.hasPieceOn("b3")).not.toBeTruthy()
+    expect(pieces.getPieceOn("d5")).not.toBeUndefined()
+    expect(pieces.getPieceOn("b3")).toBeUndefined()
   })
 
   it("ignores move from square that doesn't contain piece", async () => {
@@ -25,7 +25,7 @@ describe("Pieces.movePiece()", () => {
       b3: { color: "white", pieceType: "queen" },
     })
     pieces.movePiece("a1", "d5")
-    expect(pieces.hasPieceOn("d5")).not.toBeTruthy()
+    expect(pieces.getPieceOn("d5")).toBeUndefined()
   })
 
   it("replaces piece if target square already contains one", async () => {

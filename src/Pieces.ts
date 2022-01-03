@@ -76,10 +76,10 @@ export class Pieces {
   }
 
   /**
-   * Return true if `square` has a piece currently on it.
+   * Return the piece on `square` if it exists.
    */
-  hasPieceOn(square: Square): boolean {
-    return square in this.pieces
+  getPieceOn(square: Square): Piece | undefined {
+    return this.pieces[square]?.piece
   }
 
   /**
