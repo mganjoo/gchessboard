@@ -18,6 +18,7 @@ const typescriptConfig = {
 /** @type {import("rollup-plugin-postcss").PostCSSPluginConf} */
 const postCssConfig = {
   minimize: true,
+  plugins: [require("autoprefixer")],
 }
 
 const smartAssetConfig = {

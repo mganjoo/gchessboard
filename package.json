@@ -24,6 +24,7 @@
     "@types/jest": "^27.0.3",
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.8.0",
+    "autoprefixer": "^10.4.1",
     "babel-jest": "^27.4.5",
     "babel-loader": "^8.2.3",
     "eslint": "^8.5.0",
@@ -63,5 +64,10 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "*.{js,jsx,ts,tsx,css,md,json,yml,yaml}": "prettier --write"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ]
 }

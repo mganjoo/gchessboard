@@ -10,6 +10,8 @@
   position: relative;
   display: table;
   width: 100%;
+  /* Prevent native dragging caused if any of the divs are "selected". */
+  user-select: none;
 }
 
 /* Row containing squares. */
