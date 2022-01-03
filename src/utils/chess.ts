@@ -18,14 +18,14 @@ export interface Piece {
 
 // prettier-ignore
 const SQUARES_MAP = {
-  a8: 112, b8: 113, c8: 114, d8: 115, e8: 116, f8: 117, g8: 118, h8: 119,
-  a7:  96, b7:  97, c7:  98, d7:  99, e7: 100, f7: 101, g7: 102, h7: 103,
-  a6:  80, b6:  81, c6:  82, d6:  83, e6:  84, f6:  85, g6:  86, h6:  87,
-  a5:  64, b5:  65, c5:  66, d5:  67, e5:  68, f5:  69, g5:  70, h5:  71,
-  a4:  48, b4:  49, c4:  50, d4:  51, e4:  52, f4:  53, g4:  54, h4:  55,
-  a3:  32, b3:  33, c3:  34, d3:  35, e3:  36, f3:  37, g3:  38, h3:  39,
-  a2:  16, b2:  17, c2:  18, d2:  19, e2:  20, f2:  21, g2:  22, h2:  23,
-  a1:   0, b1:   1, c1:   2, d1:   3, e1:   4, f1:   5, g1:   6, h1:   7,
+  a8:   0, b8:   1, c8:   2, d8:   3, e8:   4, f8:   5, g8:   6, h8:   7,
+  a7:  16, b7:  17, c7:  18, d7:  19, e7:  20, f7:  21, g7:  22, h7:  23,
+  a6:  32, b6:  33, c6:  34, d6:  35, e6:  36, f6:  37, g6:  38, h6:  39,
+  a5:  48, b5:  49, c5:  50, d5:  51, e5:  52, f5:  53, g5:  54, h5:  55,
+  a4:  64, b4:  65, c4:  66, d4:  67, e4:  68, f4:  69, g4:  70, h4:  71,
+  a3:  80, b3:  81, c3:  82, d3:  83, e3:  84, f3:  85, g3:  86, h3:  87,
+  a2:  96, b2:  97, c2:  98, d2:  99, e2: 100, f2: 101, g2: 102, h2: 103,
+  a1: 112, b1: 113, c1: 114, d1: 115, e1: 116, f1: 117, g1: 118, h1: 119
 }
 export type Square = keyof typeof SQUARES_MAP
 
@@ -39,38 +39,40 @@ const REVERSE_SQUARES_MAP = (Object.keys(SQUARES_MAP) as Square[]).reduce(
 
 /**
  * Return square identifier for visual `row` and `column` in a grid,
- * depending on orientation. If `orientation` is "white", then a1 is
- * on the bottom left (7, 0) and h8 is on the top right (0, 7):
+ * depending on orientation. If `orientation` is "white", then a8 is
+ * on the top left (0, 0) and h8 is on the bottom right (7, 7):
  *
- * .  ...... h8
+ * a8 ...... .
  * .  ...... .
- * a1 ...... .
+ * .  ...... h1
  *
- * otherwise h8 is on the bottom left:
- * .  ...... a1
+ * otherwise h1 is on the top left:
+ *
+ * h1 ...... .
  * .  ...... .
- * h8 ...... .
+ * .  ...... a8
  *
  * https://www.chessprogramming.org/0x88#Coordinate_Transformation
  */
 export function getSquare(row: number, column: number, orientation: Side) {
-  const idx = 16 * (7 - row) + column
+  const idx = 16 * row + column
   return REVERSE_SQUARES_MAP[orientation === "white" ? idx : 0x77 - idx]
 }
 
 /**
  * Get the "visual" row and column for `square` depending on `orientation`.
- * If `orientation` is "white", then a1 is on the bottom left (7, 0) and h8
- * is on the top right (0, 7):
+ * If `orientation` is "white", then a8 is on the top left (0, 0) and h8 is
+ * on the bottom right (7, 7):
  *
- * .  ...... h8
+ * a8 ...... .
  * .  ...... .
- * a1 ...... .
+ * .  ...... h1
  *
- * otherwise h8 is on the bottom left:
- * .  ...... a1
+ * otherwise h1 is on the top left:
+ *
+ * h1 ...... .
  * .  ...... .
- * h8 ...... .
+ * .  ...... a8
  *
  * https://www.chessprogramming.org/0x88#Coordinate_Transformation
  *
@@ -81,7 +83,7 @@ export function getSquare(row: number, column: number, orientation: Side) {
 export function getVisualRowColumn(square: Square, orientation: Side) {
   const idx = SQUARES_MAP[square]
   const orientedIdx = orientation === "white" ? idx : 0x77 - idx
-  return [7 - (orientedIdx >> 4), orientedIdx & 0x7]
+  return [orientedIdx >> 4, orientedIdx & 0x7]
 }
 
 /**
@@ -90,7 +92,7 @@ export function getVisualRowColumn(square: Square, orientation: Side) {
 export function getSquareColor(square: Square): SquareColor {
   const idx0x88 = SQUARES_MAP[square]
   const idx = (idx0x88 + (idx0x88 & 0x7)) >> 1
-  return ((idx * 9) & 8) === 0 ? "dark" : "light"
+  return ((idx * 9) & 8) === 0 ? "light" : "dark"
 }
 
 /**
