@@ -121,7 +121,7 @@ export class Chessboard {
       this.squareElements[idx].dataset.squareColor = color
       this.toggleElementHasPiece(
         this.squareElements[idx],
-        !!this.pieces.getPieceOn(square)
+        !!this.pieces.pieceOn(square)
       )
       const row = idx >> 3
       const col = idx & 0x7
@@ -151,7 +151,7 @@ export class Chessboard {
     switch (this.interactionState.id) {
       case "awaiting-input":
         // Ignore clicks that are outside board or have no piece on them
-        if (clickedSquare && this.pieces.getPieceOn(clickedSquare)) {
+        if (clickedSquare && this.pieces.pieceOn(clickedSquare)) {
           this.updateInteractionState({
             id: "touching-first-square",
             square: clickedSquare,
@@ -316,7 +316,7 @@ export class Chessboard {
         switch (this.interactionState.id) {
           case "awaiting-input":
             // Ignore presses that are outside board or have no piece on them
-            if (pressedSquare && this.pieces.getPieceOn(pressedSquare)) {
+            if (pressedSquare && this.pieces.pieceOn(pressedSquare)) {
               this.updateInteractionState({
                 id: "moving-piece-kb",
                 startSquare: pressedSquare,
@@ -483,7 +483,7 @@ export class Chessboard {
           if (this.tabbableSquare === undefined) {
             // Find first square from bottom containing a piece
             // that is visitable and set that as tabbable index.
-            newTabbableSquare = this.pieces.firstOccupiedSquarePlayerView()
+            newTabbableSquare = this.pieces.firstOccupiedSquare()
           }
           break
         case "touching-first-square":
@@ -520,7 +520,7 @@ export class Chessboard {
    */
   private makeNavigable(idx: number, square: Square) {
     this.squareElements[idx].setAttribute("role", "gridcell")
-    const piece = this.pieces.getPieceOn(square)
+    const piece = this.pieces.pieceOn(square)
     this.squareElements[idx].setAttribute(
       "aria-label",
       piece ? `${square}, ${piece.color} ${piece.pieceType}` : square

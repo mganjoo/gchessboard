@@ -15,10 +15,10 @@ describe("Pieces.movePiece()", () => {
     const [, pieces] = buildPieces({
       b3: { color: "white", pieceType: "queen" },
     })
-    expect(pieces.getPieceOn("b3")).not.toBeUndefined()
+    expect(pieces.pieceOn("b3")).not.toBeUndefined()
     pieces.movePiece("b3", "d5")
-    expect(pieces.getPieceOn("d5")).not.toBeUndefined()
-    expect(pieces.getPieceOn("b3")).toBeUndefined()
+    expect(pieces.pieceOn("d5")).not.toBeUndefined()
+    expect(pieces.pieceOn("b3")).toBeUndefined()
   })
 
   it("ignores move from square that doesn't contain piece", async () => {
@@ -26,7 +26,7 @@ describe("Pieces.movePiece()", () => {
       b3: { color: "white", pieceType: "queen" },
     })
     pieces.movePiece("a1", "d5")
-    expect(pieces.getPieceOn("d5")).toBeUndefined()
+    expect(pieces.pieceOn("d5")).toBeUndefined()
   })
 
   it("replaces piece if target square already contains one", async () => {
@@ -40,7 +40,7 @@ describe("Pieces.movePiece()", () => {
   })
 })
 
-describe("Pieces.firstOccupiedSquarePlayerView()", () => {
+describe("Pieces.firstOccupiedSquare()", () => {
   it("works correctly for orientation = white", () => {
     const [, pieces] = buildPieces(
       {
@@ -50,7 +50,7 @@ describe("Pieces.firstOccupiedSquarePlayerView()", () => {
       },
       "white"
     )
-    expect(pieces.firstOccupiedSquarePlayerView()).toBe("g1")
+    expect(pieces.firstOccupiedSquare()).toBe("g1")
   })
   it("works correctly for orientation = black", () => {
     const [, pieces] = buildPieces(
@@ -61,6 +61,6 @@ describe("Pieces.firstOccupiedSquarePlayerView()", () => {
       },
       "black"
     )
-    expect(pieces.firstOccupiedSquarePlayerView()).toBe("f5")
+    expect(pieces.firstOccupiedSquare()).toBe("f5")
   })
 })

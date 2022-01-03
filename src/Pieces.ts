@@ -9,6 +9,9 @@ import {
 import sprite from "./sprite.svg"
 import { makeSvgElement, removeElement } from "./utils/dom"
 
+/**
+ * Visual layer for management of chessboard pieces and their rendering.
+ */
 export class Pieces {
   private group: SVGSVGElement
   private pieces: Partial<
@@ -46,8 +49,15 @@ export class Pieces {
    */
   private static PIECE_PADDING_PCT = 0.4
 
+  /**
+   * Creates an SVG layer for display and manipulation of pieces.
+   *
+   * @param container element that should contain pieces SVG.
+   * @param orientation initial orientation for pieces.
+   * @param pieces optional map of square -> piece.
+   */
   constructor(
-    container: Element,
+    container: HTMLElement,
     orientation: Side,
     pieces?: Partial<Record<Square, Piece>>
   ) {
@@ -77,6 +87,9 @@ export class Pieces {
     removeElement(this.group)
   }
 
+  /**
+   * Update orientation of pieces to `orientation` and update visual elements.
+   */
   updateOrientation(orientation: Side) {
     this.orientation = orientation
     this.draw()
@@ -85,15 +98,15 @@ export class Pieces {
   /**
    * Return the piece on `square` if it exists.
    */
-  getPieceOn(square: Square): Piece | undefined {
+  pieceOn(square: Square): Piece | undefined {
     return this.pieces[square]?.piece
   }
 
   /**
-   * Return the first occupied square (from the player's orientation, i.e.
-   * from bottom left), if it exists.
+   * Return the first occupied square, from the player's orientation (i.e.
+   * from bottom left of the visual board), if it exists.
    */
-  firstOccupiedSquarePlayerView(): Square | undefined {
+  firstOccupiedSquare(): Square | undefined {
     for (let row = 7; row >= 0; row--) {
       for (let col = 0; col < 8; col++) {
         const square = getSquare(8 * row + col, this.orientation)
