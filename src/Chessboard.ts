@@ -454,13 +454,9 @@ export class Chessboard {
       }
       if (newTabbableSquare !== undefined) {
         if (this.tabbableSquare !== undefined) {
-          this.squareElements[
-            getVisualIndex(this.tabbableSquare, this.orientation)
-          ].tabIndex = -1
+          this.getSquareElement(this.tabbableSquare).tabIndex = -1
         }
-        this.squareElements[
-          getVisualIndex(newTabbableSquare, this.orientation)
-        ].tabIndex = 0
+        this.getSquareElement(newTabbableSquare).tabIndex = 0
         this.tabbableSquare = newTabbableSquare
       }
     }
