@@ -1,6 +1,7 @@
 import { Meta, Story } from "@storybook/html"
 import { Chessboard, ChessboardConfig } from "./Chessboard"
 import { Side } from "./utils/chess"
+import { within, userEvent } from "@storybook/testing-library"
 
 // Assign as variable to ensure type checking
 const SIDE_OPTIONS: Side[] = ["white", "black"]
@@ -78,9 +79,23 @@ Wrapped.decorators = [
     wrapper.insertAdjacentHTML(
       "beforeend",
       `<p>
-        Here is some sample text, including a <a href="#">link</a>, to test focus/blur.
+        Here is some sample text, including a <button>link</button>, to test focus/blur.
       </p>`
     )
     return wrapper
   },
 ]
+
+export const ClickMove = Template.bind({})
+ClickMove.args = {
+  ...Wrapped.args,
+}
+ClickMove.decorators = [...Wrapped.decorators]
+// Note that these interactions can return promises but
+// types don't specify: https://github.com/storybookjs/testing-library/issues/10
+ClickMove.play = async ({ canvasElement }) => {
+  const canvas = within(canvasElement)
+  await userEvent.click(canvas.getByRole("gridcell", { name: /e2/i }))
+  await userEvent.click(canvas.getByRole("gridcell", { name: /e4/i }))
+  await userEvent.click(canvas.getByText("link"))
+}
