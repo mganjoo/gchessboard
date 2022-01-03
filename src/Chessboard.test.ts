@@ -3,7 +3,7 @@ import {
   getOppositeSide,
   getSquare,
   getSquareColor,
-  getVisualRowColumn,
+  getVisualIndex,
   Piece,
   Side,
   Square,
@@ -39,16 +39,15 @@ describe.each<{ side: Side; flip: boolean }>([
       chessboard.updateOrientation(getOppositeSide(side))
     }
     const finalSide = flip ? getOppositeSide(side) : side
-    const idxsWithPieces = (Object.keys(pieces) as (keyof typeof pieces)[])
-      .map((s) => getVisualRowColumn(s, finalSide))
-      .flatMap(([row, col]) => row * 8 + col)
+    const idxsWithPieces = (Object.keys(pieces) as (keyof typeof pieces)[]).map(
+      (s) => getVisualIndex(s, finalSide)
+    )
 
     it("should add correct classes and attributes to chessboard", () => {
       fc.assert(
-        fc.property(fc.nat({ max: 7 }), fc.nat({ max: 7 }), (row, col) => {
-          const squareElement =
-            wrapper.querySelectorAll("[data-square]")[row * 8 + col]
-          const expectedSquare = getSquare(row, col, finalSide)
+        fc.property(fc.nat({ max: 63 }), (idx) => {
+          const squareElement = wrapper.querySelectorAll("[data-square]")[idx]
+          const expectedSquare = getSquare(idx, finalSide)
           expect(squareElement).toHaveAttribute("data-square", expectedSquare)
           expect(squareElement).toHaveAttribute(
             "data-square-color",

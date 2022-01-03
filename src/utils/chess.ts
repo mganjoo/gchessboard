@@ -38,9 +38,9 @@ const REVERSE_SQUARES_MAP = (Object.keys(SQUARES_MAP) as Square[]).reduce(
 )
 
 /**
- * Return square identifier for visual `row` and `column` in a grid,
- * depending on orientation. If `orientation` is "white", then a8 is
- * on the top left (0, 0) and h8 is on the bottom right (7, 7):
+ * Return square identifier for visual index in a grid, depending on
+ * orientation. If `orientation` is "white", then a8 is on the top
+ * left (0) and h8 is on the bottom right (63):
  *
  * a8 ...... .
  * .  ...... .
@@ -54,15 +54,15 @@ const REVERSE_SQUARES_MAP = (Object.keys(SQUARES_MAP) as Square[]).reduce(
  *
  * https://www.chessprogramming.org/0x88#Coordinate_Transformation
  */
-export function getSquare(row: number, column: number, orientation: Side) {
-  const idx = 16 * row + column
+export function getSquare(visualIndex: number, orientation: Side) {
+  const idx = visualIndex + (visualIndex & ~0x7)
   return REVERSE_SQUARES_MAP[orientation === "white" ? idx : 0x77 - idx]
 }
 
 /**
- * Get the "visual" row and column for `square` depending on `orientation`.
- * If `orientation` is "white", then a8 is on the top left (0, 0) and h8 is
- * on the bottom right (7, 7):
+ * Get the "visual" index for `square` depending on `orientation`.
+ * If `orientation` is "white", then a8 is on the top left (0) and h8 is
+ * on the bottom right (63):
  *
  * a8 ...... .
  * .  ...... .
@@ -78,12 +78,12 @@ export function getSquare(row: number, column: number, orientation: Side) {
  *
  * @param square square to convert to visual row and column.
  * @param orientation  what side is at the bottom ("white" = a1 on bottom left)
- * @returns a tuple for [row, column].
+ * @returns a visual index for the square in question.
  */
-export function getVisualRowColumn(square: Square, orientation: Side) {
+export function getVisualIndex(square: Square, orientation: Side) {
   const idx = SQUARES_MAP[square]
   const orientedIdx = orientation === "white" ? idx : 0x77 - idx
-  return [orientedIdx >> 4, orientedIdx & 0x7]
+  return (orientedIdx + (orientedIdx & 0x7)) >> 1
 }
 
 /**

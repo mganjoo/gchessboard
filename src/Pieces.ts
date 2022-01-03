@@ -1,10 +1,4 @@
-import {
-  getVisualRowColumn,
-  Piece,
-  PieceType,
-  Side,
-  Square,
-} from "./utils/chess"
+import { getVisualIndex, Piece, PieceType, Side, Square } from "./utils/chess"
 import sprite from "./sprite.svg"
 import { makeSvgElement, removeElement } from "./utils/dom"
 
@@ -125,9 +119,9 @@ export class Pieces {
   }
 
   private drawPiece(pieceElement: SVGUseElement, square: Square) {
-    const [row, column] = getVisualRowColumn(square, this.orientation)
+    const idx = getVisualIndex(square, this.orientation)
     pieceElement.style.transform = `translate(${
-      column * 12.5 + Pieces.PIECE_PADDING_PCT
-    }%, ${row * 12.5 + Pieces.PIECE_PADDING_PCT}%)`
+      (idx & 0x7) * 12.5 + Pieces.PIECE_PADDING_PCT
+    }%, ${(idx >> 3) * 12.5 + Pieces.PIECE_PADDING_PCT}%)`
   }
 }

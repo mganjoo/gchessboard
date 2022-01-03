@@ -1,7 +1,7 @@
 import {
   getSquare,
   getSquareColor,
-  getVisualRowColumn,
+  getVisualIndex,
   keyIsSquare,
   Piece,
   Side,
@@ -20,7 +20,7 @@ export interface ChessboardConfig {
 
 export class Chessboard {
   private group: HTMLDivElement
-  private squareElements: HTMLDivElement[][]
+  private squareElements: HTMLDivElement[]
   private pieces: Pieces
   private interactionState: InteractionState
   private orientation: Side
@@ -46,7 +46,7 @@ export class Chessboard {
    * @param config Configuration for chessboard (see type definition for details)
    */
   constructor(container: Element, config?: ChessboardConfig) {
-    this.squareElements = new Array(8)
+    this.squareElements = new Array(64)
     this.interactionState = { id: "awaiting-input" }
     this.orientation = config?.orientation || "white"
 
@@ -55,13 +55,12 @@ export class Chessboard {
       classes: ["chessboard"],
     })
     for (let i = 0; i < 8; i++) {
-      this.squareElements[i] = new Array(8)
       const row = makeHTMLElement("div", {
         attributes: { role: "row" },
       })
       for (let j = 0; j < 8; j++) {
-        this.squareElements[i][j] = document.createElement("div")
-        row.appendChild(this.squareElements[i][j])
+        this.squareElements[8 * i + j] = document.createElement("div")
+        row.appendChild(this.squareElements[8 * i + j])
       }
       this.group.appendChild(row)
     }
@@ -103,32 +102,28 @@ export class Chessboard {
   }
 
   private draw() {
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 8; j++) {
-        const square = getSquare(i, j, this.orientation)
-        const color = getSquareColor(square)
-        this.squareElements[i][j].dataset.square = square
-        this.squareElements[i][j].dataset.squareColor = color
-        this.toggleElementHasPiece(
-          this.squareElements[i][j],
-          this.pieces.hasPieceOn(square)
-        )
+    this.forEachSquare((square, squareElement, idx) => {
+      const color = getSquareColor(square)
+      squareElement.dataset.square = square
+      squareElement.dataset.squareColor = color
+      this.toggleElementHasPiece(squareElement, this.pieces.hasPieceOn(square))
+      const row = idx >> 3
+      const col = idx & 0x7
 
-        // Rank labels
-        if (j === 0) {
-          this.squareElements[i][j].dataset.rankLabel = `${
-            this.orientation === "white" ? 8 - i : i + 1
-          }`
-        }
-
-        // File labels
-        if (i === 7) {
-          this.squareElements[i][j].dataset.fileLabel = String.fromCharCode(
-            "a".charCodeAt(0) + (this.orientation === "white" ? j : 7 - j)
-          )
-        }
+      // Rank labels
+      if (col === 0) {
+        squareElement.dataset.rankLabel = `${
+          this.orientation === "white" ? 8 - row : row + 1
+        }`
       }
-    }
+
+      // File labels
+      if (row === 7) {
+        squareElement.dataset.fileLabel = String.fromCharCode(
+          "a".charCodeAt(0) + (this.orientation === "white" ? col : 7 - col)
+        )
+      }
+    })
     this.updateInteractionState(this.interactionState)
   }
 
@@ -373,8 +368,7 @@ export class Chessboard {
    * Get square HTML element corresponding to square label `square`.
    */
   private getSquareElement(square: Square) {
-    const [row, column] = getVisualRowColumn(square, this.orientation)
-    return this.squareElements[row][column]
+    return this.squareElements[getVisualIndex(square, this.orientation)]
   }
 
   /**
@@ -385,15 +379,14 @@ export class Chessboard {
     callback: (
       this: Chessboard,
       square: Square,
-      squareElement: HTMLDivElement
+      squareElement: HTMLDivElement,
+      idx: number
     ) => void
   ) {
     const boundCallback = callback.bind(this)
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 8; j++) {
-        const square = getSquare(i, j, this.orientation)
-        boundCallback(square, this.squareElements[i][j])
-      }
+    for (let i = 0; i < 64; i++) {
+      const square = getSquare(i, this.orientation)
+      boundCallback(square, this.squareElements[i], i)
     }
   }
 }
