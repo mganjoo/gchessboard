@@ -150,7 +150,6 @@ export class Chessboard {
   ) {
     switch (this.interactionState.id) {
       case "awaiting-input":
-      case "moving-piece-kb":
         // Ignore clicks that are outside board or have no piece on them
         if (clickedSquare && this.pieces.getPieceOn(clickedSquare)) {
           this.updateInteractionState({
@@ -161,6 +160,7 @@ export class Chessboard {
           })
         }
         break
+      case "moving-piece-kb":
       case "awaiting-second-touch":
         if (
           clickedSquare &&
@@ -303,101 +303,146 @@ export class Chessboard {
 
   private handleKeyDown(
     this: Chessboard,
-    square: Square | undefined,
+    pressedSquare: Square | undefined,
     e: KeyboardEvent
   ) {
-    if (this.tabbableSquare) {
-      const currentIdx = getVisualIndex(this.tabbableSquare, this.orientation)
-      const currentRow = currentIdx >> 3
-      const currentCol = currentIdx & 0x7
-      let newIdx = currentIdx
-      switch (e.key) {
-        case "ArrowRight":
-        case "Right":
-          for (let i = currentCol + 1; i < 8; i++) {
-            const idx = 8 * currentRow + i
-            if (this.squareIsNavigable(idx)) {
-              newIdx = idx
-              break
+    // Only handle keypresses if there is a tabbable square, or we are
+    // not actively using the mouse (for a click or drag)
+    if (
+      this.tabbableSquare &&
+      !this.isActiveMouseState(this.interactionState)
+    ) {
+      if (e.key === "Enter") {
+        switch (this.interactionState.id) {
+          case "awaiting-input":
+            // Ignore presses that are outside board or have no piece on them
+            if (pressedSquare && this.pieces.getPieceOn(pressedSquare)) {
+              this.updateInteractionState({
+                id: "moving-piece-kb",
+                startSquare: pressedSquare,
+              })
             }
-          }
-          break
-        case "ArrowLeft":
-        case "Left":
-          for (let i = currentCol - 1; i >= 0; i--) {
-            const idx = 8 * currentRow + i
-            if (this.squareIsNavigable(idx)) {
-              newIdx = idx
-              break
+            break
+          case "moving-piece-kb":
+          case "awaiting-second-touch":
+            if (
+              pressedSquare &&
+              this.interactionState.startSquare !== pressedSquare
+            ) {
+              this.movePiece(this.interactionState.startSquare, pressedSquare)
+            } else {
+              // Cancel move if touch was outside squares area or if start
+              // and end square are the same. Before canceling move, prevent
+              // default action if we pressed the same square as start
+              // square (to prevent re-focusing)
+              if (this.interactionState.startSquare === pressedSquare) {
+                e.preventDefault()
+              }
+              this.cancelMove(this.interactionState.startSquare)
             }
-          }
-          break
-        case "ArrowDown":
-        case "Down":
-          for (let i = currentRow + 1; i < 8; i++) {
-            const idx = 8 * i + currentCol
-            if (this.squareIsNavigable(idx)) {
-              newIdx = idx
-              break
-            }
-          }
-          break
-        case "ArrowUp":
-        case "Up":
-          for (let i = currentRow - 1; i >= 0; i--) {
-            const idx = 8 * i + currentCol
-            if (this.squareIsNavigable(idx)) {
-              newIdx = idx
-              break
-            }
-          }
-          break
-        case "Home":
-          {
-            const start = e.ctrlKey ? 0 : 8 * currentRow
-            for (let idx = start; idx < currentIdx; idx++) {
+            break
+          case "dragging":
+          case "touching-first-square":
+            // Noop: don't handle keypresses in active mouse states
+            break
+          // istanbul ignore next
+          default:
+            assertUnreachable(this.interactionState)
+        }
+      } else {
+        const currentIdx = getVisualIndex(this.tabbableSquare, this.orientation)
+        const currentRow = currentIdx >> 3
+        const currentCol = currentIdx & 0x7
+        let newIdx = currentIdx
+        switch (e.key) {
+          case "ArrowRight":
+          case "Right":
+            for (let i = currentCol + 1; i < 8; i++) {
+              const idx = 8 * currentRow + i
               if (this.squareIsNavigable(idx)) {
                 newIdx = idx
                 break
               }
             }
-          }
-          break
-        case "End":
-          {
-            const end = e.ctrlKey ? 63 : 8 * currentRow + 7
-            for (let idx = end; idx > currentIdx; idx--) {
+            break
+          case "ArrowLeft":
+          case "Left":
+            for (let i = currentCol - 1; i >= 0; i--) {
+              const idx = 8 * currentRow + i
               if (this.squareIsNavigable(idx)) {
                 newIdx = idx
                 break
               }
             }
-          }
-          break
-        case "PageUp":
-          for (let i = 0; i < currentRow; i++) {
-            const idx = 8 * i + currentCol
-            if (this.squareIsNavigable(idx)) {
-              newIdx = idx
-              break
+            break
+          case "ArrowDown":
+          case "Down":
+            for (let i = currentRow + 1; i < 8; i++) {
+              const idx = 8 * i + currentCol
+              if (this.squareIsNavigable(idx)) {
+                newIdx = idx
+                break
+              }
             }
-          }
-          break
-        case "PageDown":
-          for (let i = 7; i > currentRow; i--) {
-            const idx = 8 * i + currentCol
-            if (this.squareIsNavigable(idx)) {
-              newIdx = idx
-              break
+            break
+          case "ArrowUp":
+          case "Up":
+            for (let i = currentRow - 1; i >= 0; i--) {
+              const idx = 8 * i + currentCol
+              if (this.squareIsNavigable(idx)) {
+                newIdx = idx
+                break
+              }
             }
-          }
-          break
-      }
-      if (newIdx !== currentIdx) {
-        this.squareElements[currentIdx].tabIndex = -1
-        this.squareElements[newIdx].tabIndex = 0
-        this.tabbableSquare = getSquare(newIdx, this.orientation)
-        this.squareElements[newIdx].focus()
+            break
+          case "Home":
+            {
+              const start = e.ctrlKey ? 0 : 8 * currentRow
+              for (let idx = start; idx < currentIdx; idx++) {
+                if (this.squareIsNavigable(idx)) {
+                  newIdx = idx
+                  break
+                }
+              }
+            }
+            break
+          case "End":
+            {
+              const end = e.ctrlKey ? 63 : 8 * currentRow + 7
+              for (let idx = end; idx > currentIdx; idx--) {
+                if (this.squareIsNavigable(idx)) {
+                  newIdx = idx
+                  break
+                }
+              }
+            }
+            break
+          case "PageUp":
+            for (let i = 0; i < currentRow; i++) {
+              const idx = 8 * i + currentCol
+              if (this.squareIsNavigable(idx)) {
+                newIdx = idx
+                break
+              }
+            }
+            break
+          case "PageDown":
+            for (let i = 7; i > currentRow; i--) {
+              const idx = 8 * i + currentCol
+              if (this.squareIsNavigable(idx)) {
+                newIdx = idx
+                break
+              }
+            }
+            break
+        }
+
+        if (newIdx !== currentIdx) {
+          this.squareElements[currentIdx].tabIndex = -1
+          this.squareElements[newIdx].tabIndex = 0
+          this.tabbableSquare = getSquare(newIdx, this.orientation)
+          this.squareElements[newIdx].focus()
+        }
       }
     }
   }
@@ -538,5 +583,19 @@ export class Chessboard {
    */
   private squareIsNavigable(squareIdx: number) {
     return this.squareElements[squareIdx].getAttribute("role") === "gridcell"
+  }
+
+  private isActiveMouseState(interactionState: InteractionState) {
+    switch (interactionState.id) {
+      case "dragging":
+      case "touching-first-square":
+        return true
+      case "awaiting-input":
+      case "awaiting-second-touch":
+      case "moving-piece-kb":
+        return false
+      default:
+        assertUnreachable(interactionState)
+    }
   }
 }
