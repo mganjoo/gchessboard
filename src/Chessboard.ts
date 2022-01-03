@@ -115,12 +115,12 @@ export class Chessboard {
   }
 
   private draw() {
-    this.forEachSquare((square, squareElement, idx) => {
+    this.forEachSquare((square, idx) => {
       const color = getSquareColor(square)
-      squareElement.dataset.square = square
-      squareElement.dataset.squareColor = color
+      this.squareElements[idx].dataset.square = square
+      this.squareElements[idx].dataset.squareColor = color
       this.toggleElementHasPiece(
-        squareElement,
+        this.squareElements[idx],
         !!this.pieces.getPieceOn(square)
       )
       const row = idx >> 3
@@ -128,14 +128,14 @@ export class Chessboard {
 
       // Rank labels
       if (col === 0) {
-        squareElement.dataset.rankLabel = `${
+        this.squareElements[idx].dataset.rankLabel = `${
           this.orientation === "white" ? 8 - row : row + 1
         }`
       }
 
       // File labels
       if (row === 7) {
-        squareElement.dataset.fileLabel = String.fromCharCode(
+        this.squareElements[idx].dataset.fileLabel = String.fromCharCode(
           "a".charCodeAt(0) + (this.orientation === "white" ? col : 7 - col)
         )
       }
@@ -353,8 +353,44 @@ export class Chessboard {
           }
           break
         case "Home":
+          {
+            const start = e.ctrlKey ? 0 : 8 * currentRow
+            for (let idx = start; idx < currentIdx; idx++) {
+              if (this.squareIsNavigable(idx)) {
+                newIdx = idx
+                break
+              }
+            }
+          }
           break
         case "End":
+          {
+            const end = e.ctrlKey ? 63 : 8 * currentRow + 7
+            for (let idx = end; idx > currentIdx; idx--) {
+              if (this.squareIsNavigable(idx)) {
+                newIdx = idx
+                break
+              }
+            }
+          }
+          break
+        case "PageUp":
+          for (let i = 0; i < currentRow; i++) {
+            const idx = 8 * i + currentCol
+            if (this.squareIsNavigable(idx)) {
+              newIdx = idx
+              break
+            }
+          }
+          break
+        case "PageDown":
+          for (let i = 7; i > currentRow; i--) {
+            const idx = 8 * i + currentCol
+            if (this.squareIsNavigable(idx)) {
+              newIdx = idx
+              break
+            }
+          }
           break
       }
       if (newIdx !== currentIdx) {
@@ -396,73 +432,69 @@ export class Chessboard {
       previousState.id !== this.interactionState.id ||
       this.tabbableSquare === undefined
     ) {
+      let newTabbableSquare: Square | undefined
       switch (this.interactionState.id) {
         case "awaiting-input":
           if (this.tabbableSquare === undefined) {
-            // Find first square containing a piece that is visitable
-            // and set that as tabbable index.
-            for (let i = 0; i < 64; i++) {
-              const square = getSquare(i, this.orientation)
-              if (this.pieces.getPieceOn(square)) {
-                this.tabbableSquare = square
-                break
-              }
-            }
+            // Find first square from bottom containing a piece
+            // that is visitable and set that as tabbable index.
+            newTabbableSquare = this.pieces.firstOccupiedSquarePlayerView()
           }
           break
         case "touching-first-square":
-          this.tabbableSquare = this.interactionState.square
+          newTabbableSquare = this.interactionState.square
           break
         case "awaiting-second-touch":
         case "dragging":
         case "moving-piece-kb":
-          this.tabbableSquare = this.interactionState.startSquare
+          newTabbableSquare = this.interactionState.startSquare
           break
         default:
           assertUnreachable(this.interactionState)
+      }
+      if (newTabbableSquare !== undefined) {
+        if (this.tabbableSquare !== undefined) {
+          this.squareElements[
+            getVisualIndex(this.tabbableSquare, this.orientation)
+          ].tabIndex = -1
+        }
+        this.squareElements[
+          getVisualIndex(newTabbableSquare, this.orientation)
+        ].tabIndex = 0
+        this.tabbableSquare = newTabbableSquare
       }
     }
 
     // Reset which squares are considered navigable, based on current
     // interactions state.
-    this.forEachSquare((square, squareElement) => {
-      switch (this.interactionState.id) {
-        case "awaiting-input":
-          if (this.pieces.getPieceOn(square)) {
-            this.makeNavigable(squareElement, square)
-          } else {
-            this.makeUnnavigable(squareElement)
-          }
-          break
-        case "touching-first-square":
-        case "awaiting-second-touch":
-        case "dragging":
-        case "moving-piece-kb":
-          // TODO: mark only the states that the piece is allowed to
-          // go to. For now, just make all squares navigable.
-          this.makeNavigable(squareElement, square)
-          break
-        // istanbul ignore next
-        default:
-          assertUnreachable(this.interactionState)
-      }
+    // Set all squares to be navigable. TODO: later, consider restricting
+    this.forEachSquare((square, idx) => {
+      this.makeNavigable(idx, square)
     })
   }
 
-  private makeNavigable(element: HTMLDivElement, square: Square) {
-    element.setAttribute("role", "gridcell")
+  /**
+   * Make the square element at `idx` non-navigable, by adding an ARIA role,
+   * label and index.
+   */
+  private makeNavigable(idx: number, square: Square) {
+    this.squareElements[idx].setAttribute("role", "gridcell")
     const piece = this.pieces.getPieceOn(square)
-    element.setAttribute(
+    this.squareElements[idx].setAttribute(
       "aria-label",
       piece ? `${square}, ${piece.color} ${piece.pieceType}` : square
     )
-    element.tabIndex = square === this.tabbableSquare ? 0 : -1
+    this.squareElements[idx].tabIndex = square === this.tabbableSquare ? 0 : -1
   }
 
-  private makeUnnavigable(element: HTMLDivElement) {
-    element.removeAttribute("role")
-    element.removeAttribute("aria-label")
-    element.removeAttribute("tabindex")
+  /**
+   * Make the square element at `idx` navigable, by removing the ARIA role,
+   * label and index.
+   */
+  private makeUnnavigable(idx: number) {
+    this.squareElements[idx].removeAttribute("role")
+    this.squareElements[idx].removeAttribute("aria-label")
+    this.squareElements[idx].removeAttribute("tabindex")
   }
 
   private toggleElementHasPiece(element: HTMLDivElement, force: boolean) {
@@ -496,17 +528,12 @@ export class Chessboard {
    * the square label and HTML element as arguments.
    */
   private forEachSquare(
-    callback: (
-      this: Chessboard,
-      square: Square,
-      squareElement: HTMLDivElement,
-      idx: number
-    ) => void
+    callback: (this: Chessboard, square: Square, idx: number) => void
   ) {
     const boundCallback = callback.bind(this)
     for (let i = 0; i < 64; i++) {
       const square = getSquare(i, this.orientation)
-      boundCallback(square, this.squareElements[i], i)
+      boundCallback(square, i)
     }
   }
 

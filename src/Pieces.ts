@@ -1,4 +1,11 @@
-import { getVisualIndex, Piece, PieceType, Side, Square } from "./utils/chess"
+import {
+  getSquare,
+  getVisualIndex,
+  Piece,
+  PieceType,
+  Side,
+  Square,
+} from "./utils/chess"
 import sprite from "./sprite.svg"
 import { makeSvgElement, removeElement } from "./utils/dom"
 
@@ -80,6 +87,22 @@ export class Pieces {
    */
   getPieceOn(square: Square): Piece | undefined {
     return this.pieces[square]?.piece
+  }
+
+  /**
+   * Return the first occupied square (from the player's orientation, i.e.
+   * from bottom left), if it exists.
+   */
+  firstOccupiedSquarePlayerView(): Square | undefined {
+    for (let row = 7; row >= 0; row--) {
+      for (let col = 0; col < 8; col++) {
+        const square = getSquare(8 * row + col, this.orientation)
+        if (square in this.pieces) {
+          return square
+        }
+      }
+    }
+    return undefined
   }
 
   /**
