@@ -1,12 +1,13 @@
 import { Pieces } from "./Pieces"
-import { Piece, Square } from "./utils/chess"
+import { Piece, Side, Square } from "./utils/chess"
 
 function buildPieces(
-  pieces?: Partial<Record<Square, Piece>>
+  pieces?: Partial<Record<Square, Piece>>,
+  orientation?: Side
 ): [HTMLElement, Pieces] {
   const wrapper = document.createElement("div")
   document.body.replaceChildren(wrapper)
-  return [wrapper, new Pieces(wrapper, "white", pieces)]
+  return [wrapper, new Pieces(wrapper, orientation || "white", pieces)]
 }
 
 describe("Pieces.movePiece()", () => {
@@ -36,5 +37,30 @@ describe("Pieces.movePiece()", () => {
     expect(wrapper.querySelectorAll("use").length).toEqual(2)
     pieces.movePiece("b3", "a1")
     expect(wrapper.querySelectorAll("use").length).toEqual(1)
+  })
+})
+
+describe("Pieces.firstOccupiedSquarePlayerView()", () => {
+  it("works correctly for orientation = white", () => {
+    const [, pieces] = buildPieces(
+      {
+        f5: { color: "white", pieceType: "pawn" },
+        g1: { color: "black", pieceType: "knight" },
+        b3: { color: "white", pieceType: "queen" },
+      },
+      "white"
+    )
+    expect(pieces.firstOccupiedSquarePlayerView()).toBe("g1")
+  })
+  it("works correctly for orientation = black", () => {
+    const [, pieces] = buildPieces(
+      {
+        f5: { color: "white", pieceType: "pawn" },
+        g1: { color: "black", pieceType: "knight" },
+        b3: { color: "white", pieceType: "queen" },
+      },
+      "black"
+    )
+    expect(pieces.firstOccupiedSquarePlayerView()).toBe("f5")
   })
 })
