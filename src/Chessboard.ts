@@ -25,6 +25,14 @@ export class Chessboard {
   private interactionState: InteractionState
   private orientation: Side
 
+  /**
+   * Square that is considered "tabbable", if any. Keyboard navigation
+   * on the board uses a roving tabindex, which means that only one square is
+   * "tabbable" at a time (the rest are navigable using up and down keys on
+   * the keyboard).
+   */
+  private tabbableSquare: Square | undefined
+
   // Event handlers
   private mouseDownHandler: (e: MouseEvent) => void
   private mouseUpHandler: (e: MouseEvent) => void
@@ -304,8 +312,40 @@ export class Chessboard {
   }
 
   private updateInteractionState(state: InteractionState) {
+    const previousState = this.interactionState
     this.interactionState = state
     this.group.dataset.moveState = this.interactionState.id
+
+    // Reset tabbable index if this is a state switch, or
+    // tabbable index is not set.
+    if (
+      previousState != this.interactionState ||
+      this.tabbableSquare === undefined
+    ) {
+      switch (this.interactionState.id) {
+        case "awaiting-input":
+          // Find first square containing a piece that is visitable
+          // and set that as tabbable index.
+          for (let i = 0; i < 64; i++) {
+            const square = getSquare(i, this.orientation)
+            if (this.pieces.hasPieceOn(square)) {
+              this.tabbableSquare = square
+              break
+            }
+          }
+          break
+        case "touching-first-square":
+          this.tabbableSquare = this.interactionState.square
+          break
+        case "awaiting-second-touch":
+        case "dragging":
+        case "moving-piece-kb":
+          this.tabbableSquare = this.interactionState.startSquare
+          break
+        default:
+          assertUnreachable(this.interactionState)
+      }
+    }
 
     // Reset which squares are considered navigable, based on current
     // interactions state.
@@ -336,7 +376,7 @@ export class Chessboard {
   private makeNavigable(element: HTMLDivElement, square: Square) {
     element.setAttribute("role", "gridcell")
     element.setAttribute("aria-label", square)
-    element.tabIndex = 0
+    element.tabIndex = square === this.tabbableSquare ? 0 : -1
   }
 
   private makeUnnavigable(element: HTMLDivElement) {
