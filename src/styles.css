@@ -91,6 +91,7 @@
   cursor: grab;
 }
 
-[data-move-state="awaiting-second-touch"] [data-square] {
+[data-move-state="awaiting-second-touch"] [data-square],
+[data-move-state="canceling-second-touch"] [data-square] {
   cursor: pointer;
 }

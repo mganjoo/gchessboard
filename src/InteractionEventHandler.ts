@@ -15,8 +15,6 @@ type InteractionState =
   | {
       id: "dragging"
       startSquare: Square
-      x: number
-      y: number
     }
   | {
       id: "moving-piece-kb"
@@ -25,6 +23,12 @@ type InteractionState =
   | {
       id: "awaiting-second-touch"
       startSquare: Square
+    }
+  | {
+      id: "canceling-second-touch"
+      startSquare: Square
+      touchStartX: number
+      touchStartY: number
     }
 
 export interface InteractionEventHandlerConfig {
@@ -134,19 +138,24 @@ export class InteractionEventHandler {
           this.interactionState.startSquare !== clickedSquare
         ) {
           this.movePiece(this.interactionState.startSquare, clickedSquare)
+        } else if (this.interactionState.startSquare === clickedSquare) {
+          // Second mousedown on the same square *may* be a cancel, but could
+          // also be a misclick/readjustment in order to begin dragging. Wait
+          // till corresponding mouseup event in order to cancel.
+          this.updateInteractionState({
+            id: "canceling-second-touch",
+            startSquare: this.interactionState.startSquare,
+            touchStartX: e.clientX,
+            touchStartY: e.clientY,
+          })
         } else {
-          // Cancel move if touch was outside squares area or if start
-          // and end square are the same. Before canceling move, prevent
-          // default action if we clicked on the same square as start
-          // square (to prevent re-focusing)
-          if (this.interactionState.startSquare === clickedSquare) {
-            e.preventDefault()
-          }
+          // Cancel move if touch was outside squares area.
           this.cancelMove(this.interactionState.startSquare)
         }
         break
       case "dragging":
       case "touching-first-square":
+      case "canceling-second-touch":
         // Noop: mouse is already down while dragging or touching first square
         break
       // istanbul ignore next
@@ -157,7 +166,8 @@ export class InteractionEventHandler {
 
   private handleMouseUp(
     this: InteractionEventHandler,
-    square: Square | undefined
+    square: Square | undefined,
+    e: MouseEvent
   ) {
     switch (this.interactionState.id) {
       case "touching-first-square":
@@ -172,6 +182,14 @@ export class InteractionEventHandler {
         } else {
           this.cancelMove(this.interactionState.startSquare)
         }
+        break
+      case "canceling-second-touch":
+        // User cancels by clicking on the same square. First, prevent default
+        // action (to prevent re-focusing).
+        if (this.interactionState.startSquare === square) {
+          e.preventDefault()
+        }
+        this.cancelMove(this.interactionState.startSquare)
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -192,25 +210,37 @@ export class InteractionEventHandler {
   ) {
     switch (this.interactionState.id) {
       case "touching-first-square":
-        {
-          const delta = Math.sqrt(
-            (e.clientX - this.interactionState.touchStartX) ** 2 +
-              (e.clientY - this.interactionState.touchStartY) ** 2
+        if (
+          this.cursorPassedDragThreshold(
+            e.clientX,
+            e.clientY,
+            square,
+            this.interactionState.touchStartX,
+            this.interactionState.touchStartY,
+            this.interactionState.square
           )
-          // Consider a "dragging" action to be when we have moved the mouse a sufficient
-          // threshold, or we are now in a different square from where we started.
-          if (
-            delta / this.squares.squareWidth >
-              InteractionEventHandler.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION ||
-            square !== this.interactionState.square
-          ) {
-            this.updateInteractionState({
-              id: "dragging",
-              startSquare: this.interactionState.square,
-              x: e.clientX,
-              y: e.clientY,
-            })
-          }
+        ) {
+          this.updateInteractionState({
+            id: "dragging",
+            startSquare: this.interactionState.square,
+          })
+        }
+        break
+      case "canceling-second-touch":
+        if (
+          this.cursorPassedDragThreshold(
+            e.clientX,
+            e.clientY,
+            square,
+            this.interactionState.touchStartX,
+            this.interactionState.touchStartY,
+            this.interactionState.startSquare
+          )
+        ) {
+          this.updateInteractionState({
+            id: "dragging",
+            startSquare: this.interactionState.startSquare,
+          })
         }
         break
       case "dragging":
@@ -231,6 +261,7 @@ export class InteractionEventHandler {
     switch (this.interactionState.id) {
       case "moving-piece-kb":
       case "awaiting-second-touch":
+      case "canceling-second-touch":
       case "dragging":
         // We know if the focus event was outside the board if square is undefined,
         // in which case we can cancel the move.
@@ -255,6 +286,7 @@ export class InteractionEventHandler {
     switch (this.interactionState.id) {
       case "awaiting-second-touch":
       case "dragging":
+      case "canceling-second-touch":
       case "moving-piece-kb":
         // If we lose focus from root document element, cancel any moves in progress
         if (!hasParentNode(e.target)) {
@@ -310,6 +342,7 @@ export class InteractionEventHandler {
           break
         case "dragging":
         case "touching-first-square":
+        case "canceling-second-touch":
           // Noop: don't handle keypresses in active mouse states
           break
         // istanbul ignore next
@@ -390,6 +423,7 @@ export class InteractionEventHandler {
           this.squares.tabbableSquare = this.interactionState.square
           break
         case "awaiting-second-touch":
+        case "canceling-second-touch":
         case "dragging":
         case "moving-piece-kb":
           this.squares.tabbableSquare = this.interactionState.startSquare
@@ -427,5 +461,30 @@ export class InteractionEventHandler {
       const square = hasDataset(e.target) ? e.target.dataset.square : undefined
       boundCallback(keyIsSquare(square) ? square : undefined, e)
     }
+  }
+
+  /**
+   * Return true if cursor on (`x`, `y`) and `square` exceeds "drag"
+   * threshold, either if:
+   * - distance from start X and Y is greater than a threshold percent of
+   *   square width
+   * - the current mouseover square is different from starting square
+   */
+  private cursorPassedDragThreshold(
+    x: number,
+    y: number,
+    square: Square | undefined,
+    startX: number,
+    startY: number,
+    startSquare: Square
+  ) {
+    const delta = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2)
+    // Consider a "dragging" action to be when we have moved the mouse a sufficient
+    // threshold, or we are now in a different square from where we started.
+    return (
+      delta / this.squares.squareWidth >
+        InteractionEventHandler.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION ||
+      square !== startSquare
+    )
   }
 }
