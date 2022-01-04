@@ -1,7 +1,31 @@
-import { InteractionState } from "./InteractionState"
 import { Squares } from "./Squares"
 import { getSquare, getVisualIndex, keyIsSquare, Square } from "./utils/chess"
 import { assertUnreachable, hasDataset, hasParentNode } from "./utils/typing"
+
+type InteractionState =
+  | {
+      id: "awaiting-input"
+    }
+  | {
+      id: "touching-first-square"
+      square: Square
+      touchStartX: number
+      touchStartY: number
+    }
+  | {
+      id: "dragging"
+      startSquare: Square
+      x: number
+      y: number
+    }
+  | {
+      id: "moving-piece-kb"
+      startSquare: Square
+    }
+  | {
+      id: "awaiting-second-touch"
+      startSquare: Square
+    }
 
 export interface InteractionEventHandlerConfig {
   /**
@@ -255,92 +279,88 @@ export class InteractionEventHandler {
     pressedSquare: Square | undefined,
     e: KeyboardEvent
   ) {
-    // Only handle keypresses if we are not actively using the mouse
-    // (for a click or drag)
-    if (!this.isTouchActiveState(this.interactionState)) {
-      if (e.key === "Enter") {
-        switch (this.interactionState.id) {
-          case "awaiting-input":
-            // Ignore presses that are outside board or have no piece on them
-            if (pressedSquare && this.squares.pieces.pieceOn(pressedSquare)) {
-              this.updateInteractionState({
-                id: "moving-piece-kb",
-                startSquare: pressedSquare,
-              })
+    if (e.key === "Enter") {
+      switch (this.interactionState.id) {
+        case "awaiting-input":
+          // Ignore presses that are outside board or have no piece on them
+          if (pressedSquare && this.squares.pieces.pieceOn(pressedSquare)) {
+            this.updateInteractionState({
+              id: "moving-piece-kb",
+              startSquare: pressedSquare,
+            })
+          }
+          break
+        case "moving-piece-kb":
+        case "awaiting-second-touch":
+          if (
+            pressedSquare &&
+            this.interactionState.startSquare !== pressedSquare
+          ) {
+            this.movePiece(this.interactionState.startSquare, pressedSquare)
+          } else {
+            // Cancel move if touch was outside squares area or if start
+            // and end square are the same. Before canceling move, prevent
+            // default action if we pressed the same square as start
+            // square (to prevent re-focusing)
+            if (this.interactionState.startSquare === pressedSquare) {
+              e.preventDefault()
             }
-            break
-          case "moving-piece-kb":
-          case "awaiting-second-touch":
-            if (
-              pressedSquare &&
-              this.interactionState.startSquare !== pressedSquare
-            ) {
-              this.movePiece(this.interactionState.startSquare, pressedSquare)
-            } else {
-              // Cancel move if touch was outside squares area or if start
-              // and end square are the same. Before canceling move, prevent
-              // default action if we pressed the same square as start
-              // square (to prevent re-focusing)
-              if (this.interactionState.startSquare === pressedSquare) {
-                e.preventDefault()
-              }
-              this.cancelMove(this.interactionState.startSquare)
-            }
-            break
-          case "dragging":
-          case "touching-first-square":
-            // Noop: don't handle keypresses in active mouse states
-            break
-          // istanbul ignore next
-          default:
-            assertUnreachable(this.interactionState)
-        }
-      } else {
-        const currentIdx = getVisualIndex(
-          this.squares.tabbableSquare,
+            this.cancelMove(this.interactionState.startSquare)
+          }
+          break
+        case "dragging":
+        case "touching-first-square":
+          // Noop: don't handle keypresses in active mouse states
+          break
+        // istanbul ignore next
+        default:
+          assertUnreachable(this.interactionState)
+      }
+    } else {
+      const currentIdx = getVisualIndex(
+        this.squares.tabbableSquare,
+        this.squares.orientation
+      )
+      const currentRow = currentIdx >> 3
+      const currentCol = currentIdx & 0x7
+      let newIdx = currentIdx
+      switch (e.key) {
+        case "ArrowRight":
+        case "Right":
+          newIdx = 8 * currentRow + Math.min(7, currentCol + 1)
+          break
+        case "ArrowLeft":
+        case "Left":
+          newIdx = 8 * currentRow + Math.max(0, currentCol - 1)
+          break
+        case "ArrowDown":
+        case "Down":
+          newIdx = 8 * Math.min(7, currentRow + 1) + currentCol
+          break
+        case "ArrowUp":
+        case "Up":
+          newIdx = 8 * Math.max(0, currentRow - 1) + currentCol
+          break
+        case "Home":
+          newIdx = e.ctrlKey ? 0 : 8 * currentRow
+          break
+        case "End":
+          newIdx = e.ctrlKey ? 63 : 8 * currentRow + 7
+          break
+        case "PageUp":
+          newIdx = currentCol
+          break
+        case "PageDown":
+          newIdx = 56 + currentCol
+          break
+      }
+
+      if (newIdx !== currentIdx) {
+        this.squares.tabbableSquare = getSquare(
+          newIdx,
           this.squares.orientation
         )
-        const currentRow = currentIdx >> 3
-        const currentCol = currentIdx & 0x7
-        let newIdx = currentIdx
-        switch (e.key) {
-          case "ArrowRight":
-          case "Right":
-            newIdx = 8 * currentRow + Math.min(7, currentCol + 1)
-            break
-          case "ArrowLeft":
-          case "Left":
-            newIdx = 8 * currentRow + Math.max(0, currentCol - 1)
-            break
-          case "ArrowDown":
-          case "Down":
-            newIdx = 8 * Math.min(7, currentRow + 1) + currentCol
-            break
-          case "ArrowUp":
-          case "Up":
-            newIdx = 8 * Math.max(0, currentRow - 1) + currentCol
-            break
-          case "Home":
-            newIdx = e.ctrlKey ? 0 : 8 * currentRow
-            break
-          case "End":
-            newIdx = e.ctrlKey ? 63 : 8 * currentRow + 7
-            break
-          case "PageUp":
-            newIdx = currentCol
-            break
-          case "PageDown":
-            newIdx = 56 + currentCol
-            break
-        }
-
-        if (newIdx !== currentIdx) {
-          this.squares.tabbableSquare = getSquare(
-            newIdx,
-            this.squares.orientation
-          )
-          this.squares.focusSquare(this.squares.tabbableSquare)
-        }
+        this.squares.focusSquare(this.squares.tabbableSquare)
       }
     }
   }
@@ -406,24 +426,6 @@ export class InteractionEventHandler {
     return (e: K) => {
       const square = hasDataset(e.target) ? e.target.dataset.square : undefined
       boundCallback(keyIsSquare(square) ? square : undefined, e)
-    }
-  }
-
-  /**
-   * Returns true if we are in a state where there is an active touch
-   * interaction.
-   */
-  private isTouchActiveState(interactionState: InteractionState) {
-    switch (interactionState.id) {
-      case "dragging":
-      case "touching-first-square":
-        return true
-      case "awaiting-input":
-      case "awaiting-second-touch":
-      case "moving-piece-kb":
-        return false
-      default:
-        assertUnreachable(interactionState)
     }
   }
 }
