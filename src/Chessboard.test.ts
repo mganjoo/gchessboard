@@ -36,7 +36,7 @@ describe.each<{ side: Side; flip: boolean }>([
     } as const
     const [wrapper, chessboard] = buildChessboard(side, pieces)
     if (flip) {
-      chessboard.updateOrientation(getOppositeSide(side))
+      chessboard.orientation = getOppositeSide(side)
     }
     const finalSide = flip ? getOppositeSide(side) : side
     const idxsWithPieces = (Object.keys(pieces) as (keyof typeof pieces)[]).map(
@@ -89,17 +89,6 @@ it("cleanup() removes chessboard correctly", () => {
 })
 
 describe("Initial chessboard", () => {
-  it("should have the same number of clickable cells as number of pieces", () => {
-    const pieces = {
-      a4: { color: "white", pieceType: "queen" },
-      f7: { color: "black", pieceType: "pawn" },
-      h2: { color: "black", pieceType: "bishop" },
-    } as const
-    buildChessboard("white", pieces)
-
-    expect(screen.getAllByRole("gridcell")).toHaveLength(3)
-  })
-
   it("should correctly remove and apply classes and attributes on two-click moves", async () => {
     const pieces = {
       f7: { color: "black", pieceType: "pawn" },

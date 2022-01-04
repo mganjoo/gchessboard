@@ -1,12 +1,13 @@
 import { Pieces } from "./Pieces"
-import { Piece, Square } from "./utils/chess"
+import { Piece, Side, Square } from "./utils/chess"
 
 function buildPieces(
-  pieces?: Partial<Record<Square, Piece>>
+  pieces?: Partial<Record<Square, Piece>>,
+  orientation?: Side
 ): [HTMLElement, Pieces] {
   const wrapper = document.createElement("div")
   document.body.replaceChildren(wrapper)
-  return [wrapper, new Pieces(wrapper, "white", pieces)]
+  return [wrapper, new Pieces(wrapper, orientation || "white", pieces)]
 }
 
 describe("Pieces.movePiece()", () => {
@@ -14,10 +15,10 @@ describe("Pieces.movePiece()", () => {
     const [, pieces] = buildPieces({
       b3: { color: "white", pieceType: "queen" },
     })
-    expect(pieces.hasPieceOn("b3")).toBeTruthy()
+    expect(pieces.pieceOn("b3")).not.toBeUndefined()
     pieces.movePiece("b3", "d5")
-    expect(pieces.hasPieceOn("d5")).toBeTruthy()
-    expect(pieces.hasPieceOn("b3")).not.toBeTruthy()
+    expect(pieces.pieceOn("d5")).not.toBeUndefined()
+    expect(pieces.pieceOn("b3")).toBeUndefined()
   })
 
   it("ignores move from square that doesn't contain piece", async () => {
@@ -25,7 +26,7 @@ describe("Pieces.movePiece()", () => {
       b3: { color: "white", pieceType: "queen" },
     })
     pieces.movePiece("a1", "d5")
-    expect(pieces.hasPieceOn("d5")).not.toBeTruthy()
+    expect(pieces.pieceOn("d5")).toBeUndefined()
   })
 
   it("replaces piece if target square already contains one", async () => {
@@ -36,5 +37,30 @@ describe("Pieces.movePiece()", () => {
     expect(wrapper.querySelectorAll("use").length).toEqual(2)
     pieces.movePiece("b3", "a1")
     expect(wrapper.querySelectorAll("use").length).toEqual(1)
+  })
+})
+
+describe("Pieces.firstOccupiedSquare()", () => {
+  it("works correctly for orientation = white", () => {
+    const [, pieces] = buildPieces(
+      {
+        f5: { color: "white", pieceType: "pawn" },
+        g1: { color: "black", pieceType: "knight" },
+        b3: { color: "white", pieceType: "queen" },
+      },
+      "white"
+    )
+    expect(pieces.firstOccupiedSquare()).toBe("g1")
+  })
+  it("works correctly for orientation = black", () => {
+    const [, pieces] = buildPieces(
+      {
+        f5: { color: "white", pieceType: "pawn" },
+        g1: { color: "black", pieceType: "knight" },
+        b3: { color: "white", pieceType: "queen" },
+      },
+      "black"
+    )
+    expect(pieces.firstOccupiedSquare()).toBe("f5")
   })
 })
