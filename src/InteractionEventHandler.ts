@@ -150,7 +150,7 @@ export class InteractionEventHandler {
           })
         } else {
           // Cancel move if touch was outside squares area.
-          this.cancelMove(this.interactionState.startSquare)
+          this.cancelMove()
         }
         break
       case "dragging":
@@ -180,7 +180,7 @@ export class InteractionEventHandler {
         if (square && this.interactionState.startSquare !== square) {
           this.movePiece(this.interactionState.startSquare, square)
         } else {
-          this.cancelMove(this.interactionState.startSquare)
+          this.cancelMove()
         }
         break
       case "canceling-second-touch":
@@ -189,7 +189,7 @@ export class InteractionEventHandler {
         if (this.interactionState.startSquare === square) {
           e.preventDefault()
         }
-        this.cancelMove(this.interactionState.startSquare)
+        this.cancelMove()
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -251,7 +251,7 @@ export class InteractionEventHandler {
         // We know if the focus event was outside the board if square is undefined,
         // in which case we can cancel the move.
         if (!square) {
-          this.cancelMove(this.interactionState.startSquare)
+          this.cancelMove()
         }
         break
       case "awaiting-input":
@@ -271,7 +271,7 @@ export class InteractionEventHandler {
       case "moving-piece-kb":
         // If we lose focus from root document element, cancel any moves in progress
         if (!hasParentNode(e.target)) {
-          this.cancelMove(this.interactionState.startSquare)
+          this.cancelMove()
         }
         break
       case "awaiting-input":
@@ -313,7 +313,7 @@ export class InteractionEventHandler {
             if (this.interactionState.startSquare === pressedSquare) {
               e.preventDefault()
             }
-            this.cancelMove(this.interactionState.startSquare)
+            this.cancelMove()
           }
           break
         case "dragging":
@@ -380,11 +380,11 @@ export class InteractionEventHandler {
     }
   }
 
-  private cancelMove(moveStartSquare: Square) {
+  private cancelMove() {
     this.updateInteractionState({ id: "awaiting-input" })
     // Programmatically blur starting square for cases where the browser
     // won't handle that automatically, (through a drag operation)
-    this.squares.blurSquare(moveStartSquare)
+    this.squares.blurSquare(this.squares.tabbableSquare)
   }
 
   private updateInteractionState(state: InteractionState) {
