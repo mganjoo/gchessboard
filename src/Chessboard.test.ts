@@ -36,7 +36,7 @@ describe.each<{ side: Side; flip: boolean }>([
     } as const
     const [wrapper, chessboard] = buildChessboard(side, pieces)
     if (flip) {
-      chessboard.updateOrientation(getOppositeSide(side))
+      chessboard.orientation = getOppositeSide(side)
     }
     const finalSide = flip ? getOppositeSide(side) : side
     const idxsWithPieces = (Object.keys(pieces) as (keyof typeof pieces)[]).map(

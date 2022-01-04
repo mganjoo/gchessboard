@@ -1,37 +1,40 @@
 import {
   getSquare,
-  getSquareColor,
   getVisualIndex,
   keyIsSquare,
   Piece,
   Side,
   Square,
 } from "./utils/chess"
-import { Pieces } from "./Pieces"
 import { makeHTMLElement, removeElement } from "./utils/dom"
 import "./styles.css"
 import { InteractionState } from "./InteractionState"
 import { assertUnreachable, hasDataset, hasParentNode } from "./utils/typing"
+import { Squares } from "./Squares"
 
 export interface ChessboardConfig {
-  orientation?: Side
+  /**
+   * What side's perspective to render squares from (what color appears on bottom).
+   */
+  orientation: Side
+  /**
+   * Whether the squares are interactive. This decides whether to apply attributes
+   * like ARIA labels and roles.
+   */
+  interactive?: boolean
+  /**
+   * Map of square -> piece to initialize with. Since the Squares object manages
+   * the pieces layer as well, all pieces management occurs via `SquaresConfig`.
+   */
   pieces?: Partial<Record<Square, Piece>>
 }
 
 export class Chessboard {
   private group: HTMLDivElement
-  private squareElements: HTMLDivElement[]
-  private pieces: Pieces
+  private squares: Squares
   private interactionState: InteractionState
-  private orientation: Side
-
-  /**
-   * Square that is considered "tabbable", if any. Keyboard navigation
-   * on the board uses a roving tabindex, which means that only one square is
-   * "tabbable" at a time (the rest are navigable using up and down keys on
-   * the keyboard).
-   */
-  private tabbableSquare: Square | undefined
+  private _orientation: Side
+  private _interactive: boolean
 
   // Event handlers
   private mouseDownHandler: (e: MouseEvent) => void
@@ -55,28 +58,22 @@ export class Chessboard {
    * @param config Configuration for chessboard (see type definition for details)
    */
   constructor(container: Element, config?: ChessboardConfig) {
-    this.squareElements = new Array(64)
-    this.interactionState = { id: "awaiting-input" }
-    this.orientation = config?.orientation || "white"
+    const { orientation, interactive, pieces } = config || {}
+    this._orientation = orientation || "white"
+    this._interactive = interactive || true
 
     this.group = makeHTMLElement("div", {
       attributes: { role: "grid" },
       classes: ["chessboard"],
     })
-    for (let i = 0; i < 8; i++) {
-      const row = makeHTMLElement("div", {
-        attributes: { role: "row" },
-      })
-      for (let j = 0; j < 8; j++) {
-        this.squareElements[8 * i + j] = document.createElement("div")
-        row.appendChild(this.squareElements[8 * i + j])
-      }
-      this.group.appendChild(row)
-    }
-    container.appendChild(this.group)
+    this.squares = new Squares(this.group, {
+      orientation: this.orientation,
+      interactive: this.interactive,
+      pieces,
+    })
+    this.interactionState = { id: "awaiting-input" }
 
-    // Build pieces
-    this.pieces = new Pieces(this.group, this.orientation, config?.pieces)
+    container.appendChild(this.group)
 
     // Initial render
     this.draw()
@@ -88,59 +85,57 @@ export class Chessboard {
     this.blurHandler = this.handleBlur.bind(this)
     this.focusInHandler = this.makeEventHandler(this.handleFocusIn)
     this.keyDownHandler = this.makeEventHandler(this.handleKeyDown)
-    document.addEventListener("mousedown", this.mouseDownHandler)
-    document.addEventListener("mouseup", this.mouseUpHandler)
-    document.addEventListener("mousemove", this.mouseMoveHandler)
-    document.addEventListener("focusin", this.focusInHandler)
-    // Blur handler uses useCapture so that we can detect window blur
-    document.addEventListener("blur", this.blurHandler, true)
-    // For keyboard, add listener only on the chessboard
-    this.group.addEventListener("keydown", this.keyDownHandler)
+    this.toggleHandlers(this.interactive)
   }
 
   cleanup() {
-    this.pieces.cleanup()
-    document.removeEventListener("mousedown", this.mouseDownHandler)
-    document.removeEventListener("mouseup", this.mouseUpHandler)
-    document.removeEventListener("mousemove", this.mouseMoveHandler)
-    document.removeEventListener("focusin", this.focusInHandler)
-    document.removeEventListener("blur", this.blurHandler)
+    this.squares.cleanup()
+    this.toggleHandlers(false)
     removeElement(this.group)
   }
 
-  updateOrientation(orientation: Side) {
-    this.orientation = orientation
-    this.pieces.updateOrientation(orientation)
+  get orientation() {
+    return this._orientation
+  }
+
+  set orientation(orientation: Side) {
+    this._orientation = orientation
+    this.squares.orientation = orientation
     this.draw()
   }
 
+  get interactive() {
+    return this._interactive
+  }
+
+  set interactive(interactive: boolean) {
+    this._interactive = interactive
+    this.squares.interactive = interactive
+    this.draw()
+    this.toggleHandlers(interactive)
+  }
+
   private draw() {
-    this.forEachSquare((square, idx) => {
-      const color = getSquareColor(square)
-      this.squareElements[idx].dataset.square = square
-      this.squareElements[idx].dataset.squareColor = color
-      this.toggleElementHasPiece(
-        this.squareElements[idx],
-        !!this.pieces.pieceOn(square)
-      )
-      const row = idx >> 3
-      const col = idx & 0x7
-
-      // Rank labels
-      if (col === 0) {
-        this.squareElements[idx].dataset.rankLabel = `${
-          this.orientation === "white" ? 8 - row : row + 1
-        }`
-      }
-
-      // File labels
-      if (row === 7) {
-        this.squareElements[idx].dataset.fileLabel = String.fromCharCode(
-          "a".charCodeAt(0) + (this.orientation === "white" ? col : 7 - col)
-        )
-      }
-    })
     this.updateInteractionState(this.interactionState)
+  }
+
+  private toggleHandlers(enabled: boolean) {
+    if (enabled) {
+      document.addEventListener("mousedown", this.mouseDownHandler)
+      document.addEventListener("mouseup", this.mouseUpHandler)
+      document.addEventListener("mousemove", this.mouseMoveHandler)
+      document.addEventListener("focusin", this.focusInHandler)
+      // Blur handler uses useCapture so that we can detect window blur
+      document.addEventListener("blur", this.blurHandler, true)
+      // For keyboard, add listener only on the chessboard
+      this.group.addEventListener("keydown", this.keyDownHandler)
+    } else {
+      document.removeEventListener("mousedown", this.mouseDownHandler)
+      document.removeEventListener("mouseup", this.mouseUpHandler)
+      document.removeEventListener("mousemove", this.mouseMoveHandler)
+      document.removeEventListener("focusin", this.focusInHandler)
+      document.removeEventListener("blur", this.blurHandler)
+    }
   }
 
   private handleMouseDown(
@@ -151,7 +146,7 @@ export class Chessboard {
     switch (this.interactionState.id) {
       case "awaiting-input":
         // Ignore clicks that are outside board or have no piece on them
-        if (clickedSquare && this.pieces.pieceOn(clickedSquare)) {
+        if (clickedSquare && this.squares.pieces.pieceOn(clickedSquare)) {
           this.updateInteractionState({
             id: "touching-first-square",
             square: clickedSquare,
@@ -225,11 +220,10 @@ export class Chessboard {
             (e.clientX - this.interactionState.touchStartX) ** 2 +
               (e.clientY - this.interactionState.touchStartY) ** 2
           )
-          const elem = this.getSquareElement(this.interactionState.square)
           // Consider a "dragging" action to be when we have moved the mouse a sufficient
           // threshold, or we are now in a different square from where we started.
           if (
-            delta / elem.clientWidth >
+            delta / this.squares.squareWidth >
               Chessboard.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION ||
             square !== this.interactionState.square
           ) {
@@ -306,17 +300,14 @@ export class Chessboard {
     pressedSquare: Square | undefined,
     e: KeyboardEvent
   ) {
-    // Only handle keypresses if there is a tabbable square, or we are
-    // not actively using the mouse (for a click or drag)
-    if (
-      this.tabbableSquare &&
-      !this.isActiveMouseState(this.interactionState)
-    ) {
+    // Only handle keypresses if we are not actively using the mouse
+    // (for a click or drag)
+    if (!this.isActiveMouseState(this.interactionState)) {
       if (e.key === "Enter") {
         switch (this.interactionState.id) {
           case "awaiting-input":
             // Ignore presses that are outside board or have no piece on them
-            if (pressedSquare && this.pieces.pieceOn(pressedSquare)) {
+            if (pressedSquare && this.squares.pieces.pieceOn(pressedSquare)) {
               this.updateInteractionState({
                 id: "moving-piece-kb",
                 startSquare: pressedSquare,
@@ -350,120 +341,63 @@ export class Chessboard {
             assertUnreachable(this.interactionState)
         }
       } else {
-        const currentIdx = getVisualIndex(this.tabbableSquare, this.orientation)
+        const currentIdx = getVisualIndex(
+          this.squares.tabbableSquare,
+          this.orientation
+        )
         const currentRow = currentIdx >> 3
         const currentCol = currentIdx & 0x7
         let newIdx = currentIdx
         switch (e.key) {
           case "ArrowRight":
           case "Right":
-            for (let i = currentCol + 1; i < 8; i++) {
-              const idx = 8 * currentRow + i
-              if (this.squareIsNavigable(idx)) {
-                newIdx = idx
-                break
-              }
-            }
+            newIdx = 8 * currentRow + Math.min(7, currentCol + 1)
             break
           case "ArrowLeft":
           case "Left":
-            for (let i = currentCol - 1; i >= 0; i--) {
-              const idx = 8 * currentRow + i
-              if (this.squareIsNavigable(idx)) {
-                newIdx = idx
-                break
-              }
-            }
+            newIdx = 8 * currentRow + Math.max(0, currentCol - 1)
             break
           case "ArrowDown":
           case "Down":
-            for (let i = currentRow + 1; i < 8; i++) {
-              const idx = 8 * i + currentCol
-              if (this.squareIsNavigable(idx)) {
-                newIdx = idx
-                break
-              }
-            }
+            newIdx = 8 * Math.min(7, currentRow + 1) + currentCol
             break
           case "ArrowUp":
           case "Up":
-            for (let i = currentRow - 1; i >= 0; i--) {
-              const idx = 8 * i + currentCol
-              if (this.squareIsNavigable(idx)) {
-                newIdx = idx
-                break
-              }
-            }
+            newIdx = 8 * Math.max(0, currentRow - 1) + currentCol
             break
           case "Home":
-            {
-              const start = e.ctrlKey ? 0 : 8 * currentRow
-              for (let idx = start; idx < currentIdx; idx++) {
-                if (this.squareIsNavigable(idx)) {
-                  newIdx = idx
-                  break
-                }
-              }
-            }
+            newIdx = e.ctrlKey ? 0 : 8 * currentRow
             break
           case "End":
-            {
-              const end = e.ctrlKey ? 63 : 8 * currentRow + 7
-              for (let idx = end; idx > currentIdx; idx--) {
-                if (this.squareIsNavigable(idx)) {
-                  newIdx = idx
-                  break
-                }
-              }
-            }
+            newIdx = e.ctrlKey ? 63 : 8 * currentRow + 7
             break
           case "PageUp":
-            for (let i = 0; i < currentRow; i++) {
-              const idx = 8 * i + currentCol
-              if (this.squareIsNavigable(idx)) {
-                newIdx = idx
-                break
-              }
-            }
+            newIdx = currentCol
             break
           case "PageDown":
-            for (let i = 7; i > currentRow; i--) {
-              const idx = 8 * i + currentCol
-              if (this.squareIsNavigable(idx)) {
-                newIdx = idx
-                break
-              }
-            }
+            newIdx = 56 + currentCol
             break
         }
 
         if (newIdx !== currentIdx) {
-          this.squareElements[currentIdx].tabIndex = -1
-          this.squareElements[newIdx].tabIndex = 0
-          this.tabbableSquare = getSquare(newIdx, this.orientation)
-          this.squareElements[newIdx].focus()
+          this.squares.tabbableSquare = getSquare(newIdx, this.orientation)
+          this.squares.focusSquare(this.squares.tabbableSquare)
         }
       }
     }
   }
 
   private movePiece(from: Square, to: Square) {
-    this.pieces.movePiece(from, to)
-    this.toggleElementHasPiece(this.getSquareElement(from), false)
-    const toElement = this.getSquareElement(to)
-    this.toggleElementHasPiece(toElement, true)
-    this.tabbableSquare = to
-    this.updateInteractionState({ id: "awaiting-input" })
-    // Programmatically focus target square for cases where the browser
-    // won't handle that automatically, e.g. through a drag operation
-    toElement.focus()
+    if (this.squares.movePiece(from, to)) {
+      this.updateInteractionState({ id: "awaiting-input" })
+    }
   }
 
   private cancelMove(moveStartSquare: Square) {
     this.updateInteractionState({ id: "awaiting-input" })
     // Programmatically blur starting square for cases where the browser
     // won't handle that automatically, (through a drag operation)
-    this.getSquareElement(moveStartSquare).blur()
+    this.squares.blurSquare(moveStartSquare)
   }
 
   private updateInteractionState(state: InteractionState) {
@@ -471,75 +405,23 @@ export class Chessboard {
     this.interactionState = state
     this.group.dataset.moveState = this.interactionState.id
 
-    // Reset tabbable index if this is a state switch, or
-    // tabbable index is not set.
-    if (
-      previousState.id !== this.interactionState.id ||
-      this.tabbableSquare === undefined
-    ) {
-      let newTabbableSquare: Square | undefined
+    // Reset tabbable index if this is a state switch.
+    if (previousState.id !== this.interactionState.id) {
       switch (this.interactionState.id) {
-        case "awaiting-input":
-          if (this.tabbableSquare === undefined) {
-            // Find first square from bottom containing a piece
-            // that is visitable and set that as tabbable index.
-            newTabbableSquare = this.pieces.firstOccupiedSquare()
-          }
-          break
         case "touching-first-square":
-          newTabbableSquare = this.interactionState.square
+          this.squares.tabbableSquare = this.interactionState.square
           break
         case "awaiting-second-touch":
         case "dragging":
         case "moving-piece-kb":
-          newTabbableSquare = this.interactionState.startSquare
+          this.squares.tabbableSquare = this.interactionState.startSquare
+          break
+        case "awaiting-input":
           break
         default:
           assertUnreachable(this.interactionState)
       }
-      if (newTabbableSquare !== undefined) {
-        if (this.tabbableSquare !== undefined) {
-          this.getSquareElement(this.tabbableSquare).tabIndex = -1
-        }
-        this.getSquareElement(newTabbableSquare).tabIndex = 0
-        this.tabbableSquare = newTabbableSquare
-      }
     }
-
-    // Reset which squares are considered navigable, based on current
-    // interactions state.
-    // Set all squares to be navigable. TODO: later, consider restricting
-    this.forEachSquare((square, idx) => {
-      this.makeNavigable(idx, square)
-    })
-  }
-
-  /**
-   * Make the square element at `idx` non-navigable, by adding an ARIA role,
-   * label and index.
-   */
-  private makeNavigable(idx: number, square: Square) {
-    this.squareElements[idx].setAttribute("role", "gridcell")
-    const piece = this.pieces.pieceOn(square)
-    this.squareElements[idx].setAttribute(
-      "aria-label",
-      piece ? `${square}, ${piece.color} ${piece.pieceType}` : square
-    )
-    this.squareElements[idx].tabIndex = square === this.tabbableSquare ? 0 : -1
-  }
-
-  /**
-   * Make the square element at `idx` navigable, by removing the ARIA role,
-   * label and index.
-   */
-  private makeUnnavigable(idx: number) {
-    this.squareElements[idx].removeAttribute("role")
-    this.squareElements[idx].removeAttribute("aria-label")
-    this.squareElements[idx].removeAttribute("tabindex")
-  }
-
-  private toggleElementHasPiece(element: HTMLDivElement, force: boolean) {
-    element.classList.toggle("has-piece", force)
   }
 
   /**
@@ -555,34 +437,6 @@ export class Chessboard {
       const square = hasDataset(e.target) ? e.target.dataset.square : undefined
       boundCallback(keyIsSquare(square) ? square : undefined, e)
     }
-  }
-
-  /**
-   * Get square HTML element corresponding to square label `square`.
-   */
-  private getSquareElement(square: Square) {
-    return this.squareElements[getVisualIndex(square, this.orientation)]
-  }
-
-  /**
-   * Call `callback` for each square on the board. The callback receives
-   * the square label and HTML element as arguments.
-   */
-  private forEachSquare(
-    callback: (this: Chessboard, square: Square, idx: number) => void
-  ) {
-    const boundCallback = callback.bind(this)
-    for (let i = 0; i < 64; i++) {
-      const square = getSquare(i, this.orientation)
-      boundCallback(square, i)
-    }
-  }
-
-  /**
-   * Return true if square index corresponds to a navigable square (role = gridcell).
-   */
-  private squareIsNavigable(squareIdx: number) {
-    return this.squareElements[squareIdx].getAttribute("role") === "gridcell"
   }
 
   private isActiveMouseState(interactionState: InteractionState) {

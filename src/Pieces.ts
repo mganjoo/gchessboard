@@ -132,7 +132,9 @@ export class Pieces {
       // TODO: animate moving from original square
       this.drawPiece(piece.element, endSquare)
       delete this.pieces[startSquare]
+      return true
     }
+    return false
   }
 
   private draw() {
