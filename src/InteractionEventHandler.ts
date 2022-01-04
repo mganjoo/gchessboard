@@ -8,7 +8,7 @@ type InteractionState =
     }
   | {
       id: "touching-first-square"
-      square: Square
+      startSquare: Square
       touchStartX: number
       touchStartY: number
     }
@@ -125,7 +125,7 @@ export class InteractionEventHandler {
         if (clickedSquare && this.squares.pieces.pieceOn(clickedSquare)) {
           this.updateInteractionState({
             id: "touching-first-square",
-            square: clickedSquare,
+            startSquare: clickedSquare,
             touchStartX: e.clientX,
             touchStartY: e.clientY,
           })
@@ -173,7 +173,7 @@ export class InteractionEventHandler {
       case "touching-first-square":
         this.updateInteractionState({
           id: "awaiting-second-touch",
-          startSquare: this.interactionState.square,
+          startSquare: this.interactionState.startSquare,
         })
         break
       case "dragging":
@@ -210,22 +210,6 @@ export class InteractionEventHandler {
   ) {
     switch (this.interactionState.id) {
       case "touching-first-square":
-        if (
-          this.cursorPassedDragThreshold(
-            e.clientX,
-            e.clientY,
-            square,
-            this.interactionState.touchStartX,
-            this.interactionState.touchStartY,
-            this.interactionState.square
-          )
-        ) {
-          this.updateInteractionState({
-            id: "dragging",
-            startSquare: this.interactionState.square,
-          })
-        }
-        break
       case "canceling-second-touch":
         if (
           this.cursorPassedDragThreshold(
@@ -261,17 +245,13 @@ export class InteractionEventHandler {
     switch (this.interactionState.id) {
       case "moving-piece-kb":
       case "awaiting-second-touch":
+      case "touching-first-square":
       case "canceling-second-touch":
       case "dragging":
         // We know if the focus event was outside the board if square is undefined,
         // in which case we can cancel the move.
         if (!square) {
           this.cancelMove(this.interactionState.startSquare)
-        }
-        break
-      case "touching-first-square":
-        if (!square) {
-          this.cancelMove(this.interactionState.square)
         }
         break
       case "awaiting-input":
@@ -286,16 +266,12 @@ export class InteractionEventHandler {
     switch (this.interactionState.id) {
       case "awaiting-second-touch":
       case "dragging":
+      case "touching-first-square":
       case "canceling-second-touch":
       case "moving-piece-kb":
         // If we lose focus from root document element, cancel any moves in progress
         if (!hasParentNode(e.target)) {
           this.cancelMove(this.interactionState.startSquare)
-        }
-        break
-      case "touching-first-square":
-        if (!hasParentNode(e.target)) {
-          this.cancelMove(this.interactionState.square)
         }
         break
       case "awaiting-input":
@@ -330,7 +306,7 @@ export class InteractionEventHandler {
           ) {
             this.movePiece(this.interactionState.startSquare, pressedSquare)
           } else {
-            // Cancel move if touch was outside squares area or if start
+            // Cancel move if enter was outside squares area or if start
             // and end square are the same. Before canceling move, prevent
             // default action if we pressed the same square as start
             // square (to prevent re-focusing)
@@ -420,8 +396,6 @@ export class InteractionEventHandler {
     if (previousState.id !== this.interactionState.id) {
       switch (this.interactionState.id) {
         case "touching-first-square":
-          this.squares.tabbableSquare = this.interactionState.square
-          break
         case "awaiting-second-touch":
         case "canceling-second-touch":
         case "dragging":
@@ -430,6 +404,7 @@ export class InteractionEventHandler {
           break
         case "awaiting-input":
           break
+        // istanbul ignore next
         default:
           assertUnreachable(this.interactionState)
       }
