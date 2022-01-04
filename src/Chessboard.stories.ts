@@ -66,6 +66,7 @@ Default.args = {
     g7: { color: "black", pieceType: "pawn" },
     h7: { color: "black", pieceType: "pawn" },
   },
+  interactive: true,
 }
 
 export const Wrapped = Template.bind({})
@@ -98,4 +99,10 @@ ClickMove.play = async ({ canvasElement }) => {
   await userEvent.click(canvas.getByRole("gridcell", { name: /e2/i }))
   await userEvent.click(canvas.getByRole("gridcell", { name: /e4/i }))
   await userEvent.click(canvas.getByText("link"))
+}
+
+export const NonInteractive = Template.bind({})
+NonInteractive.args = {
+  ...Default.args,
+  interactive: false,
 }
