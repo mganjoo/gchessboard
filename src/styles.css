@@ -87,11 +87,12 @@
 }
 
 [data-move-state="touching-first-square"] [data-square],
-[data-move-state="dragging"] [data-square] {
+[data-move-state="dragging"] [data-square],
+[data-move-state="canceling-second-touch"] [data-square] {
   cursor: grab;
 }
 
 [data-move-state="awaiting-second-touch"] [data-square],
-[data-move-state="canceling-second-touch"] [data-square] {
+[data-move-state="moving-piece-kb"] [data-square] {
   cursor: pointer;
 }

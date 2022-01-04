@@ -123,12 +123,15 @@ export class InteractionEventHandler {
       case "awaiting-input":
         // Ignore clicks that are outside board or have no piece on them
         if (clickedSquare && this.squares.pieces.pieceOn(clickedSquare)) {
-          this.updateInteractionState({
-            id: "touching-first-square",
-            startSquare: clickedSquare,
-            touchStartX: e.clientX,
-            touchStartY: e.clientY,
-          })
+          this.updateInteractionState(
+            {
+              id: "touching-first-square",
+              startSquare: clickedSquare,
+              touchStartX: e.clientX,
+              touchStartY: e.clientY,
+            },
+            clickedSquare
+          )
         }
         break
       case "moving-piece-kb":
@@ -142,12 +145,15 @@ export class InteractionEventHandler {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
           // till corresponding mouseup event in order to cancel.
-          this.updateInteractionState({
-            id: "canceling-second-touch",
-            startSquare: this.interactionState.startSquare,
-            touchStartX: e.clientX,
-            touchStartY: e.clientY,
-          })
+          this.updateInteractionState(
+            {
+              id: "canceling-second-touch",
+              startSquare: clickedSquare,
+              touchStartX: e.clientX,
+              touchStartY: e.clientY,
+            },
+            clickedSquare
+          )
         } else {
           // Cancel move if touch was outside squares area.
           this.cancelMove()
@@ -292,10 +298,13 @@ export class InteractionEventHandler {
         case "awaiting-input":
           // Ignore presses that are outside board or have no piece on them
           if (pressedSquare && this.squares.pieces.pieceOn(pressedSquare)) {
-            this.updateInteractionState({
-              id: "moving-piece-kb",
-              startSquare: pressedSquare,
-            })
+            this.updateInteractionState(
+              {
+                id: "moving-piece-kb",
+                startSquare: pressedSquare,
+              },
+              pressedSquare
+            )
           }
           break
         case "moving-piece-kb":
@@ -370,6 +379,34 @@ export class InteractionEventHandler {
           this.squares.orientation
         )
         this.squares.focusSquare(this.squares.tabbableSquare)
+
+        // If we are currently in a non-keyboard friendly state, we should
+        // still transition to one since we started keyboard navigation.
+        switch (this.interactionState.id) {
+          case "awaiting-input":
+          case "moving-piece-kb":
+            break
+          case "awaiting-second-touch":
+            if (pressedSquare) {
+              this.updateInteractionState({
+                id: "moving-piece-kb",
+                startSquare: this.interactionState.startSquare,
+              })
+            }
+            break
+          case "touching-first-square":
+          case "canceling-second-touch":
+            // Similar to canceling move, but don't blur focused square
+            // since we just gave it focus through keyboard navigation
+            this.updateInteractionState({ id: "awaiting-input" })
+            break
+          case "dragging":
+            // Noop: continue with drag operation even if focus was moved around
+            break
+          // istanbul ignore next
+          default:
+            assertUnreachable(this.interactionState)
+        }
       }
     }
   }
@@ -387,27 +424,15 @@ export class InteractionEventHandler {
     this.squares.blurSquare(this.squares.tabbableSquare)
   }
 
-  private updateInteractionState(state: InteractionState) {
-    const previousState = this.interactionState
+  private updateInteractionState(
+    state: InteractionState,
+    newTabbableSquare?: Square
+  ) {
     this.interactionState = state
     this.updateContainerInteractionStateLabel(true)
 
-    // Reset tabbable square if this is a state switch.
-    if (previousState.id !== this.interactionState.id) {
-      switch (this.interactionState.id) {
-        case "touching-first-square":
-        case "awaiting-second-touch":
-        case "canceling-second-touch":
-        case "dragging":
-        case "moving-piece-kb":
-          this.squares.tabbableSquare = this.interactionState.startSquare
-          break
-        case "awaiting-input":
-          break
-        // istanbul ignore next
-        default:
-          assertUnreachable(this.interactionState)
-      }
+    if (newTabbableSquare !== undefined) {
+      this.squares.tabbableSquare = newTabbableSquare
     }
   }
 
