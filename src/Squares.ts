@@ -90,7 +90,7 @@ export class Squares {
 
   set orientation(orientation: Side) {
     this._orientation = orientation
-    this.pieces.updateOrientation(orientation)
+    this.pieces.orientation = orientation
     this.draw()
   }
 
