@@ -1,6 +1,6 @@
 import { Squares } from "./Squares"
 import { getSquare, getVisualIndex, keyIsSquare, Square } from "./utils/chess"
-import { assertUnreachable, hasDataset, hasParentNode } from "./utils/typing"
+import { assertUnreachable, hasDataset } from "./utils/typing"
 
 type InteractionState =
   | {
@@ -49,8 +49,7 @@ export class InteractionEventHandler {
   private mouseDownHandler: (e: MouseEvent) => void
   private mouseUpHandler: (e: MouseEvent) => void
   private mouseMoveHandler: (e: MouseEvent) => void
-  private focusInHandler: (e: FocusEvent) => void
-  private blurHandler: (e: FocusEvent) => void
+  private focusOutHandler: (e: FocusEvent) => void
   private keyDownHandler: (e: KeyboardEvent) => void
 
   /**
@@ -74,9 +73,8 @@ export class InteractionEventHandler {
     this.mouseDownHandler = this.makeEventHandler(this.handleMouseDown)
     this.mouseUpHandler = this.makeEventHandler(this.handleMouseUp)
     this.mouseMoveHandler = this.makeEventHandler(this.handleMouseMove)
-    this.blurHandler = this.handleBlur.bind(this)
-    this.focusInHandler = this.makeEventHandler(this.handleFocusIn)
     this.keyDownHandler = this.makeEventHandler(this.handleKeyDown)
+    this.focusOutHandler = this.makeEventHandler(this.handleFocusOut)
     this.toggleHandlers(this.interactive)
   }
 
@@ -99,18 +97,15 @@ export class InteractionEventHandler {
       document.addEventListener("mousedown", this.mouseDownHandler)
       document.addEventListener("mouseup", this.mouseUpHandler)
       document.addEventListener("mousemove", this.mouseMoveHandler)
-      document.addEventListener("focusin", this.focusInHandler)
-      // Blur handler uses useCapture so that we can detect window blur
-      window.addEventListener("blur", this.blurHandler, true)
+      document.addEventListener("focusout", this.focusOutHandler)
       // For keyboard, add listener only on the chessboard
       this.container.addEventListener("keydown", this.keyDownHandler)
     } else {
-      this
       document.removeEventListener("mousedown", this.mouseDownHandler)
       document.removeEventListener("mouseup", this.mouseUpHandler)
       document.removeEventListener("mousemove", this.mouseMoveHandler)
-      document.removeEventListener("focusin", this.focusInHandler)
-      document.removeEventListener("blur", this.blurHandler)
+      document.removeEventListener("focusout", this.focusOutHandler)
+      this.container.removeEventListener("keydown", this.keyDownHandler)
     }
   }
 
@@ -244,43 +239,29 @@ export class InteractionEventHandler {
     }
   }
 
-  private handleFocusIn(
+  private handleFocusOut(
     this: InteractionEventHandler,
-    square: Square | undefined
+    square: Square | undefined,
+    e: FocusEvent
   ) {
     switch (this.interactionState.id) {
       case "moving-piece-kb":
       case "awaiting-second-touch":
       case "touching-first-square":
       case "canceling-second-touch":
-      case "dragging":
-        // We know if the focus event was outside the board if square is undefined,
-        // in which case we can cancel the move.
-        if (!square) {
-          this.cancelMove()
+        {
+          const hasFocusInSquare =
+            hasDataset(e.relatedTarget) && "square" in e.relatedTarget.dataset
+          // If outgoing focus target has a square, and incoming does not, then board
+          // lost focus and we can cancel the move.
+          if (square && !hasFocusInSquare) {
+            this.cancelMove()
+          }
         }
         break
       case "awaiting-input":
-        break
-      // istanbul ignore next
-      default:
-        assertUnreachable(this.interactionState)
-    }
-  }
-
-  private handleBlur(this: InteractionEventHandler, e: FocusEvent) {
-    switch (this.interactionState.id) {
-      case "awaiting-second-touch":
       case "dragging":
-      case "touching-first-square":
-      case "canceling-second-touch":
-      case "moving-piece-kb":
-        // If we lose focus from root document element, cancel any moves in progress
-        if (!hasParentNode(e.target)) {
-          this.cancelMove()
-        }
-        break
-      case "awaiting-input":
+        // Noop: continue with drag operation even if focus was moved around
         break
       // istanbul ignore next
       default:

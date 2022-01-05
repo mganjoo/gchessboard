@@ -1,4 +1,4 @@
-import { hasDataset, hasParentNode } from "./typing"
+import { hasDataset } from "./typing"
 
 describe("hasDataset()", () => {
   it("passes on regular HTML element", () => {
@@ -7,15 +7,7 @@ describe("hasDataset()", () => {
   it("does not pass on root HTML document", () => {
     expect(hasDataset(document.documentElement.parentNode)).toBeFalsy()
   })
-})
-
-describe("hasParentNode()", () => {
-  it("passes on regular HTML element", () => {
-    const d = document.createElement("div")
-    document.documentElement.appendChild(d)
-    expect(hasParentNode(d)).toBeTruthy()
-  })
-  it("does not pass on root HTML document", () => {
-    expect(hasParentNode(document.documentElement.parentNode)).toBeFalsy()
+  it("does not pass if element is null", () => {
+    expect(hasDataset(null)).toBeFalsy()
   })
 })
