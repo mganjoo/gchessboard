@@ -19,13 +19,16 @@
   display: table-row;
 }
 
+/* A single square within a row (width = 1/8th of row). */
+.chessboard > div > div {
+  display: table-cell;
+}
+
 /* A single square. */
 [data-square-color] {
-  display: table-cell;
-  position: relative;
   width: 12.5%;
-  /* Aspect ratio trick for 1:1 square */
   padding-top: 12.5%;
+  position: relative;
 }
 
 [data-square-color="dark"] {

@@ -1,13 +1,7 @@
-import {
-  getSquare,
-  getSquareColor,
-  getVisualIndex,
-  Piece,
-  Side,
-  Square,
-} from "./utils/chess"
+import { getSquare, getVisualIndex, Piece, Side, Square } from "./utils/chess"
 import { makeHTMLElement, removeElement } from "./utils/dom"
 import { Pieces } from "./Pieces"
+import { BoardSquare } from "./components/BoardSquare"
 
 export interface SquaresConfig {
   /**
@@ -29,7 +23,7 @@ export interface SquaresConfig {
 export class Squares {
   pieces: Pieces
   private container: HTMLElement
-  private squareElements: HTMLDivElement[]
+  private boardSquares: BoardSquare[]
   private _orientation: Side
   private _interactive: boolean
 
@@ -51,7 +45,7 @@ export class Squares {
    * @param pieces Any pieces that are on the board in the beginning.
    */
   constructor(container: HTMLElement, config: SquaresConfig) {
-    this.squareElements = new Array(64)
+    this.boardSquares = new Array(64)
     this.container = container
     this._orientation = config.orientation
     this._interactive = config.interactive || false
@@ -61,8 +55,10 @@ export class Squares {
         attributes: { role: "row" },
       })
       for (let j = 0; j < 8; j++) {
-        this.squareElements[8 * i + j] = document.createElement("div")
-        row.appendChild(this.squareElements[8 * i + j])
+        const idx = 8 * i + j
+        this.boardSquares[idx] = new BoardSquare(row, {
+          label: getSquare(idx, this.orientation),
+        })
       }
       container.appendChild(row)
     }
@@ -78,6 +74,7 @@ export class Squares {
 
   cleanup() {
     this.pieces.cleanup()
+    this.forEachSquare((_, idx) => this.boardSquares[idx].cleanup())
     removeElement(this.container)
   }
 
@@ -105,15 +102,15 @@ export class Squares {
   }
 
   set tabbableSquare(square: Square) {
-    if (this.interactive) {
-      this.getSquareElement(this._tabbableSquare).tabIndex = -1
-      this.getSquareElement(square).tabIndex = 0
-    }
+    this.getBoardSquare(this._tabbableSquare).updateConfig({ tabbable: false })
+    this.getBoardSquare(square).updateConfig({
+      tabbable: true,
+    })
     this._tabbableSquare = square
   }
 
   get squareWidth() {
-    return this.squareElements[0].clientWidth
+    return this.boardSquares[0].width
   }
 
   /**
@@ -131,66 +128,36 @@ export class Squares {
   }
 
   focusSquare(square: Square) {
-    this.getSquareElement(square).focus()
+    this.getBoardSquare(square).focus()
   }
 
   blurSquare(square: Square) {
-    this.getSquareElement(square).blur()
+    this.getBoardSquare(square).blur()
   }
 
   private draw() {
     this.forEachSquare((square, idx) => {
-      const color = getSquareColor(square)
-      this.squareElements[idx].dataset.square = square
-      this.squareElements[idx].dataset.squareColor = color
       const row = idx >> 3
       const col = idx & 0x7
-
-      // Update interaction attributes, ARIA label, etc
-      if (this.interactive) {
-        this.squareElements[idx].setAttribute("role", "gridcell")
-        this.squareElements[idx].tabIndex =
-          square === this.tabbableSquare ? 0 : -1
-        this.toggleElementHasPiece(square)
-      } else {
-        this.squareElements[idx].removeAttribute("role")
-        this.squareElements[idx].removeAttribute("aria-label")
-        this.squareElements[idx].removeAttribute("tabindex")
-      }
-
-      // Rank labels
-      if (col === 0) {
-        this.squareElements[idx].dataset.rankLabel = `${
-          this.orientation === "white" ? 8 - row : row + 1
-        }`
-      }
-
-      // File labels
-      if (row === 7) {
-        this.squareElements[idx].dataset.fileLabel = String.fromCharCode(
-          "a".charCodeAt(0) + (this.orientation === "white" ? col : 7 - col)
-        )
-      }
+      this.boardSquares[idx].updateConfig({
+        label: square,
+        interactive: this.interactive,
+        tabbable: this.tabbableSquare === square,
+        piece: this.pieces.pieceOn(square),
+        rankLabelShown: col === 0,
+        fileLabelShown: row === 7,
+      })
     })
   }
 
   private toggleElementHasPiece(square: Square) {
-    if (this.interactive) {
-      const element = this.getSquareElement(square)
-      const piece = this.pieces.pieceOn(square)
-      element.classList.toggle("has-piece", !!piece)
-      element.setAttribute(
-        "aria-label",
-        piece ? `${square}, ${piece.color} ${piece.pieceType}` : square
-      )
-    }
+    this.getBoardSquare(square).updateConfig({
+      piece: this.pieces.pieceOn(square),
+    })
   }
 
-  /**
-   * Get square HTML element corresponding to square label `square`.
-   */
-  private getSquareElement(square: Square) {
-    return this.squareElements[getVisualIndex(square, this.orientation)]
+  private getBoardSquare(square: Square) {
+    return this.boardSquares[getVisualIndex(square, this.orientation)]
   }
 
   /**

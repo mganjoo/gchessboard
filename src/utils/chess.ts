@@ -4,12 +4,20 @@
  * https://www.chessprogramming.org/0x88
  */
 
-const SQUARE_COLORS = ["light", "dark"] as const
-const SIDE_COLORS = ["white", "black"] as const
+export const SQUARE_COLORS = ["light", "dark"] as const
+export const SIDE_COLORS = ["white", "black"] as const
+export const PIECE_TYPES = [
+  "queen",
+  "king",
+  "knight",
+  "bishop",
+  "rook",
+  "pawn",
+] as const
 
 export type SquareColor = typeof SQUARE_COLORS[number]
 export type Side = typeof SIDE_COLORS[number]
-export type PieceType = "queen" | "king" | "knight" | "bishop" | "rook" | "pawn"
+export type PieceType = typeof PIECE_TYPES[number]
 
 export interface Piece {
   pieceType: PieceType
