@@ -8,7 +8,7 @@ import {
   Side,
   Square,
 } from "./utils/chess"
-import { screen, waitFor } from "@testing-library/dom"
+import { fireEvent, screen, waitFor } from "@testing-library/dom"
 import userEvent from "@testing-library/user-event"
 import { Chessboard } from "./Chessboard"
 
@@ -25,7 +25,7 @@ function buildChessboard(
   ]
 }
 
-describe("Chessboard display based on orientation", () => {
+describe("Chessboard creation and cleanup", () => {
   describe.each<{ side: Side; flip: boolean }>([
     { side: "white", flip: false },
     { side: "white", flip: true },
@@ -84,17 +84,17 @@ describe("Chessboard display based on orientation", () => {
       })
     }
   )
+
+  it("cleanup() removes chessboard correctly", () => {
+    const el = document.createElement("div")
+    const board = new Chessboard(el)
+    expect(el.childNodes.length).toBeGreaterThan(0)
+    board.cleanup()
+    expect(el.childNodes.length).toEqual(0)
+  })
 })
 
-it("cleanup() removes chessboard correctly", () => {
-  const el = document.createElement("div")
-  const board = new Chessboard(el)
-  expect(el.childNodes.length).toBeGreaterThan(0)
-  board.cleanup()
-  expect(el.childNodes.length).toEqual(0)
-})
-
-describe("Click-based moves", () => {
+describe("Click-based moving", () => {
   const pieces = {
     b3: { color: "white", pieceType: "queen" },
     e6: { color: "black", pieceType: "knight" },
@@ -118,7 +118,7 @@ describe("Click-based moves", () => {
       )
     )
 
-    userEvent.click(screen.getByRole("gridcell", { name: /e3/i }))
+    userEvent.click(screen.getByRole("gridcell", { name: "e3" }))
     await waitFor(() =>
       expect(wrapper.firstElementChild).toHaveAttribute(
         "data-move-state",
@@ -130,12 +130,10 @@ describe("Click-based moves", () => {
     ).toHaveClass("has-piece")
     expect(
       screen.getByRole("gridcell", { name: /e3, black pawn/i })
-    ).toHaveAttribute("aria-label")
-    expect(
-      screen.getByRole("gridcell", { name: /e3, black pawn/i })
     ).toHaveFocus()
 
-    expect(screen.getByRole("gridcell", { name: /f7/i })).not.toHaveClass(
+    // Emptied previous square
+    expect(screen.getByRole("gridcell", { name: "f7" })).not.toHaveClass(
       "has-piece"
     )
   })
@@ -163,8 +161,10 @@ describe("Click-based moves", () => {
   it("cancels move when square is clicked again", async () => {
     const [wrapper] = buildChessboard("white", pieces)
 
-    expect(wrapper.querySelector('[data-square="f7"]')).toHaveClass("has-piece")
-    userEvent.click(screen.getByRole("gridcell", { name: /black pawn/i }))
+    expect(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    ).toHaveClass("has-piece")
+    userEvent.click(screen.getByRole("gridcell", { name: /f7, black pawn/i }))
     await waitFor(() =>
       expect(wrapper.firstElementChild).toHaveAttribute(
         "data-move-state",
@@ -179,14 +179,18 @@ describe("Click-based moves", () => {
         "awaiting-input"
       )
     )
-    expect(wrapper.querySelector('[data-square="f7"]')).toHaveClass("has-piece")
-    expect(wrapper.querySelector('[data-square="f7"]')).not.toHaveFocus()
+    expect(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    ).toHaveClass("has-piece")
+    expect(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    ).not.toHaveFocus()
   })
 
   it("cancels move when pressing enter on starting square", async () => {
     const [wrapper] = buildChessboard("white", pieces)
 
-    userEvent.click(screen.getByRole("gridcell", { name: /black pawn/i }))
+    userEvent.click(screen.getByRole("gridcell", { name: /f7, black pawn/i }))
     userEvent.keyboard("[Enter]")
     await waitFor(() =>
       expect(wrapper.firstElementChild).toHaveAttribute(
@@ -194,7 +198,9 @@ describe("Click-based moves", () => {
         "awaiting-input"
       )
     )
-    expect(wrapper.querySelector('[data-square="f7"]')).not.toHaveFocus()
+    expect(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    ).not.toHaveFocus()
   })
 
   it("cancels move when grid loses focus", async () => {
@@ -216,7 +222,7 @@ describe("Click-based moves", () => {
     button.innerText = "button outside"
     document.body.appendChild(button)
 
-    userEvent.click(screen.getByRole("gridcell", { name: /black pawn/i }))
+    userEvent.click(screen.getByRole("gridcell", { name: /f7, black pawn/i }))
     userEvent.click(screen.getByRole("button"))
     await waitFor(() =>
       expect(wrapper.firstElementChild).toHaveAttribute(
@@ -237,8 +243,9 @@ describe("Click-based moves", () => {
         "awaiting-input"
       )
     )
-    expect(wrapper.querySelector('[data-square="f4"]')).toHaveClass("has-piece")
-    expect(wrapper.querySelector('[data-square="f4"]')).toHaveFocus()
+    expect(
+      screen.getByRole("gridcell", { name: /f4, black knight/i })
+    ).toHaveFocus()
   })
 })
 
@@ -254,6 +261,9 @@ describe("Keyboard-based interaction", () => {
     expect(document.body).toHaveFocus()
     userEvent.tab()
     expect(screen.getByRole("gridcell", { name: /g1/i })).toHaveFocus()
+    // Next tab should tab out of grid
+    userEvent.tab()
+    expect(document.body).toHaveFocus()
   })
 
   it("tabs into first occupied piece from bottom left, orientation = black", () => {
@@ -261,10 +271,13 @@ describe("Keyboard-based interaction", () => {
     expect(document.body).toHaveFocus()
     userEvent.tab()
     expect(screen.getByRole("gridcell", { name: /e6/i })).toHaveFocus()
+    // Next tab should tab out of grid
+    userEvent.tab()
+    expect(document.body).toHaveFocus()
   })
 
   it("handles keyboard navigation correctly", () => {
-    const [wrapper] = buildChessboard("white", pieces)
+    buildChessboard("white", pieces)
     userEvent.tab()
     expect(screen.getByRole("gridcell", { name: /white king/i })).toHaveFocus()
     userEvent.keyboard(
@@ -284,16 +297,13 @@ describe("Keyboard-based interaction", () => {
     userEvent.keyboard("[ArrowRight][ControlLeft>][End]") // a8 -> h1
     expect(screen.getByRole("gridcell", { name: /h1/i })).toHaveFocus()
 
-    // Only one square should have tabindex 0, rest should have tabindex -1
-    let tabIndexMinus1Count = 0
-    let tabIndex0Count = 0
-    wrapper.querySelectorAll("[data-square]").forEach((n) => {
-      tabIndexMinus1Count +=
-        parseInt(n.getAttribute("tabIndex") || "") === -1 ? 1 : 0
-      tabIndex0Count += parseInt(n.getAttribute("tabIndex") || "") === 0 ? 1 : 0
-    })
-    expect(tabIndex0Count).toBe(1)
-    expect(tabIndexMinus1Count).toBe(63)
+    // Still only one square should be tabbable
+    userEvent.tab()
+    expect(document.body).toHaveFocus()
+    userEvent.tab({ shift: true })
+    expect(screen.getByRole("gridcell", { name: /h1/i })).toHaveFocus()
+    userEvent.tab({ shift: true })
+    expect(document.body).toHaveFocus()
   })
 
   it("handles keyboard-based moves correctly", () => {
@@ -345,6 +355,207 @@ describe("Keyboard-based interaction", () => {
     expect(
       screen.getByRole("gridcell", { name: /h5, black knight/i })
     ).toHaveClass("has-piece")
+  })
+})
+
+describe("Drag-based interaction", () => {
+  const pieces = {
+    f7: { color: "black", pieceType: "pawn" },
+  } as const
+
+  it("works correctly", async () => {
+    const [wrapper] = buildChessboard("white", pieces)
+
+    fireEvent.mouseDown(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    )
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "touching-first-square"
+      )
+    )
+    fireEvent.mouseMove(screen.getByRole("gridcell", { name: /f6/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "dragging"
+      )
+    )
+    fireEvent.mouseUp(screen.getByRole("gridcell", { name: /f5/i }))
+    expect(
+      screen.getByRole("gridcell", { name: /f5, black pawn/i })
+    ).toHaveFocus()
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "awaiting-input"
+      )
+    )
+    expect(
+      screen.getByRole("gridcell", { name: /f5, black pawn/i })
+    ).toHaveClass("has-piece")
+    expect(
+      screen.getByRole("gridcell", { name: /f5, black pawn/i })
+    ).toHaveFocus()
+  })
+
+  it("cancels move when move when dropping on same square", async () => {
+    const [wrapper] = buildChessboard("white", pieces)
+
+    fireEvent.mouseDown(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    )
+    fireEvent.mouseMove(screen.getByRole("gridcell", { name: /f8/i }))
+    fireEvent.mouseUp(screen.getByRole("gridcell", { name: /f7/i }))
+    expect(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    ).not.toHaveFocus()
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "awaiting-input"
+      )
+    )
+  })
+
+  it("ignores additional mousedown events or concurrent keyboard events", async () => {
+    const [wrapper] = buildChessboard("white", pieces)
+
+    userEvent.tab()
+    fireEvent.mouseDown(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    )
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "touching-first-square"
+      )
+    )
+
+    // Ignores additional mouse down events
+    fireEvent.mouseDown(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    )
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "touching-first-square"
+      )
+    )
+
+    // Start dragging
+    fireEvent.mouseMove(screen.getByRole("gridcell", { name: /f6/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "dragging"
+      )
+    )
+
+    // Ignores additional mouse down events
+    fireEvent.mouseDown(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    )
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "dragging"
+      )
+    )
+    expect(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    ).toHaveFocus()
+
+    // Ignore additional mouse move events
+    fireEvent.mouseMove(screen.getByRole("gridcell", { name: /a3/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "dragging"
+      )
+    )
+
+    // Let focus move around, but ignore enter press
+    userEvent.keyboard("[ArrowLeft][ArrowLeft][Enter]")
+    expect(screen.getByRole("gridcell", { name: /d7/i })).toHaveFocus()
+    expect(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    ).toHaveClass("has-piece")
+
+    // Finish dragging
+    fireEvent.mouseUp(screen.getByRole("gridcell", { name: /f5/i }))
+    expect(
+      screen.getByRole("gridcell", { name: /f5, black pawn/i })
+    ).toHaveFocus()
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "awaiting-input"
+      )
+    )
+    expect(
+      screen.getByRole("gridcell", { name: /f5, black pawn/i })
+    ).toHaveClass("has-piece")
+    expect(
+      screen.getByRole("gridcell", { name: /f5, black pawn/i })
+    ).toHaveFocus()
+  })
+
+  it("ignores cancellation on start square if it leads into drag", async () => {
+    const [wrapper] = buildChessboard("white", pieces)
+
+    userEvent.click(screen.getByRole("gridcell", { name: /f7, black pawn/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "awaiting-second-touch"
+      )
+    )
+    fireEvent.mouseDown(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    )
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "canceling-second-touch"
+      )
+    )
+    fireEvent.mouseMove(screen.getByRole("gridcell", { name: /f6/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "dragging"
+      )
+    )
+  })
+
+  it("continues with cancellation after second touch on start square if it does not lead into drag", async () => {
+    const [wrapper] = buildChessboard("white", pieces)
+
+    userEvent.click(screen.getByRole("gridcell", { name: /f7, black pawn/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "awaiting-second-touch"
+      )
+    )
+    fireEvent.mouseDown(
+      screen.getByRole("gridcell", { name: /f7, black pawn/i })
+    )
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "canceling-second-touch"
+      )
+    )
+    fireEvent.mouseMove(screen.getByRole("gridcell", { name: /f7/i }))
+    await waitFor(() =>
+      expect(wrapper.firstElementChild).toHaveAttribute(
+        "data-move-state",
+        "canceling-second-touch"
+      )
+    )
   })
 })
 

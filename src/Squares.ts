@@ -64,9 +64,6 @@ export class Squares {
         this.squareElements[8 * i + j] = document.createElement("div")
         row.appendChild(this.squareElements[8 * i + j])
       }
-      if (container === undefined || row === undefined) {
-        console.log(container, row)
-      }
       container.appendChild(row)
     }
 
@@ -129,11 +126,6 @@ export class Squares {
       this.toggleElementHasPiece(from)
       this.toggleElementHasPiece(to)
       this.tabbableSquare = to
-      if (this.interactive) {
-        // Programmatically focus target square for cases where the browser
-        // won't handle that automatically, e.g. through a drag operation
-        this.focusSquare(to)
-      }
     }
     return moved
   }

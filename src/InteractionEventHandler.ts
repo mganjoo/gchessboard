@@ -167,8 +167,7 @@ export class InteractionEventHandler {
 
   private handleMouseUp(
     this: InteractionEventHandler,
-    square: Square | undefined,
-    e: MouseEvent
+    square: Square | undefined
   ) {
     switch (this.interactionState.id) {
       case "touching-first-square":
@@ -185,11 +184,7 @@ export class InteractionEventHandler {
         }
         break
       case "canceling-second-touch":
-        // User cancels by clicking on the same square. First, prevent default
-        // action (to prevent re-focusing).
-        if (this.interactionState.startSquare === square) {
-          e.preventDefault()
-        }
+        // User cancels by clicking on the same square.
         this.cancelMove()
         break
       case "awaiting-input":
@@ -277,7 +272,7 @@ export class InteractionEventHandler {
     if (e.key === "Enter") {
       switch (this.interactionState.id) {
         case "awaiting-input":
-          // Ignore presses that are outside board or have no piece on them
+          // Ignore presses for squares that have no piece on them
           if (pressedSquare && this.squares.pieces.pieceOn(pressedSquare)) {
             this.updateInteractionState(
               {
@@ -290,19 +285,14 @@ export class InteractionEventHandler {
           break
         case "moving-piece-kb":
         case "awaiting-second-touch":
+          // Only move if enter was inside squares area and if start
+          // and end square are not the same.
           if (
             pressedSquare &&
             this.interactionState.startSquare !== pressedSquare
           ) {
             this.movePiece(this.interactionState.startSquare, pressedSquare)
           } else {
-            // Cancel move if enter was outside squares area or if start
-            // and end square are the same. Before canceling move, prevent
-            // default action if we pressed the same square as start
-            // square (to prevent re-focusing)
-            if (this.interactionState.startSquare === pressedSquare) {
-              e.preventDefault()
-            }
             this.cancelMove()
           }
           break
@@ -368,17 +358,17 @@ export class InteractionEventHandler {
           case "moving-piece-kb":
             break
           case "awaiting-second-touch":
-            if (pressedSquare) {
-              this.updateInteractionState({
-                id: "moving-piece-kb",
-                startSquare: this.interactionState.startSquare,
-              })
-            }
+            this.updateInteractionState({
+              id: "moving-piece-kb",
+              startSquare: this.interactionState.startSquare,
+            })
             break
-          case "touching-first-square":
+          // istanbul ignore next
+          case "touching-first-square": // istanbul ignore next
           case "canceling-second-touch":
             // Similar to canceling move, but don't blur focused square
             // since we just gave it focus through keyboard navigation
+            // istanbul ignore next
             this.updateInteractionState({ id: "awaiting-input" })
             break
           case "dragging":
@@ -393,9 +383,11 @@ export class InteractionEventHandler {
   }
 
   private movePiece(from: Square, to: Square) {
-    if (this.squares.movePiece(from, to)) {
-      this.updateInteractionState({ id: "awaiting-input" })
-    }
+    this.squares.movePiece(from, to)
+    this.updateInteractionState({ id: "awaiting-input" })
+    // Programmatically focus target square for cases where the browser
+    // won't handle that automatically, e.g. through a drag operation
+    this.squares.focusSquare(to)
   }
 
   private cancelMove() {
@@ -439,7 +431,9 @@ export class InteractionEventHandler {
   ): (e: K) => void {
     const boundCallback = callback.bind(this)
     return (e: K) => {
-      const square = hasDataset(e.target) ? e.target.dataset.square : undefined
+      const square = hasDataset(e.target)
+        ? e.target.dataset.square
+        : /* istanbul ignore next */ undefined
       boundCallback(keyIsSquare(square) ? square : undefined, e)
     }
   }
