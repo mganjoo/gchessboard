@@ -1,8 +1,8 @@
 /**
  * Wrapper for Typescript `never` type to be used in exhaustive type checks.
  */
+// istanbul ignore next
 export function assertUnreachable(x: never): never {
-  // istanbul ignore next
   throw new Error(`Unreachable code reached with value ${x}`)
 }
 
@@ -13,11 +13,5 @@ export function assertUnreachable(x: never): never {
 export function hasDataset(
   x: EventTarget | null
 ): x is EventTarget & { dataset: DOMStringMap } {
-  return x !== null && (x as HTMLElement | SVGElement).dataset !== undefined
-}
-
-export function hasParentNode(
-  x: EventTarget | null
-): x is Element & { parentNode: ParentNode } {
-  return x !== null && (x as Element).parentNode != null
+  return !!x && !!(x as HTMLElement | SVGElement).dataset
 }

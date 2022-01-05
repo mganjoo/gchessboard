@@ -23,7 +23,12 @@ export class Pieces {
       }
     >
   >
-  private orientation: Side
+  private _orientation: Side
+
+  /**
+   * Map of piece to sprite ID in "sprite.svg". The ID will be referenced
+   * as `#id` in a <use> block.
+   */
   private static SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
     white: {
       queen: "wq",
@@ -69,7 +74,7 @@ export class Pieces {
       },
       classes: ["pieces"],
     })
-    this.orientation = orientation
+    this._orientation = orientation
     this.pieces = {}
     Object.entries(pieces || {}).forEach(([key, piece]) => {
       const element = this.makePieceElement(piece)
@@ -87,11 +92,15 @@ export class Pieces {
     removeElement(this.group)
   }
 
+  get orientation() {
+    return this._orientation
+  }
+
   /**
    * Update orientation of pieces to `orientation` and update visual elements.
    */
-  updateOrientation(orientation: Side) {
-    this.orientation = orientation
+  set orientation(orientation: Side) {
+    this._orientation = orientation
     this.draw()
   }
 

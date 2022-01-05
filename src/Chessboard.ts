@@ -38,7 +38,7 @@ export class Chessboard {
   constructor(container: Element, config?: ChessboardConfig) {
     const { orientation, interactive, pieces } = config || {}
     this._orientation = orientation || "white"
-    this._interactive = interactive || true
+    this._interactive = interactive !== undefined ? interactive : true
 
     this.group = makeHTMLElement("div", {
       attributes: { role: "grid" },
