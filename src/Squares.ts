@@ -132,8 +132,12 @@ export class Squares {
   movePiece(from: Square, to: Square) {
     const moved = this.pieces.movePiece(from, to)
     if (moved) {
-      this.toggleElementHasPiece(from)
-      this.toggleElementHasPiece(to)
+      this.getBoardSquare(from).updateConfig({
+        piece: this.pieces.pieceOn(from),
+      })
+      this.getBoardSquare(to).updateConfig({
+        piece: this.pieces.pieceOn(to),
+      })
       this.tabbableSquare = to
     }
     return moved
@@ -158,12 +162,6 @@ export class Squares {
         rankLabelShown: col === 0,
         fileLabelShown: row === 7,
       })
-    })
-  }
-
-  private toggleElementHasPiece(square: Square) {
-    this.getBoardSquare(square).updateConfig({
-      piece: this.pieces.pieceOn(square),
     })
   }
 

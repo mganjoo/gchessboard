@@ -58,6 +58,8 @@ export class InteractionEventHandler {
    */
   private static DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION = 0.3
 
+  private static DRAG_THRESHOLD_MIN_PIXELS = 2
+
   constructor(
     container: HTMLElement,
     squares: Squares,
@@ -454,11 +456,15 @@ export class InteractionEventHandler {
     startSquare: Square
   ) {
     const delta = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2)
+    const threshold = Math.max(
+      InteractionEventHandler.DRAG_THRESHOLD_MIN_PIXELS,
+      InteractionEventHandler.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION *
+        this.squares.squareWidth
+    )
     // Consider a "dragging" action to be when we have moved the mouse a sufficient
     // threshold, or we are now in a different square from where we started.
     return (
-      delta / this.squares.squareWidth >
-        InteractionEventHandler.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION ||
+      (this.squares.squareWidth !== 0 && delta > threshold) ||
       square !== startSquare
     )
   }
