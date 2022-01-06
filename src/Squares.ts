@@ -28,9 +28,9 @@ export interface SquaresConfig {
 }
 
 export class Squares {
-  pieces: Pieces
-  private squaresContainer: HTMLElement
-  private boardSquares: BoardSquare[]
+  readonly pieces: Pieces
+  private readonly squaresContainer: HTMLElement
+  private readonly boardSquares: BoardSquare[]
   private _orientation: Side
   private _interactive: boolean
 

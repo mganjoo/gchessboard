@@ -37,8 +37,8 @@ export interface BoardSquareConfig {
  * that aid in interactivity (ARIA role, labels etc).
  */
 export class BoardSquare {
-  private element: HTMLDivElement
-  private labelSpanElement: HTMLSpanElement
+  private readonly element: HTMLDivElement
+  private readonly labelSpanElement: HTMLSpanElement
   private config: BoardSquareConfig
 
   constructor(container: HTMLElement, config: BoardSquareConfig) {

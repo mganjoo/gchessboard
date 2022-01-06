@@ -1,13 +1,13 @@
 import { getSquare, Piece, Side, Square } from "./utils/chess"
-import { makeSvgElement, removeElement } from "./utils/dom"
 import { BoardPiece } from "./components/BoardPiece"
+import { makeHTMLElement, removeElement } from "./utils/dom"
 
 /**
  * Visual layer for management of chessboard pieces and their rendering.
  */
 export class Pieces {
-  private group: SVGSVGElement
-  private pieces: Partial<Record<Square, BoardPiece>>
+  private readonly piecesContainer: HTMLElement
+  private readonly pieces: Partial<Record<Square, BoardPiece>>
   private _orientation: Side
 
   /**
@@ -22,27 +22,25 @@ export class Pieces {
     orientation: Side,
     pieces?: Partial<Record<Square, Piece>>
   ) {
-    this.group = makeSvgElement("svg", {
-      attributes: {
-        viewbox: "0 0 100 100",
-        role: "presentation",
-      },
-      classes: ["pieces"],
-    })
     this._orientation = orientation
+    this.piecesContainer = makeHTMLElement("div", {
+      attributes: { role: "presentation" },
+      classes: ["chessboard--pieces"],
+    })
     this.pieces = {}
     Object.entries(pieces || {}).forEach(([key, piece]) => {
-      this.pieces[key as Square] = new BoardPiece(this.group, { piece })
+      this.pieces[key as Square] = new BoardPiece(this.piecesContainer, {
+        piece,
+      })
     })
+    container.appendChild(this.piecesContainer)
 
     // Initial render
     this.draw()
-
-    container.appendChild(this.group)
   }
 
   cleanup() {
-    removeElement(this.group)
+    removeElement(this.piecesContainer)
   }
 
   get orientation() {

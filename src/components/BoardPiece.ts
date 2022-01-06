@@ -20,7 +20,7 @@ export interface BoardPieceConfig {
  */
 export class BoardPiece {
   readonly piece: Piece
-  private readonly element: SVGUseElement
+  private readonly element: SVGSVGElement
 
   /**
    * Map of piece to sprite ID in "sprite.svg". The ID will be referenced
@@ -47,24 +47,30 @@ export class BoardPiece {
 
   /**
    * Padding applied to a piece when placing a piece on a square,
-   * as a percentage of the width of the chessboard.
+   * as a percentage of the width of the square.
    */
-  private static PIECE_PADDING_PCT = 0.4
+  private static PIECE_PADDING_PCT = 3
 
-  constructor(container: SVGElement, config: BoardPieceConfig) {
+  constructor(container: HTMLElement, config: BoardPieceConfig) {
     this.piece = config.piece
-    this.element = makeSvgElement("use", {
+    this.element = makeSvgElement("svg", {
+      attributes: {
+        viewbox: "0 0 45 45",
+      },
+    })
+    const use = makeSvgElement("use", {
       attributes: {
         href: `${sprite}#${
           BoardPiece.SPRITE_ID_MAP[this.piece.color][this.piece.pieceType]
         }`,
-        width: `${12.5 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
-        height: `${12.5 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
+        width: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
+        height: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
       },
       data: {
         piece: `${this.piece.color}-${this.piece.pieceType}`,
       },
     })
+    this.element.appendChild(use)
     container.appendChild(this.element)
   }
 
@@ -79,7 +85,7 @@ export class BoardPiece {
   placePiece(square: Square, orientation: Side) {
     const [row, column] = getVisualRowColumn(square, orientation)
     this.element.style.transform = `translate(${
-      column * 12.5 + BoardPiece.PIECE_PADDING_PCT
-    }%, ${row * 12.5 + BoardPiece.PIECE_PADDING_PCT}%)`
+      column * 100 + BoardPiece.PIECE_PADDING_PCT
+    }%, ${row * 100 + BoardPiece.PIECE_PADDING_PCT}%)`
   }
 }
