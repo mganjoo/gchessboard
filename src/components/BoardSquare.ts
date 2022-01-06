@@ -77,7 +77,7 @@ export class BoardSquare {
   private drawSquare() {
     const color = getSquareColor(this.config.label)
     const textLabel = this.config.piece
-      ? `${this.config.label}, ${this.config.piece.color} ${this.config.piece.pieceType}`
+      ? `${this.config.piece.color} ${this.config.piece.pieceType} on ${this.config.label}`
       : this.config.label
     this.element.dataset.square = this.config.label
     this.element.dataset.squareColor = color
