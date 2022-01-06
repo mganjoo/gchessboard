@@ -1,4 +1,11 @@
-import { getSquare, getVisualIndex, Piece, Side, Square } from "./utils/chess"
+import {
+  getSquare,
+  getVisualIndex,
+  getVisualRowColumn,
+  Piece,
+  Side,
+  Square,
+} from "./utils/chess"
 import { makeHTMLElement, removeElement } from "./utils/dom"
 import { Pieces } from "./Pieces"
 import { BoardSquare } from "./components/BoardSquare"
@@ -142,8 +149,7 @@ export class Squares {
 
   private draw() {
     this.forEachSquare((square, idx) => {
-      const row = idx >> 3
-      const col = idx & 0x7
+      const [row, col] = getVisualRowColumn(square, this.orientation)
       this.boardSquares[idx].updateConfig({
         label: square,
         interactive: this.interactive,

@@ -11,7 +11,7 @@ export default {
   decorators: [
     (storyDiv) => {
       const d = storyDiv() as HTMLDivElement
-      d.style.maxWidth = "24rem"
+      d.style.maxWidth = "28rem"
       return d
     },
   ],

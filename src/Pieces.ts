@@ -1,58 +1,14 @@
-import {
-  getSquare,
-  getVisualIndex,
-  Piece,
-  PieceType,
-  Side,
-  Square,
-} from "./utils/chess"
-import sprite from "./sprite.svg"
+import { getSquare, Piece, Side, Square } from "./utils/chess"
 import { makeSvgElement, removeElement } from "./utils/dom"
+import { BoardPiece } from "./components/BoardPiece"
 
 /**
  * Visual layer for management of chessboard pieces and their rendering.
  */
 export class Pieces {
   private group: SVGSVGElement
-  private pieces: Partial<
-    Record<
-      Square,
-      {
-        piece: Piece
-        element: SVGUseElement
-      }
-    >
-  >
+  private pieces: Partial<Record<Square, BoardPiece>>
   private _orientation: Side
-
-  /**
-   * Map of piece to sprite ID in "sprite.svg". The ID will be referenced
-   * as `#id` in a <use> block.
-   */
-  private static SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
-    white: {
-      queen: "wq",
-      king: "wk",
-      knight: "wn",
-      pawn: "wp",
-      bishop: "wb",
-      rook: "wr",
-    },
-    black: {
-      queen: "bq",
-      king: "bk",
-      knight: "bn",
-      pawn: "bp",
-      bishop: "bb",
-      rook: "br",
-    },
-  }
-
-  /**
-   * Padding applied to a piece when placing a piece on a square,
-   * as a percentage of the width of the chessboard.
-   */
-  private static PIECE_PADDING_PCT = 0.4
 
   /**
    * Creates an SVG layer for display and manipulation of pieces.
@@ -78,9 +34,7 @@ export class Pieces {
     this._orientation = orientation
     this.pieces = {}
     Object.entries(pieces || {}).forEach(([key, piece]) => {
-      const element = this.makePieceElement(piece)
-      this.pieces[key as Square] = { piece, element }
-      this.group.appendChild(element)
+      this.pieces[key as Square] = new BoardPiece(this.group, { piece })
     })
 
     // Initial render
@@ -97,9 +51,6 @@ export class Pieces {
     return this._orientation
   }
 
-  /**
-   * Update orientation of pieces to `orientation` and update visual elements.
-   */
   set orientation(orientation: Side) {
     this._orientation = orientation
     this.draw()
@@ -134,13 +85,14 @@ export class Pieces {
   movePiece(startSquare: Square, endSquare: Square) {
     const piece = this.pieces[startSquare]
     if (piece && endSquare !== startSquare) {
-      const existing = this.pieces[endSquare]
-      if (existing) {
-        removeElement(existing.element)
-      }
+      // Remove existing piece on target if it exists
+      this.pieces[endSquare]?.cleanup()
+
+      // Move piece and place on grid
       this.pieces[endSquare] = piece
-      // TODO: animate moving from original square
-      this.drawPiece(piece.element, endSquare)
+      piece.placePiece(endSquare, this.orientation)
+
+      // Remove entry for old piece
       delete this.pieces[startSquare]
       return true
     }
@@ -149,27 +101,7 @@ export class Pieces {
 
   private draw() {
     Object.entries(this.pieces).forEach(([key, piece]) => {
-      this.drawPiece(piece.element, key as Square)
+      piece.placePiece(key as Square, this.orientation)
     })
-  }
-
-  private makePieceElement(piece: Piece): SVGUseElement {
-    return makeSvgElement("use", {
-      attributes: {
-        href: `${sprite}#${Pieces.SPRITE_ID_MAP[piece.color][piece.pieceType]}`,
-        width: `${12.5 - Pieces.PIECE_PADDING_PCT * 2}%`,
-        height: `${12.5 - Pieces.PIECE_PADDING_PCT * 2}%`,
-      },
-      data: {
-        piece: `${piece.color}-${piece.pieceType}`,
-      },
-    })
-  }
-
-  private drawPiece(pieceElement: SVGUseElement, square: Square) {
-    const idx = getVisualIndex(square, this.orientation)
-    pieceElement.style.transform = `translate(${
-      (idx & 0x7) * 12.5 + Pieces.PIECE_PADDING_PCT
-    }%, ${(idx >> 3) * 12.5 + Pieces.PIECE_PADDING_PCT}%)`
   }
 }

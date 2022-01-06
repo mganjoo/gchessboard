@@ -11,7 +11,7 @@ type BoardSquareStoryArgs = Omit<BoardSquareConfig, "piece"> & {
 }
 
 export default {
-  title: "BoardSquare",
+  title: "Board Square",
   argTypes: {
     label: {
       options: LABEL_OPTIONS,
@@ -30,9 +30,9 @@ export default {
 
 const Template: Story<BoardSquareStoryArgs> = (config) => {
   const { pieceType, pieceColor, ...rest } = config
-  const grid = document.createElement("div")
-  const row = document.createElement("div")
-  grid.classList.add("chessboard")
+  const grid = document.createElement("table")
+  const row = document.createElement("tr")
+  grid.classList.add("chessboard--squares")
   grid.style.width = "4rem"
   grid.style.height = "4rem"
   if (rest.interactive) {

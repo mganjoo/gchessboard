@@ -84,7 +84,7 @@ export function getSquare(visualIndex: number, orientation: Side) {
  *
  * https://www.chessprogramming.org/0x88#Coordinate_Transformation
  *
- * @param square square to convert to visual row and column.
+ * @param square square to convert to visual index.
  * @param orientation  what side is at the bottom ("white" = a1 on bottom left)
  * @returns a visual index for the square in question.
  */
@@ -92,6 +92,21 @@ export function getVisualIndex(square: Square, orientation: Side) {
   const idx = SQUARES_MAP[square]
   const orientedIdx = orientation === "white" ? idx : 0x77 - idx
   return (orientedIdx + (orientedIdx & 0x7)) >> 1
+}
+
+/**
+ * Like `getVisualIndex`, but returns a row and column combination.
+ *
+ * @param square square to convert to visual row and column.
+ * @param orientation  what side is at the bottom ("white" = a1 on bottom left)
+ * @returns an array containing [row, column] for the square in question.
+ */
+export function getVisualRowColumn(
+  square: Square,
+  orientation: Side
+): [number, number] {
+  const idx = getVisualIndex(square, orientation)
+  return [idx >>> 3, idx & 0x7]
 }
 
 /**
