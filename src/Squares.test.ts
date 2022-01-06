@@ -29,9 +29,6 @@ describe("Squares.movePiece()", () => {
       "has-piece"
     )
     expect(wrapper.querySelector('[data-square="f3"]')).not.toHaveAttribute(
-      "aria-label"
-    )
-    expect(wrapper.querySelector('[data-square="f3"]')).not.toHaveAttribute(
       "tabindex"
     )
   })

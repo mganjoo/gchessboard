@@ -22,7 +22,7 @@ export interface SquaresConfig {
 
 export class Squares {
   pieces: Pieces
-  private container: HTMLElement
+  private squaresContainer: HTMLElement
   private boardSquares: BoardSquare[]
   private _orientation: Side
   private _interactive: boolean
@@ -46,12 +46,16 @@ export class Squares {
    */
   constructor(container: HTMLElement, config: SquaresConfig) {
     this.boardSquares = new Array(64)
-    this.container = container
     this._orientation = config.orientation
     this._interactive = config.interactive || false
 
+    this.squaresContainer = makeHTMLElement("table", {
+      attributes: { role: "grid" },
+      classes: ["chessboard--squares"],
+    })
+
     for (let i = 0; i < 8; i++) {
-      const row = makeHTMLElement("div", {
+      const row = makeHTMLElement("tr", {
         attributes: { role: "row" },
       })
       for (let j = 0; j < 8; j++) {
@@ -60,11 +64,12 @@ export class Squares {
           label: getSquare(idx, this.orientation),
         })
       }
-      container.appendChild(row)
+      this.squaresContainer.appendChild(row)
     }
+    container.appendChild(this.squaresContainer)
 
     // Build pieces
-    this.pieces = new Pieces(this.container, this.orientation, config.pieces)
+    this.pieces = new Pieces(container, this.orientation, config.pieces)
     this._tabbableSquare =
       this.pieces.firstOccupiedSquare() || getSquare(56, this.orientation) // bottom right
 
@@ -75,7 +80,7 @@ export class Squares {
   cleanup() {
     this.pieces.cleanup()
     this.forEachSquare((_, idx) => this.boardSquares[idx].cleanup())
-    removeElement(this.container)
+    removeElement(this.squaresContainer)
   }
 
   get orientation() {

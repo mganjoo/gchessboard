@@ -41,7 +41,6 @@ export class Chessboard {
     this._interactive = interactive !== undefined ? interactive : true
 
     this.group = makeHTMLElement("div", {
-      attributes: { role: "grid" },
       classes: ["chessboard"],
     })
     this.squares = new Squares(this.group, {

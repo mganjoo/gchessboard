@@ -38,10 +38,13 @@ export interface BoardSquareConfig {
  */
 export class BoardSquare {
   private element: HTMLDivElement
+  private labelSpanElement: HTMLSpanElement
   private config: BoardSquareConfig
 
   constructor(container: HTMLElement, config: BoardSquareConfig) {
-    this.element = document.createElement("div")
+    this.element = document.createElement("td")
+    this.labelSpanElement = document.createElement("span")
+    this.element.appendChild(this.labelSpanElement)
     this.config = { ...config }
     this.drawSquare()
     container.appendChild(this.element)
@@ -73,22 +76,19 @@ export class BoardSquare {
 
   private drawSquare() {
     const color = getSquareColor(this.config.label)
+    const textLabel = this.config.piece
+      ? `${this.config.label}, ${this.config.piece.color} ${this.config.piece.pieceType}`
+      : this.config.label
     this.element.dataset.square = this.config.label
     this.element.dataset.squareColor = color
+    this.labelSpanElement.textContent = textLabel
 
     if (this.config.interactive) {
       this.element.setAttribute("role", "gridcell")
       this.element.tabIndex = this.config.tabbable ? 0 : -1
-      this.element.setAttribute(
-        "aria-label",
-        this.config.piece
-          ? `${this.config.label}, ${this.config.piece.color} ${this.config.piece.pieceType}`
-          : this.config.label
-      )
     } else {
       this.element.removeAttribute("role")
       this.element.removeAttribute("tabindex")
-      this.element.removeAttribute("aria-label")
     }
 
     this.element.classList.toggle(

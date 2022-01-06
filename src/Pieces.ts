@@ -71,6 +71,7 @@ export class Pieces {
         viewbox: "0 0 100 100",
         width: "100%",
         height: "100%",
+        role: "presentation",
       },
       classes: ["pieces"],
     })

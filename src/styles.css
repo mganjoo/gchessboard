@@ -7,27 +7,21 @@
 }
 
 .chessboard {
-  position: relative;
-  display: table;
   width: 100%;
-  /* Prevent native dragging caused if any of the divs are "selected". */
+  position: relative;
+  /* Prevent native dragging caused if any of the children are "selected". */
   user-select: none;
 }
 
-/* Row containing squares. */
-.chessboard > div {
-  display: table-row;
+.chessboard--squares {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
 
-/* A single square within a row (width = 1/8th of row). */
-.chessboard > div > div {
-  display: table-cell;
-}
-
-/* A single square. */
-[data-square-color] {
+.chessboard--squares td {
   width: 12.5%;
-  padding-top: 12.5%;
+  padding: 12.5% 0 0 0;
   position: relative;
 }
 
@@ -42,7 +36,12 @@
   color: var(--dark-square-color);
 }
 
-[data-square-color]:focus {
+[data-square] {
+  font-family: sans-serif;
+  font-size: 0.7rem;
+}
+
+[role="gridcell"][data-square-color]:focus {
   outline: none;
   box-shadow: inset 0 0 4px 4px var(--focus-outline-color);
 }
@@ -69,15 +68,20 @@
   right: 4%;
 }
 
-[data-square] {
-  font-family: sans-serif;
-  font-size: 0.7rem;
+/* Hide label text from every device except screenreaders. */
+[data-square] > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .pieces {
   position: absolute;
-  width: 100%;
-  height: 100%;
   top: 0;
   left: 0;
   bottom: 0;
