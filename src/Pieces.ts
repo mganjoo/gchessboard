@@ -25,8 +25,6 @@ export class Pieces {
     this.group = makeSvgElement("svg", {
       attributes: {
         viewbox: "0 0 100 100",
-        width: "100%",
-        height: "100%",
         role: "presentation",
       },
       classes: ["pieces"],
