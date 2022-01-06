@@ -91,10 +91,7 @@ export class BoardSquare {
       this.element.removeAttribute("tabindex")
     }
 
-    this.element.classList.toggle(
-      "has-piece",
-      this.config.interactive && !!this.config.piece
-    )
+    this.element.classList.toggle("has-piece", !!this.config.piece)
 
     const [filePart, rankPart] = this.config.label.split("")
     if (this.config.rankLabelShown) {
