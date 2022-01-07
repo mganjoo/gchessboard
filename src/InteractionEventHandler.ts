@@ -355,6 +355,8 @@ export class InteractionEventHandler {
       }
 
       if (keyHandled) {
+        // Prevent native browser scrolling via any of the
+        // navigation keys since the focus below will auto-scroll
         e.preventDefault()
       }
 

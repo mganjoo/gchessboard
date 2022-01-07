@@ -61,13 +61,13 @@ export class BoardSquare {
     this.element.appendChild(this.labelSpanElement)
     this.element.appendChild(this.fileLabelElement)
     this.element.appendChild(this.rankLabelElement)
-    this.drawSquare()
+    this.updateSquareVisuals()
     container.appendChild(this.element)
   }
 
   updateConfig(config: Partial<BoardSquareConfig>) {
     this.config = { ...this.config, ...config }
-    this.drawSquare()
+    this.updateSquareVisuals()
   }
 
   /**
@@ -85,7 +85,7 @@ export class BoardSquare {
     this.element.blur()
   }
 
-  private drawSquare() {
+  private updateSquareVisuals() {
     // Label and color
     this.element.dataset.square = this.config.label
     this.element.dataset.squareColor = getSquareColor(this.config.label)
@@ -99,7 +99,7 @@ export class BoardSquare {
       : null
 
     // Piece placement
-    this.placePiece(this.config.piece)
+    this.replacePiece(this.config.piece)
     this.element.classList.toggle("has-piece", !!this.config.piece)
 
     // Interactivity
@@ -112,7 +112,7 @@ export class BoardSquare {
     }
   }
 
-  private placePiece(piece?: Piece) {
+  private replacePiece(piece?: Piece) {
     if (this.boardPiece && piece && pieceEqual(piece, this.boardPiece.piece)) {
       return
     }
