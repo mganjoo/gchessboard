@@ -4,6 +4,11 @@ import smartAsset from "rollup-plugin-smart-asset"
 import { defineConfig } from "rollup"
 import pkg from "./package.json"
 
+/** @type {import("rollup-plugin-postcss").PostCSSPluginConf} */
+const postCssConfig = {
+  plugins: [require("autoprefixer")],
+}
+
 /** @type {import("@rollup/plugin-typescript").RollupTypescriptOptions } */
 const typescriptConfig = {
   tsconfig: "./tsconfig.json",
@@ -13,12 +18,6 @@ const typescriptConfig = {
     "src/stories/**/*.(ts|tsx)",
     "./*.ts",
   ],
-}
-
-/** @type {import("rollup-plugin-postcss").PostCSSPluginConf} */
-const postCssConfig = {
-  minimize: true,
-  plugins: [require("autoprefixer")],
 }
 
 const smartAssetConfig = {
@@ -31,26 +30,20 @@ export default defineConfig([
     input: "src/chessx.ts",
     output: [
       {
-        name: "chessx",
-        file: pkg.browser,
-        format: "umd",
-        globals: {
-          "./sprite.svg": "sprite",
-        },
-      },
-      {
         file: pkg.main,
         format: "cjs",
+        sourcemap: true,
       },
       {
         file: pkg.module,
         format: "es",
+        sourcemap: true,
       },
     ],
     plugins: [
       smartAsset(smartAssetConfig),
-      typescript(typescriptConfig),
       postcss(postCssConfig),
+      typescript(typescriptConfig),
     ],
   },
 ])

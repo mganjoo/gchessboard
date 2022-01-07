@@ -6,7 +6,6 @@
   "license": "MIT",
   "main": "dist/chessx.js",
   "module": "dist/chessx.esm.js",
-  "browser": "dist/chessx.umd.js",
   "devDependencies": {
     "@babel/core": "^7.16.5",
     "@babel/preset-env": "^7.16.5",
