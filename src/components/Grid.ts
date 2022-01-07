@@ -5,12 +5,11 @@ import {
   Piece,
   Side,
   Square,
-} from "./utils/chess"
-import { makeHTMLElement, removeElement } from "./utils/dom"
-import { Pieces } from "./Pieces"
-import { BoardSquare } from "./components/BoardSquare"
+} from "../utils/chess"
+import { makeHTMLElement, removeElement } from "../utils/dom"
+import { BoardSquare } from "./BoardSquare"
 
-export interface SquaresConfig {
+export interface GridConfig {
   /**
    * What side's perspective to render squares from (what color appears on bottom).
    */
@@ -21,16 +20,16 @@ export interface SquaresConfig {
    */
   interactive: boolean
   /**
-   * Map of square -> piece to initialize with. Since the Squares object manages
-   * the pieces layer as well, all pieces management occurs via `SquaresConfig`.
+   * Map of square -> piece to initialize with. Since the Grid object manages
+   * the pieces layer as well, all pieces management occurs via `GridConfig`.
    */
   pieces?: Partial<Record<Square, Piece>>
 }
 
-export class Squares {
-  readonly pieces: Pieces
+export class Grid {
   private readonly squaresContainer: HTMLElement
   private readonly boardSquares: BoardSquare[]
+  private readonly pieces: Partial<Record<Square, Piece>>
   private _orientation: Side
   private _interactive: boolean
 
@@ -51,10 +50,11 @@ export class Squares {
    * @param orientation What side is the player's perspective.
    * @param pieces Any pieces that are on the board in the beginning.
    */
-  constructor(container: HTMLElement, config: SquaresConfig) {
+  constructor(container: HTMLElement, config: GridConfig) {
     this.boardSquares = new Array(64)
     this._orientation = config.orientation
     this._interactive = config.interactive || false
+    this.pieces = { ...config.pieces }
 
     this.squaresContainer = makeHTMLElement("table", {
       attributes: { role: "grid" },
@@ -75,18 +75,14 @@ export class Squares {
     }
     container.appendChild(this.squaresContainer)
 
-    // Build pieces
-    this.pieces = new Pieces(container, this.orientation, config.pieces)
     this._tabbableSquare =
-      this.pieces.firstOccupiedSquare() || getSquare(56, this.orientation) // bottom right
+      this.firstOccupiedSquare() || getSquare(56, this.orientation) // bottom right
 
     // Initial render
-    this.draw()
+    this.updateSquareProps()
   }
 
   cleanup() {
-    this.pieces.cleanup()
-    this.forEachSquare((_, idx) => this.boardSquares[idx].cleanup())
     removeElement(this.squaresContainer)
   }
 
@@ -96,8 +92,7 @@ export class Squares {
 
   set orientation(orientation: Side) {
     this._orientation = orientation
-    this.pieces.orientation = orientation
-    this.draw()
+    this.updateSquareProps()
   }
 
   get interactive() {
@@ -106,7 +101,7 @@ export class Squares {
 
   set interactive(interactive: boolean) {
     this._interactive = interactive
-    this.draw()
+    this.updateSquareProps()
   }
 
   get tabbableSquare() {
@@ -114,6 +109,7 @@ export class Squares {
   }
 
   set tabbableSquare(square: Square) {
+    // Unset previous tabbable square so that tabindex is changed to -1
     this.getBoardSquare(this._tabbableSquare).updateConfig({ tabbable: false })
     this.getBoardSquare(square).updateConfig({
       tabbable: true,
@@ -126,21 +122,23 @@ export class Squares {
   }
 
   /**
-   * Move piece on `from` to `to`. Update indicator classes for piece,
-   * update tabindices, and focus square.
+   * Move a piece (if it exists) from `from` to `to`.
    */
   movePiece(from: Square, to: Square) {
-    const moved = this.pieces.movePiece(from, to)
-    if (moved) {
-      this.getBoardSquare(from).updateConfig({
-        piece: this.pieces.pieceOn(from),
-      })
-      this.getBoardSquare(to).updateConfig({
-        piece: this.pieces.pieceOn(to),
-      })
+    const piece = this.pieces[from]
+    if (piece && to !== from) {
+      this.getBoardSquare(from).updateConfig({ piece: undefined })
+      this.getBoardSquare(to).updateConfig({ piece: this.pieces[from] })
+      this.pieces[to] = this.pieces[from]
+      delete this.pieces[from]
       this.tabbableSquare = to
+      return true
     }
-    return moved
+    return false
+  }
+
+  pieceOn(square: Square): boolean {
+    return !!this.pieces[square]
   }
 
   focusSquare(square: Square) {
@@ -151,14 +149,30 @@ export class Squares {
     this.getBoardSquare(square).blur()
   }
 
-  private draw() {
+  /**
+   * Return the first occupied square, from the player's orientation (i.e.
+   * from bottom left of the visual board), if it exists.
+   */
+  private firstOccupiedSquare(): Square | undefined {
+    for (let row = 7; row >= 0; row--) {
+      for (let col = 0; col < 8; col++) {
+        const square = getSquare(8 * row + col, this.orientation)
+        if (square in this.pieces) {
+          return square
+        }
+      }
+    }
+    return undefined
+  }
+
+  private updateSquareProps() {
     this.forEachSquare((square, idx) => {
       const [row, col] = getVisualRowColumn(square, this.orientation)
       this.boardSquares[idx].updateConfig({
         label: square,
         interactive: this.interactive,
         tabbable: this.tabbableSquare === square,
-        piece: this.pieces.pieceOn(square),
+        piece: this.pieces[square],
         rankLabelShown: col === 0,
         fileLabelShown: row === 7,
       })
@@ -174,7 +188,7 @@ export class Squares {
    * the square label and index as arguments.
    */
   private forEachSquare(
-    callback: (this: Squares, square: Square, idx: number) => void
+    callback: (this: Grid, square: Square, idx: number) => void
   ) {
     const boundCallback = callback.bind(this)
     for (let i = 0; i < 64; i++) {

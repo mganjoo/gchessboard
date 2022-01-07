@@ -54,33 +54,31 @@
   background-color: var(--hover-light-square-color);
 }
 
-[data-rank-label]::before {
-  content: attr(data-rank-label);
+[data-square] .chessboard--rank-label {
   position: absolute;
   top: 3%;
   left: 4%;
 }
 
-[data-file-label]::after {
-  content: attr(data-file-label);
+[data-square] .chessboard--file-label {
   position: absolute;
   bottom: 3%;
   right: 4%;
 }
 
 /* Hide label text from every device except screenreaders. */
-[data-square] > span {
+[data-square] .chessboard--square-label {
   position: absolute;
   width: 1px;
   height: 1px;
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 
-.chessboard--pieces {
+[data-square] > svg {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -89,14 +87,6 @@
   bottom: 0;
   right: 0;
   pointer-events: none;
-}
-
-.chessboard--pieces > svg {
-  position: absolute;
-  width: 12.5%;
-  height: 12.5%;
-  top: 0;
-  left: 0;
 }
 
 [data-move-state="awaiting-input"] .has-piece {

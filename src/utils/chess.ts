@@ -131,3 +131,7 @@ export function getOppositeSide(color: Side) {
 export function keyIsSquare(key: string | undefined): key is Square {
   return key !== undefined && key in SQUARES_MAP
 }
+
+export function pieceEqual(a: Piece, b: Piece) {
+  return a.color === b.color && a.pieceType === b.pieceType
+}

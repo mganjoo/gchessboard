@@ -1,6 +1,6 @@
 import { Piece, Side, Square } from "./utils/chess"
 import { makeHTMLElement, removeElement } from "./utils/dom"
-import { Squares } from "./Squares"
+import { Grid } from "./components/Grid"
 import { InteractionEventHandler } from "./InteractionEventHandler"
 import "./styles.css"
 
@@ -23,7 +23,7 @@ export interface ChessboardConfig {
 
 export class Chessboard {
   private group: HTMLDivElement
-  private squares: Squares
+  private squares: Grid
   private eventsHandler: InteractionEventHandler
   private _orientation: Side
   private _interactive: boolean
@@ -43,7 +43,7 @@ export class Chessboard {
     this.group = makeHTMLElement("div", {
       classes: ["chessboard"],
     })
-    this.squares = new Squares(this.group, {
+    this.squares = new Grid(this.group, {
       orientation: this.orientation,
       interactive: this.interactive,
       pieces,

@@ -1,10 +1,10 @@
-import { Squares } from "./Squares"
+import { Grid } from "./Grid"
 
-describe("Squares.movePiece()", () => {
+describe("Grid.movePiece()", () => {
   it("ignores a move from and to the same square", () => {
     const wrapper = document.createElement("div")
     document.body.replaceChildren(wrapper)
-    const squares = new Squares(wrapper, {
+    const squares = new Grid(wrapper, {
       orientation: "white",
       pieces: { e7: { pieceType: "knight", color: "white" } },
       interactive: true,

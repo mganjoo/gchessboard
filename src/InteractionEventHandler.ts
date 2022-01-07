@@ -1,4 +1,4 @@
-import { Squares } from "./Squares"
+import { Grid } from "./components/Grid"
 import { getSquare, getVisualIndex, keyIsSquare, Square } from "./utils/chess"
 import { assertUnreachable, hasDataset } from "./utils/typing"
 
@@ -41,7 +41,7 @@ export interface InteractionEventHandlerConfig {
 
 export class InteractionEventHandler {
   private container: HTMLElement
-  private squares: Squares
+  private squares: Grid
   private interactionState: InteractionState
   private _interactive: boolean
 
@@ -62,7 +62,7 @@ export class InteractionEventHandler {
 
   constructor(
     container: HTMLElement,
-    squares: Squares,
+    squares: Grid,
     config: InteractionEventHandlerConfig
   ) {
     this.squares = squares
@@ -119,7 +119,7 @@ export class InteractionEventHandler {
     switch (this.interactionState.id) {
       case "awaiting-input":
         // Ignore clicks that are outside board or have no piece on them
-        if (clickedSquare && this.squares.pieces.pieceOn(clickedSquare)) {
+        if (clickedSquare && this.squares.pieceOn(clickedSquare)) {
           this.updateInteractionState(
             {
               id: "touching-first-square",
@@ -275,7 +275,7 @@ export class InteractionEventHandler {
       switch (this.interactionState.id) {
         case "awaiting-input":
           // Ignore presses for squares that have no piece on them
-          if (pressedSquare && this.squares.pieces.pieceOn(pressedSquare)) {
+          if (pressedSquare && this.squares.pieceOn(pressedSquare)) {
             this.updateInteractionState(
               {
                 id: "moving-piece-kb",

@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/dom"
-import { PieceType, Side, Square, SquareColor } from "../utils/chess"
+import { Square, SquareColor } from "../utils/chess"
 import { BoardSquare, BoardSquareConfig } from "./BoardSquare"
 
 function makeBoardSquare(
@@ -55,24 +55,6 @@ describe("BoardSquare", () => {
     }
   )
 
-  it.each<{ square: Square; color: Side; pieceType: PieceType }>([
-    { square: "g5", color: "white", pieceType: "king" },
-    { square: "c4", color: "black", pieceType: "queen" },
-    { square: "f8", color: "white", pieceType: "pawn" },
-  ])(
-    "renders piece ($pieceType, $color) label correctly",
-    ({ square, color, pieceType }) => {
-      const [elem] = makeBoardSquare({
-        label: square,
-        piece: { color, pieceType },
-      })
-      expect(elem.querySelector("td span")).toHaveTextContent(
-        `${color} ${pieceType} on ${square}`
-      )
-      expect(elem.querySelector("td")).toHaveClass("has-piece")
-    }
-  )
-
   it.each<{
     square: Square
     rankLabelShown: boolean
@@ -91,7 +73,7 @@ describe("BoardSquare", () => {
       square: "c4",
       rankLabelShown: false,
       fileLabelShown: true,
-      rankLabel: null,
+      rankLabel: "",
       fileLabel: "c",
     },
     {
@@ -99,20 +81,20 @@ describe("BoardSquare", () => {
       rankLabelShown: true,
       fileLabelShown: false,
       rankLabel: "8",
-      fileLabel: null,
+      fileLabel: "",
     },
     {
       square: "a3",
       rankLabelShown: false,
       fileLabelShown: false,
-      rankLabel: null,
-      fileLabel: null,
+      rankLabel: "",
+      fileLabel: "",
     },
     {
       square: "d2",
       rankLabelShown: false,
       fileLabelShown: true,
-      rankLabel: null,
+      rankLabel: "",
       fileLabel: "d",
     },
   ])(
@@ -123,12 +105,12 @@ describe("BoardSquare", () => {
         rankLabelShown,
         fileLabelShown,
       })
-      const actualRankLabel = elem
-        .querySelector("td")
-        ?.getAttribute("data-rank-label")
-      const actualFileLabel = elem
-        .querySelector("td")
-        ?.getAttribute("data-file-label")
+      const actualRankLabel = elem.querySelector(
+        "td .chessboard--rank-label"
+      )?.textContent
+      const actualFileLabel = elem.querySelector(
+        "td .chessboard--file-label"
+      )?.textContent
       expect(actualRankLabel).toBe(rankLabel)
       expect(actualFileLabel).toBe(fileLabel)
     }

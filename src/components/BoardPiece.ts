@@ -1,10 +1,4 @@
-import {
-  getVisualRowColumn,
-  Piece,
-  PieceType,
-  Side,
-  Square,
-} from "../utils/chess"
+import { Piece, PieceType, Side } from "../utils/chess"
 import { makeSvgElement, removeElement } from "../utils/dom"
 import sprite from "../sprite.svg"
 
@@ -56,6 +50,8 @@ export class BoardPiece {
     this.element = makeSvgElement("svg", {
       attributes: {
         viewbox: "0 0 45 45",
+        role: "img",
+        "aria-label": `${this.piece.color} ${this.piece.pieceType}`,
       },
     })
     const use = makeSvgElement("use", {
@@ -63,6 +59,8 @@ export class BoardPiece {
         href: `${sprite}#${
           BoardPiece.SPRITE_ID_MAP[this.piece.color][this.piece.pieceType]
         }`,
+        x: `${BoardPiece.PIECE_PADDING_PCT}%`,
+        y: `${BoardPiece.PIECE_PADDING_PCT}%`,
         width: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
         height: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
       },
@@ -74,18 +72,7 @@ export class BoardPiece {
     container.appendChild(this.element)
   }
 
-  cleanup() {
+  remove() {
     removeElement(this.element)
-  }
-
-  /**
-   * Translate piece as if it were on `square`, depending on orientation
-   * (starting at top left corner of grid).
-   */
-  placePiece(square: Square, orientation: Side) {
-    const [row, column] = getVisualRowColumn(square, orientation)
-    this.element.style.transform = `translate(${
-      column * 100 + BoardPiece.PIECE_PADDING_PCT
-    }%, ${row * 100 + BoardPiece.PIECE_PADDING_PCT}%)`
   }
 }

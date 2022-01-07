@@ -1,5 +1,6 @@
-import { getSquareColor, Piece, Square } from "../utils/chess"
-import { removeElement } from "../utils/dom"
+import { getSquareColor, Piece, pieceEqual, Square } from "../utils/chess"
+import { makeHTMLElement } from "../utils/dom"
+import { BoardPiece } from "./BoardPiece"
 
 export interface BoardSquareConfig {
   /**
@@ -17,9 +18,8 @@ export interface BoardSquareConfig {
    */
   tabbable?: boolean
   /**
-   * Information about piece associated with the square. This doesn't actually
-   * get rendered directly onto the square (piece rendering is handled by another
-   * layer), but is used to determine label and class attributes of a square.
+   * Information about piece associated with the square. This piece is rendered
+   * onto the square, and also determines label and class attributes of a square.
    */
   piece?: Piece
   /**
@@ -39,19 +39,30 @@ export interface BoardSquareConfig {
 export class BoardSquare {
   private readonly element: HTMLDivElement
   private readonly labelSpanElement: HTMLSpanElement
+  private readonly rankLabelElement: HTMLSpanElement
+  private readonly fileLabelElement: HTMLSpanElement
+  private boardPiece?: BoardPiece
   private config: BoardSquareConfig
 
   constructor(container: HTMLElement, config: BoardSquareConfig) {
-    this.element = document.createElement("td")
-    this.labelSpanElement = document.createElement("span")
-    this.element.appendChild(this.labelSpanElement)
     this.config = { ...config }
+    this.element = document.createElement("td")
+    this.labelSpanElement = makeHTMLElement("span", {
+      classes: ["chessboard--square-label"],
+    })
+    this.fileLabelElement = makeHTMLElement("span", {
+      attributes: { "aria-hidden": "true" },
+      classes: ["chessboard--file-label"],
+    })
+    this.rankLabelElement = makeHTMLElement("span", {
+      attributes: { "aria-hidden": "true" },
+      classes: ["chessboard--rank-label"],
+    })
+    this.element.appendChild(this.labelSpanElement)
+    this.element.appendChild(this.fileLabelElement)
+    this.element.appendChild(this.rankLabelElement)
     this.drawSquare()
     container.appendChild(this.element)
-  }
-
-  cleanup() {
-    removeElement(this.element)
   }
 
   updateConfig(config: Partial<BoardSquareConfig>) {
@@ -60,7 +71,7 @@ export class BoardSquare {
   }
 
   /**
-   * Rendered width of element (useful in making drag threshold calculations).
+   * Rendered width of element, used in making drag threshold calculations.
    */
   get width(): number {
     return this.element.clientWidth
@@ -75,14 +86,23 @@ export class BoardSquare {
   }
 
   private drawSquare() {
-    const color = getSquareColor(this.config.label)
-    const textLabel = this.config.piece
-      ? `${this.config.piece.color} ${this.config.piece.pieceType} on ${this.config.label}`
-      : this.config.label
+    // Label and color
     this.element.dataset.square = this.config.label
-    this.element.dataset.squareColor = color
-    this.labelSpanElement.textContent = textLabel
+    this.element.dataset.squareColor = getSquareColor(this.config.label)
+    this.labelSpanElement.textContent = this.config.label
+    const [filePart, rankPart] = this.config.label.split("")
+    this.rankLabelElement.textContent = this.config.rankLabelShown
+      ? rankPart
+      : null
+    this.fileLabelElement.textContent = this.config.fileLabelShown
+      ? filePart
+      : null
 
+    // Piece placement
+    this.placePiece(this.config.piece)
+    this.element.classList.toggle("has-piece", !!this.config.piece)
+
+    // Interactivity
     if (this.config.interactive) {
       this.element.setAttribute("role", "gridcell")
       this.element.tabIndex = this.config.tabbable ? 0 : -1
@@ -90,19 +110,16 @@ export class BoardSquare {
       this.element.removeAttribute("role")
       this.element.removeAttribute("tabindex")
     }
+  }
 
-    this.element.classList.toggle("has-piece", !!this.config.piece)
-
-    const [filePart, rankPart] = this.config.label.split("")
-    if (this.config.rankLabelShown) {
-      this.element.dataset.rankLabel = rankPart
-    } else {
-      delete this.element.dataset["rankLabel"]
+  private placePiece(piece?: Piece) {
+    if (this.boardPiece && piece && pieceEqual(piece, this.boardPiece.piece)) {
+      return
     }
-    if (this.config.fileLabelShown) {
-      this.element.dataset.fileLabel = filePart
-    } else {
-      delete this.element.dataset["fileLabel"]
+    if (this.boardPiece !== undefined) {
+      this.boardPiece.remove()
     }
+    this.boardPiece =
+      piece !== undefined ? new BoardPiece(this.element, { piece }) : undefined
   }
 }
