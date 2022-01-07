@@ -315,35 +315,48 @@ export class InteractionEventHandler {
       const currentRow = currentIdx >> 3
       const currentCol = currentIdx & 0x7
       let newIdx = currentIdx
+      let keyHandled = false
       switch (e.key) {
         case "ArrowRight":
         case "Right":
           newIdx = 8 * currentRow + Math.min(7, currentCol + 1)
+          keyHandled = true
           break
         case "ArrowLeft":
         case "Left":
           newIdx = 8 * currentRow + Math.max(0, currentCol - 1)
+          keyHandled = true
           break
         case "ArrowDown":
         case "Down":
           newIdx = 8 * Math.min(7, currentRow + 1) + currentCol
+          keyHandled = true
           break
         case "ArrowUp":
         case "Up":
           newIdx = 8 * Math.max(0, currentRow - 1) + currentCol
+          keyHandled = true
           break
         case "Home":
           newIdx = e.ctrlKey ? 0 : 8 * currentRow
+          keyHandled = true
           break
         case "End":
           newIdx = e.ctrlKey ? 63 : 8 * currentRow + 7
+          keyHandled = true
           break
         case "PageUp":
           newIdx = currentCol
+          keyHandled = true
           break
         case "PageDown":
           newIdx = 56 + currentCol
+          keyHandled = true
           break
+      }
+
+      if (keyHandled) {
+        e.preventDefault()
       }
 
       if (newIdx !== currentIdx) {
