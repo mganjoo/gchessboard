@@ -118,17 +118,16 @@ export class InteractionEventHandler {
   ) {
     switch (this.interactionState.id) {
       case "awaiting-input":
-        // Ignore clicks that are outside board or have no piece on them
-        if (clickedSquare && this.squares.pieceOn(clickedSquare)) {
-          this.updateInteractionState(
-            {
+        if (clickedSquare) {
+          this.squares.tabbableSquare = clickedSquare
+          if (this.squares.pieceOn(clickedSquare)) {
+            this.updateInteractionState({
               id: "touching-first-square",
               startSquare: clickedSquare,
               touchStartX: e.clientX,
               touchStartY: e.clientY,
-            },
-            clickedSquare
-          )
+            })
+          }
         }
         break
       case "moving-piece-kb":
