@@ -6,6 +6,7 @@ import { Square } from "../utils/chess"
 // Assign as variable to ensure type checking
 const LABEL_OPTIONS: Square[] = ["a1", "a8", "b2", "c4", "e6", "f2", "g7"]
 type BoardSquareStoryArgs = Omit<BoardSquareConfig, "piece"> & {
+  hasPiece: boolean
   pieceType: PieceType
   pieceColor: Side
 }
@@ -29,12 +30,17 @@ export default {
 } as Meta
 
 const Template: Story<BoardSquareStoryArgs> = (config) => {
-  const { pieceType, pieceColor, ...rest } = config
+  const { hasPiece, pieceType, pieceColor, ...rest } = config
   const grid = document.createElement("table")
+  // Define 8 columns, even though we are only rendering one cell, so that
+  // width of the rendered cell is one-eighth of the total table width.
+  grid.insertAdjacentHTML(
+    "afterbegin",
+    "<colgroup><col><col><col><col><col><col><col><col></colgroup>"
+  )
+
   const row = document.createElement("tr")
   grid.classList.add("chessboard--squares")
-  grid.style.width = "4rem"
-  grid.style.height = "4rem"
   if (rest.interactive) {
     grid.setAttribute("role", "grid")
     row.setAttribute("role", "row")
@@ -42,7 +48,7 @@ const Template: Story<BoardSquareStoryArgs> = (config) => {
   grid.appendChild(row)
   new BoardSquare(row, {
     ...rest,
-    piece: { color: pieceColor, pieceType },
+    piece: hasPiece ? { color: pieceColor, pieceType } : undefined,
   })
   return grid
 }
@@ -52,6 +58,7 @@ Default.args = {
   label: "a1",
   interactive: true,
   tabbable: false,
+  hasPiece: true,
   pieceType: "queen",
   pieceColor: "black",
   rankLabelShown: false,

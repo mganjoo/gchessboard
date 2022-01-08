@@ -9,18 +9,20 @@
 .chessboard {
   width: 100%;
   position: relative;
-  /* Prevent native dragging caused if any of the children are "selected". */
-  user-select: none;
 }
 
 .chessboard--squares {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
+  /* Prevent native dragging caused if any of the children are "selected". */
+  user-select: none;
 }
 
 .chessboard--squares td {
-  width: 12.5%;
+  /* Width of table cell is implicitly 12.5% because row will have
+     exactly 8 columns and `table-layout` is fixed. Padding of 12.5% * width
+     ensures square aspect ratio. */
   padding: 12.5% 0 0 0;
   position: relative;
 }
