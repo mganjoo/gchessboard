@@ -3,9 +3,14 @@ node_modules
 
 # output
 dist
+dist-ssr
+*.local
 
 # ESLint
 .eslintcache
 
 # test artifacts
 coverage
+
+# other
+.DS_Store

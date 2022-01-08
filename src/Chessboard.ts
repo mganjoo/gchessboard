@@ -2,7 +2,7 @@ import { Piece, Side, Square } from "./utils/chess"
 import { makeHTMLElement, removeElement } from "./utils/dom"
 import { Grid } from "./components/Grid"
 import { InteractionEventHandler } from "./InteractionEventHandler"
-import "./styles.css"
+import "./style.css"
 
 export interface ChessboardConfig {
   /**
@@ -35,7 +35,7 @@ export class Chessboard {
    *                  Rendered chessboard will be appended to this container.
    * @param config Configuration for chessboard (see type definition for details)
    */
-  constructor(container: Element, config?: ChessboardConfig) {
+  constructor(container: Node, config?: ChessboardConfig) {
     const { orientation, interactive, pieces } = config || {}
     this._orientation = orientation || "white"
     this._interactive = interactive !== undefined ? interactive : true

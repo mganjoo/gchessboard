@@ -1,38 +1,32 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "es2019",
-    "experimentalDecorators": true,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
 
     /* Modules */
-    "module": "esnext" /* Specify what module code is generated. */,
-    "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
-    "resolveJsonModule": true /* Enable importing .json files */,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
 
     /* Emit */
-    "declaration": true /* Generate .d.ts files from TypeScript and JavaScript files in your project. */,
-    "declarationMap": true /* Create sourcemaps for d.ts files. */,
-    "sourceMap": true /* Create source map files for emitted JavaScript files. */,
-    "outDir": "dist" /* Specify an output folder for all emitted files. */,
-    "noEmit": true /* Disable emitting files from compilation. Rollup will ignore this. */,
-    "declarationDir": "." /* Specify the output directory for generated declaration files. */,
+    "declaration": true,
+    "sourceMap": true,
+    "noEmit": true,
 
     /* Interop Constraints */
-    "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility. */,
-    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
 
     /* Type Checking */
-    "strict": true /* Enable all strict type-checking options. */,
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
-    "strictNullChecks": true /* When type checking, take into account `null` and `undefined`. */,
-    "noUnusedLocals": true /* Enable error reporting when a local variables aren't read. */,
-    "noUnusedParameters": true /* Raise an error when a function parameter isn't read */,
-    "noImplicitReturns": true /* Enable error reporting for codepaths that do not explicitly return in a function. */,
-    "noFallthroughCasesInSwitch": true /* Enable error reporting for fallthrough cases in switch statements. */
+    "strict": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "./jest-setup.ts"],
-  /* Workaround for generation of nested dist/dist types:
-   * https://github.com/rollup/plugins/tree/master/packages/typescript#declaration-output-with-outputfile
-   */
-  "exclude": ["dist"]
+  "include": ["./src"]
 }

@@ -1,16 +1,27 @@
 {
   "name": "chessx",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "A dependency-free, customizable, and accessible JS chessboard.",
   "author": "Milind Ganjoo",
   "license": "MIT",
-  "main": "dist/chessx.js",
-  "module": "dist/chessx.esm.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "jest --watch",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "types:check": "tsc --noEmit",
+    "preview": "vite preview",
+    "prepare": "husky install",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
   "devDependencies": {
-    "@babel/core": "^7.16.5",
+    "@babel/core": "^7.16.7",
     "@babel/preset-env": "^7.16.5",
     "@babel/preset-typescript": "^7.16.5",
-    "@rollup/plugin-typescript": "^8.3.0",
     "@storybook/addon-a11y": "^6.4.9",
     "@storybook/addon-actions": "^6.4.9",
     "@storybook/addon-essentials": "^6.4.9",
@@ -26,7 +37,6 @@
     "@types/jest": "^27.0.3",
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.8.0",
-    "autoprefixer": "^10.4.1",
     "babel-jest": "^27.4.5",
     "babel-loader": "^8.2.3",
     "eslint": "^8.5.0",
@@ -41,36 +51,11 @@
     "jest": "^27.4.5",
     "lint-staged": "^12.1.3",
     "prettier": "^2.5.1",
-    "rollup": "^2.61.1",
-    "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-smart-asset": "^2.1.2",
-    "ts-node": "^10.4.0",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.4"
+    "typescript": "^4.4.4",
+    "vite": "^2.7.2"
   },
-  "scripts": {
-    "dev": "rollup -c -w",
-    "build": "rollup -c",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "format:check": "prettier --check .",
-    "format:fix": "prettier --write .",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
-    "types:check": "tsc",
-    "test": "jest --watch",
-    "prepare": "husky install"
-  },
-  "files": [
-    "dist"
-  ],
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "*.{js,jsx,ts,tsx,css,md,json,yml,yaml}": "prettier --write"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not op_mini all"
-  ]
+  }
 }
