@@ -192,11 +192,13 @@ export class InteractionEventHandler {
           this._movePiece(this._interactionState.startSquare, square)
         } else {
           this._cancelMove()
+          this._grid.blurTabbableSquare()
         }
         break
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
         this._cancelMove()
+        this._grid.blurTabbableSquare()
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -438,9 +440,6 @@ export class InteractionEventHandler {
   private _cancelMove() {
     this._updateInteractionState({ id: "awaiting-input" })
     this._grid.moveStartSquare = undefined
-    // Programmatically blur starting square for cases where the browser
-    // won't handle that automatically, (through a drag operation)
-    this._grid.blurTabbableSquare()
   }
 
   private _updateInteractionState(state: InteractionState) {
