@@ -18,6 +18,11 @@ export interface BoardSquareConfig {
    */
   tabbable?: boolean
   /**
+   * Whether this square should be marked as the starting square of an ongoing
+   * move.
+   */
+  moveStart?: boolean
+  /**
    * Information about piece associated with the square. This piece is rendered
    * onto the square, and also determines label and class attributes of a square.
    */
@@ -106,9 +111,11 @@ export class BoardSquare {
     if (this._config.interactive) {
       this._element.setAttribute("role", "gridcell")
       this._element.tabIndex = this._config.tabbable ? 0 : -1
+      this._element.classList.toggle("move-start", !!this._config.moveStart)
     } else {
       this._element.removeAttribute("role")
       this._element.removeAttribute("tabindex")
+      this._element.classList.remove("move-start")
     }
   }
 

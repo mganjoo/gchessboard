@@ -103,6 +103,10 @@ export class InteractionEventHandler {
     this._enabled = value
     this._updateContainerInteractionStateLabel(value)
     this._toggleHandlers(value)
+    if (!value) {
+      // Always reset to awaiting-input when disabling interactivity
+      this._interactionState = { id: "awaiting-input" }
+    }
   }
 
   private _toggleHandlers(enabled: boolean) {
@@ -181,6 +185,7 @@ export class InteractionEventHandler {
           id: "awaiting-second-touch",
           startSquare: this._interactionState.startSquare,
         })
+        this._grid.moveStartSquare = this._interactionState.startSquare
         break
       case "dragging":
         if (square && this._interactionState.startSquare !== square) {
@@ -227,6 +232,7 @@ export class InteractionEventHandler {
             id: "dragging",
             startSquare: this._interactionState.startSquare,
           })
+          this._grid.moveStartSquare = this._interactionState.startSquare
         }
         break
       case "dragging":
@@ -306,6 +312,7 @@ export class InteractionEventHandler {
               id: "moving-piece-kb",
               startSquare: pressedSquare,
             })
+            this._grid.moveStartSquare = pressedSquare
             this._grid.tabbableSquare = pressedSquare
           }
           break
@@ -430,6 +437,7 @@ export class InteractionEventHandler {
 
   private _cancelMove() {
     this._updateInteractionState({ id: "awaiting-input" })
+    this._grid.moveStartSquare = undefined
     // Programmatically blur starting square for cases where the browser
     // won't handle that automatically, (through a drag operation)
     this._grid.blurTabbableSquare()

@@ -26,6 +26,7 @@ export class Grid {
   private _interactive: boolean
   private _pieces: Partial<Record<Square, Piece>>
   private _tabbableSquare: Square | undefined
+  private _moveStartSquare: Square | undefined
 
   /**
    * Creates a set of elements representing chessboard squares, as well
@@ -123,6 +124,29 @@ export class Grid {
   }
 
   /**
+   * Square label (if it exists) for square that started an ongoing move.
+   * This is relevant in order to highlight the starting square for a drag
+   * or keyboard move operation.
+   */
+  get moveStartSquare() {
+    return this._moveStartSquare
+  }
+
+  set moveStartSquare(value: Square | undefined) {
+    if (this._moveStartSquare !== undefined) {
+      this._getBoardSquare(this._moveStartSquare).updateConfig({
+        moveStart: false,
+      })
+    }
+    if (value !== undefined) {
+      this._getBoardSquare(value).updateConfig({
+        moveStart: true,
+      })
+    }
+    this._moveStartSquare = value
+  }
+
+  /**
    * Move a piece (if it exists) from `from` to `to`.
    */
   movePiece(from: Square, to: Square) {
@@ -133,6 +157,7 @@ export class Grid {
       this._pieces[to] = this._pieces[from]
       delete this._pieces[from]
       this.tabbableSquare = to
+      this.moveStartSquare = undefined
       return true
     }
     return false
