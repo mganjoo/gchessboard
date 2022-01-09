@@ -159,9 +159,6 @@ export class InteractionEventHandler {
             },
             clickedSquare
           )
-        } else {
-          // Cancel move if touch was outside squares area.
-          this._cancelMove()
         }
         break
       case "dragging":
