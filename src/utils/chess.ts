@@ -135,3 +135,7 @@ export function keyIsSquare(key: string | undefined): key is Square {
 export function pieceEqual(a: Piece, b: Piece) {
   return a.color === b.color && a.pieceType === b.pieceType
 }
+
+export function isSide(s: string | null): s is Side {
+  return SIDE_COLORS.includes(s as Side)
+}

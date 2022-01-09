@@ -13,8 +13,15 @@ export interface BoardPieceConfig {
  * Visual representation of a chessboard piece and associated sprite.
  */
 export class BoardPiece {
+  /**
+   * Associated `Piece` definition.
+   */
   readonly piece: Piece
-  private readonly element: SVGSVGElement
+
+  /**
+   * SVG element representing the piece.
+   */
+  private readonly _element: SVGSVGElement
 
   /**
    * Map of piece to sprite ID in "sprite.svg". The ID will be referenced
@@ -47,32 +54,33 @@ export class BoardPiece {
 
   constructor(container: HTMLElement, config: BoardPieceConfig) {
     this.piece = config.piece
-    this.element = makeSvgElement("svg", {
+    this._element = makeSvgElement("svg", {
       attributes: {
         viewbox: "0 0 45 45",
         role: "img",
         "aria-label": `${this.piece.color} ${this.piece.pieceType}`,
       },
     })
-    const use = makeSvgElement("use", {
-      attributes: {
-        href: `${sprite}#${
-          BoardPiece.SPRITE_ID_MAP[this.piece.color][this.piece.pieceType]
-        }`,
-        x: `${BoardPiece.PIECE_PADDING_PCT}%`,
-        y: `${BoardPiece.PIECE_PADDING_PCT}%`,
-        width: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
-        height: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
-      },
-      data: {
-        piece: `${this.piece.color}-${this.piece.pieceType}`,
-      },
-    })
-    this.element.appendChild(use)
-    container.appendChild(this.element)
+    this._element.appendChild(
+      makeSvgElement("use", {
+        attributes: {
+          href: `${sprite}#${
+            BoardPiece.SPRITE_ID_MAP[this.piece.color][this.piece.pieceType]
+          }`,
+          x: `${BoardPiece.PIECE_PADDING_PCT}%`,
+          y: `${BoardPiece.PIECE_PADDING_PCT}%`,
+          width: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
+          height: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
+        },
+        data: {
+          piece: `${this.piece.color}-${this.piece.pieceType}`,
+        },
+      })
+    )
+    container.appendChild(this._element)
   }
 
   remove() {
-    removeElement(this.element)
+    removeElement(this._element)
   }
 }

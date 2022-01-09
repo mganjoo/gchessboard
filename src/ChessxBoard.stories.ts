@@ -1,13 +1,16 @@
 import { Meta, Story } from "@storybook/html"
-import { Chessboard, ChessboardConfig } from "./Chessboard"
-import { Side } from "./utils/chess"
+import { Piece, SIDE_COLORS, Square } from "./utils/chess"
 import { within, userEvent } from "@storybook/testing-library"
+import { makeHTMLElement } from "./utils/dom"
 
-// Assign as variable to ensure type checking
-const SIDE_OPTIONS: Side[] = ["white", "black"]
+interface ChessxBoardProps {
+  orientation: string
+  interactive: boolean
+  pieces: Partial<Record<Square, Piece>>
+}
 
 export default {
-  title: "Chessboard",
+  title: "ChessxBoard",
   decorators: [
     (storyDiv) => {
       const d = storyDiv() as HTMLDivElement
@@ -17,16 +20,23 @@ export default {
   ],
   argTypes: {
     orientation: {
-      options: SIDE_OPTIONS,
+      options: SIDE_COLORS,
       control: { type: "radio" },
     },
   },
 } as Meta
 
-const Template: Story<ChessboardConfig> = (config) => {
-  const container = document.createElement("div")
-  new Chessboard(container, config)
-  return container
+const Template: Story<ChessxBoardProps> = (config) => {
+  const div = document.createElement("div")
+  const board = makeHTMLElement("chessx-board", {
+    attributes: {
+      orientation: config.orientation,
+      interactive: config.interactive.toString(),
+    },
+  })
+  board.pieces = config.pieces
+  div.appendChild(board)
+  return div
 }
 
 export const Default = Template.bind({})
@@ -76,7 +86,7 @@ Wrapped.args = {
 Wrapped.decorators = [
   (storyDiv) => {
     const wrapper = document.createElement("div")
-    wrapper.appendChild(storyDiv() as HTMLDivElement)
+    wrapper.appendChild(storyDiv() as HTMLElement)
     wrapper.insertAdjacentHTML(
       "beforeend",
       `<p>

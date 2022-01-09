@@ -37,89 +37,93 @@ export interface BoardSquareConfig {
  * that aid in interactivity (ARIA role, labels etc).
  */
 export class BoardSquare {
-  private readonly element: HTMLDivElement
-  private readonly labelSpanElement: HTMLSpanElement
-  private readonly rankLabelElement: HTMLSpanElement
-  private readonly fileLabelElement: HTMLSpanElement
-  private boardPiece?: BoardPiece
-  private config: BoardSquareConfig
+  private readonly _element: HTMLDivElement
+  private readonly _labelSpanElement: HTMLSpanElement
+  private readonly _rankLabelElement: HTMLSpanElement
+  private readonly _fileLabelElement: HTMLSpanElement
+  private _boardPiece?: BoardPiece
+  private _config: BoardSquareConfig
 
   constructor(container: HTMLElement, config: BoardSquareConfig) {
-    this.config = { ...config }
-    this.element = document.createElement("td")
-    this.labelSpanElement = makeHTMLElement("span", {
+    this._config = { ...config }
+    this._element = document.createElement("td")
+    this._labelSpanElement = makeHTMLElement("span", {
       classes: ["chessboard--square-label"],
     })
-    this.fileLabelElement = makeHTMLElement("span", {
+    this._fileLabelElement = makeHTMLElement("span", {
       attributes: { "aria-hidden": "true" },
       classes: ["chessboard--file-label"],
     })
-    this.rankLabelElement = makeHTMLElement("span", {
+    this._rankLabelElement = makeHTMLElement("span", {
       attributes: { "aria-hidden": "true" },
       classes: ["chessboard--rank-label"],
     })
-    this.element.appendChild(this.labelSpanElement)
-    this.element.appendChild(this.fileLabelElement)
-    this.element.appendChild(this.rankLabelElement)
-    this.updateSquareVisuals()
-    container.appendChild(this.element)
+    this._element.appendChild(this._labelSpanElement)
+    this._element.appendChild(this._fileLabelElement)
+    this._element.appendChild(this._rankLabelElement)
+    this._updateSquareVisuals()
+    container.appendChild(this._element)
   }
 
   updateConfig(config: Partial<BoardSquareConfig>) {
-    this.config = { ...this.config, ...config }
-    this.updateSquareVisuals()
+    this._config = { ...this._config, ...config }
+    this._updateSquareVisuals()
   }
 
   /**
    * Rendered width of element, used in making drag threshold calculations.
    */
   get width(): number {
-    return this.element.clientWidth
+    return this._element.clientWidth
   }
 
   focus() {
-    this.element.focus()
+    this._element.focus()
   }
 
   blur() {
-    this.element.blur()
+    this._element.blur()
   }
 
-  private updateSquareVisuals() {
+  private _updateSquareVisuals() {
     // Label and color
-    this.element.dataset.square = this.config.label
-    this.element.dataset.squareColor = getSquareColor(this.config.label)
-    this.labelSpanElement.textContent = this.config.label
-    const [filePart, rankPart] = this.config.label.split("")
-    this.rankLabelElement.textContent = this.config.rankLabelShown
+    this._element.dataset.square = this._config.label
+    this._element.dataset.squareColor = getSquareColor(this._config.label)
+    this._labelSpanElement.textContent = this._config.label
+    const [filePart, rankPart] = this._config.label.split("")
+    this._rankLabelElement.textContent = this._config.rankLabelShown
       ? rankPart
       : null
-    this.fileLabelElement.textContent = this.config.fileLabelShown
+    this._fileLabelElement.textContent = this._config.fileLabelShown
       ? filePart
       : null
 
     // Piece placement
-    this.replacePiece(this.config.piece)
-    this.element.classList.toggle("has-piece", !!this.config.piece)
+    this._replacePiece(this._config.piece)
+    this._element.classList.toggle("has-piece", !!this._config.piece)
 
     // Interactivity
-    if (this.config.interactive) {
-      this.element.setAttribute("role", "gridcell")
-      this.element.tabIndex = this.config.tabbable ? 0 : -1
+    if (this._config.interactive) {
+      this._element.setAttribute("role", "gridcell")
+      this._element.tabIndex = this._config.tabbable ? 0 : -1
     } else {
-      this.element.removeAttribute("role")
-      this.element.removeAttribute("tabindex")
+      this._element.removeAttribute("role")
+      this._element.removeAttribute("tabindex")
     }
   }
 
-  private replacePiece(piece?: Piece) {
-    if (this.boardPiece && piece && pieceEqual(piece, this.boardPiece.piece)) {
+  private _replacePiece(piece?: Piece) {
+    if (
+      this._boardPiece &&
+      piece &&
+      pieceEqual(piece, this._boardPiece.piece)
+    ) {
       return
     }
-    if (this.boardPiece !== undefined) {
-      this.boardPiece.remove()
+    if (this._boardPiece !== undefined) {
+      this._boardPiece.remove()
     }
-    this.boardPiece =
-      piece !== undefined ? new BoardPiece(this.element, { piece }) : undefined
+    this._boardPiece =
+      piece !== undefined ? new BoardPiece(this._element, { piece }) : undefined
   }
 }

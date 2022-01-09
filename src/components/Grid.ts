@@ -1,12 +1,5 @@
-import {
-  getSquare,
-  getVisualIndex,
-  getVisualRowColumn,
-  Piece,
-  Side,
-  Square,
-} from "../utils/chess"
-import { makeHTMLElement, removeElement } from "../utils/dom"
+import { getSquare, getVisualIndex, Piece, Side, Square } from "../utils/chess"
+import { makeHTMLElement } from "../utils/dom"
 import { BoardSquare } from "./BoardSquare"
 
 export interface GridConfig {
@@ -27,36 +20,24 @@ export interface GridConfig {
 }
 
 export class Grid {
-  private readonly squaresContainer: HTMLElement
-  private readonly boardSquares: BoardSquare[]
-  private readonly pieces: Partial<Record<Square, Piece>>
+  private readonly _grid: HTMLElement
+  private readonly _boardSquares: BoardSquare[]
   private _orientation: Side
   private _interactive: boolean
-
-  /**
-   * Square that is considered "tabbable", if any. Keyboard navigation
-   * on the board uses a roving tabindex, which means that only one square is
-   * "tabbable" at a time (the rest are navigable using up and down keys on
-   * the keyboard).
-   */
-  private _tabbableSquare: Square
+  private _pieces: Partial<Record<Square, Piece>>
+  private _tabbableSquare: Square | undefined
 
   /**
    * Creates a set of elements representing chessboard squares, as well
    * as managing and displaying pieces rendered on the squares.
-   *
-   * @param container HTML element that will contain squares (e.g. <div>).
-   *                  Rendered squares will be appended to this container.
-   * @param orientation What side is the player's perspective.
-   * @param pieces Any pieces that are on the board in the beginning.
    */
   constructor(container: HTMLElement, config: GridConfig) {
-    this.boardSquares = new Array(64)
+    this._boardSquares = new Array(64)
     this._orientation = config.orientation
     this._interactive = config.interactive || false
-    this.pieces = { ...config.pieces }
+    this._pieces = { ...config.pieces }
 
-    this.squaresContainer = makeHTMLElement("table", {
+    this._grid = makeHTMLElement("table", {
       attributes: { role: "grid" },
       classes: ["chessboard--squares"],
     })
@@ -67,133 +48,162 @@ export class Grid {
       })
       for (let j = 0; j < 8; j++) {
         const idx = 8 * i + j
-        this.boardSquares[idx] = new BoardSquare(row, {
+        this._boardSquares[idx] = new BoardSquare(row, {
           label: getSquare(idx, this.orientation),
         })
       }
-      this.squaresContainer.appendChild(row)
+      this._grid.appendChild(row)
     }
-    container.appendChild(this.squaresContainer)
-
-    this._tabbableSquare =
-      this.firstOccupiedSquare() || getSquare(56, this.orientation) // bottom right
-
-    // Initial render
-    this.updateSquareProps()
+    container.appendChild(this._grid)
+    this._updateSquareProps()
   }
 
-  cleanup() {
-    removeElement(this.squaresContainer)
-  }
-
+  /**
+   * What side's perspective to render squares from (what color appears on
+   * the bottom as viewed on the screen).
+   */
   get orientation() {
     return this._orientation
   }
 
-  set orientation(orientation: Side) {
-    this._orientation = orientation
-    this.updateSquareProps()
+  set orientation(value: Side) {
+    this._orientation = value
+    this._updateSquareProps()
   }
 
+  /**
+   * Whether the grid is interactive. This determines the roles and attributes,
+   * like tabindex, associated with the grid.
+   */
   get interactive() {
     return this._interactive
   }
 
-  set interactive(interactive: boolean) {
-    this._interactive = interactive
-    this.updateSquareProps()
+  set interactive(value: boolean) {
+    this._interactive = value
+    this._updateSquareProps()
   }
 
-  get tabbableSquare() {
-    return this._tabbableSquare
+  get pieces() {
+    return this._pieces
   }
 
-  set tabbableSquare(square: Square) {
+  set pieces(value: Partial<Record<Square, Piece>>) {
+    this._pieces = { ...value }
+    this._updateSquareProps()
+  }
+
+  /**
+   * Square that is considered "tabbable", if any. Keyboard navigation
+   * on the board uses a roving tabindex, which means that only one square is
+   * "tabbable" at a time (the rest are navigable using up and down keys on
+   * the keyboard).
+   */
+  get tabbableSquare(): Square {
+    return this._tabbableSquare || this._getDefaultTabbableSquare()
+  }
+
+  set tabbableSquare(value: Square) {
     // Unset previous tabbable square so that tabindex is changed to -1
-    this.getBoardSquare(this._tabbableSquare).updateConfig({ tabbable: false })
-    this.getBoardSquare(square).updateConfig({
+    if (this._tabbableSquare !== undefined) {
+      this._getBoardSquare(this._tabbableSquare).updateConfig({
+        tabbable: false,
+      })
+    }
+    this._getBoardSquare(value).updateConfig({
       tabbable: true,
     })
-    this._tabbableSquare = square
+    this._tabbableSquare = value
   }
 
-  get squareWidth() {
-    return this.boardSquares[0].width
+  /**
+   * Rendered width of currently tabbable square, used in making drag
+   * threshold calculations.
+   */
+  get tabbableSquareWidth() {
+    return this._getBoardSquare(this.tabbableSquare).width
   }
 
   /**
    * Move a piece (if it exists) from `from` to `to`.
    */
   movePiece(from: Square, to: Square) {
-    const piece = this.pieces[from]
+    const piece = this._pieces[from]
     if (piece && to !== from) {
-      this.getBoardSquare(from).updateConfig({ piece: undefined })
-      this.getBoardSquare(to).updateConfig({ piece: this.pieces[from] })
-      this.pieces[to] = this.pieces[from]
-      delete this.pieces[from]
+      this._getBoardSquare(from).updateConfig({ piece: undefined })
+      this._getBoardSquare(to).updateConfig({ piece: this._pieces[from] })
+      this._pieces[to] = this._pieces[from]
+      delete this._pieces[from]
       this.tabbableSquare = to
       return true
     }
     return false
   }
 
-  pieceOn(square: Square): boolean {
-    return !!this.pieces[square]
-  }
-
-  focusSquare(square: Square) {
-    this.getBoardSquare(square).focus()
-  }
-
-  blurSquare(square: Square) {
-    this.getBoardSquare(square).blur()
+  /**
+   * Focus the currently tabbable square.
+   */
+  focusTabbableSquare() {
+    this._getBoardSquare(this.tabbableSquare).focus()
   }
 
   /**
-   * Return the first occupied square, from the player's orientation (i.e.
-   * from bottom left of the visual board), if it exists.
+   * Blur the currently tabbable square.
    */
-  private firstOccupiedSquare(): Square | undefined {
+  blurTabbableSquare() {
+    this._getBoardSquare(this.tabbableSquare).blur()
+  }
+
+  /**
+   * Returns true if there is a piece on `square`.
+   */
+  pieceOn(square: Square): boolean {
+    return !!this._pieces[square]
+  }
+
+  /**
+   * Iterate over all squares and set individual props based
+   * on top-level config.
+   */
+  private _updateSquareProps() {
+    const tabbableSquare = this.tabbableSquare
+    const interactive = this.interactive
+    for (let i = 0; i < 64; i++) {
+      const square = getSquare(i, this.orientation)
+      const row = i >> 3
+      const col = i & 0x7
+      this._boardSquares[i].updateConfig({
+        label: square,
+        interactive,
+        tabbable: tabbableSquare === square,
+        piece: this._pieces[square],
+        rankLabelShown: col === 0,
+        fileLabelShown: row === 7,
+      })
+    }
+  }
+
+  private _getBoardSquare(square: Square) {
+    return this._boardSquares[getVisualIndex(square, this.orientation)]
+  }
+
+  /**
+   * When no tabbable square has been explicitly set (usually, when user has
+   * not yet tabbed into or interacted with the board, we want to calculate
+   * the tabbable square dynamically. It is either:
+   * - the first occupied square from the player's orientation (i.e. from
+   *   bottom left of board), or
+   * - the bottom left square of the board.
+   */
+  private _getDefaultTabbableSquare(): Square {
     for (let row = 7; row >= 0; row--) {
-      for (let col = 0; col < 8; col++) {
+      for (let col = 0; col <= 7; col++) {
         const square = getSquare(8 * row + col, this.orientation)
-        if (square in this.pieces) {
+        if (square in this._pieces) {
           return square
         }
       }
     }
-    return undefined
-  }
-
-  private updateSquareProps() {
-    this.forEachSquare((square, idx) => {
-      const [row, col] = getVisualRowColumn(square, this.orientation)
-      this.boardSquares[idx].updateConfig({
-        label: square,
-        interactive: this.interactive,
-        tabbable: this.tabbableSquare === square,
-        piece: this.pieces[square],
-        rankLabelShown: col === 0,
-        fileLabelShown: row === 7,
-      })
-    })
-  }
-
-  private getBoardSquare(square: Square) {
-    return this.boardSquares[getVisualIndex(square, this.orientation)]
-  }
-
-  /**
-   * Call `callback` for each square on the board. The callback receives
-   * the square label and index as arguments.
-   */
-  private forEachSquare(
-    callback: (this: Grid, square: Square, idx: number) => void
-  ) {
-    const boundCallback = callback.bind(this)
-    for (let i = 0; i < 64; i++) {
-      const square = getSquare(i, this.orientation)
-      boundCallback(square, i)
-    }
+    return getSquare(56, this.orientation)
   }
 }

@@ -33,24 +33,24 @@ type InteractionState =
 
 export interface InteractionEventHandlerConfig {
   /**
-   * Whether the squares are interactive. This decides whether to apply attributes
-   * like ARIA labels and roles.
+   * Whether the interaction handler is enabled. This decides whether to
+   * apply attributes like ARIA labels and roles.
    */
-  interactive: boolean
+  enabled: boolean
 }
 
 export class InteractionEventHandler {
-  private container: HTMLElement
-  private squares: Grid
-  private interactionState: InteractionState
-  private _interactive: boolean
+  private _container: HTMLElement
+  private _grid: Grid
+  private _enabled: boolean
+  private _interactionState: InteractionState
 
   // Event handlers
-  private mouseDownHandler: (e: MouseEvent) => void
-  private mouseUpHandler: (e: MouseEvent) => void
-  private mouseMoveHandler: (e: MouseEvent) => void
-  private focusOutHandler: (e: FocusEvent) => void
-  private keyDownHandler: (e: KeyboardEvent) => void
+  private _mouseDownHandler: (e: MouseEvent) => void
+  private _mouseUpHandler: (e: MouseEvent) => void
+  private _mouseMoveHandler: (e: MouseEvent) => void
+  private _focusOutHandler: (e: FocusEvent) => void
+  private _keyDownHandler: (e: KeyboardEvent) => void
 
   /**
    * Fraction of square width that mouse must be moved to be
@@ -58,56 +58,65 @@ export class InteractionEventHandler {
    */
   private static DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION = 0.3
 
+  /**
+   * Minimum number of pixels to enable dragging.
+   */
   private static DRAG_THRESHOLD_MIN_PIXELS = 2
 
   constructor(
     container: HTMLElement,
-    squares: Grid,
+    grid: Grid,
     config: InteractionEventHandlerConfig
   ) {
-    this.squares = squares
-    this.container = container
-    this._interactive = config.interactive
-    this.interactionState = { id: "awaiting-input" }
-    this.updateContainerInteractionStateLabel(this.interactive)
+    this._grid = grid
+    this._container = container
+    this._enabled = config.enabled
+    this._interactionState = { id: "awaiting-input" }
+    this._updateContainerInteractionStateLabel(this.enabled)
 
-    // Add listeners
-    this.mouseDownHandler = this.makeEventHandler(this.handleMouseDown)
-    this.mouseUpHandler = this.makeEventHandler(this.handleMouseUp)
-    this.mouseMoveHandler = this.makeEventHandler(this.handleMouseMove)
-    this.keyDownHandler = this.makeEventHandler(this.handleKeyDown)
-    this.focusOutHandler = this.makeEventHandler(this.handleFocusOut)
-    this.toggleHandlers(this.interactive)
+    this._mouseDownHandler = this._makeEventHandler(this.handleMouseDown)
+    this._mouseUpHandler = this._makeEventHandler(this.handleMouseUp)
+    this._mouseMoveHandler = this._makeEventHandler(this.handleMouseMove)
+    this._keyDownHandler = this._makeEventHandler(this.handleKeyDown)
+    this._focusOutHandler = this._makeEventHandler(this.handleFocusOut)
+
+    this._toggleHandlers(this._enabled)
   }
 
-  cleanup() {
-    this.toggleHandlers(false)
+  /**
+   * Remove all listeners, whether or not they are active.
+   */
+  deactivate() {
+    this._toggleHandlers(false)
   }
 
-  get interactive() {
-    return this._interactive
+  /**
+   * Whether interaction event handler is active and listening for events.
+   */
+  get enabled() {
+    return this._enabled
   }
 
-  set interactive(interactive: boolean) {
-    this._interactive = interactive
-    this.updateContainerInteractionStateLabel(interactive)
-    this.toggleHandlers(interactive)
+  set enabled(value: boolean) {
+    this._enabled = value
+    this._updateContainerInteractionStateLabel(value)
+    this._toggleHandlers(value)
   }
 
-  private toggleHandlers(enabled: boolean) {
+  private _toggleHandlers(enabled: boolean) {
     if (enabled) {
-      document.addEventListener("mousedown", this.mouseDownHandler)
-      document.addEventListener("mouseup", this.mouseUpHandler)
-      document.addEventListener("mousemove", this.mouseMoveHandler)
-      document.addEventListener("focusout", this.focusOutHandler)
+      document.addEventListener("mousedown", this._mouseDownHandler)
+      document.addEventListener("mouseup", this._mouseUpHandler)
+      document.addEventListener("mousemove", this._mouseMoveHandler)
+      document.addEventListener("focusout", this._focusOutHandler)
       // For keyboard, add listener only on the chessboard
-      this.container.addEventListener("keydown", this.keyDownHandler)
+      this._container.addEventListener("keydown", this._keyDownHandler)
     } else {
-      document.removeEventListener("mousedown", this.mouseDownHandler)
-      document.removeEventListener("mouseup", this.mouseUpHandler)
-      document.removeEventListener("mousemove", this.mouseMoveHandler)
-      document.removeEventListener("focusout", this.focusOutHandler)
-      this.container.removeEventListener("keydown", this.keyDownHandler)
+      document.removeEventListener("mousedown", this._mouseDownHandler)
+      document.removeEventListener("mouseup", this._mouseUpHandler)
+      document.removeEventListener("mousemove", this._mouseMoveHandler)
+      document.removeEventListener("focusout", this._focusOutHandler)
+      this._container.removeEventListener("keydown", this._keyDownHandler)
     }
   }
 
@@ -116,12 +125,12 @@ export class InteractionEventHandler {
     clickedSquare: Square | undefined,
     e: MouseEvent
   ) {
-    switch (this.interactionState.id) {
+    switch (this._interactionState.id) {
       case "awaiting-input":
         if (clickedSquare) {
-          this.squares.tabbableSquare = clickedSquare
-          if (this.squares.pieceOn(clickedSquare)) {
-            this.updateInteractionState({
+          this._grid.tabbableSquare = clickedSquare
+          if (this._grid.pieceOn(clickedSquare)) {
+            this._updateInteractionState({
               id: "touching-first-square",
               startSquare: clickedSquare,
               touchStartX: e.clientX,
@@ -134,14 +143,14 @@ export class InteractionEventHandler {
       case "awaiting-second-touch":
         if (
           clickedSquare &&
-          this.interactionState.startSquare !== clickedSquare
+          this._interactionState.startSquare !== clickedSquare
         ) {
-          this.movePiece(this.interactionState.startSquare, clickedSquare)
-        } else if (this.interactionState.startSquare === clickedSquare) {
+          this._movePiece(this._interactionState.startSquare, clickedSquare)
+        } else if (this._interactionState.startSquare === clickedSquare) {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
           // till corresponding mouseup event in order to cancel.
-          this.updateInteractionState(
+          this._updateInteractionState(
             {
               id: "canceling-second-touch",
               startSquare: clickedSquare,
@@ -152,7 +161,7 @@ export class InteractionEventHandler {
           )
         } else {
           // Cancel move if touch was outside squares area.
-          this.cancelMove()
+          this._cancelMove()
         }
         break
       case "dragging":
@@ -162,7 +171,7 @@ export class InteractionEventHandler {
         break
       // istanbul ignore next
       default:
-        assertUnreachable(this.interactionState)
+        assertUnreachable(this._interactionState)
     }
   }
 
@@ -170,23 +179,23 @@ export class InteractionEventHandler {
     this: InteractionEventHandler,
     square: Square | undefined
   ) {
-    switch (this.interactionState.id) {
+    switch (this._interactionState.id) {
       case "touching-first-square":
-        this.updateInteractionState({
+        this._updateInteractionState({
           id: "awaiting-second-touch",
-          startSquare: this.interactionState.startSquare,
+          startSquare: this._interactionState.startSquare,
         })
         break
       case "dragging":
-        if (square && this.interactionState.startSquare !== square) {
-          this.movePiece(this.interactionState.startSquare, square)
+        if (square && this._interactionState.startSquare !== square) {
+          this._movePiece(this._interactionState.startSquare, square)
         } else {
-          this.cancelMove()
+          this._cancelMove()
         }
         break
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
-        this.cancelMove()
+        this._cancelMove()
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -196,7 +205,7 @@ export class InteractionEventHandler {
         break
       // istanbul ignore next
       default:
-        assertUnreachable(this.interactionState)
+        assertUnreachable(this._interactionState)
     }
   }
 
@@ -205,22 +214,22 @@ export class InteractionEventHandler {
     square: Square | undefined,
     e: MouseEvent
   ) {
-    switch (this.interactionState.id) {
+    switch (this._interactionState.id) {
       case "touching-first-square":
       case "canceling-second-touch":
         if (
-          this.cursorPassedDragThreshold(
+          this._cursorPassedDragThreshold(
             e.clientX,
             e.clientY,
             square,
-            this.interactionState.touchStartX,
-            this.interactionState.touchStartY,
-            this.interactionState.startSquare
+            this._interactionState.touchStartX,
+            this._interactionState.touchStartY,
+            this._interactionState.startSquare
           )
         ) {
-          this.updateInteractionState({
+          this._updateInteractionState({
             id: "dragging",
-            startSquare: this.interactionState.startSquare,
+            startSquare: this._interactionState.startSquare,
           })
         }
         break
@@ -231,7 +240,7 @@ export class InteractionEventHandler {
         break
       // istanbul ignore next
       default:
-        assertUnreachable(this.interactionState)
+        assertUnreachable(this._interactionState)
     }
   }
 
@@ -240,7 +249,7 @@ export class InteractionEventHandler {
     square: Square | undefined,
     e: FocusEvent
   ) {
-    switch (this.interactionState.id) {
+    switch (this._interactionState.id) {
       case "moving-piece-kb":
       case "awaiting-second-touch":
       case "touching-first-square":
@@ -251,7 +260,7 @@ export class InteractionEventHandler {
           // If outgoing focus target has a square, and incoming does not, then board
           // lost focus and we can cancel the move.
           if (square && !hasFocusInSquare) {
-            this.cancelMove()
+            this._cancelMove()
           }
         }
         break
@@ -261,7 +270,7 @@ export class InteractionEventHandler {
         break
       // istanbul ignore next
       default:
-        assertUnreachable(this.interactionState)
+        assertUnreachable(this._interactionState)
     }
   }
 
@@ -271,11 +280,11 @@ export class InteractionEventHandler {
     e: KeyboardEvent
   ) {
     if (e.key === "Enter") {
-      switch (this.interactionState.id) {
+      switch (this._interactionState.id) {
         case "awaiting-input":
           // Ignore presses for squares that have no piece on them
-          if (pressedSquare && this.squares.pieceOn(pressedSquare)) {
-            this.updateInteractionState(
+          if (pressedSquare && this._grid.pieceOn(pressedSquare)) {
+            this._updateInteractionState(
               {
                 id: "moving-piece-kb",
                 startSquare: pressedSquare,
@@ -290,11 +299,11 @@ export class InteractionEventHandler {
           // and end square are not the same.
           if (
             pressedSquare &&
-            this.interactionState.startSquare !== pressedSquare
+            this._interactionState.startSquare !== pressedSquare
           ) {
-            this.movePiece(this.interactionState.startSquare, pressedSquare)
+            this._movePiece(this._interactionState.startSquare, pressedSquare)
           } else {
-            this.cancelMove()
+            this._cancelMove()
           }
           break
         case "dragging":
@@ -304,12 +313,12 @@ export class InteractionEventHandler {
           break
         // istanbul ignore next
         default:
-          assertUnreachable(this.interactionState)
+          assertUnreachable(this._interactionState)
       }
     } else {
       const currentIdx = getVisualIndex(
-        this.squares.tabbableSquare,
-        this.squares.orientation
+        this._grid.tabbableSquare,
+        this._grid.orientation
       )
       const currentRow = currentIdx >> 3
       const currentCol = currentIdx & 0x7
@@ -361,22 +370,19 @@ export class InteractionEventHandler {
       }
 
       if (newIdx !== currentIdx) {
-        this.squares.tabbableSquare = getSquare(
-          newIdx,
-          this.squares.orientation
-        )
-        this.squares.focusSquare(this.squares.tabbableSquare)
+        this._grid.tabbableSquare = getSquare(newIdx, this._grid.orientation)
+        this._grid.focusTabbableSquare()
 
         // If we are currently in a non-keyboard friendly state, we should
         // still transition to one since we started keyboard navigation.
-        switch (this.interactionState.id) {
+        switch (this._interactionState.id) {
           case "awaiting-input":
           case "moving-piece-kb":
             break
           case "awaiting-second-touch":
-            this.updateInteractionState({
+            this._updateInteractionState({
               id: "moving-piece-kb",
-              startSquare: this.interactionState.startSquare,
+              startSquare: this._interactionState.startSquare,
             })
             break
           // istanbul ignore next
@@ -385,51 +391,56 @@ export class InteractionEventHandler {
             // Similar to canceling move, but don't blur focused square
             // since we just gave it focus through keyboard navigation
             // istanbul ignore next
-            this.updateInteractionState({ id: "awaiting-input" })
+            this._updateInteractionState({ id: "awaiting-input" })
             break
           case "dragging":
             // Noop: continue with drag operation even if focus was moved around
             break
           // istanbul ignore next
           default:
-            assertUnreachable(this.interactionState)
+            assertUnreachable(this._interactionState)
         }
       }
     }
   }
 
-  private movePiece(from: Square, to: Square) {
-    this.squares.movePiece(from, to)
-    this.updateInteractionState({ id: "awaiting-input" })
+  private _movePiece(from: Square, to: Square) {
+    this._grid.movePiece(from, to)
+    this._updateInteractionState({ id: "awaiting-input" })
     // Programmatically focus target square for cases where the browser
     // won't handle that automatically, e.g. through a drag operation
-    this.squares.focusSquare(to)
+    this._grid.focusTabbableSquare()
   }
 
-  private cancelMove() {
-    this.updateInteractionState({ id: "awaiting-input" })
+  private _cancelMove() {
+    this._updateInteractionState({ id: "awaiting-input" })
     // Programmatically blur starting square for cases where the browser
     // won't handle that automatically, (through a drag operation)
-    this.squares.blurSquare(this.squares.tabbableSquare)
+    this._grid.blurTabbableSquare()
   }
 
-  private updateInteractionState(
+  private _updateInteractionState(
     state: InteractionState,
     newTabbableSquare?: Square
   ) {
-    this.interactionState = state
-    this.updateContainerInteractionStateLabel(true)
+    this._interactionState = state
+    this._updateContainerInteractionStateLabel(true)
 
     if (newTabbableSquare !== undefined) {
-      this.squares.tabbableSquare = newTabbableSquare
+      this._grid.tabbableSquare = newTabbableSquare
     }
   }
 
-  private updateContainerInteractionStateLabel(interactive: boolean) {
+  /**
+   * Sets (or removes) the `move-state` attribute on the container, which
+   * facilitates CSS styling (pointer events, hover state) based on current
+   * interaction state.
+   */
+  private _updateContainerInteractionStateLabel(interactive: boolean) {
     if (interactive) {
-      this.container.dataset.moveState = this.interactionState.id
+      this._container.dataset.moveState = this._interactionState.id
     } else {
-      delete this.container.dataset["moveState"]
+      delete this._container.dataset["moveState"]
     }
   }
 
@@ -438,7 +449,7 @@ export class InteractionEventHandler {
    * square elements. Attempts to extract square label from the element in
    * question, then passes square label and current event to `callback`.
    */
-  private makeEventHandler<K extends MouseEvent | KeyboardEvent | FocusEvent>(
+  private _makeEventHandler<K extends MouseEvent | KeyboardEvent | FocusEvent>(
     callback: (
       this: InteractionEventHandler,
       square: Square | undefined,
@@ -461,7 +472,7 @@ export class InteractionEventHandler {
    *   square width
    * - the current mouseover square is different from starting square
    */
-  private cursorPassedDragThreshold(
+  private _cursorPassedDragThreshold(
     x: number,
     y: number,
     square: Square | undefined,
@@ -473,12 +484,12 @@ export class InteractionEventHandler {
     const threshold = Math.max(
       InteractionEventHandler.DRAG_THRESHOLD_MIN_PIXELS,
       InteractionEventHandler.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION *
-        this.squares.squareWidth
+        this._grid.tabbableSquareWidth
     )
     // Consider a "dragging" action to be when we have moved the mouse a sufficient
     // threshold, or we are now in a different square from where we started.
     return (
-      (this.squares.squareWidth !== 0 && delta > threshold) ||
+      (this._grid.tabbableSquareWidth !== 0 && delta > threshold) ||
       square !== startSquare
     )
   }
