@@ -105,11 +105,9 @@ export class Grid {
 
   set tabbableSquare(value: Square) {
     // Unset previous tabbable square so that tabindex is changed to -1
-    if (this._tabbableSquare !== undefined) {
-      this._getBoardSquare(this._tabbableSquare).updateConfig({
-        tabbable: false,
-      })
-    }
+    this._getBoardSquare(this.tabbableSquare).updateConfig({
+      tabbable: false,
+    })
     this._getBoardSquare(value).updateConfig({
       tabbable: true,
     })

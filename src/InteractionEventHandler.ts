@@ -49,6 +49,7 @@ export class InteractionEventHandler {
   private _mouseDownHandler: (e: MouseEvent) => void
   private _mouseUpHandler: (e: MouseEvent) => void
   private _mouseMoveHandler: (e: MouseEvent) => void
+  private _focusInHandler: (e: FocusEvent) => void
   private _focusOutHandler: (e: FocusEvent) => void
   private _keyDownHandler: (e: KeyboardEvent) => void
 
@@ -74,11 +75,12 @@ export class InteractionEventHandler {
     this._interactionState = { id: "awaiting-input" }
     this._updateContainerInteractionStateLabel(this.enabled)
 
-    this._mouseDownHandler = this._makeEventHandler(this.handleMouseDown)
-    this._mouseUpHandler = this._makeEventHandler(this.handleMouseUp)
-    this._mouseMoveHandler = this._makeEventHandler(this.handleMouseMove)
-    this._keyDownHandler = this._makeEventHandler(this.handleKeyDown)
-    this._focusOutHandler = this._makeEventHandler(this.handleFocusOut)
+    this._mouseDownHandler = this._makeEventHandler(this._handleMouseDown)
+    this._mouseUpHandler = this._makeEventHandler(this._handleMouseUp)
+    this._mouseMoveHandler = this._makeEventHandler(this._handleMouseMove)
+    this._keyDownHandler = this._makeEventHandler(this._handleKeyDown)
+    this._focusInHandler = this._makeEventHandler(this._handleFocusIn)
+    this._focusOutHandler = this._makeEventHandler(this._handleFocusOut)
 
     this._toggleHandlers(this._enabled)
   }
@@ -105,22 +107,23 @@ export class InteractionEventHandler {
 
   private _toggleHandlers(enabled: boolean) {
     if (enabled) {
-      document.addEventListener("mousedown", this._mouseDownHandler)
+      this._container.addEventListener("mousedown", this._mouseDownHandler)
       document.addEventListener("mouseup", this._mouseUpHandler)
       document.addEventListener("mousemove", this._mouseMoveHandler)
-      document.addEventListener("focusout", this._focusOutHandler)
-      // For keyboard, add listener only on the chessboard
+      this._container.addEventListener("focusin", this._focusInHandler)
+      this._container.addEventListener("focusout", this._focusOutHandler)
       this._container.addEventListener("keydown", this._keyDownHandler)
     } else {
-      document.removeEventListener("mousedown", this._mouseDownHandler)
+      this._container.removeEventListener("mousedown", this._mouseDownHandler)
       document.removeEventListener("mouseup", this._mouseUpHandler)
       document.removeEventListener("mousemove", this._mouseMoveHandler)
-      document.removeEventListener("focusout", this._focusOutHandler)
+      this._container.removeEventListener("focusin", this._focusInHandler)
+      this._container.removeEventListener("focusout", this._focusOutHandler)
       this._container.removeEventListener("keydown", this._keyDownHandler)
     }
   }
 
-  private handleMouseDown(
+  private _handleMouseDown(
     this: InteractionEventHandler,
     clickedSquare: Square | undefined,
     e: MouseEvent
@@ -128,7 +131,6 @@ export class InteractionEventHandler {
     switch (this._interactionState.id) {
       case "awaiting-input":
         if (clickedSquare) {
-          this._grid.tabbableSquare = clickedSquare
           if (this._grid.pieceOn(clickedSquare)) {
             this._updateInteractionState({
               id: "touching-first-square",
@@ -156,7 +158,6 @@ export class InteractionEventHandler {
             touchStartX: e.clientX,
             touchStartY: e.clientY,
           })
-          this._grid.tabbableSquare = clickedSquare
         }
         break
       case "dragging":
@@ -170,7 +171,7 @@ export class InteractionEventHandler {
     }
   }
 
-  private handleMouseUp(
+  private _handleMouseUp(
     this: InteractionEventHandler,
     square: Square | undefined
   ) {
@@ -204,7 +205,7 @@ export class InteractionEventHandler {
     }
   }
 
-  private handleMouseMove(
+  private _handleMouseMove(
     this: InteractionEventHandler,
     square: Square | undefined,
     e: MouseEvent
@@ -239,7 +240,29 @@ export class InteractionEventHandler {
     }
   }
 
-  private handleFocusOut(
+  private _handleFocusIn(
+    this: InteractionEventHandler,
+    square: Square | undefined
+  ) {
+    switch (this._interactionState.id) {
+      case "moving-piece-kb":
+      case "awaiting-second-touch":
+      case "touching-first-square":
+      case "canceling-second-touch":
+      case "awaiting-input":
+      case "dragging":
+        // If we ever focus into a square, change tabbable square to it
+        if (square) {
+          this._grid.tabbableSquare = square
+        }
+        break
+      // istanbul ignore next
+      default:
+        assertUnreachable(this._interactionState)
+    }
+  }
+
+  private _handleFocusOut(
     this: InteractionEventHandler,
     square: Square | undefined,
     e: FocusEvent
@@ -269,7 +292,7 @@ export class InteractionEventHandler {
     }
   }
 
-  private handleKeyDown(
+  private _handleKeyDown(
     this: InteractionEventHandler,
     pressedSquare: Square | undefined,
     e: KeyboardEvent
