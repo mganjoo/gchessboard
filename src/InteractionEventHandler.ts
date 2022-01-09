@@ -150,15 +150,13 @@ export class InteractionEventHandler {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
           // till corresponding mouseup event in order to cancel.
-          this._updateInteractionState(
-            {
-              id: "canceling-second-touch",
-              startSquare: clickedSquare,
-              touchStartX: e.clientX,
-              touchStartY: e.clientY,
-            },
-            clickedSquare
-          )
+          this._updateInteractionState({
+            id: "canceling-second-touch",
+            startSquare: clickedSquare,
+            touchStartX: e.clientX,
+            touchStartY: e.clientY,
+          })
+          this._grid.tabbableSquare = clickedSquare
         }
         break
       case "dragging":
@@ -281,13 +279,11 @@ export class InteractionEventHandler {
         case "awaiting-input":
           // Ignore presses for squares that have no piece on them
           if (pressedSquare && this._grid.pieceOn(pressedSquare)) {
-            this._updateInteractionState(
-              {
-                id: "moving-piece-kb",
-                startSquare: pressedSquare,
-              },
-              pressedSquare
-            )
+            this._updateInteractionState({
+              id: "moving-piece-kb",
+              startSquare: pressedSquare,
+            })
+            this._grid.tabbableSquare = pressedSquare
           }
           break
         case "moving-piece-kb":
@@ -416,16 +412,9 @@ export class InteractionEventHandler {
     this._grid.blurTabbableSquare()
   }
 
-  private _updateInteractionState(
-    state: InteractionState,
-    newTabbableSquare?: Square
-  ) {
+  private _updateInteractionState(state: InteractionState) {
     this._interactionState = state
     this._updateContainerInteractionStateLabel(true)
-
-    if (newTabbableSquare !== undefined) {
-      this._grid.tabbableSquare = newTabbableSquare
-    }
   }
 
   /**
