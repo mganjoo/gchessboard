@@ -50,7 +50,7 @@
   /* Width of table cell is implicitly 12.5% because row will have
      exactly 8 columns and `table-layout` is fixed. Padding of 12.5% * width
      ensures square aspect ratio. */
-  padding: 12.5% 0 0 0;
+  padding: 12.5% 0 0;
   position: relative;
   font-family: sans-serif;
   font-size: 0.7rem;
