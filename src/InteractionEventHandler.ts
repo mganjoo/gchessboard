@@ -157,7 +157,9 @@ export class InteractionEventHandler {
           clickedSquare &&
           this._interactionState.startSquare !== clickedSquare
         ) {
-          this._movePiece(this._interactionState.startSquare, clickedSquare)
+          const startSquare = this._interactionState.startSquare
+          this._grid.blurTabbableSquare()
+          this._movePiece(startSquare, clickedSquare)
         } else if (this._interactionState.startSquare === clickedSquare) {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
@@ -199,7 +201,9 @@ export class InteractionEventHandler {
         break
       case "dragging":
         if (square && this._interactionState.startSquare !== square) {
-          this._movePiece(this._interactionState.startSquare, square)
+          const startSquare = this._interactionState.startSquare
+          this._grid.blurTabbableSquare()
+          this._movePiece(startSquare, square)
         } else {
           this._cancelMove()
           this._grid.blurTabbableSquare()
@@ -304,6 +308,7 @@ export class InteractionEventHandler {
             hasDataset(e.relatedTarget) && "square" in e.relatedTarget.dataset
           // If outgoing focus target has a square, and incoming does not, then board
           // lost focus and we can cancel the move.
+          // TODO: find a better way to handle programmatic blurs
           if (square && !hasFocusInSquare) {
             this._cancelMove()
           }

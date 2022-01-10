@@ -1,6 +1,5 @@
 import * as fc from "fast-check"
 import {
-  getOppositeSide,
   getSquare,
   getSquareColor,
   getVisualIndex,
@@ -48,65 +47,51 @@ function buildChessboard(
 }
 
 describe("Chessboard creation and cleanup", () => {
-  describe.each<{ side: Side; flip: boolean }>([
-    { side: "white", flip: false },
-    { side: "white", flip: true },
-    { side: "black", flip: false },
-    { side: "black", flip: true },
-  ])(
-    "Chessboard with orientation = $side, flip orientation after creation = $flip",
-    ({ side, flip }) => {
-      const pieces = {
-        b3: { color: "white", pieceType: "queen" },
-        e6: { color: "black", pieceType: "knight" },
-        g1: { color: "white", pieceType: "king" },
-      } as const
-      const chessboard = buildChessboard(side, pieces)
-      if (flip) {
-        chessboard.orientation = getOppositeSide(side)
-      }
-      const finalSide = flip ? getOppositeSide(side) : side
-      const idxsWithPieces = (
-        Object.keys(pieces) as (keyof typeof pieces)[]
-      ).map((s) => getVisualIndex(s, finalSide))
-
-      it("should add correct classes and attributes to chessboard", () => {
-        fc.assert(
-          fc.property(fc.nat({ max: 63 }), (idx) => {
-            const squareElement =
-              chessboard.querySelectorAll("[data-square]")[idx]
-            const expectedSquare = getSquare(idx, finalSide)
-            expect(squareElement).toHaveAttribute("data-square", expectedSquare)
-            expect(squareElement).toHaveAttribute(
-              "data-square-color",
-              getSquareColor(expectedSquare)
-            )
-          })
-        )
-      })
-
-      it("should not have the .has-piece class on chessboard without pieces", () => {
-        fc.assert(
-          fc.property(
-            fc.nat({ max: 63 }).filter((idx) => !idxsWithPieces.includes(idx)),
-            (idx) => {
-              expect(
-                chessboard.querySelectorAll("[data-square]")[idx]
-              ).not.toHaveClass("has-piece")
-            }
-          )
-        )
-      })
-
-      it("should have the .has-piece class on chessboard with pieces", () => {
-        idxsWithPieces.forEach((i) => {
-          expect(chessboard.querySelectorAll("[data-square]")[i]).toHaveClass(
-            "has-piece"
-          )
-        })
-      })
-    }
+  const pieces = {
+    b3: { color: "white", pieceType: "queen" },
+    e6: { color: "black", pieceType: "knight" },
+    g1: { color: "white", pieceType: "king" },
+  } as const
+  const side = "white"
+  buildChessboard(side, pieces)
+  const idxsWithPieces = (Object.keys(pieces) as (keyof typeof pieces)[]).map(
+    (s) => getVisualIndex(s, side)
   )
+
+  it("should add correct classes and attributes to chessboard", () => {
+    fc.assert(
+      fc.property(fc.nat({ max: 63 }), (idx) => {
+        const squareElement = document.querySelectorAll("[data-square]")[idx]
+        const expectedSquare = getSquare(idx, side)
+        expect(squareElement).toHaveAttribute("data-square", expectedSquare)
+        expect(squareElement).toHaveAttribute(
+          "data-square-color",
+          getSquareColor(expectedSquare)
+        )
+      })
+    )
+  })
+
+  it("should not have the .has-piece class on chessboard without pieces", () => {
+    fc.assert(
+      fc.property(
+        fc.nat({ max: 63 }).filter((idx) => !idxsWithPieces.includes(idx)),
+        (idx) => {
+          expect(
+            document.querySelectorAll("[data-square]")[idx]
+          ).not.toHaveClass("has-piece")
+        }
+      )
+    )
+  })
+
+  it("should have the .has-piece class on chessboard with pieces", () => {
+    idxsWithPieces.forEach((i) => {
+      expect(document.querySelectorAll("[data-square]")[i]).toHaveClass(
+        "has-piece"
+      )
+    })
+  })
 })
 
 describe("Click-based moving", () => {
@@ -141,7 +126,8 @@ describe("Click-based moving", () => {
     expect(screen.getByRole("gridcell", { name: /e3/i })).toHaveClass(
       "has-piece"
     )
-    expect(screen.getByRole("gridcell", { name: /e3/i })).toHaveFocus()
+    // Focus doesn't move with mouse-based moves
+    expect(screen.getByRole("gridcell", { name: /e3/i })).not.toHaveFocus()
 
     // Emptied previous square
     expect(screen.getByRole("gridcell", { name: "f7" })).not.toHaveClass(
@@ -207,7 +193,8 @@ describe("Click-based moving", () => {
         "awaiting-input"
       )
     )
-    expect(screen.getByRole("gridcell", { name: /f7/i })).not.toHaveFocus()
+    // Keep focus on square if the cancel was keyboard-based
+    expect(screen.getByRole("gridcell", { name: /f7/i })).toHaveFocus()
   })
 
   it("cancels move when grid loses focus", async () => {
@@ -354,7 +341,8 @@ describe("Keyboard-based interaction", () => {
     userEvent.keyboard("[Enter]")
     userEvent.keyboard("[ArrowRight][ArrowRight][ArrowUp]") // e6 -> c5
     userEvent.click(screen.getByRole("gridcell", { name: /h5/i }))
-    expect(screen.getByRole("gridcell", { name: /h5/i })).toHaveFocus()
+    // Mouse-based clicks should not transfer focus
+    expect(screen.getByRole("gridcell", { name: /h5/i })).not.toHaveFocus()
     expect(screen.getByRole("gridcell", { name: /h5/i })).toHaveClass(
       "has-piece"
     )
@@ -384,7 +372,6 @@ describe("Drag-based interaction", () => {
       )
     )
     fireEvent.mouseUp(screen.getByRole("gridcell", { name: /f5/i }))
-    expect(screen.getByRole("gridcell", { name: /f5/i })).toHaveFocus()
     await waitFor(() =>
       expect(chessboard.firstElementChild).toHaveAttribute(
         "data-move-state",
@@ -394,7 +381,8 @@ describe("Drag-based interaction", () => {
     expect(screen.getByRole("gridcell", { name: /f5/i })).toHaveClass(
       "has-piece"
     )
-    expect(screen.getByRole("gridcell", { name: /f5/i })).toHaveFocus()
+    // Drag moves should not transfer focus
+    expect(screen.getByRole("gridcell", { name: /f5/i })).not.toHaveFocus()
   })
 
   it("cancels move when move when dropping on same square", async () => {
@@ -450,7 +438,6 @@ describe("Drag-based interaction", () => {
         "dragging"
       )
     )
-    expect(screen.getByRole("gridcell", { name: /f7/i })).toHaveFocus()
 
     // Ignore additional mouse move events
     fireEvent.mouseMove(screen.getByRole("gridcell", { name: /a3/i }))
@@ -462,6 +449,7 @@ describe("Drag-based interaction", () => {
     )
 
     // Let focus move around, but ignore enter press
+    userEvent.tab()
     userEvent.keyboard("[ArrowLeft][ArrowLeft][Enter]")
     expect(screen.getByRole("gridcell", { name: /d7/i })).toHaveFocus()
     expect(screen.getByRole("gridcell", { name: /f7/i })).toHaveClass(
@@ -470,7 +458,6 @@ describe("Drag-based interaction", () => {
 
     // Finish dragging
     fireEvent.mouseUp(screen.getByRole("gridcell", { name: /f5/i }))
-    expect(screen.getByRole("gridcell", { name: /f5/i })).toHaveFocus()
     await waitFor(() =>
       expect(chessboard.firstElementChild).toHaveAttribute(
         "data-move-state",
@@ -480,7 +467,7 @@ describe("Drag-based interaction", () => {
     expect(screen.getByRole("gridcell", { name: /f5/i })).toHaveClass(
       "has-piece"
     )
-    expect(screen.getByRole("gridcell", { name: /f5/i })).toHaveFocus()
+    expect(document.body).toHaveFocus()
   })
 
   it("ignores cancellation on start square if it leads into drag", async () => {

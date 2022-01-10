@@ -85,6 +85,7 @@ export class BoardSquare {
   }
 
   updateConfig(config: Partial<BoardSquareConfig>) {
+    // TODO: check for difference in values before updating
     this._config = { ...this._config, ...config }
     this._updateSquareVisuals()
   }
