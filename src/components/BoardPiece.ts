@@ -60,6 +60,7 @@ export class BoardPiece {
         role: "img",
         "aria-label": `${this.piece.color} ${this.piece.pieceType}`,
       },
+      classes: ["chessboard--piece"],
     })
     this._element.appendChild(
       makeSvgElement("use", {

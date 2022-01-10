@@ -62,7 +62,7 @@
   box-shadow: inset 0 0 4px 4px var(--focus-outline-color);
 }
 
-[data-square] svg {
+[data-square] .chessboard--piece {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -122,6 +122,6 @@
   background-color: var(--move-start-dark-square-color);
 }
 
-[data-move-state="dragging"] [data-square].move-start svg {
+[data-move-state="dragging"] [data-square].move-start .chessboard--piece {
   opacity: 0.5;
 }
