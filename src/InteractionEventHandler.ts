@@ -49,7 +49,6 @@ export class InteractionEventHandler {
   private _mouseDownHandler: (e: MouseEvent) => void
   private _mouseUpHandler: (e: MouseEvent) => void
   private _mouseMoveHandler: (e: MouseEvent) => void
-  private _focusInHandler: (e: FocusEvent) => void
   private _focusOutHandler: (e: FocusEvent) => void
   private _keyDownHandler: (e: KeyboardEvent) => void
 
@@ -79,7 +78,6 @@ export class InteractionEventHandler {
     this._mouseUpHandler = this._makeEventHandler(this._handleMouseUp)
     this._mouseMoveHandler = this._makeEventHandler(this._handleMouseMove)
     this._keyDownHandler = this._makeEventHandler(this._handleKeyDown)
-    this._focusInHandler = this._makeEventHandler(this._handleFocusIn)
     this._focusOutHandler = this._makeEventHandler(this._handleFocusOut)
 
     this._toggleHandlers(this._enabled)
@@ -114,14 +112,12 @@ export class InteractionEventHandler {
       this._container.addEventListener("mousedown", this._mouseDownHandler)
       document.addEventListener("mouseup", this._mouseUpHandler)
       document.addEventListener("mousemove", this._mouseMoveHandler)
-      this._container.addEventListener("focusin", this._focusInHandler)
       this._container.addEventListener("focusout", this._focusOutHandler)
       this._container.addEventListener("keydown", this._keyDownHandler)
     } else {
       this._container.removeEventListener("mousedown", this._mouseDownHandler)
       document.removeEventListener("mouseup", this._mouseUpHandler)
       document.removeEventListener("mousemove", this._mouseMoveHandler)
-      this._container.removeEventListener("focusin", this._focusInHandler)
       this._container.removeEventListener("focusout", this._focusOutHandler)
       this._container.removeEventListener("keydown", this._keyDownHandler)
     }
@@ -140,8 +136,8 @@ export class InteractionEventHandler {
           if (this._grid.pieceOn(clickedSquare)) {
             // Blur any existing tabbable square if it exists. This cancels
             // existing moves by default so must occur before we update to
-            // new state
-            this._grid.blurTabbableSquare()
+            // new state.
+            this._grid.blurSquare(this._grid.tabbableSquare)
             this._updateInteractionState({
               id: "touching-first-square",
               startSquare: clickedSquare,
@@ -158,8 +154,9 @@ export class InteractionEventHandler {
           this._interactionState.startSquare !== clickedSquare
         ) {
           const startSquare = this._interactionState.startSquare
-          this._grid.blurTabbableSquare()
+          const tabbableSquare = this._grid.tabbableSquare
           this._movePiece(startSquare, clickedSquare)
+          this._grid.blurSquare(tabbableSquare)
         } else if (this._interactionState.startSquare === clickedSquare) {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
@@ -197,22 +194,23 @@ export class InteractionEventHandler {
         this._grid.currentMove = {
           square: this._interactionState.startSquare,
         }
-        this._grid.focusTabbableSquare()
+        this._grid.focusSquare(this._interactionState.startSquare)
         break
       case "dragging":
         if (square && this._interactionState.startSquare !== square) {
           const startSquare = this._interactionState.startSquare
-          this._grid.blurTabbableSquare()
+          const tabbableSquare = this._grid.tabbableSquare
           this._movePiece(startSquare, square)
+          this._grid.blurSquare(tabbableSquare)
         } else {
           this._cancelMove()
-          this._grid.blurTabbableSquare()
+          this._grid.blurSquare(this._grid.tabbableSquare)
         }
         break
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
         this._cancelMove()
-        this._grid.blurTabbableSquare()
+        this._grid.blurSquare(this._grid.tabbableSquare)
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -271,28 +269,6 @@ export class InteractionEventHandler {
     }
   }
 
-  private _handleFocusIn(
-    this: InteractionEventHandler,
-    square: Square | undefined
-  ) {
-    switch (this._interactionState.id) {
-      case "moving-piece-kb":
-      case "awaiting-second-touch":
-      case "touching-first-square":
-      case "canceling-second-touch":
-      case "awaiting-input":
-      case "dragging":
-        // If we ever focus into a square, change tabbable square to it
-        if (square) {
-          this._grid.tabbableSquare = square
-        }
-        break
-      // istanbul ignore next
-      default:
-        assertUnreachable(this._interactionState)
-    }
-  }
-
   private _handleFocusOut(
     this: InteractionEventHandler,
     square: Square | undefined,
@@ -307,8 +283,7 @@ export class InteractionEventHandler {
           const hasFocusInSquare =
             hasDataset(e.relatedTarget) && "square" in e.relatedTarget.dataset
           // If outgoing focus target has a square, and incoming does not, then board
-          // lost focus and we can cancel the move.
-          // TODO: find a better way to handle programmatic blurs
+          // lost focus and we can cancel ongoing moves.
           if (square && !hasFocusInSquare) {
             this._cancelMove()
           }
@@ -420,7 +395,7 @@ export class InteractionEventHandler {
 
       if (newIdx !== currentIdx) {
         this._grid.tabbableSquare = getSquare(newIdx, this._grid.orientation)
-        this._grid.focusTabbableSquare()
+        this._grid.focusSquare(this._grid.tabbableSquare)
 
         // If we are currently in a non-keyboard friendly state, we should
         // still transition to one since we started keyboard navigation.

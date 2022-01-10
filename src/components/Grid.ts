@@ -175,18 +175,12 @@ export class Grid {
     return false
   }
 
-  /**
-   * Focus the currently tabbable square.
-   */
-  focusTabbableSquare() {
-    this._getBoardSquare(this.tabbableSquare).focus()
+  focusSquare(square: Square) {
+    this._getBoardSquare(square).focus()
   }
 
-  /**
-   * Blur the currently tabbable square.
-   */
-  blurTabbableSquare() {
-    this._getBoardSquare(this.tabbableSquare).blur()
+  blurSquare(square: Square) {
+    this._getBoardSquare(square).blur()
   }
 
   /**
