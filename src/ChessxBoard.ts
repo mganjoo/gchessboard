@@ -1,5 +1,5 @@
 import { isSide, Piece, Side, Square } from "./utils/chess"
-import { makeHTMLElement, removeElement } from "./utils/dom"
+import { makeHTMLElement } from "./utils/dom"
 import { Grid } from "./components/Grid"
 import { InteractionEventHandler } from "./InteractionEventHandler"
 import importedStyles from "./style.css?inline"
@@ -13,6 +13,7 @@ export class ChessxBoard extends HTMLElement {
   static readonly observedAttributes = ["orientation", "interactive"] as const
 
   // Private contained elements
+  private _shadow: ShadowRoot
   private _style: HTMLStyleElement
   private _group: HTMLDivElement
   private _grid: Grid
@@ -30,18 +31,17 @@ export class ChessxBoard extends HTMLElement {
       interactive: this._interactive,
     })
     this._eventsHandler = new InteractionEventHandler(this._group, this._grid, {
-      enabled: this.interactive,
+      enabled: false,
     })
+    this._shadow = this.attachShadow({ mode: "open" })
   }
 
   connectedCallback() {
-    this.appendChild(this._style)
-    this.appendChild(this._group)
+    this._shadow.appendChild(this._style)
+    this._shadow.appendChild(this._group)
   }
 
   disconnectedCallback() {
-    removeElement(this._style)
-    removeElement(this._group)
     this._eventsHandler.deactivate()
   }
 

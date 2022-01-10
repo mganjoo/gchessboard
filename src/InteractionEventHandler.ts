@@ -471,8 +471,10 @@ export class InteractionEventHandler {
   ): (e: K) => void {
     const boundCallback = callback.bind(this)
     return (e: K) => {
-      const square = hasDataset(e.target)
-        ? e.target.dataset.square
+      const target =
+        e.composedPath().length > 0 ? e.composedPath()[0] : e.target
+      const square = hasDataset(target)
+        ? target.dataset.square
         : /* istanbul ignore next */ undefined
       boundCallback(keyIsSquare(square) ? square : undefined, e)
     }
