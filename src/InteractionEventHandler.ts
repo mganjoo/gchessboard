@@ -110,6 +110,7 @@ export class InteractionEventHandler {
   private _toggleHandlers(enabled: boolean) {
     if (enabled) {
       this._container.addEventListener("mousedown", this._mouseDownHandler)
+      // TODO: figure out how to create a narrower listener for square-level events
       document.addEventListener("mouseup", this._mouseUpHandler)
       document.addEventListener("mousemove", this._mouseMoveHandler)
       this._container.addEventListener("focusout", this._focusOutHandler)

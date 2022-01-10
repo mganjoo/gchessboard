@@ -27,12 +27,14 @@
   position: absolute;
   top: 3%;
   left: 4%;
+  pointer-events: none;
 }
 
 .chessboard--file-label {
   position: absolute;
   bottom: 3%;
   right: 4%;
+  pointer-events: none;
 }
 
 /* Hide label text from every device except screenreaders. */
@@ -45,6 +47,7 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+  pointer-events: none;
 }
 
 [data-square] {
