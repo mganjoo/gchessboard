@@ -10,21 +10,7 @@ import {
 import { fireEvent, screen, waitFor } from "@testing-library/dom"
 import userEvent from "@testing-library/user-event"
 import { ChessxBoard } from "./ChessxBoard"
-
-customElements.define(
-  "test-component",
-  class extends HTMLElement {
-    constructor() {
-      super()
-      const div = document.createElement("div")
-      const p = document.createElement("p")
-      p.dataset.square = "a3"
-      p.textContent = "It does work"
-      div.appendChild(p)
-      this.appendChild(div)
-    }
-  }
-)
+import { makeHTMLElement } from "./utils/dom"
 
 customElements.define("chessx-board", ChessxBoard)
 
@@ -34,15 +20,13 @@ function buildChessboard(
   interactive?: boolean
 ) {
   const interactiveFinal = interactive !== undefined ? interactive : true
-  document.body.innerHTML = `
-    <chessx-board
-      orientation="${orientation}"
-      interactive=${interactiveFinal.toString()}>
-    </chessx-board>`
-  const board = document.querySelector("chessx-board") as ChessxBoard
+  const board = makeHTMLElement("chessx-board", {
+    attributes: { orientation, interactive: interactiveFinal.toString() },
+  })
   if (pieces !== undefined) {
     board.pieces = pieces
   }
+  document.body.replaceChildren(board)
   return board
 }
 
