@@ -57,7 +57,7 @@ export class InteractionEventHandler {
    * Fraction of square width that mouse must be moved to be
    * considered a "drag" action.
    */
-  private static DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION = 0.3
+  private static DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION = 0.1
 
   /**
    * Minimum number of pixels to enable dragging.
@@ -132,10 +132,16 @@ export class InteractionEventHandler {
     clickedSquare: Square | undefined,
     e: MouseEvent
   ) {
+    // We will control focus entirely ourselves
+    e.preventDefault()
     switch (this._interactionState.id) {
       case "awaiting-input":
         if (clickedSquare) {
           if (this._grid.pieceOn(clickedSquare)) {
+            // Blur any existing tabbable square if it exists. This cancels
+            // existing moves by default so must occur before we update to
+            // new state
+            this._grid.blurTabbableSquare()
             this._updateInteractionState({
               id: "touching-first-square",
               startSquare: clickedSquare,
@@ -185,7 +191,11 @@ export class InteractionEventHandler {
           id: "awaiting-second-touch",
           startSquare: this._interactionState.startSquare,
         })
-        this._grid.moveStartSquare = this._interactionState.startSquare
+        this._grid.tabbableSquare = this._interactionState.startSquare
+        this._grid.currentMove = {
+          square: this._interactionState.startSquare,
+        }
+        this._grid.focusTabbableSquare()
         break
       case "dragging":
         if (square && this._interactionState.startSquare !== square) {
@@ -234,10 +244,19 @@ export class InteractionEventHandler {
             id: "dragging",
             startSquare: this._interactionState.startSquare,
           })
-          this._grid.moveStartSquare = this._interactionState.startSquare
+          this._grid.currentMove = {
+            square: this._interactionState.startSquare,
+            piecePositionPx: { x: e.clientX, y: e.clientY },
+          }
+          this._grid.tabbableSquare = this._interactionState.startSquare
         }
         break
       case "dragging":
+        this._grid.currentMove = {
+          square: this._interactionState.startSquare,
+          piecePositionPx: { x: e.clientX, y: e.clientY },
+        }
+        break
       case "awaiting-input":
       case "awaiting-second-touch":
       case "moving-piece-kb":
@@ -314,7 +333,7 @@ export class InteractionEventHandler {
               id: "moving-piece-kb",
               startSquare: pressedSquare,
             })
-            this._grid.moveStartSquare = pressedSquare
+            this._grid.currentMove = { square: pressedSquare }
             this._grid.tabbableSquare = pressedSquare
           }
           break
@@ -432,14 +451,11 @@ export class InteractionEventHandler {
   private _movePiece(from: Square, to: Square) {
     this._grid.movePiece(from, to)
     this._updateInteractionState({ id: "awaiting-input" })
-    // Programmatically focus target square for cases where the browser
-    // won't handle that automatically, e.g. through a drag operation
-    this._grid.focusTabbableSquare()
   }
 
   private _cancelMove() {
     this._updateInteractionState({ id: "awaiting-input" })
-    this._grid.moveStartSquare = undefined
+    this._grid.currentMove = undefined
   }
 
   private _updateInteractionState(state: InteractionState) {

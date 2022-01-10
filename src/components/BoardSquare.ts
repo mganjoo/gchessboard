@@ -23,10 +23,23 @@ export interface BoardSquareConfig {
    */
   moveStart?: boolean
   /**
-   * Information about piece associated with the square. This piece is rendered
-   * onto the square, and also determines label and class attributes of a square.
+   * Information about the primary piece associated with the square. This piece
+   * is rendered onto the square, and also determines label and class attributes
+   * of a square.
    */
   piece?: Piece
+  /**
+   * Explicit (x, y) pixel location for piece. This is useful if piece is being
+   * dragged around or animating into the square.
+   */
+  piecePositionPx?: { x: number; y: number }
+  /**
+   * Optionally, squares may have a secondary piece, such as a ghost piece shown
+   * while dragging, or a temporary state where a captured piece is animating out
+   * as a new piece is entering. The secondary piece is always shown *behind* the
+   * primary piece in the DOM.
+   */
+  secondaryPiece?: Piece
   /**
    * Whether a rank label should be shown on the square ("1", "2" etc).
    */
@@ -47,6 +60,7 @@ export class BoardSquare {
   private readonly _rankLabelElement: HTMLSpanElement
   private readonly _fileLabelElement: HTMLSpanElement
   private _boardPiece?: BoardPiece
+  private _secondaryBoardPiece?: BoardPiece
   private _config: BoardSquareConfig
 
   constructor(container: HTMLElement, config: BoardSquareConfig) {
@@ -76,7 +90,7 @@ export class BoardSquare {
   }
 
   /**
-   * Rendered width of element, used in making drag threshold calculations.
+   * Rendered width of element (in integer), used in making drag threshold calculations.
    */
   get width(): number {
     return this._element.clientWidth
@@ -104,7 +118,7 @@ export class BoardSquare {
       : null
 
     // Piece placement
-    this._replacePiece(this._config.piece)
+    this._placePieces()
     this._element.classList.toggle("has-piece", !!this._config.piece)
 
     // Interactivity
@@ -119,18 +133,63 @@ export class BoardSquare {
     }
   }
 
-  private _replacePiece(piece?: Piece) {
-    if (
-      this._boardPiece &&
-      piece &&
-      pieceEqual(piece, this._boardPiece.piece)
-    ) {
-      return
+  private _placePieces() {
+    // Primary piece
+    if (!this._isSamePiece(this._boardPiece, this._config.piece)) {
+      if (this._boardPiece !== undefined) {
+        this._boardPiece.remove()
+      }
+      this._boardPiece =
+        this._config.piece !== undefined
+          ? new BoardPiece(this._element, { piece: this._config.piece })
+          : undefined
     }
+
+    // Primary piece location
     if (this._boardPiece !== undefined) {
-      this._boardPiece.remove()
+      if (this._config.piecePositionPx !== undefined) {
+        const squareDims = this._element.getBoundingClientRect()
+        const leftOffset =
+          this._config.piecePositionPx.x -
+          squareDims.left -
+          squareDims.width / 2
+        const topOffset =
+          this._config.piecePositionPx.y -
+          squareDims.top -
+          squareDims.height / 2
+        this._boardPiece.offsetPx = { dx: leftOffset, dy: topOffset }
+      } else {
+        this._boardPiece.offsetPx = undefined
+      }
     }
-    this._boardPiece =
-      piece !== undefined ? new BoardPiece(this._element, { piece }) : undefined
+
+    // Secondary piece
+    if (
+      !this._isSamePiece(this._secondaryBoardPiece, this._config.secondaryPiece)
+    ) {
+      if (this._secondaryBoardPiece !== undefined) {
+        this._secondaryBoardPiece.remove()
+      }
+      this._secondaryBoardPiece =
+        this._config.secondaryPiece !== undefined
+          ? new BoardPiece(this._element, {
+              piece: this._config.secondaryPiece,
+              secondary: true,
+            })
+          : undefined
+    }
+  }
+
+  private _isSamePiece(
+    boardPiece: BoardPiece | undefined,
+    piece: Piece | undefined
+  ) {
+    if (boardPiece === undefined && piece === undefined) {
+      return true
+    } else if (boardPiece === undefined || piece === undefined) {
+      return false
+    } else {
+      return pieceEqual(boardPiece.piece, piece)
+    }
   }
 }

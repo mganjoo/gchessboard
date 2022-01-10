@@ -53,13 +53,15 @@
     "jest": "^27.4.5",
     "lint-staged": "^12.1.3",
     "prettier": "^2.5.1",
+    "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-standard": "^24.0.0",
+    "stylelint-prettier": "^2.0.0",
     "typescript": "^4.4.4",
     "vite": "^2.7.2"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
-    "*.{js,jsx,ts,tsx,css,md,json,yml,yaml}": "prettier --write",
-    "*.{css}": "stylelint --fix"
+    "*.{js,jsx,ts,tsx,md,json,yml,yaml}": "prettier --write",
+    "*.css": "stylelint --fix"
   }
 }

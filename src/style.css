@@ -6,7 +6,7 @@
   --hover-dark-square-color: #3f7b58;
   --move-start-light-square-color: #fadd4c;
   --move-start-dark-square-color: #10b756;
-  --kb-move-outline-color: #103c23;
+  --kb-move-outline-color: rgba(16 60 35 / 95%);
 }
 
 .chessboard {
@@ -73,6 +73,14 @@
   pointer-events: none;
 }
 
+[data-square] .chessboard--piece:not(.is-secondary) {
+  z-index: 10;
+}
+
+[data-square] .chessboard--piece.is-secondary {
+  z-index: 5;
+}
+
 [data-square-color="dark"] {
   background-color: var(--dark-square-color);
 
@@ -109,7 +117,7 @@
 }
 
 [data-move-state="moving-piece-kb"] [data-square].move-start:not(:focus) {
-  box-shadow: inset 0 0 0 2px var(--kb-move-outline-color);
+  box-shadow: inset 0 0 3px 3px var(--kb-move-outline-color);
 }
 
 [data-square-color="light"].move-start,
@@ -122,6 +130,8 @@
   background-color: var(--move-start-dark-square-color);
 }
 
-[data-move-state="dragging"] [data-square].move-start .chessboard--piece {
-  opacity: 0.5;
+[data-move-state="dragging"]
+  [data-square].move-start
+  .chessboard--piece:not(.is-secondary) {
+  z-index: 20;
 }

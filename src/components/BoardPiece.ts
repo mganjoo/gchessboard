@@ -7,21 +7,28 @@ export interface BoardPieceConfig {
    * Piece type and color.
    */
   piece: Piece
+
+  /**
+   * Whether the piece is to be considered a "secondary" piece on the square.
+   * A secondary piece is usually used to represent a "ghost piece" while
+   * dragging is in progress, or a piece that is about to be animated out as
+   * another piece takes its place.
+   */
+  secondary?: boolean
+
+  /**
+   * Optional pixel position for piece, in case it needs to be placed off square.
+   */
+  explicitPosPx?: { x: number; y: number }
 }
 
 /**
  * Visual representation of a chessboard piece and associated sprite.
  */
 export class BoardPiece {
-  /**
-   * Associated `Piece` definition.
-   */
   readonly piece: Piece
-
-  /**
-   * SVG element representing the piece.
-   */
   private readonly _element: SVGSVGElement
+  private _offsetPx?: { dx: number; dy: number }
 
   /**
    * Map of piece to sprite ID in "sprite.svg". The ID will be referenced
@@ -78,10 +85,32 @@ export class BoardPiece {
         },
       })
     )
+    if (config.secondary) {
+      this._element.classList.add("is-secondary")
+    }
     container.appendChild(this._element)
   }
 
   remove() {
     removeElement(this._element)
+  }
+
+  /**
+   * Explicit offset for piece relative to default location in square. This is
+   * used to represent a piece mid-drag.
+   */
+  get offsetPx() {
+    return this._offsetPx
+  }
+
+  set offsetPx(value: { dx: number; dy: number } | undefined) {
+    this._offsetPx = value
+    if (value === undefined) {
+      this._element.style.removeProperty("left")
+      this._element.style.removeProperty("top")
+    } else {
+      this._element.style.left = `${value.dx}px`
+      this._element.style.top = `${value.dy}px`
+    }
   }
 }

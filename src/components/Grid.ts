@@ -26,7 +26,10 @@ export class Grid {
   private _interactive: boolean
   private _pieces: Partial<Record<Square, Piece>>
   private _tabbableSquare: Square | undefined
-  private _moveStartSquare: Square | undefined
+  private _currentMove?: {
+    square: Square
+    posPx?: { x: number; y: number }
+  }
 
   /**
    * Creates a set of elements representing chessboard squares, as well
@@ -124,26 +127,35 @@ export class Grid {
   }
 
   /**
-   * Square label (if it exists) for square that started an ongoing move.
-   * This is relevant in order to highlight the starting square for a drag
-   * or keyboard move operation.
+   * Information related to ongoing move (if it exists) for grid.
+   * This includes the square that started an ongoing move, as well as
+   * an optional position of the piece on the screen (e.g. if it is
+   * being dragged).
    */
-  get moveStartSquare() {
-    return this._moveStartSquare
+  get currentMove() {
+    return this._currentMove
   }
 
-  set moveStartSquare(value: Square | undefined) {
-    if (this._moveStartSquare !== undefined) {
-      this._getBoardSquare(this._moveStartSquare).updateConfig({
-        moveStart: false,
-      })
+  set currentMove(
+    value:
+      | { square: Square; piecePositionPx?: { x: number; y: number } }
+      | undefined
+  ) {
+    if (this._currentMove !== undefined) {
+      if (value === undefined || value.square !== this._currentMove.square) {
+        this._getBoardSquare(this._currentMove.square).updateConfig({
+          moveStart: false,
+          piecePositionPx: undefined,
+        })
+      }
     }
     if (value !== undefined) {
-      this._getBoardSquare(value).updateConfig({
+      this._getBoardSquare(value.square).updateConfig({
         moveStart: true,
+        piecePositionPx: value.piecePositionPx,
       })
     }
-    this._moveStartSquare = value
+    this._currentMove = value
   }
 
   /**
@@ -157,7 +169,7 @@ export class Grid {
       this._pieces[to] = this._pieces[from]
       delete this._pieces[from]
       this.tabbableSquare = to
-      this.moveStartSquare = undefined
+      this.currentMove = undefined
       return true
     }
     return false
