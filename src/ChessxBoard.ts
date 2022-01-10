@@ -2,7 +2,7 @@ import { isSide, Piece, Side, Square } from "./utils/chess"
 import { makeHTMLElement, removeElement } from "./utils/dom"
 import { Grid } from "./components/Grid"
 import { InteractionEventHandler } from "./InteractionEventHandler"
-import "./style.css"
+import importedStyles from "./style.css?inline"
 import { assertUnreachable } from "./utils/typing"
 
 export class ChessxBoard extends HTMLElement {
@@ -13,12 +13,15 @@ export class ChessxBoard extends HTMLElement {
   static readonly observedAttributes = ["orientation", "interactive"] as const
 
   // Private contained elements
+  private _style: HTMLStyleElement
   private _group: HTMLDivElement
   private _grid: Grid
   private _eventsHandler: InteractionEventHandler
 
   constructor() {
     super()
+    this._style = document.createElement("style")
+    this._style.textContent = importedStyles
     this._group = makeHTMLElement("div", {
       classes: ["chessboard"],
     })
@@ -32,10 +35,12 @@ export class ChessxBoard extends HTMLElement {
   }
 
   connectedCallback() {
+    this.appendChild(this._style)
     this.appendChild(this._group)
   }
 
   disconnectedCallback() {
+    removeElement(this._style)
     removeElement(this._group)
     this._eventsHandler.deactivate()
   }

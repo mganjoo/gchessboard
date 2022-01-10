@@ -110,7 +110,7 @@ describe("Click-based moving", () => {
     userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     expect(screen.getByRole("gridcell", { name: /f7/i })).toHaveFocus()
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-second-touch"
       )
@@ -118,7 +118,7 @@ describe("Click-based moving", () => {
 
     userEvent.click(screen.getByRole("gridcell", { name: "e3" }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-input"
       )
@@ -138,7 +138,7 @@ describe("Click-based moving", () => {
   it("ignores click events when there is no piece on square", () => {
     const chessboard = buildChessboard("white", pieces)
     userEvent.click(screen.getByRole("gridcell", { name: /a3/i }))
-    expect(chessboard.firstElementChild).toHaveAttribute(
+    expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
       "data-move-state",
       "awaiting-input"
     )
@@ -149,7 +149,7 @@ describe("Click-based moving", () => {
     const square = chessboard.querySelector('[data-square="f7"]')
     square?.setAttribute("data-square", "foo")
     userEvent.click(square as Element)
-    expect(chessboard.firstElementChild).toHaveAttribute(
+    expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
       "data-move-state",
       "awaiting-input"
     )
@@ -163,7 +163,7 @@ describe("Click-based moving", () => {
     )
     userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-second-touch"
       )
@@ -171,7 +171,7 @@ describe("Click-based moving", () => {
 
     userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-input"
       )
@@ -188,7 +188,7 @@ describe("Click-based moving", () => {
     userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     userEvent.keyboard("[Enter]")
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-input"
       )
@@ -203,7 +203,7 @@ describe("Click-based moving", () => {
     userEvent.click(screen.getByRole("gridcell", { name: /e6/i }))
     screen.getByRole("gridcell", { name: /e6/i }).blur()
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-input"
       )
@@ -219,7 +219,7 @@ describe("Click-based moving", () => {
     userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     userEvent.click(screen.getByRole("button"))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-input"
       )
@@ -232,7 +232,7 @@ describe("Click-based moving", () => {
     userEvent.click(screen.getByRole("gridcell", { name: /e6/i }))
     userEvent.keyboard("[ArrowUp][ArrowUp][ArrowLeft][Enter]") // e6 -> e5 -> e4 -> f4
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-input"
       )
@@ -302,7 +302,7 @@ describe("Keyboard-based interaction", () => {
     const chessboard = buildChessboard("black", pieces)
     userEvent.tab()
     userEvent.keyboard("[Enter]")
-    expect(chessboard.firstElementChild).toHaveAttribute(
+    expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
       "data-move-state",
       "moving-piece-kb"
     )
@@ -317,7 +317,7 @@ describe("Keyboard-based interaction", () => {
     const chessboard = buildChessboard("white", pieces)
     userEvent.tab()
     userEvent.keyboard("[Home][Enter]")
-    expect(chessboard.firstElementChild).toHaveAttribute(
+    expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
       "data-move-state",
       "awaiting-input"
     )
@@ -329,7 +329,7 @@ describe("Keyboard-based interaction", () => {
     const square = chessboard.querySelector('[data-square="g1"]')
     square?.setAttribute("data-square", "foo")
     userEvent.keyboard("[Enter]")
-    expect(chessboard.firstElementChild).toHaveAttribute(
+    expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
       "data-move-state",
       "awaiting-input"
     )
@@ -359,21 +359,21 @@ describe("Drag-based interaction", () => {
 
     fireEvent.mouseDown(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "touching-first-square"
       )
     )
     fireEvent.mouseMove(screen.getByRole("gridcell", { name: /f6/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "dragging"
       )
     )
     fireEvent.mouseUp(screen.getByRole("gridcell", { name: /f5/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-input"
       )
@@ -393,7 +393,7 @@ describe("Drag-based interaction", () => {
     fireEvent.mouseUp(screen.getByRole("gridcell", { name: /f7/i }))
     expect(screen.getByRole("gridcell", { name: /f7/i })).not.toHaveFocus()
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-input"
       )
@@ -406,7 +406,7 @@ describe("Drag-based interaction", () => {
     userEvent.tab()
     fireEvent.mouseDown(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "touching-first-square"
       )
@@ -415,7 +415,7 @@ describe("Drag-based interaction", () => {
     // Ignores additional mouse down events
     fireEvent.mouseDown(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "touching-first-square"
       )
@@ -424,7 +424,7 @@ describe("Drag-based interaction", () => {
     // Start dragging
     fireEvent.mouseMove(screen.getByRole("gridcell", { name: /f6/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "dragging"
       )
@@ -433,7 +433,7 @@ describe("Drag-based interaction", () => {
     // Ignores additional mouse down events
     fireEvent.mouseDown(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "dragging"
       )
@@ -442,7 +442,7 @@ describe("Drag-based interaction", () => {
     // Ignore additional mouse move events
     fireEvent.mouseMove(screen.getByRole("gridcell", { name: /a3/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "dragging"
       )
@@ -459,7 +459,7 @@ describe("Drag-based interaction", () => {
     // Finish dragging
     fireEvent.mouseUp(screen.getByRole("gridcell", { name: /f5/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-input"
       )
@@ -475,21 +475,21 @@ describe("Drag-based interaction", () => {
 
     userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-second-touch"
       )
     )
     fireEvent.mouseDown(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "canceling-second-touch"
       )
     )
     fireEvent.mouseMove(screen.getByRole("gridcell", { name: /f6/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "dragging"
       )
@@ -501,21 +501,21 @@ describe("Drag-based interaction", () => {
 
     userEvent.click(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "awaiting-second-touch"
       )
     )
     fireEvent.mouseDown(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "canceling-second-touch"
       )
     )
     fireEvent.mouseMove(screen.getByRole("gridcell", { name: /f7/i }))
     await waitFor(() =>
-      expect(chessboard.firstElementChild).toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).toHaveAttribute(
         "data-move-state",
         "canceling-second-touch"
       )
@@ -532,14 +532,14 @@ describe("Chessboard interactivity", () => {
     const chessboard = buildChessboard("white", pieces, false)
     expect(screen.queryByRole("gridcell")).not.toBeInTheDocument()
     await waitFor(() =>
-      expect(chessboard.firstElementChild).not.toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).not.toHaveAttribute(
         "data-move-state"
       )
     )
     userEvent.click(chessboard.querySelector('[data-square="e6"]') as Element)
     userEvent.click(chessboard.querySelector('[data-square="g1"]') as Element)
     await waitFor(() =>
-      expect(chessboard.firstElementChild).not.toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).not.toHaveAttribute(
         "data-move-state"
       )
     )
@@ -559,14 +559,14 @@ describe("Chessboard interactivity", () => {
 
     expect(screen.queryByRole("gridcell")).not.toBeInTheDocument()
     await waitFor(() =>
-      expect(chessboard.firstElementChild).not.toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).not.toHaveAttribute(
         "data-move-state"
       )
     )
     userEvent.click(chessboard.querySelector('[data-square="d3"]') as Element)
     userEvent.click(chessboard.querySelector('[data-square="g1"]') as Element)
     await waitFor(() =>
-      expect(chessboard.firstElementChild).not.toHaveAttribute(
+      expect(chessboard.querySelector(".chessboard")).not.toHaveAttribute(
         "data-move-state"
       )
     )
