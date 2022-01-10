@@ -133,5 +133,6 @@
 [data-move-state="dragging"]
   [data-square].move-start
   .chessboard--piece:not(.is-secondary) {
-  z-index: 20;
+  /* Ensure that the piece appears above most other elements in document. */
+  z-index: 9999;
 }
