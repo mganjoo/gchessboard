@@ -17,4 +17,25 @@ module.exports = {
     babelModeV7: true,
     storyStoreV7: true,
   },
+  webpackFinal: async (config) => {
+    const nonCssRules = config.module.rules.filter(
+      (rule) => rule.test.source !== /\.css$/.source
+    )
+    config.module.rules = [
+      ...nonCssRules,
+      {
+        test: /\.css(\?inline)?$/,
+        use: [
+          {
+            loader: "css-loader",
+            options: {
+              exportType: "string",
+            },
+          },
+        ],
+      },
+    ]
+    console.log(config.module.rules)
+    return config
+  },
 }
