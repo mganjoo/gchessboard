@@ -23,7 +23,6 @@ export class ChessxBoard extends HTMLElement {
     super()
     this._style = document.createElement("style")
     this._style.textContent = importedStyles
-    console.log(importedStyles)
     this._group = makeHTMLElement("div", {
       classes: ["chessboard"],
     })
