@@ -91,7 +91,7 @@
   color: var(--light-square-color);
 }
 
-[data-square-color="dark"]:hover {
+[data-move-state] [data-square-color="dark"]:hover {
   background-color: var(--hover-dark-square-color);
 }
 
@@ -100,7 +100,7 @@
   color: var(--dark-square-color);
 }
 
-[data-square-color="light"]:hover {
+[data-move-state] [data-square-color="light"]:hover {
   background-color: var(--hover-light-square-color);
 }
 
