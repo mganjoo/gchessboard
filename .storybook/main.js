@@ -35,7 +35,6 @@ module.exports = {
         ],
       },
     ]
-    console.log(config.module.rules)
     return config
   },
 }
