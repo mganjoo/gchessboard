@@ -7,7 +7,7 @@ import {
 } from "./helpers"
 
 test.beforeEach(async ({ page }) => {
-  page.goto("/")
+  await page.goto("/")
 })
 
 test("keyboard-based moves work correctly", async ({ page }) => {
