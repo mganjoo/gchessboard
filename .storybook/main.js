@@ -3,7 +3,6 @@ module.exports = {
   addons: [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
     "@storybook/addon-a11y",
   ],
   framework: "@storybook/html",
@@ -16,5 +15,25 @@ module.exports = {
   features: {
     babelModeV7: true,
     storyStoreV7: true,
+  },
+  webpackFinal: async (config) => {
+    const nonCssRules = config.module.rules.filter(
+      (rule) => rule.test.source !== /\.css$/.source
+    )
+    config.module.rules = [
+      ...nonCssRules,
+      {
+        test: /\.css(\?inline)?$/,
+        use: [
+          {
+            loader: "css-loader",
+            options: {
+              exportType: "string",
+            },
+          },
+        ],
+      },
+    ]
+    return config
   },
 }

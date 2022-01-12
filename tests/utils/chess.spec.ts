@@ -1,7 +1,12 @@
-import { getSquare, getSquareColor, getVisualIndex } from "./chess"
+import { test, expect } from "@playwright/test"
+import {
+  getSquare,
+  getSquareColor,
+  getVisualIndex,
+} from "../../src/utils/chess"
 
-describe("chess utilities", () => {
-  it("getSquare()", () => {
+test.describe("chess utilities", () => {
+  test("getSquare()", () => {
     expect(getSquare(0, "white")).toBe("a8")
     expect(getSquare(7, "white")).toBe("h8")
     expect(getSquare(56, "white")).toBe("a1")
@@ -16,7 +21,7 @@ describe("chess utilities", () => {
     expect(getSquare(18, "black")).toBe("f3")
   })
 
-  it("getVisualIndex()", () => {
+  test("getVisualIndex()", () => {
     expect(getVisualIndex("a8", "white")).toEqual(0)
     expect(getVisualIndex("h8", "white")).toEqual(7)
     expect(getVisualIndex("a1", "white")).toEqual(56)
@@ -32,7 +37,7 @@ describe("chess utilities", () => {
     expect(getVisualIndex("d6", "white")).toEqual(19)
   })
 
-  it("getSquareColor()", () => {
+  test("getSquareColor()", () => {
     expect(getSquareColor("c5")).toBe("dark")
     expect(getSquareColor("a6")).toBe("light")
     expect(getSquareColor("d3")).toBe("light")

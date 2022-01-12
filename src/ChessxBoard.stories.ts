@@ -1,6 +1,5 @@
 import { Meta, Story } from "@storybook/html"
 import { Piece, SIDE_COLORS, Square } from "./utils/chess"
-import { within, userEvent } from "@storybook/testing-library"
 import { makeHTMLElement } from "./utils/dom"
 
 interface ChessxBoardProps {
@@ -96,20 +95,6 @@ Wrapped.decorators = [
     return wrapper
   },
 ]
-
-export const ClickMove = Template.bind({})
-ClickMove.args = {
-  ...Wrapped.args,
-}
-ClickMove.decorators = [...Wrapped.decorators]
-// Note that these interactions can return promises but
-// types don't specify: https://github.com/storybookjs/testing-library/issues/10
-ClickMove.play = async ({ canvasElement }) => {
-  const canvas = within(canvasElement)
-  await userEvent.click(canvas.getByRole("gridcell", { name: /e2/i }))
-  await userEvent.click(canvas.getByRole("gridcell", { name: /e4/i }))
-  await userEvent.click(canvas.getByText("link"))
-}
 
 export const NonInteractive = Template.bind({})
 NonInteractive.args = {
