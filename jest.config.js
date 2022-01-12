@@ -3,7 +3,7 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: "coverage",
   moduleNameMapper: {
-    "\\.(css(\\?inline)?|svg)$": "<rootDir>/src/__mocks__/fileMock.js",
+    "\\.(css(\\?inline)?|svg)$": "<rootDir>/src/__mocks__/file-mock.js",
   },
   setupFilesAfterEnv: ["<rootDir>/jest-setup.js"],
   testEnvironment: "jsdom",
