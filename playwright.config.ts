@@ -1,7 +1,7 @@
 import { PlaywrightTestConfig } from "@playwright/test"
 
 const config: PlaywrightTestConfig = {
-  testDir: "integration",
+  testDir: "tests",
   forbidOnly: !!process.env.CI,
   retries: 1,
   workers: process.env.CI ? 2 : undefined,
