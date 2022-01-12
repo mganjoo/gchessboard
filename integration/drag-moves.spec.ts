@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
   page.goto("/")
 })
 
-test.only("drag-based moves work correctly", async ({ page }) => {
+test("drag-based moves work correctly", async ({ page }) => {
   // drag and drop from d1 to g4
   await page.dragAndDrop(
     `[role="gridcell"]:has-text("d1")`,
