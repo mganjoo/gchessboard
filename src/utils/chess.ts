@@ -53,6 +53,12 @@ const FEN_PIECE_TYPE_MAP: { [key: string]: PieceType } = {
   q: "queen",
   k: "king",
 }
+const REVERSE_FEN_PIECE_TYPE_MAP: Record<PieceType, string> = Object.keys(
+  FEN_PIECE_TYPE_MAP
+).reduce((acc, key) => {
+  acc[FEN_PIECE_TYPE_MAP[key]] = key
+  return acc
+}, {} as Record<PieceType, string>)
 
 /**
  * Parse a FEN string and return an object that maps squares to pieces.
@@ -75,7 +81,7 @@ export function getPosition(
     return undefined
   }
 
-  const pieces: Partial<Record<Square, Piece>> = {}
+  const position: Partial<Record<Square, Piece>> = {}
   for (let i = 0; i < 8; i++) {
     const rank = 8 - i
     let fileOffset = 0
@@ -86,7 +92,7 @@ export function getPosition(
       const pieceLetter = ranks[i][j].toLowerCase()
       if (pieceLetter in FEN_PIECE_TYPE_MAP) {
         const square = (String.fromCharCode(97 + fileOffset) + rank) as Square
-        pieces[square] = {
+        position[square] = {
           pieceType: FEN_PIECE_TYPE_MAP[pieceLetter],
           color: pieceLetter === ranks[i][j] ? "black" : "white",
         }
@@ -101,7 +107,34 @@ export function getPosition(
       }
     }
   }
-  return pieces
+  return position
+}
+
+export function getFen(position: Partial<Record<Square, Piece>>): string {
+  const rankSpecs = []
+  for (let i = 0; i < 8; i++) {
+    let rankSpec = ""
+    let gap = 0
+    for (let j = 0; j < 8; j++) {
+      const square = REVERSE_SQUARES_MAP[16 * i + j]
+      const piece = position[square]
+      if (piece !== undefined) {
+        const pieceStr = REVERSE_FEN_PIECE_TYPE_MAP[piece.pieceType]
+        if (gap > 0) {
+          rankSpec += gap
+        }
+        rankSpec += piece.color === "white" ? pieceStr.toUpperCase() : pieceStr
+        gap = 0
+      } else {
+        gap += 1
+      }
+    }
+    if (gap > 0) {
+      rankSpec += gap
+    }
+    rankSpecs.push(rankSpec)
+  }
+  return rankSpecs.join("/")
 }
 
 /**
