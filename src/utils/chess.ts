@@ -45,6 +45,65 @@ const REVERSE_SQUARES_MAP = (Object.keys(SQUARES_MAP) as Square[]).reduce(
   {} as Record<number, Square>
 )
 
+const FEN_PIECE_TYPE_MAP: { [key: string]: PieceType } = {
+  p: "pawn",
+  n: "knight",
+  b: "bishop",
+  r: "rook",
+  q: "queen",
+  k: "king",
+}
+
+/**
+ * Parse a FEN string and return an object that maps squares to pieces.
+ *
+ * Note that only the first part of the FEN string (piece placement) is
+ * parsed; any additional components are ignored.
+ *
+ * @param fen the FEN string
+ * @returns an object where key is of type Square (string) and value is
+ *          of type Piece
+ */
+export function getPosition(
+  fen: string
+): Partial<Record<Square, Piece>> | undefined {
+  const parts = fen.split(" ")
+  const [piecePlacement] = parts
+
+  const ranks = piecePlacement.split("/")
+  if (ranks.length !== 8) {
+    return undefined
+  }
+
+  const pieces: Partial<Record<Square, Piece>> = {}
+  for (let i = 0; i < 8; i++) {
+    const rank = 8 - i
+    let fileOffset = 0
+    for (let j = 0; j < ranks[i].length; j++) {
+      if (fileOffset > 7) {
+        return undefined
+      }
+      const pieceLetter = ranks[i][j].toLowerCase()
+      if (pieceLetter in FEN_PIECE_TYPE_MAP) {
+        const square = (String.fromCharCode(97 + fileOffset) + rank) as Square
+        pieces[square] = {
+          pieceType: FEN_PIECE_TYPE_MAP[pieceLetter],
+          color: pieceLetter === ranks[i][j] ? "black" : "white",
+        }
+        fileOffset += 1
+      } else {
+        const emptySpaces = parseInt(ranks[i][j])
+        if (isNaN(emptySpaces) || emptySpaces === 0 || emptySpaces > 8) {
+          return undefined
+        } else {
+          fileOffset += emptySpaces
+        }
+      }
+    }
+  }
+  return pieces
+}
+
 /**
  * Return square identifier for visual index in a grid, depending on
  * orientation. If `orientation` is "white", then a8 is on the top

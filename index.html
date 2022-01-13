@@ -6,7 +6,7 @@
     <title>ChessxBoard Demo</title>
     <script type="module">
       window.addEventListener("DOMContentLoaded", () => {
-        const board = document.querySelector("#board")
+        const board = document.getElementById("board")
         board.pieces = {
           a1: { color: "white", pieceType: "rook" },
           b1: { color: "white", pieceType: "knight" },
@@ -41,7 +41,7 @@
           g7: { color: "black", pieceType: "pawn" },
           h7: { color: "black", pieceType: "pawn" },
         }
-        document.querySelector("#btn-flip").addEventListener("click", () => {
+        document.getElementById("btn-flip").addEventListener("click", () => {
           board.orientation = board.orientation === "white" ? "black" : "white"
         })
       })

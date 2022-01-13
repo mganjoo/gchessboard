@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test"
 import {
+  getPosition,
   getSquare,
   getSquareColor,
   getVisualIndex,
@@ -44,5 +45,90 @@ test.describe("chess utilities", () => {
     expect(getSquareColor("e7")).toBe("dark")
     expect(getSquareColor("h1")).toBe("light")
     expect(getSquareColor("f4")).toBe("dark")
+  })
+
+  test.only("getPosition()", () => {
+    expect(getPosition("8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8 w - - 1 2")).toEqual({
+      a2: { pieceType: "rook", color: "white" },
+      g2: { pieceType: "king", color: "white" },
+      e3: { pieceType: "rook", color: "black" },
+      f3: { pieceType: "pawn", color: "white" },
+      g3: { pieceType: "pawn", color: "white" },
+      c4: { pieceType: "pawn", color: "white" },
+      h4: { pieceType: "pawn", color: "white" },
+      c5: { pieceType: "bishop", color: "black" },
+      f5: { pieceType: "king", color: "black" },
+      f7: { pieceType: "pawn", color: "black" },
+    })
+  })
+
+  expect(
+    getPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  ).toEqual({
+    a1: { color: "white", pieceType: "rook" },
+    b1: { color: "white", pieceType: "knight" },
+    c1: { color: "white", pieceType: "bishop" },
+    d1: { color: "white", pieceType: "queen" },
+    e1: { color: "white", pieceType: "king" },
+    f1: { color: "white", pieceType: "bishop" },
+    g1: { color: "white", pieceType: "knight" },
+    h1: { color: "white", pieceType: "rook" },
+    a2: { color: "white", pieceType: "pawn" },
+    b2: { color: "white", pieceType: "pawn" },
+    c2: { color: "white", pieceType: "pawn" },
+    d2: { color: "white", pieceType: "pawn" },
+    e2: { color: "white", pieceType: "pawn" },
+    f2: { color: "white", pieceType: "pawn" },
+    g2: { color: "white", pieceType: "pawn" },
+    h2: { color: "white", pieceType: "pawn" },
+    a8: { color: "black", pieceType: "rook" },
+    b8: { color: "black", pieceType: "knight" },
+    c8: { color: "black", pieceType: "bishop" },
+    d8: { color: "black", pieceType: "queen" },
+    e8: { color: "black", pieceType: "king" },
+    f8: { color: "black", pieceType: "bishop" },
+    g8: { color: "black", pieceType: "knight" },
+    h8: { color: "black", pieceType: "rook" },
+    a7: { color: "black", pieceType: "pawn" },
+    b7: { color: "black", pieceType: "pawn" },
+    c7: { color: "black", pieceType: "pawn" },
+    d7: { color: "black", pieceType: "pawn" },
+    e7: { color: "black", pieceType: "pawn" },
+    f7: { color: "black", pieceType: "pawn" },
+    g7: { color: "black", pieceType: "pawn" },
+    h7: { color: "black", pieceType: "pawn" },
+  })
+
+  expect(
+    getPosition("r3r1k1/1bqn1p1p/ppnpp1p1/6P1/P2NPP2/2N4R/1PP2QBP/5R1K")
+  ).toEqual({
+    f1: { color: "white", pieceType: "rook" },
+    h1: { color: "white", pieceType: "king" },
+    b2: { color: "white", pieceType: "pawn" },
+    c2: { color: "white", pieceType: "pawn" },
+    f2: { color: "white", pieceType: "queen" },
+    g2: { color: "white", pieceType: "bishop" },
+    h2: { color: "white", pieceType: "pawn" },
+    c3: { color: "white", pieceType: "knight" },
+    h3: { color: "white", pieceType: "rook" },
+    a4: { color: "white", pieceType: "pawn" },
+    d4: { color: "white", pieceType: "knight" },
+    e4: { color: "white", pieceType: "pawn" },
+    f4: { color: "white", pieceType: "pawn" },
+    g5: { color: "white", pieceType: "pawn" },
+    a6: { color: "black", pieceType: "pawn" },
+    b6: { color: "black", pieceType: "pawn" },
+    c6: { color: "black", pieceType: "knight" },
+    d6: { color: "black", pieceType: "pawn" },
+    e6: { color: "black", pieceType: "pawn" },
+    g6: { color: "black", pieceType: "pawn" },
+    b7: { color: "black", pieceType: "bishop" },
+    c7: { color: "black", pieceType: "queen" },
+    d7: { color: "black", pieceType: "knight" },
+    f7: { color: "black", pieceType: "pawn" },
+    h7: { color: "black", pieceType: "pawn" },
+    a8: { color: "black", pieceType: "rook" },
+    e8: { color: "black", pieceType: "rook" },
+    g8: { color: "black", pieceType: "king" },
   })
 })
