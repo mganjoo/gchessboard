@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChessxBoard Demo</title>
     <script>
-      function populatePieces() {
+      window.addEventListener("DOMContentLoaded", () => {
         const board = document.querySelector("#board")
         board.pieces = {
           a1: { color: "white", pieceType: "rook" },
@@ -41,17 +41,36 @@
           g7: { color: "black", pieceType: "pawn" },
           h7: { color: "black", pieceType: "pawn" },
         }
-      }
+        document.querySelector("#btn-flip").addEventListener("click", () => {
+          board.orientation = board.orientation === "white" ? "black" : "white"
+        })
+      })
     </script>
   </head>
-  <body onload="populatePieces()">
-    <style>
-      #board {
-        display: inline-block;
-        max-width: 28rem;
-      }
-    </style>
-    <chessx-board id="board" orientation="white" interactive></chessx-board>
+  <body>
+    <main
+      class="flex flex-col items-center gap-y-4 bg-gray-100 min-h-screen py-8 font-sans font-semibold"
+    >
+      <h1 class="text-2xl">
+        <code class="font-mono">&lt;chessx-board&gt;</code>
+        demo
+      </h1>
+      <chessx-board
+        id="board"
+        class="max-w-md"
+        orientation="white"
+        interactive
+      ></chessx-board>
+      <div>
+        <button
+          id="btn-flip"
+          class="bg-green-800 text-gray-100 text-sm px-3 py-2 rounded-md hover:bg-green-700 active:bg-green-600"
+        >
+          Flip
+        </button>
+      </div>
+    </main>
     <script type="module" src="/src/index.ts"></script>
+    <script type="module" src="/src/demo.ts"></script>
   </body>
 </html>

@@ -6,6 +6,12 @@
       {
         "message": "Expected class selector to be kebab-case"
       }
+    ],
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["tailwind", "apply"]
+      }
     ]
   }
 }
