@@ -12,8 +12,8 @@ test.beforeEach(async ({ page }) => {
 
 test("keyboard-based moves work correctly", async ({ page }) => {
   // tab into chessboard - a1 is focused by default
-  await page.click("body")
-  await page.keyboard.press("Tab")
+  await page.focus("text=Flip")
+  await page.keyboard.press("Shift+Tab")
 
   // navigate to c2 and start move
   await page.keyboard.press("ArrowRight")
@@ -39,8 +39,8 @@ test("keyboard-based moves work correctly", async ({ page }) => {
 
 test("focus remains on destination square after move", async ({ page }) => {
   // tab into chessboard
-  await page.click("body")
-  await page.keyboard.press("Tab")
+  await page.focus("text=Flip")
+  await page.keyboard.press("Shift+Tab")
 
   // navigate to b2 and start move
   await page.keyboard.press("ArrowRight")
@@ -64,8 +64,8 @@ test("pressing enter on an unoccupied square does not start move", async ({
   page,
 }) => {
   // tab into chessboard
-  await page.click("body")
-  await page.keyboard.press("Tab")
+  await page.focus("text=Flip")
+  await page.keyboard.press("Shift+Tab")
 
   // navigate to a3 and attempt to start move
   await page.keyboard.press("ArrowUp")
@@ -78,8 +78,8 @@ test("pressing enter on an unoccupied square does not start move", async ({
 
 test("click move overrides keyboard-based move", async ({ page }) => {
   // tab into chessboard
-  await page.click("body")
-  await page.keyboard.press("Tab")
+  await page.focus("text=Flip")
+  await page.keyboard.press("Shift+Tab")
 
   // navigate to c3 and start move
   await page.keyboard.press("ArrowRight")

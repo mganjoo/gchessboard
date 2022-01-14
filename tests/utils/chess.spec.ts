@@ -133,7 +133,7 @@ test.describe("chess utilities", () => {
     })
   })
 
-  test.only("getFen()", () => {
+  test("getFen()", () => {
     expect(
       getFen({
         a2: { pieceType: "rook", color: "white" },

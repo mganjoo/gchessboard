@@ -18,6 +18,7 @@ export const PIECE_TYPES = [
 export type SquareColor = typeof SQUARE_COLORS[number]
 export type Side = typeof SIDE_COLORS[number]
 export type PieceType = typeof PIECE_TYPES[number]
+export type Position = Partial<Record<Square, Piece>>
 
 export interface Piece {
   pieceType: PieceType
@@ -70,9 +71,7 @@ const REVERSE_FEN_PIECE_TYPE_MAP: Record<PieceType, string> = Object.keys(
  * @returns an object where key is of type Square (string) and value is
  *          of type Piece
  */
-export function getPosition(
-  fen: string
-): Partial<Record<Square, Piece>> | undefined {
+export function getPosition(fen: string): Position | undefined {
   const parts = fen.split(" ")
   const [piecePlacement] = parts
 
@@ -81,7 +80,7 @@ export function getPosition(
     return undefined
   }
 
-  const position: Partial<Record<Square, Piece>> = {}
+  const position: Position = {}
   for (let i = 0; i < 8; i++) {
     const rank = 8 - i
     let fileOffset = 0
@@ -110,7 +109,11 @@ export function getPosition(
   return position
 }
 
-export function getFen(position: Partial<Record<Square, Piece>>): string {
+/**
+ * Get FEN string corresponding to Position object. Note that this only returns
+ * the first (piece placement) component of the FEN string.
+ */
+export function getFen(position: Position): string {
   const rankSpecs = []
   for (let i = 0; i < 8; i++) {
     let rankSpec = ""
@@ -205,8 +208,14 @@ export function keyIsSquare(key: string | undefined): key is Square {
 /**
  * Deep equality check for two Piece objects.
  */
-export function pieceEqual(a: Piece, b: Piece) {
-  return a.color === b.color && a.pieceType === b.pieceType
+export function pieceEqual(a: Piece | undefined, b: Piece | undefined) {
+  return (
+    (a === undefined && b === undefined) ||
+    (a !== undefined &&
+      b !== undefined &&
+      a.color === b.color &&
+      a.pieceType === b.pieceType)
+  )
 }
 
 /**
@@ -214,4 +223,13 @@ export function pieceEqual(a: Piece, b: Piece) {
  */
 export function isSide(s: string | null): s is Side {
   return SIDE_COLORS.includes(s as Side)
+}
+
+/**
+ * Deep equality check for Position objects.
+ */
+export function positionsEqual(a: Position, b: Position) {
+  return Object.keys(SQUARES_MAP).every((square) =>
+    pieceEqual(a[square as Square], b[square as Square])
+  )
 }

@@ -1,4 +1,4 @@
-import { isSide, Piece, Side, Square } from "./utils/chess"
+import { isSide, Position, Side } from "./utils/chess"
 import { makeHTMLElement } from "./utils/dom"
 import { Grid } from "./components/Grid"
 import { InteractionEventHandler } from "./InteractionEventHandler"
@@ -8,7 +8,7 @@ import { assertUnreachable } from "./utils/typing"
 export class ChessxBoard extends HTMLElement {
   private _orientation: Side = "white"
   private _interactive = false
-  private _pieces: Partial<Record<Square, Piece>> = {}
+  private _position: Position = {}
 
   static readonly observedAttributes = ["orientation", "interactive"] as const
 
@@ -96,13 +96,13 @@ export class ChessxBoard extends HTMLElement {
    * Map representing the board position, where keys are square labels, and
    * values are `Piece` objects.
    */
-  get pieces() {
-    return this._pieces
+  get position() {
+    return this._position
   }
 
-  set pieces(value: Partial<Record<Square, Piece>>) {
-    this._pieces = value
-    this._grid.pieces = value
+  set position(value: Position) {
+    this._position = value
+    this._grid.position = value
   }
 }
 

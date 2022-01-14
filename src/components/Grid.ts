@@ -1,4 +1,10 @@
-import { getSquare, getVisualIndex, Piece, Side, Square } from "../utils/chess"
+import {
+  getSquare,
+  getVisualIndex,
+  Position,
+  Side,
+  Square,
+} from "../utils/chess"
 import { makeHTMLElement } from "../utils/dom"
 import { BoardSquare } from "./BoardSquare"
 
@@ -16,7 +22,7 @@ export interface GridConfig {
    * Map of square -> piece to initialize with. Since the Grid object manages
    * the pieces layer as well, all pieces management occurs via `GridConfig`.
    */
-  pieces?: Partial<Record<Square, Piece>>
+  position?: Position
 }
 
 export class Grid {
@@ -24,7 +30,7 @@ export class Grid {
   private readonly _boardSquares: BoardSquare[]
   private _orientation: Side
   private _interactive: boolean
-  private _pieces: Partial<Record<Square, Piece>>
+  private _position: Position
   private _tabbableSquare: Square | undefined
   private _currentMove?: {
     square: Square
@@ -39,7 +45,7 @@ export class Grid {
     this._boardSquares = new Array(64)
     this._orientation = config.orientation
     this._interactive = config.interactive || false
-    this._pieces = { ...config.pieces }
+    this._position = { ...config.position }
 
     this._grid = makeHTMLElement("table", {
       attributes: { role: "grid" },
@@ -88,12 +94,12 @@ export class Grid {
     this._updateSquareProps()
   }
 
-  get pieces() {
-    return this._pieces
+  get position() {
+    return this._position
   }
 
-  set pieces(value: Partial<Record<Square, Piece>>) {
-    this._pieces = { ...value }
+  set position(value: Position) {
+    this._position = { ...value }
     this._updateSquareProps()
   }
 
@@ -162,12 +168,12 @@ export class Grid {
    * Move a piece (if it exists) from `from` to `to`.
    */
   movePiece(from: Square, to: Square) {
-    const piece = this._pieces[from]
+    const piece = this._position[from]
     if (piece && to !== from) {
       this._getBoardSquare(from).updateConfig({ piece: undefined })
-      this._getBoardSquare(to).updateConfig({ piece: this._pieces[from] })
-      this._pieces[to] = this._pieces[from]
-      delete this._pieces[from]
+      this._getBoardSquare(to).updateConfig({ piece: this._position[from] })
+      this._position[to] = this._position[from]
+      delete this._position[from]
       this.tabbableSquare = to
       this.currentMove = undefined
       return true
@@ -187,7 +193,7 @@ export class Grid {
    * Returns true if there is a piece on `square`.
    */
   pieceOn(square: Square): boolean {
-    return !!this._pieces[square]
+    return !!this._position[square]
   }
 
   /**
@@ -205,7 +211,7 @@ export class Grid {
         label: square,
         interactive,
         tabbable: tabbableSquare === square,
-        piece: this._pieces[square],
+        piece: this._position[square],
         rankLabelShown: col === 0,
         fileLabelShown: row === 7,
       })
@@ -228,7 +234,7 @@ export class Grid {
     for (let row = 7; row >= 0; row--) {
       for (let col = 0; col <= 7; col++) {
         const square = getSquare(8 * row + col, this.orientation)
-        if (square in this._pieces) {
+        if (square in this._position) {
           return square
         }
       }
