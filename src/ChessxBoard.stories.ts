@@ -1,11 +1,11 @@
 import { Meta, Story } from "@storybook/html"
-import { Piece, SIDE_COLORS, Square } from "./utils/chess"
+import { Position, SIDE_COLORS } from "./utils/chess"
 import { makeHTMLElement } from "./utils/dom"
 
 interface ChessxBoardProps {
   orientation: string
   interactive: boolean
-  pieces: Partial<Record<Square, Piece>>
+  position: Position
 }
 
 export default {
@@ -33,7 +33,7 @@ const Template: Story<ChessxBoardProps> = (config) => {
       interactive: config.interactive.toString(),
     },
   })
-  board.pieces = config.pieces
+  board.position = config.position
   div.appendChild(board)
   return div
 }
@@ -41,7 +41,7 @@ const Template: Story<ChessxBoardProps> = (config) => {
 export const Default = Template.bind({})
 Default.args = {
   orientation: "white",
-  pieces: {
+  position: {
     a1: { color: "white", pieceType: "rook" },
     b1: { color: "white", pieceType: "knight" },
     c1: { color: "white", pieceType: "bishop" },

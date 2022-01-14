@@ -136,7 +136,7 @@ export class BoardSquare {
 
   private _placePieces() {
     // Primary piece
-    if (!this._isSamePiece(this._boardPiece, this._config.piece)) {
+    if (!pieceEqual(this._boardPiece?.piece, this._config.piece)) {
       if (this._boardPiece !== undefined) {
         this._boardPiece.remove()
       }
@@ -166,7 +166,7 @@ export class BoardSquare {
 
     // Secondary piece
     if (
-      !this._isSamePiece(this._secondaryBoardPiece, this._config.secondaryPiece)
+      !pieceEqual(this._secondaryBoardPiece?.piece, this._config.secondaryPiece)
     ) {
       if (this._secondaryBoardPiece !== undefined) {
         this._secondaryBoardPiece.remove()
@@ -178,19 +178,6 @@ export class BoardSquare {
               secondary: true,
             })
           : undefined
-    }
-  }
-
-  private _isSamePiece(
-    boardPiece: BoardPiece | undefined,
-    piece: Piece | undefined
-  ) {
-    if (boardPiece === undefined && piece === undefined) {
-      return true
-    } else if (boardPiece === undefined || piece === undefined) {
-      return false
-    } else {
-      return pieceEqual(boardPiece.piece, piece)
     }
   }
 }

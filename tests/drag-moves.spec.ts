@@ -23,7 +23,7 @@ test("drag-based moves work correctly", async ({ page }) => {
 // If we click on a square, then mousedown (but not mouseup), then we should
 // still permit a drag operation to be completed instead of canceling move
 // which is the regular behavior.
-test.only("drag is completed even after previous click on square", async ({
+test("drag is completed even after previous click on square", async ({
   page,
 }) => {
   // click on first square once

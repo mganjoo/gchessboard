@@ -72,8 +72,8 @@ test("second square is focused after clicking on it", async ({ page }) => {
   await expect(page.locator("body")).toBeFocused()
 
   // second square should receive focus after we tab back into board
-  await page.click("body")
-  await page.keyboard.press("Tab")
+  await page.focus("text=Flip")
+  await page.keyboard.press("Shift+Tab")
 
   // move piece up a square
   await page.keyboard.press("Enter")
