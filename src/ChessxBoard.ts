@@ -12,6 +12,7 @@ export class ChessxBoard extends HTMLElement {
     "orientation",
     "interactive",
     "fen",
+    "hide-coords",
   ] as const
 
   // Private contained elements
@@ -31,6 +32,7 @@ export class ChessxBoard extends HTMLElement {
     this._grid = new Grid(this._group, {
       orientation: "white",
       interactive: false,
+      hideCoords: false,
     })
     this._eventsHandler = new InteractionEventHandler(this._group, this._grid, {
       enabled: false,
@@ -55,14 +57,20 @@ export class ChessxBoard extends HTMLElement {
     switch (name) {
       case "interactive":
         {
-          const interactive = newValue === null ? false : true
+          const interactive = this._parseBooleanAttribute(newValue)
           this._grid.interactive = interactive
           this._eventsHandler.enabled = interactive
         }
         break
+      case "hide-coords":
+        {
+          const hideCoords = this._parseBooleanAttribute(newValue)
+          this._grid.hideCoords = hideCoords
+        }
+        break
       case "orientation":
         {
-          const orientation = this._parseSide(newValue)
+          const orientation = this._parseSideAttribute(newValue)
           this._grid.orientation = orientation
         }
         break
@@ -83,7 +91,7 @@ export class ChessxBoard extends HTMLElement {
    * the bottom as viewed on the screen).
    */
   get orientation(): Side {
-    return this._parseSide(this.getAttribute("orientation"))
+    return this._parseSideAttribute(this.getAttribute("orientation"))
   }
 
   set orientation(value: Side) {
@@ -99,11 +107,7 @@ export class ChessxBoard extends HTMLElement {
   }
 
   set interactive(interactive: boolean) {
-    if (interactive) {
-      this.setAttribute("interactive", "")
-    } else {
-      this.removeAttribute("interactive")
-    }
+    this._setBooleanAttribute("interactive", interactive)
   }
 
   /**
@@ -138,8 +142,31 @@ export class ChessxBoard extends HTMLElement {
     }
   }
 
-  private _parseSide(value: string | null): Side {
+  /**
+   * Whether to hide coordinate labels for the board.
+   */
+  get hideCoords() {
+    return this.hasAttribute("hide-coords")
+  }
+
+  set hideCoords(value: boolean) {
+    this._setBooleanAttribute("hide-coords", value)
+  }
+
+  private _parseSideAttribute(value: string | null): Side {
     return isSide(value) ? value : "white"
+  }
+
+  private _parseBooleanAttribute(value: string | null): boolean {
+    return value === null ? false : true
+  }
+
+  private _setBooleanAttribute(name: string, value: boolean) {
+    if (value) {
+      this.setAttribute(name, "")
+    } else {
+      this.removeAttribute(name)
+    }
   }
 }
 

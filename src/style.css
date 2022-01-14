@@ -31,14 +31,14 @@
 
 .chessboard--rank-label {
   position: absolute;
-  top: 3%;
+  top: 1%;
   left: 4%;
   pointer-events: none;
 }
 
 .chessboard--file-label {
   position: absolute;
-  bottom: 3%;
+  bottom: 0%;
   right: 4%;
   pointer-events: none;
 }

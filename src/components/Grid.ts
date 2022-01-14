@@ -24,6 +24,10 @@ export interface GridConfig {
    * the pieces layer as well, all pieces management occurs via `GridConfig`.
    */
   position?: Position
+  /**
+   * Whether to hide coordinate labels for the board.
+   */
+  hideCoords: boolean
 }
 
 export class Grid {
@@ -31,6 +35,7 @@ export class Grid {
   private readonly _boardSquares: BoardSquare[]
   private _orientation: Side
   private _interactive: boolean
+  private _hideCoords: boolean
   private _position: Position
   private _tabbableSquare: Square | undefined
   private _currentMove?: {
@@ -46,6 +51,7 @@ export class Grid {
     this._boardSquares = new Array(64)
     this._orientation = config.orientation
     this._interactive = config.interactive || false
+    this._hideCoords = config.hideCoords || false
     this._position = { ...config.position }
 
     this._grid = makeHTMLElement("table", {
@@ -104,6 +110,15 @@ export class Grid {
       this._position = { ...value }
       this._updateSquareProps()
     }
+  }
+
+  get hideCoords() {
+    return this._hideCoords
+  }
+
+  set hideCoords(value: boolean) {
+    this._hideCoords = value
+    this._updateSquareProps()
   }
 
   /**
@@ -206,6 +221,7 @@ export class Grid {
   private _updateSquareProps() {
     const tabbableSquare = this.tabbableSquare
     const interactive = this.interactive
+    const hideCoords = this.hideCoords
     for (let i = 0; i < 64; i++) {
       const square = getSquare(i, this.orientation)
       const row = i >> 3
@@ -215,8 +231,8 @@ export class Grid {
         interactive,
         tabbable: tabbableSquare === square,
         piece: this._position[square],
-        rankLabelShown: col === 0,
-        fileLabelShown: row === 7,
+        rankLabelShown: !hideCoords && col === 0,
+        fileLabelShown: !hideCoords && row === 7,
       })
     }
   }
