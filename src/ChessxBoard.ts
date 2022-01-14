@@ -6,8 +6,6 @@ import importedStyles from "./style.css?inline"
 import { assertUnreachable } from "./utils/typing"
 
 export class ChessxBoard extends HTMLElement {
-  private _orientation: Side = "white"
-  private _interactive = false
   private _position: Position = {}
 
   static readonly observedAttributes = [
@@ -31,8 +29,8 @@ export class ChessxBoard extends HTMLElement {
       classes: ["chessboard"],
     })
     this._grid = new Grid(this._group, {
-      orientation: this._orientation,
-      interactive: this._interactive,
+      orientation: "white",
+      interactive: false,
     })
     this._eventsHandler = new InteractionEventHandler(this._group, this._grid, {
       enabled: false,
@@ -56,10 +54,17 @@ export class ChessxBoard extends HTMLElement {
   ) {
     switch (name) {
       case "interactive":
-        this.interactive = newValue === null ? false : true
+        {
+          const interactive = newValue === null ? false : true
+          this._grid.interactive = interactive
+          this._eventsHandler.enabled = interactive
+        }
         break
       case "orientation":
-        this.orientation = isSide(newValue) ? newValue : "white"
+        {
+          const orientation = this._parseSide(newValue)
+          this._grid.orientation = orientation
+        }
         break
       case "fen":
         if (newValue !== null) {
@@ -78,12 +83,11 @@ export class ChessxBoard extends HTMLElement {
    * the bottom as viewed on the screen).
    */
   get orientation(): Side {
-    return this._orientation
+    return this._parseSide(this.getAttribute("orientation"))
   }
 
   set orientation(value: Side) {
-    this._orientation = value
-    this._grid.orientation = value
+    this.setAttribute("orientation", value)
   }
 
   /**
@@ -91,28 +95,36 @@ export class ChessxBoard extends HTMLElement {
    * like ARIA labels and roles.
    */
   get interactive() {
-    return this._interactive
+    return this.hasAttribute("interactive")
   }
 
   set interactive(interactive: boolean) {
-    this._interactive = interactive
-    this._grid.interactive = interactive
-    this._eventsHandler.enabled = interactive
+    if (interactive) {
+      this.setAttribute("interactive", "")
+    } else {
+      this.removeAttribute("interactive")
+    }
   }
 
   /**
    * Map representing the board position, where keys are square labels, and
-   * values are `Piece` objects.
+   * values are `Piece` objects. Note that changes to position do not reflect
+   * onto the "fen" attribute of the element.
    */
   get position() {
     return this._position
   }
 
   set position(value: Position) {
-    this._position = value
-    this._grid.position = value
+    this._position = { ...value }
+    this._grid.position = this._position
   }
 
+  /**
+   * FEN string representing the board position. Note that changes to this property
+   * change the board `position` property, but do not reflect onto the "fen" attribute
+   * of the element.
+   */
   get fen() {
     return getFen(this._position)
   }
@@ -124,6 +136,10 @@ export class ChessxBoard extends HTMLElement {
     } else {
       throw new Error(`Invalid FEN position: ${value}`)
     }
+  }
+
+  private _parseSide(value: string | null): Side {
+    return isSide(value) ? value : "white"
   }
 }
 
