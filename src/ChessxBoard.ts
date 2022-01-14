@@ -1,4 +1,4 @@
-import { isSide, Position, Side } from "./utils/chess"
+import { isSide, getFen, getPosition, Position, Side } from "./utils/chess"
 import { makeHTMLElement } from "./utils/dom"
 import { Grid } from "./components/Grid"
 import { InteractionEventHandler } from "./InteractionEventHandler"
@@ -10,7 +10,11 @@ export class ChessxBoard extends HTMLElement {
   private _interactive = false
   private _position: Position = {}
 
-  static readonly observedAttributes = ["orientation", "interactive"] as const
+  static readonly observedAttributes = [
+    "orientation",
+    "interactive",
+    "fen",
+  ] as const
 
   // Private contained elements
   private _shadow: ShadowRoot
@@ -52,12 +56,16 @@ export class ChessxBoard extends HTMLElement {
   ) {
     switch (name) {
       case "interactive":
-        this.interactive =
-          newValue === null || newValue.toLowerCase() === "false" ? false : true
+        this.interactive = newValue === null ? false : true
         break
       case "orientation":
-        if (isSide(newValue)) {
-          this.orientation = newValue
+        this.orientation = isSide(newValue) ? newValue : "white"
+        break
+      case "fen":
+        if (newValue !== null) {
+          this.fen = newValue
+        } else {
+          this.position = {}
         }
         break
       default:
@@ -103,6 +111,19 @@ export class ChessxBoard extends HTMLElement {
   set position(value: Position) {
     this._position = value
     this._grid.position = value
+  }
+
+  get fen() {
+    return getFen(this._position)
+  }
+
+  set fen(value: string) {
+    const position = getPosition(value)
+    if (position !== undefined) {
+      this.position = position
+    } else {
+      throw new Error(`Invalid FEN position: ${value}`)
+    }
   }
 }
 

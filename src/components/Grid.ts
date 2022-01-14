@@ -1,6 +1,7 @@
 import {
   getSquare,
   getVisualIndex,
+  positionsEqual,
   Position,
   Side,
   Square,
@@ -99,8 +100,10 @@ export class Grid {
   }
 
   set position(value: Position) {
-    this._position = { ...value }
-    this._updateSquareProps()
+    if (!positionsEqual(this._position, value)) {
+      this._position = { ...value }
+      this._updateSquareProps()
+    }
   }
 
   /**

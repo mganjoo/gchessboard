@@ -7,6 +7,12 @@
   --move-start-light-square-color: #fadd4c;
   --move-start-dark-square-color: #10b756;
   --kb-move-outline-color: rgba(16 60 35 / 95%);
+
+  display: inline-block;
+}
+
+:host([hidden]) {
+  display: none;
 }
 
 .chessboard {

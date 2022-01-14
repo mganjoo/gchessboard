@@ -73,9 +73,7 @@ const REVERSE_FEN_PIECE_TYPE_MAP: Record<PieceType, string> = Object.keys(
  */
 export function getPosition(fen: string): Position | undefined {
   const parts = fen.split(" ")
-  const [piecePlacement] = parts
-
-  const ranks = piecePlacement.split("/")
+  const ranks = parts[0].split("/")
   if (ranks.length !== 8) {
     return undefined
   }
@@ -85,9 +83,6 @@ export function getPosition(fen: string): Position | undefined {
     const rank = 8 - i
     let fileOffset = 0
     for (let j = 0; j < ranks[i].length; j++) {
-      if (fileOffset > 7) {
-        return undefined
-      }
       const pieceLetter = ranks[i][j].toLowerCase()
       if (pieceLetter in FEN_PIECE_TYPE_MAP) {
         const square = (String.fromCharCode(97 + fileOffset) + rank) as Square
@@ -104,6 +99,9 @@ export function getPosition(fen: string): Position | undefined {
           fileOffset += emptySpaces
         }
       }
+    }
+    if (fileOffset !== 8) {
+      return undefined
     }
   }
   return position
@@ -159,7 +157,7 @@ export function getFen(position: Position): string {
  */
 export function getSquare(visualIndex: number, orientation: Side) {
   const idx = visualIndex + (visualIndex & ~0x7)
-  return REVERSE_SQUARES_MAP[orientation === "white" ? idx : 0x77 - idx]
+  return REVERSE_SQUARES_MAP[orientation === "black" ? 0x77 - idx : idx]
 }
 
 /**
@@ -185,7 +183,7 @@ export function getSquare(visualIndex: number, orientation: Side) {
  */
 export function getVisualIndex(square: Square, orientation: Side) {
   const idx = SQUARES_MAP[square]
-  const orientedIdx = orientation === "white" ? idx : 0x77 - idx
+  const orientedIdx = orientation === "black" ? 0x77 - idx : idx
   return (orientedIdx + (orientedIdx & 0x7)) >> 1
 }
 
