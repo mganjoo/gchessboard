@@ -151,55 +151,68 @@ export class Grid {
   }
 
   /**
-   * Information related to ongoing move (if it exists) for grid.
+   * Sets information related to ongoing move (if it exists) for grid.
    * This includes the square that started an ongoing move, as well as
    * an optional position of the piece on the screen (e.g. if it is
    * being dragged).
    */
-  get currentMove() {
-    return this._currentMove
-  }
-
-  set currentMove(
-    value:
-      | { square: Square; piecePositionPx?: { x: number; y: number } }
-      | undefined
-  ) {
-    if (this._currentMove !== undefined) {
-      if (value === undefined || value.square !== this._currentMove.square) {
-        this._getBoardSquare(this._currentMove.square).updateConfig({
-          moveStart: false,
-          explicitPosition: undefined,
-        })
-      }
-    }
-    if (value !== undefined) {
-      this._getBoardSquare(value.square).updateConfig({
-        moveStart: true,
-        explicitPosition:
-          value.piecePositionPx !== undefined
-            ? { type: "coordinates", ...value.piecePositionPx }
-            : undefined,
+  setCurrentMove(value: {
+    square: Square
+    piecePositionPx?: { x: number; y: number }
+  }) {
+    if (
+      this._currentMove !== undefined &&
+      value.square !== this._currentMove.square
+    ) {
+      this._getBoardSquare(this._currentMove.square).updateConfig({
+        moveStart: false,
+        explicitPosition: undefined,
       })
     }
+    this._getBoardSquare(value.square).updateConfig({
+      moveStart: true,
+      explicitPosition:
+        value.piecePositionPx !== undefined
+          ? { type: "coordinates", ...value.piecePositionPx }
+          : undefined,
+    })
     this._currentMove = value
   }
 
   /**
-   * Move a piece (if it exists) from `from` to `to`.
+   * Cancels a move, with accompanied optional animation.
    */
-  movePiece(from: Square, to: Square) {
-    const piece = this._position[from]
-    if (piece && to !== from) {
+  cancelMove() {
+    if (this._currentMove !== undefined) {
+      this._getBoardSquare(this._currentMove.square).updateConfig({
+        moveStart: false,
+        explicitPosition: undefined,
+      })
+      this._currentMove = undefined
+    }
+  }
+
+  /**
+   * Move piece involved in current move (if one exists) to square `to`.
+   * If the initial square does not contain a piece or there is no current
+   * move in progress, this is a noop.
+   */
+  finishMove(to: Square) {
+    const from = this._currentMove?.square
+    if (from !== undefined && from in this._position && to !== from) {
       this._getBoardSquare(from).updateConfig({ piece: undefined })
       this._getBoardSquare(to).updateConfig({ piece: this._position[from] })
       this._position[to] = this._position[from]
       delete this._position[from]
       this.tabbableSquare = to
-      this.currentMove = undefined
-      return true
+      if (this._currentMove !== undefined) {
+        this._getBoardSquare(this._currentMove.square).updateConfig({
+          moveStart: false,
+          explicitPosition: undefined,
+        })
+      }
+      this._currentMove = undefined
     }
-    return false
   }
 
   focusSquare(square: Square) {

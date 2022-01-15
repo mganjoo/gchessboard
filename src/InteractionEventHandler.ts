@@ -30,6 +30,10 @@ type InteractionState =
       touchStartX: number
       touchStartY: number
     }
+  | {
+      id: "animating"
+      square: Square
+    }
 
 export interface InteractionEventHandlerConfig {
   /**
@@ -133,19 +137,18 @@ export class InteractionEventHandler {
     e.preventDefault()
     switch (this._interactionState.id) {
       case "awaiting-input":
-        if (clickedSquare) {
-          if (this._grid.pieceOn(clickedSquare)) {
-            // Blur any existing tabbable square if it exists. This cancels
-            // existing moves by default so must occur before we update to
-            // new state.
-            this._grid.blurSquare(this._grid.tabbableSquare)
-            this._updateInteractionState({
-              id: "touching-first-square",
-              startSquare: clickedSquare,
-              touchStartX: e.clientX,
-              touchStartY: e.clientY,
-            })
-          }
+      case "animating":
+        if (clickedSquare && this._grid.pieceOn(clickedSquare)) {
+          // Blur any existing tabbable square if it exists. This cancels
+          // existing moves by default so must occur before we update to
+          // new state.
+          this._grid.blurSquare(this._grid.tabbableSquare)
+          this._updateInteractionState({
+            id: "touching-first-square",
+            startSquare: clickedSquare,
+            touchStartX: e.clientX,
+            touchStartY: e.clientY,
+          })
         }
         break
       case "moving-piece-kb":
@@ -154,9 +157,8 @@ export class InteractionEventHandler {
           clickedSquare &&
           this._interactionState.startSquare !== clickedSquare
         ) {
-          const startSquare = this._interactionState.startSquare
           const tabbableSquare = this._grid.tabbableSquare
-          this._movePiece(startSquare, clickedSquare)
+          this._finishMove(clickedSquare)
           this._grid.blurSquare(tabbableSquare)
         } else if (this._interactionState.startSquare === clickedSquare) {
           // Second mousedown on the same square *may* be a cancel, but could
@@ -192,16 +194,15 @@ export class InteractionEventHandler {
           startSquare: this._interactionState.startSquare,
         })
         this._grid.tabbableSquare = this._interactionState.startSquare
-        this._grid.currentMove = {
+        this._grid.setCurrentMove({
           square: this._interactionState.startSquare,
-        }
+        })
         this._grid.focusSquare(this._interactionState.startSquare)
         break
       case "dragging":
         if (square && this._interactionState.startSquare !== square) {
-          const startSquare = this._interactionState.startSquare
           const tabbableSquare = this._grid.tabbableSquare
-          this._movePiece(startSquare, square)
+          this._finishMove(square)
           this._grid.blurSquare(tabbableSquare)
         } else {
           this._cancelMove()
@@ -216,6 +217,7 @@ export class InteractionEventHandler {
       case "awaiting-input":
       case "awaiting-second-touch":
       case "moving-piece-kb":
+      case "animating":
         // Noop: mouse up only matters when there is an active
         // touch interaction
         break
@@ -247,22 +249,23 @@ export class InteractionEventHandler {
             id: "dragging",
             startSquare: this._interactionState.startSquare,
           })
-          this._grid.currentMove = {
+          this._grid.setCurrentMove({
             square: this._interactionState.startSquare,
             piecePositionPx: { x: e.clientX, y: e.clientY },
-          }
+          })
           this._grid.tabbableSquare = this._interactionState.startSquare
         }
         break
       case "dragging":
-        this._grid.currentMove = {
+        this._grid.setCurrentMove({
           square: this._interactionState.startSquare,
           piecePositionPx: { x: e.clientX, y: e.clientY },
-        }
+        })
         break
       case "awaiting-input":
       case "awaiting-second-touch":
       case "moving-piece-kb":
+      case "animating":
         break
       // istanbul ignore next
       default:
@@ -291,6 +294,7 @@ export class InteractionEventHandler {
         }
         break
       case "awaiting-input":
+      case "animating": // TODO: should this be handled separately?
       case "dragging":
         // Noop: continue with drag operation even if focus was moved around
         break
@@ -308,13 +312,14 @@ export class InteractionEventHandler {
     if (e.key === "Enter") {
       switch (this._interactionState.id) {
         case "awaiting-input":
+        case "animating":
           // Ignore presses for squares that have no piece on them
           if (pressedSquare && this._grid.pieceOn(pressedSquare)) {
             this._updateInteractionState({
               id: "moving-piece-kb",
               startSquare: pressedSquare,
             })
-            this._grid.currentMove = { square: pressedSquare }
+            this._grid.setCurrentMove({ square: pressedSquare })
             this._grid.tabbableSquare = pressedSquare
           }
           break
@@ -326,7 +331,7 @@ export class InteractionEventHandler {
             pressedSquare &&
             this._interactionState.startSquare !== pressedSquare
           ) {
-            this._movePiece(this._interactionState.startSquare, pressedSquare)
+            this._finishMove(pressedSquare)
           } else {
             this._cancelMove()
           }
@@ -402,6 +407,7 @@ export class InteractionEventHandler {
         // still transition to one since we started keyboard navigation.
         switch (this._interactionState.id) {
           case "awaiting-input":
+          case "animating":
           case "moving-piece-kb":
             break
           case "awaiting-second-touch":
@@ -429,14 +435,14 @@ export class InteractionEventHandler {
     }
   }
 
-  private _movePiece(from: Square, to: Square) {
-    this._grid.movePiece(from, to)
+  private _finishMove(to: Square) {
+    this._grid.finishMove(to)
     this._updateInteractionState({ id: "awaiting-input" })
   }
 
   private _cancelMove() {
+    this._grid.cancelMove()
     this._updateInteractionState({ id: "awaiting-input" })
-    this._grid.currentMove = undefined
   }
 
   private _updateInteractionState(state: InteractionState) {
