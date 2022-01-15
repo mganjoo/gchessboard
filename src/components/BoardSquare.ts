@@ -1,4 +1,4 @@
-import { getSquareColor, Piece, pieceEqual, Square } from "../utils/chess"
+import { getSquareColor, Piece, Square } from "../utils/chess"
 import { makeHTMLElement } from "../utils/dom"
 import { BoardPiece } from "./BoardPiece"
 
@@ -18,41 +18,6 @@ export interface BoardSquareConfig {
    */
   tabbable?: boolean
   /**
-   * Whether this square should be marked as the starting square of an ongoing
-   * move.
-   */
-  moveStart?: boolean
-  /**
-   * Information about the primary piece associated with the square. This piece
-   * is rendered onto the square, and also determines label and class attributes
-   * of a square.
-   */
-  piece?: Piece
-  /**
-   * Explicit position for piece that is displaced from the center of a square.
-   * There are two options:
-   *
-   * - type = "coordinates": an explicit (x, y) pixel location for piece. This is
-   *   useful if piece is being dragged around or animating into the square from
-   *   outside the board.
-   *
-   * - type = "squareOffset": piece is located on a different square on the board,
-   *   `deltaRows` rows away and `deltaCols` columns. A positive value for `deltaRows`
-   *   means the initial position has a higher y-coordinate than the current square,
-   *   and a positive value for `deltaCols` means the initial position has a higher
-   *   x-coordinate.
-   */
-  explicitPosition?:
-    | { type: "coordinates"; x: number; y: number }
-    | { type: "squareOffset"; deltaRows: number; deltaCols: number }
-  /**
-   * Optionally, squares may have a secondary piece, such as a ghost piece shown
-   * while dragging, or a temporary state where a captured piece is animating out
-   * as a new piece is entering.The secondary piece is always shown *behind* the
-   * primary piece in the DOM.
-   */
-  secondaryPiece?: Piece
-  /**
    * Whether a rank label should be shown on the square ("1", "2" etc).
    */
   rankLabelShown?: boolean
@@ -61,6 +26,24 @@ export interface BoardSquareConfig {
    */
   fileLabelShown?: boolean
 }
+
+/**
+ * Explicit position for piece that is displaced from the center of a square.
+ * There are two options:
+ *
+ * - type = "coordinates": an explicit (x, y) pixel location for piece. This is
+ *   useful if piece is being dragged around or animating into the square from
+ *   outside the board.
+ *
+ * - type = "squareOffset": piece is located on a different square on the board,
+ *   `deltaRows` rows away and `deltaCols` columns. A positive value for `deltaRows`
+ *   means the initial position has a higher y-coordinate than the current square,
+ *   and a positive value for `deltaCols` means the initial position has a higher
+ *   x-coordinate.
+ */
+export type ExplicitPiecePosition =
+  | { type: "coordinates"; x: number; y: number }
+  | { type: "squareOffset"; deltaRows: number; deltaCols: number }
 
 /**
  * Visual representation of a chessboard square, along with attributes
@@ -74,6 +57,13 @@ export class BoardSquare {
   private _boardPiece?: BoardPiece
   private _secondaryBoardPiece?: BoardPiece
   private _config: BoardSquareConfig
+  private _explicitPosition?: ExplicitPiecePosition
+
+  /**
+   * Whether this square should be marked as the starting square of an ongoing
+   * move.
+   */
+  private _moveStart?: boolean
 
   constructor(container: HTMLElement, config: BoardSquareConfig) {
     this._config = { ...config }
@@ -118,10 +108,66 @@ export class BoardSquare {
   }
 
   /**
-   * Create a listener on the "transitionend" event that executes just once.
+   * Set primary piece associated with the square. This piece is rendered onto
+   * the square or at an explicit location `position`, and also
+   * determines class attributes of a square.
    */
-  addTransitionEndEventHandlerOnce(handler: (e: TransitionEvent) => void) {
-    this._element.addEventListener("transitionend", handler, { once: true })
+  setPiece(piece: Piece | undefined, position?: ExplicitPiecePosition) {
+    if (this._boardPiece !== undefined) {
+      // Unmount piece (which also cancels animations)
+      this._boardPiece.remove()
+    }
+    this._boardPiece =
+      piece !== undefined ? new BoardPiece(this._element, { piece }) : undefined
+    this._element.classList.toggle("has-piece", !!piece)
+
+    this._explicitPosition = piece !== undefined ? position : undefined
+    this._updatePieceLocation()
+
+    // Always treat a piece change as the end or cancellation of a move
+    this._moveStart = false
+    this._updateMoveStartVisuals()
+  }
+
+  /**
+   * Optionally, squares may have a secondary piece, such as a ghost piece shown
+   * while dragging, or a temporary state where a captured piece is animating out
+   * as a new piece is entering.The secondary piece is always shown *behind* the
+   * primary piece in the DOM.
+   */
+  setSecondaryPiece(piece: Piece | undefined) {
+    if (this._secondaryBoardPiece !== undefined) {
+      this._secondaryBoardPiece.remove()
+    }
+    this._secondaryBoardPiece =
+      piece !== undefined
+        ? new BoardPiece(this._element, { piece, secondary: true })
+        : undefined
+  }
+
+  startOrUpdateMove(piecePositionPx?: { x: number; y: number }) {
+    if (this._boardPiece !== undefined) {
+      this._moveStart = true
+      this._updateMoveStartVisuals()
+
+      this._explicitPosition =
+        piecePositionPx !== undefined
+          ? { type: "coordinates", ...piecePositionPx }
+          : undefined
+
+      this._updatePieceLocation()
+    }
+  }
+
+  /**
+   * Cancel ongoing move, if it exists. The method is declared as async
+   * for callers to perform side effects on animation end.
+   */
+  async cancelMove(animate?: boolean) {
+    this._moveStart = false
+    this._updateMoveStartVisuals()
+    this._explicitPosition = undefined
+    await this._boardPiece?.setOffset(undefined, animate)
   }
 
   private _updateSquareVisuals() {
@@ -137,74 +183,49 @@ export class BoardSquare {
       ? filePart
       : null
 
-    // Piece placement
-    this._placePieces()
-    this._element.classList.toggle("has-piece", !!this._config.piece)
-
     // Interactivity
     if (this._config.interactive) {
       this._element.setAttribute("role", "gridcell")
       this._element.tabIndex = this._config.tabbable ? 0 : -1
-      this._element.classList.toggle("move-start", !!this._config.moveStart)
     } else {
       this._element.removeAttribute("role")
       this._element.removeAttribute("tabindex")
+    }
+    this._updateMoveStartVisuals()
+  }
+
+  private _updateMoveStartVisuals() {
+    if (this._config.interactive) {
+      this._element.classList.toggle("move-start", !!this._moveStart)
+    } else {
       this._element.classList.remove("move-start")
     }
   }
 
-  private _placePieces() {
-    // Primary piece
-    if (!pieceEqual(this._boardPiece?.piece, this._config.piece)) {
-      if (this._boardPiece !== undefined) {
-        this._boardPiece.remove()
-      }
-      this._boardPiece =
-        this._config.piece !== undefined
-          ? new BoardPiece(this._element, { piece: this._config.piece })
-          : undefined
-    }
-
-    // Primary piece location
+  private _updatePieceLocation() {
     if (this._boardPiece !== undefined) {
-      if (this._config.explicitPosition !== undefined) {
+      if (this._explicitPosition !== undefined) {
         const squareDims = this._element.getBoundingClientRect()
         const leftOffset =
-          this._config.explicitPosition.type === "coordinates"
+          this._explicitPosition.type === "coordinates"
             ? `${
-                this._config.explicitPosition.x -
+                this._explicitPosition.x -
                 squareDims.left -
                 squareDims.width / 2
               }px`
-            : `${this._config.explicitPosition.deltaCols * 100}%`
+            : `${this._explicitPosition.deltaCols * 100}%`
         const topOffset =
-          this._config.explicitPosition.type === "coordinates"
+          this._explicitPosition.type === "coordinates"
             ? `${
-                this._config.explicitPosition.y -
+                this._explicitPosition.y -
                 squareDims.top -
                 squareDims.height / 2
               }px`
-            : `${this._config.explicitPosition.deltaRows * 100}%`
-        this._boardPiece.offset = { left: leftOffset, top: topOffset }
+            : `${this._explicitPosition.deltaRows * 100}%`
+        this._boardPiece.setOffset({ left: leftOffset, top: topOffset })
       } else {
-        this._boardPiece.offset = undefined
+        this._boardPiece.setOffset(undefined)
       }
-    }
-
-    // Secondary piece
-    if (
-      !pieceEqual(this._secondaryBoardPiece?.piece, this._config.secondaryPiece)
-    ) {
-      if (this._secondaryBoardPiece !== undefined) {
-        this._secondaryBoardPiece.remove()
-      }
-      this._secondaryBoardPiece =
-        this._config.secondaryPiece !== undefined
-          ? new BoardPiece(this._element, {
-              piece: this._config.secondaryPiece,
-              secondary: true,
-            })
-          : undefined
     }
   }
 }

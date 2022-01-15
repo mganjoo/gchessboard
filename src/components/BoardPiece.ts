@@ -28,7 +28,8 @@ export interface BoardPieceConfig {
 export class BoardPiece {
   readonly piece: Piece
   private readonly _element: SVGSVGElement
-  private _offset?: { left: string; top: string }
+  // Handler called when transition end or is canceled
+  private _transitionEndHandler?: (e: TransitionEvent) => void
 
   /**
    * Map of piece to sprite ID in "sprite.svg". The ID will be referenced
@@ -91,20 +92,31 @@ export class BoardPiece {
     container.appendChild(this._element)
   }
 
+  /**
+   * Remove element and cancel timeouts.
+   */
   remove() {
+    if (this._transitionEndHandler !== undefined) {
+      this._element.removeEventListener(
+        "transitionend",
+        this._transitionEndHandler
+      )
+      this._element.removeEventListener(
+        "transitioncancel",
+        this._transitionEndHandler
+      )
+    }
     removeElement(this._element)
   }
 
   /**
-   * Explicit offset for piece relative to default location in square. This is
-   * used to represent a piece mid-drag.
+   * Set explicit offset for piece relative to default location in square. If
+   * `transition` is true, then the change is accompanied with a transition.
    */
-  get offset() {
-    return this._offset
-  }
-
-  set offset(value: { left: string; top: string } | undefined) {
-    this._offset = value
+  async setOffset(
+    value: { left: string; top: string } | undefined,
+    transition?: boolean
+  ) {
     if (value === undefined) {
       this._element.style.removeProperty("left")
       this._element.style.removeProperty("top")
@@ -112,5 +124,36 @@ export class BoardPiece {
       this._element.style.left = value.left
       this._element.style.top = value.top
     }
+
+    if (transition) {
+      return new Promise<void>((resolve) => {
+        this._setTransitionEndListener(() => resolve())
+      })
+    }
+  }
+
+  private _setTransitionEndListener(handler: () => void) {
+    const wrappedHandler = () => {
+      this._transitionEndHandler = undefined
+      handler()
+    }
+
+    this._transitionEndHandler = wrappedHandler
+    this._element.addEventListener(
+      "transitionend",
+      () => {
+        console.log("transitionend", this.piece)
+        wrappedHandler()
+      },
+      { once: true }
+    )
+    this._element.addEventListener(
+      "transitioncancel",
+      () => {
+        console.log("transitioncancel", this.piece)
+        wrappedHandler()
+      },
+      { once: true }
+    )
   }
 }
