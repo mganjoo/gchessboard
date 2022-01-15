@@ -4,15 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChessxBoard Demo</title>
+    <script type="module" src="/src/demo.ts"></script>
+    <script type="module" src="/src/index.ts"></script>
     <script type="module">
       window.addEventListener("DOMContentLoaded", () => {
+        const board = document.getElementById("board")
         document.getElementById("btn-flip").addEventListener("click", () => {
           board.orientation = board.orientation === "black" ? "white" : "black"
         })
         document
           .getElementById("btn-position-start")
           .addEventListener("click", () => {
-            board.fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+            board.fen = "start"
           })
         document
           .getElementById("btn-position-puzzle")
@@ -39,7 +42,7 @@
         id="board"
         class="max-w-md"
         orientation="white"
-        fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+        fen="start"
         interactive
       ></chessx-board>
       <div>
@@ -69,7 +72,5 @@
         </button>
       </div>
     </main>
-    <script type="module" src="/src/index.ts"></script>
-    <script type="module" src="/src/demo.ts"></script>
   </body>
 </html>
