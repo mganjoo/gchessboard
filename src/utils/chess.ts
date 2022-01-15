@@ -64,8 +64,8 @@ const REVERSE_FEN_PIECE_TYPE_MAP: Record<PieceType, string> = Object.keys(
 /**
  * Parse a FEN string and return an object that maps squares to pieces.
  *
- * Also accepts the special string "initial" to represent standard game
- * starting position.
+ * Also accepts the special string "initial" or "start" to represent
+ * standard game starting position.
  *
  * Note that only the first part of the FEN string (piece placement) is
  * parsed; any additional components are ignored.
@@ -75,7 +75,7 @@ const REVERSE_FEN_PIECE_TYPE_MAP: Record<PieceType, string> = Object.keys(
  *          of type Piece
  */
 export function getPosition(fen: string): Position | undefined {
-  if (fen === "initial") {
+  if (fen === "initial" || fen === "start") {
     fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
   }
 
