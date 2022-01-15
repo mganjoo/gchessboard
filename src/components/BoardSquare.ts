@@ -117,6 +117,13 @@ export class BoardSquare {
     this._element.blur()
   }
 
+  /**
+   * Create a listener on the "transitionend" event that executes just once.
+   */
+  addTransitionEndEventHandlerOnce(handler: (e: TransitionEvent) => void) {
+    this._element.addEventListener("transitionend", handler, { once: true })
+  }
+
   private _updateSquareVisuals() {
     // Label and color
     this._element.dataset.square = this._config.label

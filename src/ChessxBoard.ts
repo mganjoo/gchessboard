@@ -9,7 +9,13 @@ export class ChessxBoard extends HTMLElement {
   private _position: Position = {}
 
   static get observedAttributes() {
-    return ["orientation", "interactive", "fen", "hide-coords"] as const
+    return [
+      "orientation",
+      "interactive",
+      "fen",
+      "hide-coords",
+      "disable-animation",
+    ] as const
   }
 
   // Private contained elements
@@ -60,16 +66,10 @@ export class ChessxBoard extends HTMLElement {
         }
         break
       case "hide-coords":
-        {
-          const hideCoords = this._parseBooleanAttribute(newValue)
-          this._grid.hideCoords = hideCoords
-        }
+        this._grid.hideCoords = this._parseBooleanAttribute(newValue)
         break
       case "orientation":
-        {
-          const orientation = this._parseSideAttribute(newValue)
-          this._grid.orientation = orientation
-        }
+        this._grid.orientation = this._parseSideAttribute(newValue)
         break
       case "fen":
         if (newValue !== null) {
@@ -77,6 +77,9 @@ export class ChessxBoard extends HTMLElement {
         } else {
           this.position = {}
         }
+        break
+      case "disable-animation":
+        this._grid.disableAnimation = this._parseBooleanAttribute(newValue)
         break
       default:
         assertUnreachable(name)
@@ -148,6 +151,17 @@ export class ChessxBoard extends HTMLElement {
 
   set hideCoords(value: boolean) {
     this._setBooleanAttribute("hide-coords", value)
+  }
+
+  /**
+   * Whether to disable all animations for transitions.
+   */
+  get disableAnimation() {
+    return this.hasAttribute("disable-animation")
+  }
+
+  set disableAnimation(value: boolean) {
+    this._setBooleanAttribute("disable-animation", value)
   }
 
   private _parseSideAttribute(value: string | null): Side {

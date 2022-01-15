@@ -32,7 +32,6 @@ type InteractionState =
     }
   | {
       id: "animating"
-      square: Square
     }
 
 export interface InteractionEventHandlerConfig {
@@ -441,13 +440,19 @@ export class InteractionEventHandler {
   }
 
   private _cancelMove() {
-    this._grid.cancelMove()
-    this._updateInteractionState({ id: "awaiting-input" })
+    this._updateInteractionState({ id: "animating" })
+    this._grid.cancelMove().then(this._resetStateIfAnimating.bind(this))
   }
 
   private _updateInteractionState(state: InteractionState) {
     this._interactionState = state
     this._updateContainerInteractionStateLabel(true)
+  }
+
+  private _resetStateIfAnimating() {
+    if (this._interactionState.id === "animating") {
+      this._updateInteractionState({ id: "awaiting-input" })
+    }
   }
 
   /**

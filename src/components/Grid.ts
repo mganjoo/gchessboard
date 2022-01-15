@@ -143,6 +143,11 @@ export class Grid {
   }
 
   /**
+   * Disable animations.
+   */
+  disableAnimation = false
+
+  /**
    * Rendered width of currently tabbable square, used in making drag
    * threshold calculations.
    */
@@ -180,15 +185,27 @@ export class Grid {
   }
 
   /**
-   * Cancels a move, with accompanied optional animation.
+   * Cancels a move, with accompanied optional animation. If animation
+   * is enabled, resolves promise when animation is done; otherwise, resolves
+   * immediately.
    */
-  cancelMove() {
+  async cancelMove() {
     if (this._currentMove !== undefined) {
-      this._getBoardSquare(this._currentMove.square).updateConfig({
-        moveStart: false,
-        explicitPosition: undefined,
-      })
+      const moveSquare = this._getBoardSquare(this._currentMove.square)
       this._currentMove = undefined
+
+      return new Promise<void>((resolve) => {
+        if (this.disableAnimation) {
+          resolve()
+        } else {
+          moveSquare.addTransitionEndEventHandlerOnce(() => resolve())
+        }
+
+        moveSquare.updateConfig({
+          moveStart: false,
+          explicitPosition: undefined,
+        })
+      })
     }
   }
 
