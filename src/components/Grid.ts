@@ -169,14 +169,17 @@ export class Grid {
       if (value === undefined || value.square !== this._currentMove.square) {
         this._getBoardSquare(this._currentMove.square).updateConfig({
           moveStart: false,
-          piecePositionPx: undefined,
+          explicitPosition: undefined,
         })
       }
     }
     if (value !== undefined) {
       this._getBoardSquare(value.square).updateConfig({
         moveStart: true,
-        piecePositionPx: value.piecePositionPx,
+        explicitPosition:
+          value.piecePositionPx !== undefined
+            ? { type: "coordinates", ...value.piecePositionPx }
+            : undefined,
       })
     }
     this._currentMove = value

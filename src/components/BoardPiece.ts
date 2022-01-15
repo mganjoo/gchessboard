@@ -28,7 +28,7 @@ export interface BoardPieceConfig {
 export class BoardPiece {
   readonly piece: Piece
   private readonly _element: SVGSVGElement
-  private _offsetPx?: { dx: number; dy: number }
+  private _offset?: { left: string; top: string }
 
   /**
    * Map of piece to sprite ID in "sprite.svg". The ID will be referenced
@@ -99,18 +99,18 @@ export class BoardPiece {
    * Explicit offset for piece relative to default location in square. This is
    * used to represent a piece mid-drag.
    */
-  get offsetPx() {
-    return this._offsetPx
+  get offset() {
+    return this._offset
   }
 
-  set offsetPx(value: { dx: number; dy: number } | undefined) {
-    this._offsetPx = value
+  set offset(value: { left: string; top: string } | undefined) {
+    this._offset = value
     if (value === undefined) {
       this._element.style.removeProperty("left")
       this._element.style.removeProperty("top")
     } else {
-      this._element.style.left = `${value.dx}px`
-      this._element.style.top = `${value.dy}px`
+      this._element.style.left = value.left
+      this._element.style.top = value.top
     }
   }
 }

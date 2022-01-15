@@ -29,14 +29,26 @@ export interface BoardSquareConfig {
    */
   piece?: Piece
   /**
-   * Explicit (x, y) pixel location for piece. This is useful if piece is being
-   * dragged around or animating into the square.
+   * Explicit position for piece that is displaced from the center of a square.
+   * There are two options:
+   *
+   * - type = "coordinates": an explicit (x, y) pixel location for piece. This is
+   *   useful if piece is being dragged around or animating into the square from
+   *   outside the board.
+   *
+   * - type = "squareOffset": piece is located on a different square on the board,
+   *   `deltaRows` rows away and `deltaCols` columns. A positive value for `deltaRows`
+   *   means the initial position has a higher y-coordinate than the current square,
+   *   and a positive value for `deltaCols` means the initial position has a higher
+   *   x-coordinate.
    */
-  piecePositionPx?: { x: number; y: number }
+  explicitPosition?:
+    | { type: "coordinates"; x: number; y: number }
+    | { type: "squareOffset"; deltaRows: number; deltaCols: number }
   /**
    * Optionally, squares may have a secondary piece, such as a ghost piece shown
    * while dragging, or a temporary state where a captured piece is animating out
-   * as a new piece is entering. The secondary piece is always shown *behind* the
+   * as a new piece is entering.The secondary piece is always shown *behind* the
    * primary piece in the DOM.
    */
   secondaryPiece?: Piece
@@ -148,19 +160,27 @@ export class BoardSquare {
 
     // Primary piece location
     if (this._boardPiece !== undefined) {
-      if (this._config.piecePositionPx !== undefined) {
+      if (this._config.explicitPosition !== undefined) {
         const squareDims = this._element.getBoundingClientRect()
         const leftOffset =
-          this._config.piecePositionPx.x -
-          squareDims.left -
-          squareDims.width / 2
+          this._config.explicitPosition.type === "coordinates"
+            ? `${
+                this._config.explicitPosition.x -
+                squareDims.left -
+                squareDims.width / 2
+              }px`
+            : `${this._config.explicitPosition.deltaCols * 100}%`
         const topOffset =
-          this._config.piecePositionPx.y -
-          squareDims.top -
-          squareDims.height / 2
-        this._boardPiece.offsetPx = { dx: leftOffset, dy: topOffset }
+          this._config.explicitPosition.type === "coordinates"
+            ? `${
+                this._config.explicitPosition.y -
+                squareDims.top -
+                squareDims.height / 2
+              }px`
+            : `${this._config.explicitPosition.deltaRows * 100}%`
+        this._boardPiece.offset = { left: leftOffset, top: topOffset }
       } else {
-        this._boardPiece.offsetPx = undefined
+        this._boardPiece.offset = undefined
       }
     }
 
