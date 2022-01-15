@@ -8,12 +8,9 @@ import { assertUnreachable } from "./utils/typing"
 export class ChessxBoard extends HTMLElement {
   private _position: Position = {}
 
-  static readonly observedAttributes = [
-    "orientation",
-    "interactive",
-    "fen",
-    "hide-coords",
-  ] as const
+  static get observedAttributes() {
+    return ["orientation", "interactive", "fen", "hide-coords"] as const
+  }
 
   // Private contained elements
   private _shadow: ShadowRoot
