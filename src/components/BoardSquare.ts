@@ -49,15 +49,15 @@ export class BoardSquare {
     this._config = { ...config }
     this._element = document.createElement("td")
     this._labelSpanElement = makeHTMLElement("span", {
-      classes: ["chessboard--square-label"],
+      classes: ["label"],
     })
     this._fileLabelElement = makeHTMLElement("span", {
       attributes: { "aria-hidden": "true" },
-      classes: ["chessboard--file-label"],
+      classes: ["file-label"],
     })
     this._rankLabelElement = makeHTMLElement("span", {
       attributes: { "aria-hidden": "true" },
-      classes: ["chessboard--rank-label"],
+      classes: ["rank-label"],
     })
     this._element.appendChild(this._labelSpanElement)
     this._element.appendChild(this._fileLabelElement)

@@ -54,7 +54,7 @@ export class Grid {
 
     this._grid = makeHTMLElement("table", {
       attributes: { role: "grid" },
-      classes: ["chessboard--squares"],
+      classes: ["squares"],
     })
 
     for (let i = 0; i < 8; i++) {

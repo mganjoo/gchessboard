@@ -7,6 +7,7 @@
   --move-start-light-square-color: #fadd4c;
   --move-start-dark-square-color: #10b756;
   --kb-move-outline-color: rgba(16 60 35 / 95%);
+  --piece-transition-duration: 300ms;
 
   display: inline-block;
 }
@@ -21,7 +22,7 @@
   position: relative;
 }
 
-.chessboard--squares {
+.squares {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
@@ -30,22 +31,22 @@
   user-select: none;
 }
 
-.chessboard--rank-label {
+.rank-label {
   position: absolute;
   top: 1%;
   left: 4%;
   pointer-events: none;
 }
 
-.chessboard--file-label {
+.file-label {
   position: absolute;
   bottom: 0%;
   right: 4%;
   pointer-events: none;
 }
 
-/* Hide label text from every device except screenreaders. */
-.chessboard--square-label {
+.label {
+  /* Hide label text from every device except screenreaders. */
   position: absolute;
   width: 1px;
   height: 1px;
@@ -72,36 +73,6 @@
   box-shadow: inset 0 0 4px 4px var(--focus-outline-color);
 }
 
-[data-square] .chessboard--piece {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  pointer-events: none;
-}
-
-[data-move-state="animating"] .chessboard--piece {
-  /* TODO: reduce transition duration */
-  transition-duration: 300ms;
-}
-
-@media (prefers-reduced-motion) {
-  [data-move-state="animating"] .chessboard--piece {
-    transition-duration: 1ms;
-  }
-}
-
-[data-square] .chessboard--piece:not(.secondary) {
-  z-index: 10;
-}
-
-[data-square] .chessboard--piece.secondary {
-  z-index: 5;
-}
-
 [data-square-color="dark"] {
   background-color: var(--dark-square-color);
 
@@ -109,7 +80,7 @@
   color: var(--light-square-color);
 }
 
-[data-move-state] [data-square-color="dark"]:hover {
+[data-square-color="dark"]:hover {
   background-color: var(--hover-dark-square-color);
 }
 
@@ -118,7 +89,7 @@
   color: var(--dark-square-color);
 }
 
-[data-move-state] [data-square-color="light"]:hover {
+[data-square-color="light"]:hover {
   background-color: var(--hover-light-square-color);
 }
 
@@ -152,9 +123,27 @@
   background-color: var(--move-start-dark-square-color);
 }
 
-[data-move-state="dragging"]
-  [data-square].move-start
-  .chessboard--piece:not(.secondary) {
+[data-square] .piece {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+[data-square] .piece.secondary {
+  z-index: 5;
+}
+
+[data-move-state="animating"] .piece {
+  transition-duration: var(--piece-transition-duration);
+}
+
+[data-square].move-start .piece:not(.secondary) {
   /* Ensure that the piece appears above most other elements in document. */
   z-index: 9999;
 }
