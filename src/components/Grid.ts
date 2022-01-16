@@ -72,6 +72,12 @@ export class Grid {
     this._updateSquareProps()
   }
 
+  destroy() {
+    this._boardSquares.forEach((square) => {
+      square.destroy()
+    })
+  }
+
   /**
    * What side's perspective to render squares from (what color appears on
    * the bottom as viewed on the screen).

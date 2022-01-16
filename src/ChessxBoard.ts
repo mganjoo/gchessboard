@@ -50,6 +50,7 @@ export class ChessxBoard extends HTMLElement {
 
   disconnectedCallback() {
     this._eventsHandler.deactivate()
+    this._grid.destroy()
   }
 
   attributeChangedCallback(

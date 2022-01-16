@@ -86,6 +86,11 @@ export class BoardSquare {
     container.appendChild(this._element)
   }
 
+  destroy() {
+    this._boardPiece?.remove()
+    this._secondaryBoardPiece?.remove()
+  }
+
   updateConfig(config: Partial<BoardSquareConfig>) {
     // TODO: check for difference in values before updating
     this._config = { ...this._config, ...config }

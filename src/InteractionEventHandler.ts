@@ -450,6 +450,7 @@ export class InteractionEventHandler {
   }
 
   private _resetStateIfAnimating() {
+    console.log("transitionend or transitioncancel")
     if (this._interactionState.id === "animating") {
       this._updateInteractionState({ id: "awaiting-input" })
     }

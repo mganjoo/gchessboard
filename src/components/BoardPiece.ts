@@ -87,7 +87,7 @@ export class BoardPiece {
       })
     )
     if (config.secondary) {
-      this._element.classList.add("is-secondary")
+      this._element.classList.add("secondary")
     }
     container.appendChild(this._element)
   }
@@ -132,28 +132,18 @@ export class BoardPiece {
     }
   }
 
-  private _setTransitionEndListener(handler: () => void) {
+  private _setTransitionEndListener(handler: (p: Piece) => void) {
+    // TODO: also add a custom event listener for browsers that don't support transitioncancel
     const wrappedHandler = () => {
       this._transitionEndHandler = undefined
-      handler()
+      handler(this.piece)
     }
-
     this._transitionEndHandler = wrappedHandler
-    this._element.addEventListener(
-      "transitionend",
-      () => {
-        console.log("transitionend", this.piece)
-        wrappedHandler()
-      },
-      { once: true }
-    )
-    this._element.addEventListener(
-      "transitioncancel",
-      () => {
-        console.log("transitioncancel", this.piece)
-        wrappedHandler()
-      },
-      { once: true }
-    )
+    this._element.addEventListener("transitionend", wrappedHandler, {
+      once: true,
+    })
+    this._element.addEventListener("transitioncancel", wrappedHandler, {
+      once: true,
+    })
   }
 }
