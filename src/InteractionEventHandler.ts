@@ -443,15 +443,15 @@ export class InteractionEventHandler {
     this._grid.cancelMove().then(this._resetStateIfAnimating.bind(this))
   }
 
-  private _updateInteractionState(state: InteractionState) {
-    this._interactionState = state
-    this._updateContainerInteractionStateLabel(true)
-  }
-
   private _resetStateIfAnimating() {
     if (this._interactionState.id === "animating") {
       this._updateInteractionState({ id: "awaiting-input" })
     }
+  }
+
+  private _updateInteractionState(state: InteractionState) {
+    this._interactionState = state
+    this._updateContainerInteractionStateLabel(true)
   }
 
   /**

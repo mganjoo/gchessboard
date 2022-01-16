@@ -11,6 +11,7 @@
   display: inline-block;
 }
 
+/* Ensure that 'hidden' attribute is respected despite above display override. */
 :host([hidden]) {
   display: none;
 }
@@ -93,11 +94,11 @@
   }
 }
 
-[data-square] .chessboard--piece:not(.is-secondary) {
+[data-square] .chessboard--piece:not(.secondary) {
   z-index: 10;
 }
 
-[data-square] .chessboard--piece.is-secondary {
+[data-square] .chessboard--piece.secondary {
   z-index: 5;
 }
 
@@ -121,7 +122,8 @@
   background-color: var(--hover-light-square-color);
 }
 
-[data-move-state="awaiting-input"] [data-square].has-piece {
+[data-move-state="awaiting-input"] [data-square].has-piece,
+[data-move-state="animating"] [data-square].has-piece {
   cursor: pointer;
 }
 
@@ -152,7 +154,7 @@
 
 [data-move-state="dragging"]
   [data-square].move-start
-  .chessboard--piece:not(.is-secondary) {
+  .chessboard--piece:not(.secondary) {
   /* Ensure that the piece appears above most other elements in document. */
   z-index: 9999;
 }
