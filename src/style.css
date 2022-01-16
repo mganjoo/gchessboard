@@ -1,12 +1,12 @@
 :host {
   --dark-square-color: #4c946a;
   --light-square-color: #e0ddcc;
-  --focus-outline-color: rgba(249 147 56 / 90%);
+  --focus-outline-color: hsla(28deg 94% 60% / 90%);
   --hover-light-square-color: #e3d798;
   --hover-dark-square-color: #3f7b58;
   --move-start-light-square-color: #fadd4c;
   --move-start-dark-square-color: #10b756;
-  --kb-move-outline-color: rgba(16 60 35 / 95%);
+  --kb-move-outline-color: hsla(146deg 58% 15% / 95%);
   --piece-transition-duration: 300ms;
 
   display: inline-block;
