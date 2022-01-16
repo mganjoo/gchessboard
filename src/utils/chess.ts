@@ -195,6 +195,21 @@ export function getVisualIndex(square: Square, orientation: Side) {
 }
 
 /**
+ * Like `getVisualIndex`, but returns a row and column combination.
+ *
+ * @param square square to convert to visual row and column.
+ * @param orientation  what side is at the bottom ("white" = a1 on bottom left)
+ * @returns an array containing [row, column] for the square in question.
+ */
+export function getVisualRowColumn(
+  square: Square,
+  orientation: Side
+): [number, number] {
+  const idx = getVisualIndex(square, orientation)
+  return [idx >>> 3, idx & 0x7]
+}
+
+/**
  * https://www.chessprogramming.org/Color_of_a_Square#By_Anti-Diagonal_Index
  */
 export function getSquareColor(square: Square): SquareColor {

@@ -113,7 +113,6 @@ export class InteractionEventHandler {
   private _toggleHandlers(enabled: boolean) {
     if (enabled) {
       this._container.addEventListener("mousedown", this._mouseDownHandler)
-      // TODO: figure out how to create a narrower listener for square-level events
       document.addEventListener("mouseup", this._mouseUpHandler)
       document.addEventListener("mousemove", this._mouseMoveHandler)
       this._container.addEventListener("focusout", this._focusOutHandler)
@@ -435,8 +434,8 @@ export class InteractionEventHandler {
   }
 
   private _finishMove(to: Square) {
-    this._grid.finishMove(to)
-    this._updateInteractionState({ id: "awaiting-input" })
+    this._updateInteractionState({ id: "animating" })
+    this._grid.finishMove(to).then(this._resetStateIfAnimating.bind(this))
   }
 
   private _cancelMove() {
@@ -450,7 +449,6 @@ export class InteractionEventHandler {
   }
 
   private _resetStateIfAnimating() {
-    console.log("transitionend or transitioncancel")
     if (this._interactionState.id === "animating") {
       this._updateInteractionState({ id: "awaiting-input" })
     }

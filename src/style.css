@@ -84,7 +84,7 @@
 
 [data-move-state="animating"] .chessboard--piece {
   /* TODO: reduce transition duration */
-  transition-duration: 5000ms;
+  transition-duration: 300ms;
 }
 
 @media (prefers-reduced-motion) {
