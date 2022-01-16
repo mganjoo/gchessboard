@@ -206,7 +206,7 @@ export function getVisualRowColumn(
   orientation: Side
 ): [number, number] {
   const idx = getVisualIndex(square, orientation)
-  return [idx >>> 3, idx & 0x7]
+  return [idx >> 3, idx & 0x7]
 }
 
 /**
