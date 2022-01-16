@@ -35,13 +35,6 @@ export function makeSvgElement<K extends keyof SVGElementTagNameMap>(
   )
 }
 
-/**
- * Remove `element` from DOM tree (if it exists).
- */
-export function removeElement(element: Element) {
-  element.parentNode?.removeChild(element)
-}
-
 function addOptionsToElement<
   K extends
     | HTMLElementTagNameMap[keyof HTMLElementTagNameMap]

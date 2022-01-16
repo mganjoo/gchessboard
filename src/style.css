@@ -82,6 +82,17 @@
   pointer-events: none;
 }
 
+[data-move-state="animating"] .chessboard--piece {
+  /* TODO: reduce transition duration */
+  transition-duration: 300ms;
+}
+
+@media (prefers-reduced-motion) {
+  [data-move-state="animating"] .chessboard--piece {
+    transition-duration: 1ms;
+  }
+}
+
 [data-square] .chessboard--piece:not(.is-secondary) {
   z-index: 10;
 }

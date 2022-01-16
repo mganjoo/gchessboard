@@ -1,5 +1,5 @@
 import { Piece, PieceType, Side } from "../utils/chess"
-import { makeSvgElement, removeElement } from "../utils/dom"
+import { makeSvgElement } from "../utils/dom"
 import sprite from "../sprite.svg"
 
 export interface BoardPieceConfig {
@@ -17,10 +17,28 @@ export interface BoardPieceConfig {
   secondary?: boolean
 
   /**
-   * Optional pixel position for piece, in case it needs to be placed off square.
+   * Optional position for piece, in case it needs to be placed off square.
    */
-  explicitPosPx?: { x: number; y: number }
+  explicitPosition?: ExplicitPiecePosition
 }
+
+/**
+ * Explicit position for piece that is displaced from the center of a square.
+ * There are two options:
+ *
+ * - type = "coordinates": an explicit (x, y) pixel location for piece. This is
+ *   useful if piece is being dragged around or animating into the square from
+ *   outside the board.
+ *
+ * - type = "squareOffset": piece is located on a different square on the board,
+ *   `deltaRows` rows away and `deltaCols` columns. A positive value for `deltaRows`
+ *   means the initial position has a higher y-coordinate than the current square,
+ *   and a positive value for `deltaCols` means the initial position has a higher
+ *   x-coordinate.
+ */
+export type ExplicitPiecePosition =
+  | { type: "coordinates"; x: number; y: number }
+  | { type: "squareOffset"; deltaRows: number; deltaCols: number }
 
 /**
  * Visual representation of a chessboard piece and associated sprite.
@@ -28,7 +46,11 @@ export interface BoardPieceConfig {
 export class BoardPiece {
   readonly piece: Piece
   private readonly _element: SVGSVGElement
-  private _offsetPx?: { dx: number; dy: number }
+  private readonly _parentElement: HTMLElement
+  private _explicitPosition?: ExplicitPiecePosition
+  private _displaced?: boolean
+  // Handler called when transition end or is canceled
+  private _transitionEndHandler?: (e: TransitionEvent) => void
 
   /**
    * Map of piece to sprite ID in "sprite.svg". The ID will be referenced
@@ -61,6 +83,7 @@ export class BoardPiece {
 
   constructor(container: HTMLElement, config: BoardPieceConfig) {
     this.piece = config.piece
+    this._parentElement = container
     this._element = makeSvgElement("svg", {
       attributes: {
         viewbox: "0 0 45 45",
@@ -85,32 +108,105 @@ export class BoardPiece {
         },
       })
     )
-    if (config.secondary) {
-      this._element.classList.add("is-secondary")
+    if (config.explicitPosition !== undefined) {
+      this.setExplicitPosition(config.explicitPosition)
     }
+
+    if (config.secondary) {
+      this._element.classList.add("secondary")
+    }
+
     container.appendChild(this._element)
   }
 
+  /**
+   * Remove element and cancel timeouts.
+   */
   remove() {
-    removeElement(this._element)
+    if (this._transitionEndHandler !== undefined) {
+      this._element.removeEventListener(
+        "transitionend",
+        this._transitionEndHandler
+      )
+      this._element.removeEventListener(
+        "transitioncancel",
+        this._transitionEndHandler
+      )
+    }
+    this._parentElement.removeChild(this._element)
   }
 
   /**
-   * Explicit offset for piece relative to default location in square. This is
-   * used to represent a piece mid-drag.
+   * Set explicit offset for piece relative to default location in square.
    */
-  get offsetPx() {
-    return this._offsetPx
+  setExplicitPosition(explicitPosition: ExplicitPiecePosition) {
+    this._explicitPosition = explicitPosition
+    if (explicitPosition.type === "coordinates") {
+      const squareDims = this._parentElement.getBoundingClientRect()
+      const deltaX = explicitPosition.x - squareDims.left - squareDims.width / 2
+      const deltaY = explicitPosition.y - squareDims.top - squareDims.height / 2
+      if (deltaX !== 0 || deltaY !== 0) {
+        this._displaced = true
+        this._element.style.left = `${deltaX}px`
+        this._element.style.top = `${deltaY}px`
+      }
+    } else {
+      if (
+        explicitPosition.deltaCols !== 0 ||
+        explicitPosition.deltaRows !== 0
+      ) {
+        this._displaced = true
+        this._element.style.left = `${explicitPosition.deltaCols * 100}%`
+        this._element.style.top = `${explicitPosition.deltaRows * 100}%`
+      }
+    }
   }
 
-  set offsetPx(value: { dx: number; dy: number } | undefined) {
-    this._offsetPx = value
-    if (value === undefined) {
-      this._element.style.removeProperty("left")
-      this._element.style.removeProperty("top")
-    } else {
-      this._element.style.left = `${value.dx}px`
-      this._element.style.top = `${value.dy}px`
+  /**
+   * Reset any explicit position set on the piece. If `transition` is true, then
+   * the change is accompanied with a transition.
+   */
+  async resetPosition(transition?: boolean) {
+    this._explicitPosition = undefined
+    const positionChanged = this._displaced
+    this._displaced = false
+
+    if (transition) {
+      // Get bounding box for element to force layout before
+      // removing top/left property
+      // https://gist.github.com/paulirish/5d52fb081b3570c81e3a
+      this._parentElement.getBoundingClientRect()
     }
+
+    this._element.style.removeProperty("left")
+    this._element.style.removeProperty("top")
+
+    if (transition && positionChanged) {
+      return new Promise<void>((resolve) => {
+        this._setTransitionEndListener(() => resolve())
+      })
+    }
+  }
+
+  /**
+   * Return explicit position of piece on square, if any.
+   */
+  get explicitPosition() {
+    return this._explicitPosition
+  }
+
+  private _setTransitionEndListener(handler: (p: Piece) => void) {
+    // TODO: also add a custom event listener for browsers that don't support transitioncancel
+    const wrappedHandler = () => {
+      this._transitionEndHandler = undefined
+      handler(this.piece)
+    }
+    this._transitionEndHandler = wrappedHandler
+    this._element.addEventListener("transitionend", wrappedHandler, {
+      once: true,
+    })
+    this._element.addEventListener("transitioncancel", wrappedHandler, {
+      once: true,
+    })
   }
 }
