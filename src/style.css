@@ -7,7 +7,7 @@
   --move-start-light-square-color: #fadd4c;
   --move-start-dark-square-color: #10b756;
   --kb-move-outline-color: hsla(146deg 58% 15% / 95%);
-  --piece-transition-duration: 300ms;
+  --piece-transition-duration: 200ms;
 
   display: inline-block;
 }

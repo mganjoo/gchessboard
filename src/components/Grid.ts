@@ -183,14 +183,14 @@ export class Grid {
 
   /**
    * Cancels a move, with accompanied optional animation. If animation
-   * is enabled, resolves promise when animation is done; otherwise, resolves
-   * immediately.
+   * is enabled and `instant` is false, resolves promise when animation is
+   * done; otherwise, resolves immediately.
    */
-  async cancelMove() {
+  async cancelMove(instant?: boolean) {
     if (this._currentMoveSquare !== undefined) {
       const moveSquare = this._getBoardSquare(this._currentMoveSquare)
       this._currentMoveSquare = undefined
-      await moveSquare.finishMove(!this.disableAnimation)
+      await moveSquare.finishMove(!this.disableAnimation && !instant)
     }
   }
 
@@ -198,8 +198,11 @@ export class Grid {
    * Move piece involved in current move (if one exists) to square `to`.
    * If the initial square does not contain a piece or there is no current
    * move in progress, this is a noop.
+   *
+   * If `instant` is true, then finish move without animation, even if
+   * animation is enabled.
    */
-  async finishMove(to: Square) {
+  async finishMove(to: Square, instant?: boolean) {
     const from = this._currentMoveSquare
     if (from !== undefined && from in this._position && to !== from) {
       const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
@@ -216,7 +219,9 @@ export class Grid {
       delete this._position[from]
       this.tabbableSquare = to
       this._currentMoveSquare = undefined
-      await this._getBoardSquare(to).finishMove(!this.disableAnimation)
+      await this._getBoardSquare(to).finishMove(
+        !this.disableAnimation && !instant
+      )
     }
   }
 

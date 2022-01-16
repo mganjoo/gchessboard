@@ -200,16 +200,19 @@ export class InteractionEventHandler {
       case "dragging":
         if (square && this._interactionState.startSquare !== square) {
           const tabbableSquare = this._grid.tabbableSquare
-          this._finishMove(square)
+          // Snap after drag should be instant
+          this._finishMove(square, true)
           this._grid.blurSquare(tabbableSquare)
         } else {
-          this._cancelMove()
+          // Cancel move instantly (without animation) if drag was within board
+          // For pieces that left board area, do an animated snap back.
+          this._cancelMove(!!square)
           this._grid.blurSquare(this._grid.tabbableSquare)
         }
         break
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
-        this._cancelMove()
+        this._cancelMove(true)
         this._grid.blurSquare(this._grid.tabbableSquare)
         break
       case "awaiting-input":
@@ -287,7 +290,7 @@ export class InteractionEventHandler {
           // If outgoing focus target has a square, and incoming does not, then board
           // lost focus and we can cancel ongoing moves.
           if (square && !hasFocusInSquare) {
-            this._cancelMove()
+            this._cancelMove(true)
           }
         }
         break
@@ -331,7 +334,7 @@ export class InteractionEventHandler {
           ) {
             this._finishMove(pressedSquare)
           } else {
-            this._cancelMove()
+            this._cancelMove(true)
           }
           break
         case "dragging":
@@ -433,14 +436,16 @@ export class InteractionEventHandler {
     }
   }
 
-  private _finishMove(to: Square) {
+  private _finishMove(to: Square, instant?: boolean) {
     this._updateInteractionState({ id: "animating" })
-    this._grid.finishMove(to).then(this._resetStateIfAnimating.bind(this))
+    this._grid
+      .finishMove(to, instant)
+      .then(this._resetStateIfAnimating.bind(this))
   }
 
-  private _cancelMove() {
+  private _cancelMove(instant?: boolean) {
     this._updateInteractionState({ id: "animating" })
-    this._grid.cancelMove().then(this._resetStateIfAnimating.bind(this))
+    this._grid.cancelMove(instant).then(this._resetStateIfAnimating.bind(this))
   }
 
   private _resetStateIfAnimating() {
