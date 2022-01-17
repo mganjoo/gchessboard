@@ -98,7 +98,7 @@
   );
 }
 
-[data-square].occupied.move-eligible {
+[data-square].has-piece.move-eligible {
   /* Wide circle with transparent interior if square is occupied. */
   background: radial-gradient(
     var(--p-square-color) 82%,
@@ -110,8 +110,8 @@
   --p-square-color: var(--p-move-start-square-color);
 }
 
-[data-move-state="awaiting-input"] [data-square].occupied,
-[data-move-state="animating"] [data-square].occupied {
+[data-move-state="awaiting-input"] [data-square].has-piece,
+[data-move-state="animating"] [data-square].has-piece {
   cursor: pointer;
 }
 

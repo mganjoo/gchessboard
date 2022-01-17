@@ -30,7 +30,7 @@ export async function expectHasPiece(
 ) {
   expect(
     await squareLocator(page, square).evaluate((e) =>
-      e.classList.contains("occupied")
+      e.classList.contains("has-piece")
     )
   ).toBe(value)
 }

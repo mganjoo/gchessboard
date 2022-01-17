@@ -32,6 +32,26 @@
           board.hideCoords = !board.hideCoords
           e.target.innerText = board.hideCoords ? "Hide coords" : "Show coords"
         })
+        document.getElementById("btn-svg").addEventListener("click", (e) => {
+          window.showSVG = !window.showSVG
+          const svgSquares = ["a3", "c5", "e4"]
+          if (window.showSVG) {
+            svgSquares.forEach((s) => {
+              const square = document
+                .getElementById(`svg-${s}`)
+                .content.firstElementChild.cloneNode(true)
+              square.slot = s
+              document.getElementById("board").appendChild(square)
+            })
+          } else {
+            svgSquares.forEach((s) => {
+              document
+                .getElementById("board")
+                .removeChild(document.querySelector(`#board [slot="${s}"]`))
+            })
+          }
+          e.target.innerText = window.showSVG ? "Hide SVGs" : "Show SVGs"
+        })
         document
           .getElementById("btn-position-start")
           .addEventListener("click", () => {
@@ -51,6 +71,48 @@
     </script>
   </head>
   <body>
+    <template id="svg-a3">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+    </template>
+    <template id="svg-c5">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        class="text-orange-300"
+      >
+        <path
+          d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z"
+        />
+      </svg>
+    </template>
+    <template id="svg-e4">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+    </template>
     <main
       class="flex flex-col items-center gap-y-4 bg-gray-100 min-h-screen py-8 font-sans font-semibold"
     >
@@ -70,6 +132,7 @@
         <button id="btn-interactivity" class="btn">Disable interaction</button>
         <button id="btn-animation" class="btn">Disable animation</button>
         <button id="btn-coords" class="btn">Hide coords</button>
+        <button id="btn-svg" class="btn">Show SVGs</button>
       </div>
       <div>
         <button id="btn-position-start" class="btn">Start position</button>
