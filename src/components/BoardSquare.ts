@@ -112,7 +112,7 @@ export class BoardSquare {
       piece !== undefined
         ? new BoardPiece(this._element, { piece, explicitPosition: position })
         : undefined
-    this._element.classList.toggle("has-piece", !!piece)
+    this._element.classList.toggle("occupied", !!piece)
 
     // Always treat a piece change as the end of a move
     this._moveStart = false
