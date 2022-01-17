@@ -135,7 +135,9 @@
   --p-square-color: var(--p-hover-square-color);
 }
 
-/* Square color overrides */
+/**************************
+ * Square color overrides *
+ **************************/
 
 [data-square-color="dark"] {
   --p-square-color: var(--dark-square-color);
@@ -159,9 +161,14 @@
   --p-move-start-square-color: var(--move-start-light-square-color);
 }
 
-/* Piece styles */
+/****************
+ * Piece styles *
+ ****************/
 
-[data-square] .piece {
+/* Always use absolute positioning for pieces and slotted
+   content (custom SVGs, custom content etc) */
+[data-square] .piece,
+::slotted(*) {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -170,6 +177,9 @@
   bottom: 0;
   right: 0;
   pointer-events: none;
+}
+
+[data-square] .piece {
   z-index: 10;
 }
 

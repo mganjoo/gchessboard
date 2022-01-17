@@ -36,6 +36,7 @@ export class BoardSquare {
   private readonly _labelSpanElement: HTMLSpanElement
   private readonly _rankLabelElement: HTMLSpanElement
   private readonly _fileLabelElement: HTMLSpanElement
+  private readonly _slotElement: HTMLSlotElement
   private _boardPiece?: BoardPiece
   private _secondaryBoardPiece?: BoardPiece
   private _config: BoardSquareConfig
@@ -59,10 +60,14 @@ export class BoardSquare {
       attributes: { "aria-hidden": "true" },
       classes: ["rank-label"],
     })
+    this._slotElement = document.createElement("slot")
+
     this._element.appendChild(this._labelSpanElement)
+    this._element.appendChild(this._slotElement)
     this._element.appendChild(this._fileLabelElement)
     this._element.appendChild(this._rankLabelElement)
     this._updateSquareVisuals()
+
     container.appendChild(this._element)
   }
 
@@ -176,6 +181,8 @@ export class BoardSquare {
     this._fileLabelElement.textContent = this._config.fileLabelShown
       ? filePart
       : null
+
+    this._slotElement.name = this._config.label
 
     // Interactivity
     if (this._config.interactive) {
