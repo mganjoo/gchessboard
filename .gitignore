@@ -9,8 +9,5 @@ dist-ssr
 # ESLint
 .eslintcache
 
-# test artifacts
-coverage
-
 # other
 .DS_Store

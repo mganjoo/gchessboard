@@ -13,5 +13,6 @@
         "ignoreAtRules": ["tailwind", "apply"]
       }
     ]
-  }
+  },
+  "ignorePath": "./.gitignore"
 }
