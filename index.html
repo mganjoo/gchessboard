@@ -13,6 +13,26 @@
           board.orientation = board.orientation === "black" ? "white" : "black"
         })
         document
+          .getElementById("btn-interactivity")
+          .addEventListener("click", (e) => {
+            board.interactive = !board.interactive
+            e.target.innerText = board.interactive
+              ? "Disable interaction"
+              : "Enable interaction"
+          })
+        document
+          .getElementById("btn-animation")
+          .addEventListener("click", (e) => {
+            board.disableAnimation = !board.disableAnimation
+            e.target.innerText = board.disableAnimation
+              ? "Enable animation"
+              : "Disable animation"
+          })
+        document.getElementById("btn-coords").addEventListener("click", (e) => {
+          board.hideCoords = !board.hideCoords
+          e.target.innerText = board.hideCoords ? "Hide coords" : "Show coords"
+        })
+        document
           .getElementById("btn-position-start")
           .addEventListener("click", () => {
             board.fen = "start"
@@ -46,30 +66,15 @@
         interactive
       ></chessx-board>
       <div>
-        <button
-          id="btn-flip"
-          class="bg-green-800 text-gray-100 text-sm px-3 py-2 rounded-md hover:bg-green-700 active:bg-green-600"
-        >
-          Flip
-        </button>
-        <button
-          id="btn-position-start"
-          class="bg-green-800 text-gray-100 text-sm px-3 py-2 rounded-md hover:bg-green-700 active:bg-green-600"
-        >
-          Start position
-        </button>
-        <button
-          id="btn-position-puzzle"
-          class="bg-green-800 text-gray-100 text-sm px-3 py-2 rounded-md hover:bg-green-700 active:bg-green-600"
-        >
-          Puzzle position
-        </button>
-        <button
-          id="btn-position-empty"
-          class="bg-green-800 text-gray-100 text-sm px-3 py-2 rounded-md hover:bg-green-700 active:bg-green-600"
-        >
-          Empty
-        </button>
+        <button id="btn-flip" class="btn">Flip</button>
+        <button id="btn-interactivity" class="btn">Disable interaction</button>
+        <button id="btn-animation" class="btn">Disable animation</button>
+        <button id="btn-coords" class="btn">Hide coords</button>
+      </div>
+      <div>
+        <button id="btn-position-start" class="btn">Start position</button>
+        <button id="btn-position-puzzle" class="btn">Puzzle position</button>
+        <button id="btn-position-empty" class="btn">Empty</button>
       </div>
     </main>
   </body>

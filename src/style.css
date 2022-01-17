@@ -80,7 +80,8 @@
   color: var(--light-square-color);
 }
 
-[data-square-color="dark"]:hover {
+[data-move-state] [data-square-color="dark"]:hover {
+  /* Only change hover state if board is interactive. */
   background-color: var(--hover-dark-square-color);
 }
 
@@ -89,7 +90,7 @@
   color: var(--dark-square-color);
 }
 
-[data-square-color="light"]:hover {
+[data-move-state] [data-square-color="light"]:hover {
   background-color: var(--hover-light-square-color);
 }
 
