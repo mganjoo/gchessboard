@@ -98,7 +98,8 @@
   );
 }
 
-[data-square].has-piece.move-eligible {
+[data-square].has-piece.move-eligible,
+[data-square].has-content.move-eligible {
   /* Wide circle with transparent interior if square is occupied. */
   background: radial-gradient(
     var(--p-square-color) 82%,
@@ -177,6 +178,9 @@
   bottom: 0;
   right: 0;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 [data-square] .piece {

@@ -70,11 +70,13 @@ export class Grid {
       this._grid.appendChild(row)
     }
     this._updateSquareProps()
+    this._grid.addEventListener("slotchange", this._slotChangeListener)
 
     container.appendChild(this._grid)
   }
 
   destroy() {
+    this._grid.removeEventListener("slotchange", this._slotChangeListener)
     this._boardSquares.forEach((square) => {
       square.destroy()
     })
@@ -285,5 +287,19 @@ export class Grid {
       }
     }
     return getSquare(56, this.orientation)
+  }
+
+  private _slotChangeListener: (e: Event) => void = (e) => {
+    if (Grid._isSlotElement(e.target)) {
+      // Add "has-content" class to parent if slot is occupied
+      e.target.parentElement?.classList.toggle(
+        "has-content",
+        e.target.assignedElements().length > 0
+      )
+    }
+  }
+
+  private static _isSlotElement(e: EventTarget | null): e is HTMLSlotElement {
+    return !!e && (e as HTMLSlotElement).assignedElements !== undefined
   }
 }
