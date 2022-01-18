@@ -57,19 +57,31 @@ export class Grid {
       classes: ["squares"],
     })
 
+    const tabbableSquare = this._tabbableSquare
     for (let i = 0; i < 8; i++) {
       const row = makeHTMLElement("tr", {
         attributes: { role: "row" },
       })
       for (let j = 0; j < 8; j++) {
         const idx = 8 * i + j
-        this._boardSquares[idx] = new BoardSquare(row, {
-          label: getSquare(idx, this.orientation),
-        })
+        const square = getSquare(idx, this.orientation)
+        this._boardSquares[idx] = new BoardSquare(
+          row,
+          {
+            label: square,
+            interactive: this.interactive,
+            tabbable: tabbableSquare === square,
+            showCoords: !this.hideCoords,
+          },
+          {
+            makeFileLabel: i === 7,
+            makeRankLabel: j === 0,
+          }
+        )
+        this._boardSquares[idx].setPiece(this._position[square])
       }
       this._grid.appendChild(row)
     }
-    this._updateSquareProps()
     this._grid.addEventListener("slotchange", this._slotChangeListener)
 
     container.appendChild(this._grid)
@@ -92,7 +104,7 @@ export class Grid {
 
   set orientation(value: Side) {
     this._orientation = value
-    this._updateSquareProps()
+    this._updateAllSquareProps()
   }
 
   /**
@@ -105,7 +117,7 @@ export class Grid {
 
   set interactive(value: boolean) {
     this._interactive = value
-    this._updateSquareProps()
+    this._updateAllSquareProps()
   }
 
   get position() {
@@ -115,7 +127,7 @@ export class Grid {
   set position(value: Position) {
     if (!positionsEqual(this._position, value)) {
       this._position = { ...value }
-      this._updateSquareProps()
+      this._updateAllSquareProps()
     }
   }
 
@@ -125,7 +137,7 @@ export class Grid {
 
   set hideCoords(value: boolean) {
     this._hideCoords = value
-    this._updateSquareProps()
+    this._updateAllSquareProps()
   }
 
   /**
@@ -140,12 +152,8 @@ export class Grid {
 
   set tabbableSquare(value: Square) {
     // Unset previous tabbable square so that tabindex is changed to -1
-    this._getBoardSquare(this.tabbableSquare).updateConfig({
-      tabbable: false,
-    })
-    this._getBoardSquare(value).updateConfig({
-      tabbable: true,
-    })
+    this._getBoardSquare(this.tabbableSquare).tabbable = false
+    this._getBoardSquare(value).tabbable = true
     this._tabbableSquare = value
   }
 
@@ -243,23 +251,17 @@ export class Grid {
   }
 
   /**
-   * Iterate over all squares and set individual props based
-   * on top-level config.
+   * Iterate over all squares and set individual props based on top-level config.
    */
-  private _updateSquareProps() {
+  private _updateAllSquareProps() {
     const tabbableSquare = this.tabbableSquare
-    const interactive = this.interactive
-    const hideCoords = this.hideCoords
     for (let i = 0; i < 64; i++) {
       const square = getSquare(i, this.orientation)
-      const row = i >> 3
-      const col = i & 0x7
-      this._boardSquares[i].updateConfig({
+      this._boardSquares[i].updateAllProps({
         label: square,
-        interactive,
+        interactive: this.interactive,
         tabbable: tabbableSquare === square,
-        rankLabelShown: !hideCoords && col === 0,
-        fileLabelShown: !hideCoords && row === 7,
+        showCoords: !this.hideCoords,
       })
       this._boardSquares[i].setPiece(this._position[square])
     }
