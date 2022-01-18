@@ -8,21 +8,49 @@
   --hover-light-square-color: #e3d798;
 
   /* Square colors when the square is marked as start of move */
-  --move-start-light-square-color: #fadd4c;
   --move-start-dark-square-color: #10b756;
+  --move-start-light-square-color: #fadd4c;
 
   /* Color of outline when square is marked as start of move */
-  --move-start-outline-color: hsla(146deg 58% 15% / 95%);
+  --move-start-dark-outline-color: hsl(138deg 85% 53% / 95%);
+  --move-start-light-outline-color: hsl(66deg 97% 72% / 95%);
 
   /* Square highlight colors when the square is an eligible move target */
-  --move-eligible-light-square-highlight-color: #000;
   --move-eligible-dark-square-highlight-color: #000;
+  --move-eligible-light-square-highlight-color: #000;
 
   /* Color of outline when square has focus */
-  --focus-outline-color: hsla(28deg 94% 60% / 90%);
+  --focus-outline-color: hsl(30deg 94% 55% / 90%);
+
+  /* Outline size properties */
+  --outline-blur-radius: 3px;
+  --outline-spread-radius: 4px;
 
   /* Duration for all transitions */
   --piece-transition-duration: 200ms;
+
+  /* Label font properties */
+  --label-font-size: 0.7rem;
+
+  /* Radius of marker on move-eligible square */
+  --move-eligible-marker-radius: 24%;
+
+  /* Radius of marker on move-eligible square that is occupied */
+  --move-eligible-marker-radius-occupied: 82%;
+
+  /* Opacity of ghost piece shown while dragging */
+  --ghost-piece-opacity: 0.35;
+
+  /* Rank label placement */
+  --rank-label-top-margin: 1%;
+  --rank-label-left-margin: 4%;
+
+  /* File label placement */
+  --file-label-bottom-margin: 0%;
+  --file-label-right-margin: 4%;
+
+  /* z-index of piece while dragging */
+  --piece-drag-z-index: 9999;
 
   display: inline-block;
 }
@@ -48,15 +76,15 @@
 
 .rank-label {
   position: absolute;
-  top: 1%;
-  left: 4%;
+  top: var(--rank-label-top-margin);
+  left: var(--rank-label-left-margin);
   pointer-events: none;
 }
 
 .file-label {
   position: absolute;
-  bottom: 0%;
-  right: 4%;
+  bottom: var(--file-label-bottom-margin);
+  right: var(--file-label-right-margin);
   pointer-events: none;
 }
 
@@ -80,21 +108,22 @@
   padding: 12.5% 0 0;
   position: relative;
   font-family: sans-serif;
-  font-size: 0.7rem;
+  font-size: var(--label-font-size);
   background-color: var(--p-square-color);
   color: var(--p-label-color);
 }
 
 [data-square]:focus {
   outline: none;
-  box-shadow: inset 0 0 4px 4px var(--focus-outline-color);
+  box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
+    var(--focus-outline-color);
 }
 
 [data-square].move-eligible {
   background: radial-gradient(
-    var(--p-move-eligible-highlight-color) 24%,
+    var(--p-move-eligible-highlight-color) var(--move-eligible-marker-radius),
     /* Add pixel offset to boundary to reduce jaggedness. */
-      var(--p-square-color) calc(24% + 1px)
+      var(--p-square-color) calc(var(--move-eligible-marker-radius) + 1px)
   );
 }
 
@@ -102,8 +131,9 @@
 [data-square].has-content.move-eligible {
   /* Wide circle with transparent interior if square is occupied. */
   background: radial-gradient(
-    var(--p-square-color) 82%,
-    var(--p-move-eligible-highlight-color) calc(82% + 1px)
+    var(--p-square-color) var(--move-eligible-marker-radius-occupied),
+    var(--p-move-eligible-highlight-color)
+      calc(var(--move-eligible-marker-radius-occupied) + 1px)
   );
 }
 
@@ -112,7 +142,8 @@
 }
 
 [data-square].move-start:not(:focus) {
-  box-shadow: inset 0 0 0 2px var(--move-start-outline-color);
+  box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
+    var(--p-move-start-outline-color);
 }
 
 [data-move-state="awaiting-input"] [data-square].has-piece,
@@ -150,6 +181,7 @@
     --move-eligible-dark-square-highlight-color
   );
   --p-move-start-square-color: var(--move-start-dark-square-color);
+  --p-move-start-outline-color: var(--move-start-dark-outline-color);
 }
 
 [data-square-color="light"] {
@@ -160,6 +192,7 @@
     --move-eligible-light-square-highlight-color
   );
   --p-move-start-square-color: var(--move-start-light-square-color);
+  --p-move-start-outline-color: var(--move-start-light-outline-color);
 }
 
 /****************
@@ -186,7 +219,7 @@
 
 [data-square] .piece.secondary {
   z-index: 5;
-  opacity: 0.2;
+  opacity: var(--ghost-piece-opacity);
 }
 
 [data-move-state="animating"] .piece {
@@ -195,5 +228,5 @@
 
 [data-square].move-start .piece:not(.secondary) {
   /* Ensure that the piece appears above most other elements in document. */
-  z-index: 9999;
+  z-index: var(--piece-drag-z-index);
 }
