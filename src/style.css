@@ -11,15 +11,15 @@
   --move-start-light-square-color: #fadd4c;
   --move-start-dark-square-color: #10b756;
 
+  /* Color of outline when square is marked as start of move */
+  --move-start-outline-color: hsla(146deg 58% 15% / 95%);
+
   /* Square highlight colors when the square is an eligible move target */
   --move-eligible-light-square-highlight-color: #000;
   --move-eligible-dark-square-highlight-color: #000;
 
   /* Color of outline when square has focus */
   --focus-outline-color: hsla(28deg 94% 60% / 90%);
-
-  /* Color of outline when square is involved in a keyboard move */
-  --kb-move-outline-color: hsla(146deg 58% 15% / 95%);
 
   /* Duration for all transitions */
   --piece-transition-duration: 200ms;
@@ -111,6 +111,10 @@
   --p-square-color: var(--p-move-start-square-color);
 }
 
+[data-square].move-start:not(:focus) {
+  box-shadow: inset 0 0 0 2px var(--move-start-outline-color);
+}
+
 [data-move-state="awaiting-input"] [data-square].has-piece,
 [data-move-state="animating"] [data-square].has-piece {
   cursor: pointer;
@@ -125,10 +129,6 @@
 [data-move-state="awaiting-second-touch"] [data-square],
 [data-move-state="moving-piece-kb"] [data-square] {
   cursor: pointer;
-}
-
-[data-move-state="moving-piece-kb"] [data-square].move-start:not(:focus) {
-  box-shadow: inset 0 0 3px 3px var(--kb-move-outline-color);
 }
 
 [data-move-state] [data-square]:hover:not(.move-start) {
