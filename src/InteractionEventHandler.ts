@@ -162,6 +162,7 @@ export class InteractionEventHandler {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
           // till corresponding mouseup event in order to cancel.
+          this._grid.blurSquare(this._grid.tabbableSquare)
           this._updateInteractionState({
             id: "canceling-second-touch",
             startSquare: clickedSquare,
