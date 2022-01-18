@@ -224,6 +224,7 @@ export class Grid {
         deltaCols: fromCol - toCol,
       }
       this._getBoardSquare(from).setPiece(undefined)
+      this._getBoardSquare(from).finishMove()
       this._getBoardSquare(to).setPiece(this._position[from], startingPosition)
       this._position[to] = this._position[from]
       delete this._position[from]

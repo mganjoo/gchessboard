@@ -186,6 +186,7 @@
 
 [data-square] .piece.secondary {
   z-index: 5;
+  opacity: 0.2;
 }
 
 [data-move-state="animating"] .piece {

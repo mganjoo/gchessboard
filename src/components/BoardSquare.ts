@@ -152,10 +152,10 @@ export class BoardSquare {
   /**
    * Optionally, squares may have a secondary piece, such as a ghost piece shown
    * while dragging, or a temporary state where a captured piece is animating out
-   * as a new piece is entering.The secondary piece is always shown *behind* the
+   * as a new piece is entering. The secondary piece is always shown *behind* the
    * primary piece in the DOM.
    */
-  setSecondaryPiece(piece: Piece | undefined) {
+  private _setSecondaryPiece(piece: Piece | undefined) {
     if (this._secondaryBoardPiece !== undefined) {
       this._secondaryBoardPiece.remove()
     }
@@ -175,10 +175,13 @@ export class BoardSquare {
       this._updateMoveStartClass()
 
       if (piecePositionPx !== undefined) {
-        this._boardPiece?.setExplicitPosition({
+        this._boardPiece.setExplicitPosition({
           type: "coordinates",
           ...piecePositionPx,
         })
+        if (!this._secondaryBoardPiece) {
+          this._setSecondaryPiece(this._boardPiece.piece)
+        }
       }
     }
   }
@@ -190,6 +193,7 @@ export class BoardSquare {
   async finishMove(animate?: boolean) {
     this._moveStart = false
     this._updateMoveStartClass()
+    this._setSecondaryPiece(undefined)
     await this._boardPiece?.resetPosition(animate)
   }
 
