@@ -214,7 +214,7 @@ export class Grid {
    */
   async finishMove(to: Square, instant?: boolean) {
     const from = this._currentMoveSquare
-    if (from !== undefined && from in this._position && to !== from) {
+    if (from !== undefined && this.pieceOn(from) && to !== from) {
       const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
       const [toRow, toCol] = getVisualRowColumn(to, this.orientation)
       const startingPosition = this._getBoardSquare(from)
@@ -242,6 +242,20 @@ export class Grid {
 
   blurSquare(square: Square) {
     this._getBoardSquare(square).blur()
+  }
+
+  /**
+   * Copy primary piece at `square` if it exists, to a secondary
+   * piece, as a copy.
+   */
+  copyPieceToSecondary(square: Square) {
+    if (this.pieceOn(square)) {
+      this._getBoardSquare(square).setSecondaryPiece(this._position[square])
+    }
+  }
+
+  deleteSecondaryPiece(square: Square) {
+    this._getBoardSquare(square).setSecondaryPiece(undefined)
   }
 
   /**
@@ -284,7 +298,7 @@ export class Grid {
     for (let row = 7; row >= 0; row--) {
       for (let col = 0; col <= 7; col++) {
         const square = getSquare(8 * row + col, this.orientation)
-        if (square in this._position) {
+        if (this.pieceOn(square)) {
           return square
         }
       }

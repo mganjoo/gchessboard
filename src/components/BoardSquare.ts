@@ -155,7 +155,7 @@ export class BoardSquare {
    * as a new piece is entering. The secondary piece is always shown *behind* the
    * primary piece in the DOM.
    */
-  private _setSecondaryPiece(piece: Piece | undefined) {
+  setSecondaryPiece(piece: Piece | undefined) {
     if (this._secondaryBoardPiece !== undefined) {
       this._secondaryBoardPiece.remove()
     }
@@ -179,9 +179,6 @@ export class BoardSquare {
           type: "coordinates",
           ...piecePositionPx,
         })
-        if (!this._secondaryBoardPiece) {
-          this._setSecondaryPiece(this._boardPiece.piece)
-        }
       }
     }
   }
@@ -193,7 +190,6 @@ export class BoardSquare {
   async finishMove(animate?: boolean) {
     this._moveStart = false
     this._updateMoveStartClass()
-    this._setSecondaryPiece(undefined)
     await this._boardPiece?.resetPosition(animate)
   }
 
