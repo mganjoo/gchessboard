@@ -178,9 +178,6 @@
   bottom: 0;
   right: 0;
   pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 [data-square] .piece {
