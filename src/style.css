@@ -223,7 +223,7 @@
 }
 
 [data-move-state="animating"] .piece {
-  transition-duration: min(var(--piece-transition-duration), 1ms);
+  transition-duration: max(var(--piece-transition-duration), 1ms);
 }
 
 [data-square].move-start .piece:not(.secondary) {
