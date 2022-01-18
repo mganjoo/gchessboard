@@ -4,6 +4,11 @@
   "description": "A dependency-free, customizable, and accessible JS chessboard.",
   "author": "Milind Ganjoo",
   "license": "MIT",
+  "main": "dist/chessx.cjs.js",
+  "module": "dist/chessx.es.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
