@@ -1,7 +1,7 @@
 import { isSide, getFen, getPosition, Position, Side } from "./utils/chess"
 import { makeHTMLElement } from "./utils/dom"
 import { Grid } from "./components/Grid"
-import { InteractionEventHandler } from "./InteractionEventHandler"
+import { InteractionHandler } from "./components/InteractionHandler"
 import importedStyles from "./style.css?inline"
 import { assertUnreachable } from "./utils/typing"
 
@@ -23,7 +23,7 @@ export class ChessxBoard extends HTMLElement {
   private _style: HTMLStyleElement
   private _group: HTMLDivElement
   private _grid: Grid
-  private _eventsHandler: InteractionEventHandler
+  private _eventsHandler: InteractionHandler
 
   constructor() {
     super()
@@ -37,7 +37,7 @@ export class ChessxBoard extends HTMLElement {
       interactive: false,
       hideCoords: false,
     })
-    this._eventsHandler = new InteractionEventHandler(this._group, this._grid, {
+    this._eventsHandler = new InteractionHandler(this._group, this._grid, {
       enabled: false,
     })
     this._shadow = this.attachShadow({ mode: "open" })

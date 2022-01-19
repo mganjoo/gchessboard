@@ -1,6 +1,6 @@
-import { Grid } from "./components/Grid"
-import { getSquare, getVisualIndex, keyIsSquare, Square } from "./utils/chess"
-import { assertUnreachable, hasDataset } from "./utils/typing"
+import { Grid } from "./Grid"
+import { getSquare, getVisualIndex, keyIsSquare, Square } from "../utils/chess"
+import { assertUnreachable, hasDataset } from "../utils/typing"
 
 type InteractionState =
   | {
@@ -42,7 +42,7 @@ export interface InteractionEventHandlerConfig {
   enabled: boolean
 }
 
-export class InteractionEventHandler {
+export class InteractionHandler {
   private _container: HTMLElement
   private _grid: Grid
   private _enabled: boolean
@@ -127,7 +127,7 @@ export class InteractionEventHandler {
   }
 
   private _handleMouseDown(
-    this: InteractionEventHandler,
+    this: InteractionHandler,
     clickedSquare: Square | undefined,
     e: MouseEvent
   ) {
@@ -184,10 +184,7 @@ export class InteractionEventHandler {
     }
   }
 
-  private _handleMouseUp(
-    this: InteractionEventHandler,
-    square: Square | undefined
-  ) {
+  private _handleMouseUp(this: InteractionHandler, square: Square | undefined) {
     switch (this._interactionState.id) {
       case "touching-first-square":
         this._updateInteractionState({
@@ -235,7 +232,7 @@ export class InteractionEventHandler {
   }
 
   private _handleMouseMove(
-    this: InteractionEventHandler,
+    this: InteractionHandler,
     square: Square | undefined,
     e: MouseEvent
   ) {
@@ -281,7 +278,7 @@ export class InteractionEventHandler {
   }
 
   private _handleFocusOut(
-    this: InteractionEventHandler,
+    this: InteractionHandler,
     square: Square | undefined,
     e: FocusEvent
   ) {
@@ -312,7 +309,7 @@ export class InteractionEventHandler {
   }
 
   private _handleKeyDown(
-    this: InteractionEventHandler,
+    this: InteractionHandler,
     pressedSquare: Square | undefined,
     e: KeyboardEvent
   ) {
@@ -485,7 +482,7 @@ export class InteractionEventHandler {
    */
   private _makeEventHandler<K extends MouseEvent | KeyboardEvent | FocusEvent>(
     callback: (
-      this: InteractionEventHandler,
+      this: InteractionHandler,
       square: Square | undefined,
       e: K
     ) => void
@@ -518,8 +515,8 @@ export class InteractionEventHandler {
   ) {
     const delta = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2)
     const threshold = Math.max(
-      InteractionEventHandler.DRAG_THRESHOLD_MIN_PIXELS,
-      InteractionEventHandler.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION *
+      InteractionHandler.DRAG_THRESHOLD_MIN_PIXELS,
+      InteractionHandler.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION *
         this._grid.tabbableSquareWidth
     )
     // Consider a "dragging" action to be when we have moved the mouse a sufficient
