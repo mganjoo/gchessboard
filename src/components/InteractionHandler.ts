@@ -193,9 +193,7 @@ export class InteractionHandler {
         })
         this._grid.deleteSecondaryPiece(this._interactionState.startSquare)
         this._grid.tabbableSquare = this._interactionState.startSquare
-        this._grid.setCurrentMove({
-          square: this._interactionState.startSquare,
-        })
+        this._grid.startMove(this._interactionState.startSquare)
         this._grid.focusSquare(this._interactionState.startSquare)
         break
       case "dragging":
@@ -253,18 +251,15 @@ export class InteractionHandler {
             id: "dragging",
             startSquare: this._interactionState.startSquare,
           })
-          this._grid.setCurrentMove({
-            square: this._interactionState.startSquare,
-            piecePositionPx: { x: e.clientX, y: e.clientY },
+          this._grid.startMove(this._interactionState.startSquare, {
+            x: e.clientX,
+            y: e.clientY,
           })
           this._grid.tabbableSquare = this._interactionState.startSquare
         }
         break
       case "dragging":
-        this._grid.setCurrentMove({
-          square: this._interactionState.startSquare,
-          piecePositionPx: { x: e.clientX, y: e.clientY },
-        })
+        this._grid.updateMove({ x: e.clientX, y: e.clientY })
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -323,7 +318,7 @@ export class InteractionHandler {
               id: "moving-piece-kb",
               startSquare: pressedSquare,
             })
-            this._grid.setCurrentMove({ square: pressedSquare })
+            this._grid.startMove(pressedSquare)
             this._grid.tabbableSquare = pressedSquare
           }
           break

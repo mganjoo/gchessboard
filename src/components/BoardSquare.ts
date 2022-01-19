@@ -166,20 +166,30 @@ export class BoardSquare {
   }
 
   /**
-   * Start, or update location of, a move. Piece position is set to
-   * `piecePositionPx` explicitly.
+   * Start a move. If provided, piece position is set to `piecePositionPx`
+   * explicitly.
    */
-  startOrUpdateMove(piecePositionPx?: { x: number; y: number }) {
+  startMove(piecePositionPx?: { x: number; y: number }) {
     if (this._boardPiece !== undefined) {
       this._moveStart = true
       this._updateMoveStartClass()
 
       if (piecePositionPx !== undefined) {
-        this._boardPiece.setExplicitPosition({
-          type: "coordinates",
-          ...piecePositionPx,
-        })
+        this.updateMove(piecePositionPx)
       }
+    }
+  }
+
+  /**
+   * Update piece location for existing move. Ignore if square has no
+   * piece or no move is in progress.
+   */
+  updateMove(piecePositionPx: { x: number; y: number }) {
+    if (this._boardPiece !== undefined && this._moveStart) {
+      this._boardPiece.setExplicitPosition({
+        type: "coordinates",
+        ...piecePositionPx,
+      })
     }
   }
 

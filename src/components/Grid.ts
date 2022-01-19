@@ -39,7 +39,10 @@ export class Grid {
   private _hideCoords: boolean
   private _position: Position
   private _tabbableSquare: Square | undefined
-  private _currentMoveSquare?: Square
+  private _currentMove?: {
+    square: Square
+    piecePositionPx?: { x: number; y: number }
+  }
 
   /**
    * Creates a set of elements representing chessboard squares, as well
@@ -171,24 +174,36 @@ export class Grid {
   }
 
   /**
-   * Sets information related to ongoing move (if it exists) for grid.
+   * Sets information related to a new move for grid.
    * This includes the square that started an ongoing move, as well as
    * an optional position of the piece on the screen (e.g. if it is
    * being dragged).
    */
-  setCurrentMove(value: {
-    square: Square
-    piecePositionPx?: { x: number; y: number }
-  }) {
+  startMove(square: Square, piecePositionPx?: { x: number; y: number }) {
     if (
-      this._currentMoveSquare !== undefined &&
-      value.square !== this._currentMoveSquare
+      this._currentMove !== undefined &&
+      square !== this._currentMove.square
     ) {
       // Note that this is an async method but we simply ignore the side effect
-      this._getBoardSquare(this._currentMoveSquare).finishMove()
+      this._getBoardSquare(this._currentMove.square).finishMove()
     }
-    this._getBoardSquare(value.square).startOrUpdateMove(value.piecePositionPx)
-    this._currentMoveSquare = value.square
+    this._currentMove = {
+      square,
+      piecePositionPx: piecePositionPx ? { ...piecePositionPx } : undefined,
+    }
+    this._getBoardSquare(this._currentMove.square).startMove(
+      this._currentMove.piecePositionPx
+    )
+  }
+
+  /**
+   * Update position of existing move (say during a drag operation).
+   */
+  updateMove(piecePositionPx: { x: number; y: number }) {
+    if (this._currentMove !== undefined) {
+      this._currentMove.piecePositionPx = { ...piecePositionPx }
+      this._getBoardSquare(this._currentMove.square).updateMove(piecePositionPx)
+    }
   }
 
   /**
@@ -197,9 +212,9 @@ export class Grid {
    * done; otherwise, resolves immediately.
    */
   async cancelMove(instant?: boolean) {
-    if (this._currentMoveSquare !== undefined) {
-      const moveSquare = this._getBoardSquare(this._currentMoveSquare)
-      this._currentMoveSquare = undefined
+    if (this._currentMove !== undefined) {
+      const moveSquare = this._getBoardSquare(this._currentMove.square)
+      this._currentMove = undefined
       await moveSquare.finishMove(!this.disableAnimation && !instant)
     }
   }
@@ -213,8 +228,9 @@ export class Grid {
    * animation is enabled.
    */
   async finishMove(to: Square, instant?: boolean) {
-    const from = this._currentMoveSquare
-    if (from !== undefined && this.pieceOn(from) && to !== from) {
+    const move = this._currentMove
+    if (move !== undefined && this.pieceOn(move.square) && to !== move.square) {
+      const from = move.square
       const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
       const [toRow, toCol] = getVisualRowColumn(to, this.orientation)
       const startingPosition = this._getBoardSquare(from)
@@ -229,7 +245,7 @@ export class Grid {
       this._position[to] = this._position[from]
       delete this._position[from]
       this.tabbableSquare = to
-      this._currentMoveSquare = undefined
+      this._currentMove = undefined
       await this._getBoardSquare(to).finishMove(
         !this.disableAnimation && !instant
       )
@@ -279,6 +295,11 @@ export class Grid {
         showCoords: !this.hideCoords,
       })
       this._boardSquares[i].setPiece(this._position[square])
+    }
+    if (this._currentMove !== undefined) {
+      this._getBoardSquare(this._currentMove.square).startMove(
+        this._currentMove.piecePositionPx
+      )
     }
   }
 
