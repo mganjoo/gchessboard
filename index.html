@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChessxBoard Demo</title>
-    <script type="module" src="/src/demo.ts"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script type="module" src="/src/index.ts"></script>
     <script type="module">
       window.addEventListener("DOMContentLoaded", () => {
@@ -69,6 +69,11 @@
           })
       })
     </script>
+    <style type="text/tailwindcss">
+      .btn {
+        @apply bg-green-800 text-gray-100 text-sm px-3 py-2 rounded-md hover:bg-green-700 active:bg-green-600;
+      }
+    </style>
   </head>
   <body>
     <template id="svg-a3">
