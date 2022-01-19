@@ -43,6 +43,7 @@ export class Grid {
     square: Square
     piecePositionPx?: { x: number; y: number }
   }
+  private _secondaryPieceSquare?: Square
 
   /**
    * Creates a set of elements representing chessboard squares, as well
@@ -260,18 +261,19 @@ export class Grid {
     this._getBoardSquare(square).blur()
   }
 
-  /**
-   * Copy primary piece at `square` if it exists, to a secondary
-   * piece, as a copy.
-   */
-  copyPieceToSecondary(square: Square) {
-    if (this.pieceOn(square)) {
-      this._getBoardSquare(square).setSecondaryPiece(this._position[square])
-    }
+  showSecondaryPiece(square: Square) {
+    this.removeSecondaryPiece()
+    this._secondaryPieceSquare = square
+    this._getBoardSquare(square).toggleSecondaryPiece(true)
   }
 
-  deleteSecondaryPiece(square: Square) {
-    this._getBoardSquare(square).setSecondaryPiece(undefined)
+  removeSecondaryPiece() {
+    if (this._secondaryPieceSquare) {
+      this._getBoardSquare(this._secondaryPieceSquare).toggleSecondaryPiece(
+        false
+      )
+      this._secondaryPieceSquare = undefined
+    }
   }
 
   /**
@@ -295,6 +297,9 @@ export class Grid {
         showCoords: !this.hideCoords,
       })
       this._boardSquares[i].setPiece(this._position[square])
+      this._boardSquares[i].toggleSecondaryPiece(
+        !!this._secondaryPieceSquare && this._secondaryPieceSquare === square
+      )
     }
     if (this._currentMove !== undefined) {
       this._getBoardSquare(this._currentMove.square).startMove(

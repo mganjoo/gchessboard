@@ -151,17 +151,19 @@ export class BoardSquare {
 
   /**
    * Optionally, squares may have a secondary piece, such as a ghost piece shown
-   * while dragging, or a temporary state where a captured piece is animating out
-   * as a new piece is entering. The secondary piece is always shown *behind* the
-   * primary piece in the DOM.
+   * while dragging. The secondary piece is always shown *behind* the primary
+   * piece in the DOM.
    */
-  setSecondaryPiece(piece: Piece | undefined) {
-    if (this._secondaryBoardPiece !== undefined) {
+  toggleSecondaryPiece(show: boolean) {
+    if (!show && this._secondaryBoardPiece !== undefined) {
       this._secondaryBoardPiece.remove()
     }
     this._secondaryBoardPiece =
-      piece !== undefined
-        ? new BoardPiece(this._element, { piece, secondary: true })
+      show && this._boardPiece !== undefined
+        ? new BoardPiece(this._element, {
+            piece: this._boardPiece.piece,
+            secondary: true,
+          })
         : undefined
   }
 

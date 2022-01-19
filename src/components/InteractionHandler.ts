@@ -147,7 +147,7 @@ export class InteractionHandler {
             touchStartX: e.clientX,
             touchStartY: e.clientY,
           })
-          this._grid.copyPieceToSecondary(clickedSquare)
+          this._grid.showSecondaryPiece(clickedSquare)
         }
         break
       case "moving-piece-kb":
@@ -170,7 +170,7 @@ export class InteractionHandler {
             touchStartX: e.clientX,
             touchStartY: e.clientY,
           })
-          this._grid.copyPieceToSecondary(clickedSquare)
+          this._grid.showSecondaryPiece(clickedSquare)
         }
         break
       case "dragging":
@@ -191,13 +191,13 @@ export class InteractionHandler {
           id: "awaiting-second-touch",
           startSquare: this._interactionState.startSquare,
         })
-        this._grid.deleteSecondaryPiece(this._interactionState.startSquare)
+        this._grid.removeSecondaryPiece()
         this._grid.tabbableSquare = this._interactionState.startSquare
         this._grid.startMove(this._interactionState.startSquare)
         this._grid.focusSquare(this._interactionState.startSquare)
         break
       case "dragging":
-        this._grid.deleteSecondaryPiece(this._interactionState.startSquare)
+        this._grid.removeSecondaryPiece()
         if (square && this._interactionState.startSquare !== square) {
           const tabbableSquare = this._grid.tabbableSquare
           // Snap after drag should be instant
@@ -212,7 +212,7 @@ export class InteractionHandler {
         break
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
-        this._grid.deleteSecondaryPiece(this._interactionState.startSquare)
+        this._grid.removeSecondaryPiece()
         this._cancelMove(true)
         this._grid.blurSquare(this._grid.tabbableSquare)
         break
