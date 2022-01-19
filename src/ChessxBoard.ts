@@ -23,7 +23,7 @@ export class ChessxBoard extends HTMLElement {
   private _style: HTMLStyleElement
   private _group: HTMLDivElement
   private _grid: Grid
-  private _eventsHandler: InteractionHandler
+  private _interactionHandler: InteractionHandler
 
   constructor() {
     super()
@@ -37,7 +37,7 @@ export class ChessxBoard extends HTMLElement {
       interactive: false,
       hideCoords: false,
     })
-    this._eventsHandler = new InteractionHandler(this._group, this._grid, {
+    this._interactionHandler = new InteractionHandler(this._group, this._grid, {
       enabled: false,
     })
     this._shadow = this.attachShadow({ mode: "open" })
@@ -49,7 +49,7 @@ export class ChessxBoard extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this._eventsHandler.deactivate()
+    this._interactionHandler.deactivate()
     this._grid.destroy()
   }
 
@@ -63,7 +63,7 @@ export class ChessxBoard extends HTMLElement {
         {
           const interactive = this._parseBooleanAttribute(newValue)
           this._grid.interactive = interactive
-          this._eventsHandler.enabled = interactive
+          this._interactionHandler.enabled = interactive
         }
         break
       case "hide-coords":
