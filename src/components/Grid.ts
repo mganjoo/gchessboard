@@ -335,7 +335,7 @@ export class Grid {
   private _slotChangeListener: (e: Event) => void = (e) => {
     if (Grid._isSlotElement(e.target)) {
       // Add "has-content" class to parent if slot is occupied
-      e.target.parentElement?.classList.toggle(
+      e.target.parentElement?.parentElement?.classList.toggle(
         "has-content",
         e.target.assignedElements().length > 0
       )

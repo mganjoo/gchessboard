@@ -57,10 +57,14 @@ export class BoardSquare {
     this._labelSpanElement = makeHTMLElement("span", {
       classes: ["label"],
     })
+    const slotWrapper = makeHTMLElement("div", {
+      classes: ["content"],
+    })
     this._slotElement = document.createElement("slot")
+    slotWrapper.appendChild(this._slotElement)
 
     this._element.appendChild(this._labelSpanElement)
-    this._element.appendChild(this._slotElement)
+    this._element.appendChild(slotWrapper)
 
     if (constructorOptions?.makeFileLabel) {
       this._fileLabelElement = makeHTMLElement("span", {
