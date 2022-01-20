@@ -224,14 +224,6 @@ export class Grid {
     )
   }
 
-  private _focusSquare(square: Square) {
-    this._getBoardSquare(square).focus()
-  }
-
-  private _blurSquare(square: Square) {
-    this._getBoardSquare(square).blur()
-  }
-
   private _showSecondaryPiece(square: Square) {
     this._removeSecondaryPiece()
     this._secondaryPieceSquare = square
@@ -325,7 +317,7 @@ export class Grid {
       this._currentMove = undefined
       this._getBoardSquare(to).finishMove(!instant)
     }
-    this._updateInteractionState({ id: "awaiting-input" })
+    this._setInteractionState({ id: "awaiting-input" })
   }
 
   private _cancelMove(instant?: boolean) {
@@ -334,10 +326,10 @@ export class Grid {
       this._currentMove = undefined
       moveSquare.finishMove(!instant)
     }
-    this._updateInteractionState({ id: "awaiting-input" })
+    this._setInteractionState({ id: "awaiting-input" })
   }
 
-  private _updateInteractionState(state: InteractionState) {
+  private _setInteractionState(state: InteractionState) {
     this._interactionState = state
     this._updateContainerInteractionStateLabel()
   }
@@ -345,6 +337,7 @@ export class Grid {
   private _toggleHandlers(enabled: boolean) {
     if (enabled) {
       this._table.addEventListener("mousedown", this._mouseDownHandler)
+      // Document-level listeners for mouse-up and mouse-move to detect interaction outside
       document.addEventListener("mouseup", this._mouseUpHandler)
       document.addEventListener("mousemove", this._mouseMoveHandler)
       this._table.addEventListener("focusout", this._focusOutHandler)
@@ -371,8 +364,8 @@ export class Grid {
           // Blur any existing tabbable square if it exists. This cancels
           // existing moves by default so must occur before we update to
           // new state.
-          this._blurSquare(this.tabbableSquare)
-          this._updateInteractionState({
+          this._getBoardSquare(this.tabbableSquare).blur()
+          this._setInteractionState({
             id: "touching-first-square",
             startSquare: clickedSquare,
             touchStartX: e.clientX,
@@ -389,13 +382,13 @@ export class Grid {
         ) {
           const tabbableSquare = this.tabbableSquare
           this._finishMove(clickedSquare)
-          this._blurSquare(tabbableSquare)
+          this._getBoardSquare(tabbableSquare).blur()
         } else if (this._interactionState.startSquare === clickedSquare) {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
           // till corresponding mouseup event in order to cancel.
-          this._blurSquare(this.tabbableSquare)
-          this._updateInteractionState({
+          this._getBoardSquare(this.tabbableSquare).blur()
+          this._setInteractionState({
             id: "canceling-second-touch",
             startSquare: clickedSquare,
             touchStartX: e.clientX,
@@ -418,14 +411,14 @@ export class Grid {
   private _handleMouseUp(this: Grid, square: Square | undefined) {
     switch (this._interactionState.id) {
       case "touching-first-square":
-        this._updateInteractionState({
+        this._setInteractionState({
           id: "awaiting-second-touch",
           startSquare: this._interactionState.startSquare,
         })
         this._removeSecondaryPiece()
         this.tabbableSquare = this._interactionState.startSquare
         this._startMove(this._interactionState.startSquare)
-        this._focusSquare(this._interactionState.startSquare)
+        this._getBoardSquare(this._interactionState.startSquare).focus()
         break
       case "dragging":
         this._removeSecondaryPiece()
@@ -433,19 +426,19 @@ export class Grid {
           const tabbableSquare = this.tabbableSquare
           // Snap after drag should be instant
           this._finishMove(square, true)
-          this._blurSquare(tabbableSquare)
+          this._getBoardSquare(tabbableSquare).blur()
         } else {
           // Cancel move instantly (without animation) if drag was within board
           // For pieces that left board area, do an animated snap back.
           this._cancelMove(!!square)
-          this._blurSquare(this.tabbableSquare)
+          this._getBoardSquare(this.tabbableSquare).blur()
         }
         break
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
         this._removeSecondaryPiece()
         this._cancelMove(true)
-        this._blurSquare(this.tabbableSquare)
+        this._getBoardSquare(this.tabbableSquare).blur()
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -467,25 +460,32 @@ export class Grid {
     switch (this._interactionState.id) {
       case "touching-first-square":
       case "canceling-second-touch":
-        if (
-          this._cursorPassedDragThreshold(
-            e.clientX,
-            e.clientY,
-            square,
-            this._interactionState.touchStartX,
-            this._interactionState.touchStartY,
-            this._interactionState.startSquare
+        {
+          const delta = Math.sqrt(
+            (e.clientX - this._interactionState.touchStartX) ** 2 +
+              (e.clientY - this._interactionState.touchStartY) ** 2
           )
-        ) {
-          this._updateInteractionState({
-            id: "dragging",
-            startSquare: this._interactionState.startSquare,
-          })
-          this._startMove(this._interactionState.startSquare, {
-            x: e.clientX,
-            y: e.clientY,
-          })
-          this.tabbableSquare = this._interactionState.startSquare
+          const squareWidth = this._getBoardSquare(this.tabbableSquare).width
+          const threshold = Math.max(
+            Grid.DRAG_THRESHOLD_MIN_PIXELS,
+            Grid.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION * squareWidth
+          )
+          // Consider a "dragging" action to be when we have moved the mouse a sufficient
+          // threshold, or we are now in a different square from where we started.
+          if (
+            (squareWidth !== 0 && delta > threshold) ||
+            square !== this._interactionState.startSquare
+          ) {
+            this._setInteractionState({
+              id: "dragging",
+              startSquare: this._interactionState.startSquare,
+            })
+            this._startMove(this._interactionState.startSquare, {
+              x: e.clientX,
+              y: e.clientY,
+            })
+            this.tabbableSquare = this._interactionState.startSquare
+          }
         }
         break
       case "dragging":
@@ -504,32 +504,6 @@ export class Grid {
       default:
         assertUnreachable(this._interactionState)
     }
-  }
-
-  /**
-   * Return true if cursor on (`x`, `y`) and `square` exceeds "drag"
-   * threshold, either if:
-   * - distance from start X and Y is greater than a threshold percent of
-   *   square width
-   * - the current mouseover square is different from starting square
-   */
-  private _cursorPassedDragThreshold(
-    x: number,
-    y: number,
-    square: Square | undefined,
-    startX: number,
-    startY: number,
-    startSquare: Square
-  ) {
-    const delta = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2)
-    const squareWidth = this._getBoardSquare(this.tabbableSquare).width
-    const threshold = Math.max(
-      Grid.DRAG_THRESHOLD_MIN_PIXELS,
-      Grid.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION * squareWidth
-    )
-    // Consider a "dragging" action to be when we have moved the mouse a sufficient
-    // threshold, or we are now in a different square from where we started.
-    return (squareWidth !== 0 && delta > threshold) || square !== startSquare
   }
 
   private _handleFocusOut(
@@ -572,7 +546,7 @@ export class Grid {
         case "awaiting-input":
           // Ignore presses for squares that have no piece on them
           if (pressedSquare && this._pieceOn(pressedSquare)) {
-            this._updateInteractionState({
+            this._setInteractionState({
               id: "moving-piece-kb",
               startSquare: pressedSquare,
             })
@@ -655,7 +629,7 @@ export class Grid {
 
       if (newIdx !== currentIdx) {
         this.tabbableSquare = getSquare(newIdx, this.orientation)
-        this._focusSquare(this.tabbableSquare)
+        this._getBoardSquare(this.tabbableSquare).focus()
 
         // If we are currently in a non-keyboard friendly state, we should
         // still transition to one since we started keyboard navigation.
@@ -664,7 +638,7 @@ export class Grid {
           case "moving-piece-kb":
             break
           case "awaiting-second-touch":
-            this._updateInteractionState({
+            this._setInteractionState({
               id: "moving-piece-kb",
               startSquare: this._interactionState.startSquare,
             })
@@ -675,7 +649,7 @@ export class Grid {
             // Similar to canceling move, but don't blur focused square
             // since we just gave it focus through keyboard navigation
             // istanbul ignore next
-            this._updateInteractionState({ id: "awaiting-input" })
+            this._setInteractionState({ id: "awaiting-input" })
             break
           case "dragging":
             // Noop: continue with drag operation even if focus was moved around

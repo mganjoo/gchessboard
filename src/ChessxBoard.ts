@@ -5,17 +5,15 @@ import importedStyles from "./style.css?inline"
 import { assertUnreachable } from "./utils/typing"
 
 export class ChessxBoard extends HTMLElement {
-  private _position: Position = {}
-
   static get observedAttributes() {
     return ["orientation", "interactive", "fen", "hide-coords"] as const
   }
 
-  // Private contained elements
   private _shadow: ShadowRoot
   private _style: HTMLStyleElement
   private _group: HTMLDivElement
   private _grid: Grid
+  private _position: Position = {}
 
   constructor() {
     super()
@@ -120,6 +118,7 @@ export class ChessxBoard extends HTMLElement {
     if (position !== undefined) {
       this.position = position
     } else {
+      // TODO: dispatch an ErrorEvent instead
       throw new Error(`Invalid FEN position: ${value}`)
     }
   }
