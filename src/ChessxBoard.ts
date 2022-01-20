@@ -15,18 +15,13 @@ export class ChessxBoard extends HTMLElement {
 
   constructor() {
     super()
+    this._shadow = this.attachShadow({ mode: "open" })
+
     this._style = document.createElement("style")
     this._style.textContent = importedStyles
-    this._board = new Board({
-      orientation: "white",
-      interactive: false,
-      hideCoords: false,
-    })
-    this._shadow = this.attachShadow({ mode: "open" })
-  }
-
-  connectedCallback() {
     this._shadow.appendChild(this._style)
+
+    this._board = new Board()
     this._shadow.appendChild(this._board.element)
   }
 

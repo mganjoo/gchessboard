@@ -13,27 +13,6 @@ import { BoardState } from "../utils/BoardState"
 import { assertUnreachable, hasDataset } from "../utils/typing"
 import { BoardSquare } from "./BoardSquare"
 
-export interface BoardConfig {
-  /**
-   * What side's perspective to render squares from (what color appears on bottom).
-   */
-  orientation: Side
-  /**
-   * Whether the squares are interactive. This decides whether to apply attributes
-   * like ARIA labels and roles.
-   */
-  interactive: boolean
-  /**
-   * Map of square -> piece to initialize with. Since the Grid object manages
-   * the pieces layer as well, all pieces management occurs via `GridConfig`.
-   */
-  position?: Position
-  /**
-   * Whether to hide coordinate labels for the board.
-   */
-  hideCoords: boolean
-}
-
 export class Board {
   private readonly _table: HTMLElement
   private readonly _boardSquares: BoardSquare[]
@@ -69,17 +48,17 @@ export class Board {
    * Creates a set of elements representing chessboard squares, as well
    * as managing and displaying pieces rendered on the squares.
    */
-  constructor(config: BoardConfig) {
+  constructor() {
     this._boardSquares = new Array(64)
-    this._orientation = config.orientation
-    this._interactive = config.interactive || false
-    this._hideCoords = config.hideCoords || false
-    this._position = { ...config.position }
-    this._boardState = { id: this.interactive ? "awaiting-input" : "default" }
+    this._orientation = "white"
+    this._interactive = false
+    this._hideCoords = false
+    this._position = {}
+    this._boardState = { id: "default" }
 
     this._table = makeHTMLElement("table", {
       attributes: {
-        role: this.interactive ? "grid" : "table",
+        role: "table",
         "aria-label": "Chess board",
       },
       classes: ["board"],
@@ -97,16 +76,15 @@ export class Board {
           row,
           {
             label: square,
-            interactive: this.interactive,
+            interactive: false,
             tabbable: tabbableSquare === square,
-            showCoords: !this.hideCoords,
+            showCoords: true,
           },
           {
             makeFileLabel: i === 7,
             makeRankLabel: j === 0,
           }
         )
-        this._boardSquares[idx].setPiece(this._position[square])
       }
       this._table.appendChild(row)
     }
@@ -121,8 +99,6 @@ export class Board {
     this._table.addEventListener("slotchange", this._slotChangeHandler)
     this._table.addEventListener("transitionend", this._transitionHandler)
     this._table.addEventListener("transitioncancel", this._transitionHandler)
-    this._toggleHandlers(this.interactive)
-    this._updateContainerInteractionStateLabel()
   }
 
   /**
@@ -132,7 +108,7 @@ export class Board {
     this._table.removeEventListener("slotchange", this._slotChangeHandler)
     this._table.removeEventListener("transitionend", this._transitionHandler)
     this._table.removeEventListener("transitioncancel", this._transitionHandler)
-    this._toggleHandlers(false)
+    this._toggleInputHandlers(false)
   }
 
   get element() {
@@ -171,7 +147,7 @@ export class Board {
     this._getBoardSquare(this.tabbableSquare).blur()
     this._setBoardState(value ? { id: "awaiting-input" } : { id: "default" })
     this._updateAllSquareProps()
-    this._toggleHandlers(value)
+    this._toggleInputHandlers(value)
   }
 
   get position() {
@@ -364,7 +340,7 @@ export class Board {
     this._updateContainerInteractionStateLabel()
   }
 
-  private _toggleHandlers(enabled: boolean) {
+  private _toggleInputHandlers(enabled: boolean) {
     if (enabled) {
       this._table.addEventListener("mousedown", this._mouseDownHandler)
       // Document-level listeners for mouse-up and mouse-move to detect interaction outside
