@@ -1,7 +1,6 @@
 import { isSide, getFen, getPosition, Position, Side } from "./utils/chess"
 import { makeHTMLElement } from "./utils/dom"
 import { Grid } from "./components/Grid"
-import { InteractionHandler } from "./components/InteractionHandler"
 import importedStyles from "./style.css?inline"
 import { assertUnreachable } from "./utils/typing"
 
@@ -23,7 +22,6 @@ export class ChessxBoard extends HTMLElement {
   private _style: HTMLStyleElement
   private _group: HTMLDivElement
   private _grid: Grid
-  private _interactionHandler: InteractionHandler
 
   constructor() {
     super()
@@ -37,9 +35,6 @@ export class ChessxBoard extends HTMLElement {
       interactive: false,
       hideCoords: false,
     })
-    this._interactionHandler = new InteractionHandler(this._group, this._grid, {
-      enabled: false,
-    })
     this._shadow = this.attachShadow({ mode: "open" })
   }
 
@@ -49,7 +44,6 @@ export class ChessxBoard extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this._interactionHandler.deactivate()
     this._grid.destroy()
   }
 
@@ -60,11 +54,7 @@ export class ChessxBoard extends HTMLElement {
   ) {
     switch (name) {
       case "interactive":
-        {
-          const interactive = this._parseBooleanAttribute(newValue)
-          this._grid.interactive = interactive
-          this._interactionHandler.enabled = interactive
-        }
+        this._grid.interactive = this._parseBooleanAttribute(newValue)
         break
       case "hide-coords":
         this._grid.hideCoords = this._parseBooleanAttribute(newValue)

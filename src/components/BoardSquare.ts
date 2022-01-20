@@ -40,10 +40,9 @@ export class BoardSquare {
   private _boardPiece?: BoardPiece
   private _secondaryBoardPiece?: BoardPiece
   private _props: BoardSquareProps
+  private _hasContent?: boolean
 
-  /**
-   * Whether this square should be marked as the start of an ongoing move.
-   */
+  // Whether this square should be marked as the start of an ongoing move.
   private _moveStart?: boolean
 
   constructor(
@@ -107,6 +106,18 @@ export class BoardSquare {
   set tabbable(value: boolean) {
     this._props.tabbable = value
     this._updateTabIndex()
+  }
+
+  /**
+   * Whether this square should be marked as containing any slotted content.
+   */
+  get hasContent(): boolean {
+    return !!this._hasContent
+  }
+
+  set hasContent(value: boolean) {
+    this._hasContent = value
+    this._element.classList.toggle("has-content", value)
   }
 
   /**
