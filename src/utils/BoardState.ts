@@ -1,6 +1,6 @@
 import { Square } from "./chess"
 
-export type InteractionState =
+export type BoardState =
   | {
       id: "awaiting-input"
     }

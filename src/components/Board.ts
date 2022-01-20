@@ -9,11 +9,11 @@ import {
   keyIsSquare,
 } from "../utils/chess"
 import { makeHTMLElement } from "../utils/dom"
-import { InteractionState } from "../utils/InteractionState"
+import { BoardState } from "../utils/BoardState"
 import { assertUnreachable, hasDataset } from "../utils/typing"
 import { BoardSquare } from "./BoardSquare"
 
-export interface GridConfig {
+export interface BoardConfig {
   /**
    * What side's perspective to render squares from (what color appears on bottom).
    */
@@ -34,7 +34,7 @@ export interface GridConfig {
   hideCoords: boolean
 }
 
-export class Grid {
+export class Board {
   private readonly _table: HTMLElement
   private readonly _boardSquares: BoardSquare[]
   private _orientation: Side
@@ -47,7 +47,7 @@ export class Grid {
     piecePositionPx?: { x: number; y: number }
   }
   private _secondaryPieceSquare?: Square
-  private _interactionState: InteractionState
+  private _boardState: BoardState
 
   // Event handlers
   private _mouseDownHandler: (e: MouseEvent) => void
@@ -71,13 +71,13 @@ export class Grid {
    * Creates a set of elements representing chessboard squares, as well
    * as managing and displaying pieces rendered on the squares.
    */
-  constructor(container: HTMLElement, config: GridConfig) {
+  constructor(container: HTMLElement, config: BoardConfig) {
     this._boardSquares = new Array(64)
     this._orientation = config.orientation
     this._interactive = config.interactive || false
     this._hideCoords = config.hideCoords || false
     this._position = { ...config.position }
-    this._interactionState = { id: "awaiting-input" }
+    this._boardState = { id: "awaiting-input" }
 
     this._table = makeHTMLElement("table", {
       attributes: { role: "grid" },
@@ -163,7 +163,7 @@ export class Grid {
     this._toggleHandlers(value)
     if (!value) {
       // Always reset to awaiting-input when disabling interactivity
-      this._interactionState = { id: "awaiting-input" }
+      this._boardState = { id: "awaiting-input" }
     }
   }
 
@@ -329,8 +329,8 @@ export class Grid {
     this._setInteractionState({ id: "awaiting-input" })
   }
 
-  private _setInteractionState(state: InteractionState) {
-    this._interactionState = state
+  private _setInteractionState(state: BoardState) {
+    this._boardState = state
     this._updateContainerInteractionStateLabel()
   }
 
@@ -352,13 +352,13 @@ export class Grid {
   }
 
   private _handleMouseDown(
-    this: Grid,
+    this: Board,
     clickedSquare: Square | undefined,
     e: MouseEvent
   ) {
     // We will control focus entirely ourselves
     e.preventDefault()
-    switch (this._interactionState.id) {
+    switch (this._boardState.id) {
       case "awaiting-input":
         if (clickedSquare && this._pieceOn(clickedSquare)) {
           // Blur any existing tabbable square if it exists. This cancels
@@ -376,14 +376,11 @@ export class Grid {
         break
       case "moving-piece-kb":
       case "awaiting-second-touch":
-        if (
-          clickedSquare &&
-          this._interactionState.startSquare !== clickedSquare
-        ) {
+        if (clickedSquare && this._boardState.startSquare !== clickedSquare) {
           const tabbableSquare = this.tabbableSquare
           this._finishMove(clickedSquare)
           this._getBoardSquare(tabbableSquare).blur()
-        } else if (this._interactionState.startSquare === clickedSquare) {
+        } else if (this._boardState.startSquare === clickedSquare) {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
           // till corresponding mouseup event in order to cancel.
@@ -404,25 +401,25 @@ export class Grid {
         break
       // istanbul ignore next
       default:
-        assertUnreachable(this._interactionState)
+        assertUnreachable(this._boardState)
     }
   }
 
-  private _handleMouseUp(this: Grid, square: Square | undefined) {
-    switch (this._interactionState.id) {
+  private _handleMouseUp(this: Board, square: Square | undefined) {
+    switch (this._boardState.id) {
       case "touching-first-square":
         this._setInteractionState({
           id: "awaiting-second-touch",
-          startSquare: this._interactionState.startSquare,
+          startSquare: this._boardState.startSquare,
         })
         this._removeSecondaryPiece()
-        this.tabbableSquare = this._interactionState.startSquare
-        this._startMove(this._interactionState.startSquare)
-        this._getBoardSquare(this._interactionState.startSquare).focus()
+        this.tabbableSquare = this._boardState.startSquare
+        this._startMove(this._boardState.startSquare)
+        this._getBoardSquare(this._boardState.startSquare).focus()
         break
       case "dragging":
         this._removeSecondaryPiece()
-        if (square && this._interactionState.startSquare !== square) {
+        if (square && this._boardState.startSquare !== square) {
           const tabbableSquare = this.tabbableSquare
           // Snap after drag should be instant
           this._finishMove(square, true)
@@ -448,43 +445,43 @@ export class Grid {
         break
       // istanbul ignore next
       default:
-        assertUnreachable(this._interactionState)
+        assertUnreachable(this._boardState)
     }
   }
 
   private _handleMouseMove(
-    this: Grid,
+    this: Board,
     square: Square | undefined,
     e: MouseEvent
   ) {
-    switch (this._interactionState.id) {
+    switch (this._boardState.id) {
       case "touching-first-square":
       case "canceling-second-touch":
         {
           const delta = Math.sqrt(
-            (e.clientX - this._interactionState.touchStartX) ** 2 +
-              (e.clientY - this._interactionState.touchStartY) ** 2
+            (e.clientX - this._boardState.touchStartX) ** 2 +
+              (e.clientY - this._boardState.touchStartY) ** 2
           )
           const squareWidth = this._getBoardSquare(this.tabbableSquare).width
           const threshold = Math.max(
-            Grid.DRAG_THRESHOLD_MIN_PIXELS,
-            Grid.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION * squareWidth
+            Board.DRAG_THRESHOLD_MIN_PIXELS,
+            Board.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION * squareWidth
           )
           // Consider a "dragging" action to be when we have moved the mouse a sufficient
           // threshold, or we are now in a different square from where we started.
           if (
             (squareWidth !== 0 && delta > threshold) ||
-            square !== this._interactionState.startSquare
+            square !== this._boardState.startSquare
           ) {
             this._setInteractionState({
               id: "dragging",
-              startSquare: this._interactionState.startSquare,
+              startSquare: this._boardState.startSquare,
             })
-            this._startMove(this._interactionState.startSquare, {
+            this._startMove(this._boardState.startSquare, {
               x: e.clientX,
               y: e.clientY,
             })
-            this.tabbableSquare = this._interactionState.startSquare
+            this.tabbableSquare = this._boardState.startSquare
           }
         }
         break
@@ -502,16 +499,16 @@ export class Grid {
         break
       // istanbul ignore next
       default:
-        assertUnreachable(this._interactionState)
+        assertUnreachable(this._boardState)
     }
   }
 
   private _handleFocusOut(
-    this: Grid,
+    this: Board,
     square: Square | undefined,
     e: FocusEvent
   ) {
-    switch (this._interactionState.id) {
+    switch (this._boardState.id) {
       case "moving-piece-kb":
       case "awaiting-second-touch":
       case "touching-first-square":
@@ -532,17 +529,17 @@ export class Grid {
         break
       // istanbul ignore next
       default:
-        assertUnreachable(this._interactionState)
+        assertUnreachable(this._boardState)
     }
   }
 
   private _handleKeyDown(
-    this: Grid,
+    this: Board,
     pressedSquare: Square | undefined,
     e: KeyboardEvent
   ) {
     if (e.key === "Enter") {
-      switch (this._interactionState.id) {
+      switch (this._boardState.id) {
         case "awaiting-input":
           // Ignore presses for squares that have no piece on them
           if (pressedSquare && this._pieceOn(pressedSquare)) {
@@ -558,10 +555,7 @@ export class Grid {
         case "awaiting-second-touch":
           // Only move if enter was inside squares area and if start
           // and end square are not the same.
-          if (
-            pressedSquare &&
-            this._interactionState.startSquare !== pressedSquare
-          ) {
+          if (pressedSquare && this._boardState.startSquare !== pressedSquare) {
             this._finishMove(pressedSquare)
           } else {
             this._cancelMove(true)
@@ -574,7 +568,7 @@ export class Grid {
           break
         // istanbul ignore next
         default:
-          assertUnreachable(this._interactionState)
+          assertUnreachable(this._boardState)
       }
     } else {
       const currentIdx = getVisualIndex(this.tabbableSquare, this.orientation)
@@ -633,14 +627,14 @@ export class Grid {
 
         // If we are currently in a non-keyboard friendly state, we should
         // still transition to one since we started keyboard navigation.
-        switch (this._interactionState.id) {
+        switch (this._boardState.id) {
           case "awaiting-input":
           case "moving-piece-kb":
             break
           case "awaiting-second-touch":
             this._setInteractionState({
               id: "moving-piece-kb",
-              startSquare: this._interactionState.startSquare,
+              startSquare: this._boardState.startSquare,
             })
             break
           // istanbul ignore next
@@ -656,7 +650,7 @@ export class Grid {
             break
           // istanbul ignore next
           default:
-            assertUnreachable(this._interactionState)
+            assertUnreachable(this._boardState)
         }
       }
     }
@@ -669,7 +663,7 @@ export class Grid {
    */
   private _updateContainerInteractionStateLabel() {
     if (this._interactive) {
-      this._table.dataset.moveState = this._interactionState.id
+      this._table.dataset.moveState = this._boardState.id
     } else {
       delete this._table.dataset["moveState"]
     }
@@ -681,7 +675,7 @@ export class Grid {
    * question, then passes square label and current event to `callback`.
    */
   private _makeEventHandler<K extends MouseEvent | KeyboardEvent | FocusEvent>(
-    callback: (this: Grid, square: Square | undefined, e: K) => void
+    callback: (this: Board, square: Square | undefined, e: K) => void
   ): (e: K) => void {
     const boundCallback = callback.bind(this)
     return (e: K) => {
@@ -695,7 +689,7 @@ export class Grid {
   }
 
   private _slotChangeHandler: (e: Event) => void = (e) => {
-    if (Grid._isSlotElement(e.target) && keyIsSquare(e.target.name)) {
+    if (Board._isSlotElement(e.target) && keyIsSquare(e.target.name)) {
       this._getBoardSquare(e.target.name).hasContent =
         e.target.assignedElements().length > 0
     }

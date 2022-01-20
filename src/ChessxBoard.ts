@@ -1,6 +1,6 @@
 import { isSide, getFen, getPosition, Position, Side } from "./utils/chess"
 import { makeHTMLElement } from "./utils/dom"
-import { Grid } from "./components/Grid"
+import { Board } from "./components/Board"
 import importedStyles from "./style.css?inline"
 import { assertUnreachable } from "./utils/typing"
 
@@ -12,7 +12,7 @@ export class ChessxBoard extends HTMLElement {
   private _shadow: ShadowRoot
   private _style: HTMLStyleElement
   private _group: HTMLDivElement
-  private _grid: Grid
+  private _grid: Board
   private _position: Position = {}
 
   constructor() {
@@ -22,7 +22,7 @@ export class ChessxBoard extends HTMLElement {
     this._group = makeHTMLElement("div", {
       classes: ["chessboard"],
     })
-    this._grid = new Grid(this._group, {
+    this._grid = new Board(this._group, {
       orientation: "white",
       interactive: false,
       hideCoords: false,
