@@ -203,11 +203,6 @@ export class Grid {
     this._tabbableSquare = value
   }
 
-  /**
-   * Disable animations.
-   */
-  disableAnimation = false
-
   private _startMove(
     square: Square,
     piecePositionPx?: { x: number; y: number }
@@ -329,7 +324,7 @@ export class Grid {
       this.tabbableSquare = to
       this._currentMove = undefined
       this._getBoardSquare(to)
-        .finishMove(!this.disableAnimation && !instant)
+        .finishMove(!instant)
         .then(this._resetStateIfAnimating.bind(this))
     } else {
       this._updateInteractionState({ id: "awaiting-input" })
@@ -342,7 +337,7 @@ export class Grid {
       const moveSquare = this._getBoardSquare(this._currentMove.square)
       this._currentMove = undefined
       moveSquare
-        .finishMove(!this.disableAnimation && !instant)
+        .finishMove(!instant)
         .then(this._resetStateIfAnimating.bind(this))
     } else {
       this._updateInteractionState({ id: "awaiting-input" })
