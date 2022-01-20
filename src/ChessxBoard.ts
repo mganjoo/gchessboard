@@ -25,8 +25,12 @@ export class ChessxBoard extends HTMLElement {
     this._shadow.appendChild(this._board.element)
   }
 
+  connectedCallback() {
+    this._board.addGlobalListeners()
+  }
+
   disconnectedCallback() {
-    this._board.destroy()
+    this._board.removeGlobalListeners()
   }
 
   attributeChangedCallback(

@@ -9,7 +9,7 @@ import {
   keyIsSquare,
 } from "../utils/chess"
 import { makeHTMLElement } from "../utils/dom"
-import { BoardState } from "../utils/BoardState"
+import { BoardState } from "./BoardState"
 import { assertUnreachable, hasDataset } from "../utils/typing"
 import { BoardSquare } from "./BoardSquare"
 
@@ -96,19 +96,23 @@ export class Board {
     this._focusInHandler = this._makeEventHandler(this._handleFocusIn)
     this._focusOutHandler = this._makeEventHandler(this._handleFocusOut)
 
+    this._table.addEventListener("mousedown", this._mouseDownHandler)
+    this._table.addEventListener("focusin", this._focusInHandler)
+    this._table.addEventListener("focusout", this._focusOutHandler)
+    this._table.addEventListener("keydown", this._keyDownHandler)
     this._table.addEventListener("slotchange", this._slotChangeHandler)
     this._table.addEventListener("transitionend", this._transitionHandler)
     this._table.addEventListener("transitioncancel", this._transitionHandler)
   }
 
-  /**
-   * Remove all event listeners for the grid and nested objects.
-   */
-  destroy() {
-    this._table.removeEventListener("slotchange", this._slotChangeHandler)
-    this._table.removeEventListener("transitionend", this._transitionHandler)
-    this._table.removeEventListener("transitioncancel", this._transitionHandler)
-    this._toggleInputHandlers(false)
+  addGlobalListeners() {
+    document.addEventListener("mouseup", this._mouseUpHandler)
+    document.addEventListener("mousemove", this._mouseMoveHandler)
+  }
+
+  removeGlobalListeners() {
+    document.removeEventListener("mouseup", this._mouseUpHandler)
+    document.removeEventListener("mousemove", this._mouseMoveHandler)
   }
 
   get element() {
@@ -147,7 +151,6 @@ export class Board {
     this._getBoardSquare(this.tabbableSquare).blur()
     this._setBoardState(value ? { id: "awaiting-input" } : { id: "default" })
     this._updateAllSquareProps()
-    this._toggleInputHandlers(value)
   }
 
   get position() {
@@ -338,25 +341,6 @@ export class Board {
   private _setBoardState(state: BoardState) {
     this._boardState = state
     this._updateContainerInteractionStateLabel()
-  }
-
-  private _toggleInputHandlers(enabled: boolean) {
-    if (enabled) {
-      this._table.addEventListener("mousedown", this._mouseDownHandler)
-      // Document-level listeners for mouse-up and mouse-move to detect interaction outside
-      document.addEventListener("mouseup", this._mouseUpHandler)
-      document.addEventListener("mousemove", this._mouseMoveHandler)
-      this._table.addEventListener("focusin", this._focusInHandler)
-      this._table.addEventListener("focusout", this._focusOutHandler)
-      this._table.addEventListener("keydown", this._keyDownHandler)
-    } else {
-      this._table.removeEventListener("mousedown", this._mouseDownHandler)
-      document.removeEventListener("mouseup", this._mouseUpHandler)
-      document.removeEventListener("mousemove", this._mouseMoveHandler)
-      this._table.addEventListener("focusin", this._focusInHandler)
-      this._table.removeEventListener("focusout", this._focusOutHandler)
-      this._table.removeEventListener("keydown", this._keyDownHandler)
-    }
   }
 
   private _handleMouseDown(

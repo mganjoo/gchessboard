@@ -1,4 +1,4 @@
-import { Square } from "./chess"
+import { Square } from "../utils/chess"
 
 export type BoardState =
   | {
