@@ -60,12 +60,7 @@
   display: none;
 }
 
-.chessboard {
-  width: 100%;
-  position: relative;
-}
-
-.squares {
+.board {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
@@ -146,22 +141,22 @@
     var(--p-move-start-outline-color);
 }
 
-[data-move-state="awaiting-input"] [data-square].has-piece {
+[data-board-state="awaiting-input"] [data-square].has-piece {
   cursor: pointer;
 }
 
-:is([data-move-state="touching-first-square"], [data-move-state="dragging"], [data-move-state="canceling-second-touch"])
+:is([data-board-state="touching-first-square"], [data-board-state="dragging"], [data-board-state="canceling-second-touch"])
   [data-square] {
   cursor: grab;
 }
 
-:is([data-move-state="awaiting-second-touch"], [data-move-state="moving-piece-kb"])
+:is([data-board-state="awaiting-second-touch"], [data-board-state="moving-piece-kb"])
   [data-square] {
   cursor: pointer;
 }
 
-[data-move-state] [data-square]:hover:not(.move-start) {
-  /* Only change hover if board is interactive, i.e. has [data-move-state]. */
+[data-board-state] [data-square]:hover:not(.move-start) {
+  /* Only change hover if board is interactive, i.e. has [data-board-state]. */
   --p-square-color: var(--p-hover-square-color);
 }
 

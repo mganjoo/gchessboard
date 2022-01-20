@@ -14,7 +14,7 @@ export function squareLocator(page: Page, square: string) {
  * 'awaiting-input').
  */
 export async function expectMoveState(page: Page, state: string) {
-  await expect(page.locator("table")).toHaveAttribute("data-move-state", state)
+  await expect(page.locator("table")).toHaveAttribute("data-board-state", state)
 }
 
 /**

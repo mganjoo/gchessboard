@@ -71,7 +71,7 @@ export class Board {
    * Creates a set of elements representing chessboard squares, as well
    * as managing and displaying pieces rendered on the squares.
    */
-  constructor(container: HTMLElement, config: BoardConfig) {
+  constructor(config: BoardConfig) {
     this._boardSquares = new Array(64)
     this._orientation = config.orientation
     this._interactive = config.interactive || false
@@ -84,7 +84,7 @@ export class Board {
         role: this._interactive ? "grid" : "table",
         "aria-label": "Chess board",
       },
-      classes: ["squares"],
+      classes: ["board"],
     })
 
     const tabbableSquare = this._tabbableSquare
@@ -124,8 +124,6 @@ export class Board {
     this._table.addEventListener("transitioncancel", this._transitionHandler)
     this._toggleHandlers(this._interactive)
     this._updateContainerInteractionStateLabel()
-
-    container.appendChild(this._table)
   }
 
   /**
@@ -136,6 +134,10 @@ export class Board {
     this._table.removeEventListener("transitionend", this._transitionHandler)
     this._table.removeEventListener("transitioncancel", this._transitionHandler)
     this._toggleHandlers(false)
+  }
+
+  get element() {
+    return this._table
   }
 
   /**
@@ -668,15 +670,15 @@ export class Board {
   }
 
   /**
-   * Sets (or removes) the `move-state` attribute on the container, which
+   * Sets (or removes) the `board-state` attribute on the container, which
    * facilitates CSS styling (pointer events, hover state) based on current
    * interaction state.
    */
   private _updateContainerInteractionStateLabel() {
     if (this._boardState.id !== "default") {
-      this._table.dataset.moveState = this._boardState.id
+      this._table.dataset.boardState = this._boardState.id
     } else {
-      delete this._table.dataset["moveState"]
+      delete this._table.dataset["boardState"]
     }
   }
 

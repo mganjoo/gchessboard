@@ -1,5 +1,4 @@
 import { isSide, getFen, getPosition, Position, Side } from "./utils/chess"
-import { makeHTMLElement } from "./utils/dom"
 import { Board } from "./components/Board"
 import importedStyles from "./style.css?inline"
 import { assertUnreachable } from "./utils/typing"
@@ -11,18 +10,14 @@ export class ChessxBoard extends HTMLElement {
 
   private _shadow: ShadowRoot
   private _style: HTMLStyleElement
-  private _group: HTMLDivElement
-  private _grid: Board
+  private _board: Board
   private _position: Position = {}
 
   constructor() {
     super()
     this._style = document.createElement("style")
     this._style.textContent = importedStyles
-    this._group = makeHTMLElement("div", {
-      classes: ["chessboard"],
-    })
-    this._grid = new Board(this._group, {
+    this._board = new Board({
       orientation: "white",
       interactive: false,
       hideCoords: false,
@@ -32,11 +27,11 @@ export class ChessxBoard extends HTMLElement {
 
   connectedCallback() {
     this._shadow.appendChild(this._style)
-    this._shadow.appendChild(this._group)
+    this._shadow.appendChild(this._board.element)
   }
 
   disconnectedCallback() {
-    this._grid.destroy()
+    this._board.destroy()
   }
 
   attributeChangedCallback(
@@ -46,13 +41,13 @@ export class ChessxBoard extends HTMLElement {
   ) {
     switch (name) {
       case "interactive":
-        this._grid.interactive = this._parseBooleanAttribute(newValue)
+        this._board.interactive = this._parseBooleanAttribute(newValue)
         break
       case "hide-coords":
-        this._grid.hideCoords = this._parseBooleanAttribute(newValue)
+        this._board.hideCoords = this._parseBooleanAttribute(newValue)
         break
       case "orientation":
-        this._grid.orientation = this._parseSideAttribute(newValue)
+        this._board.orientation = this._parseSideAttribute(newValue)
         break
       case "fen":
         if (newValue !== null) {
@@ -101,7 +96,7 @@ export class ChessxBoard extends HTMLElement {
 
   set position(value: Position) {
     this._position = { ...value }
-    this._grid.position = this._position
+    this._board.position = this._position
   }
 
   /**
