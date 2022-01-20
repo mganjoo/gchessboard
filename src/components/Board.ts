@@ -77,10 +77,13 @@ export class Board {
     this._interactive = config.interactive || false
     this._hideCoords = config.hideCoords || false
     this._position = { ...config.position }
-    this._boardState = { id: "awaiting-input" }
+    this._boardState = { id: this._interactive ? "awaiting-input" : "default" }
 
     this._table = makeHTMLElement("table", {
-      attributes: { role: "grid" },
+      attributes: {
+        role: this._interactive ? "grid" : "table",
+        "aria-label": "Chess board",
+      },
       classes: ["squares"],
     })
 
@@ -158,13 +161,10 @@ export class Board {
 
   set interactive(value: boolean) {
     this._interactive = value
+    this._table.setAttribute("role", value ? "grid" : "table")
+    this._setBoardState({ id: value ? "awaiting-input" : "default" })
     this._updateAllSquareProps()
-    this._updateContainerInteractionStateLabel()
     this._toggleHandlers(value)
-    if (!value) {
-      // Always reset to awaiting-input when disabling interactivity
-      this._boardState = { id: "awaiting-input" }
-    }
   }
 
   get position() {
@@ -317,7 +317,7 @@ export class Board {
       this._currentMove = undefined
       this._getBoardSquare(to).finishMove(!instant)
     }
-    this._setInteractionState({ id: "awaiting-input" })
+    this._setBoardState({ id: "awaiting-input" })
   }
 
   private _cancelMove(instant?: boolean) {
@@ -326,10 +326,10 @@ export class Board {
       this._currentMove = undefined
       moveSquare.finishMove(!instant)
     }
-    this._setInteractionState({ id: "awaiting-input" })
+    this._setBoardState({ id: "awaiting-input" })
   }
 
-  private _setInteractionState(state: BoardState) {
+  private _setBoardState(state: BoardState) {
     this._boardState = state
     this._updateContainerInteractionStateLabel()
   }
@@ -365,7 +365,7 @@ export class Board {
           // existing moves by default so must occur before we update to
           // new state.
           this._getBoardSquare(this.tabbableSquare).blur()
-          this._setInteractionState({
+          this._setBoardState({
             id: "touching-first-square",
             startSquare: clickedSquare,
             touchStartX: e.clientX,
@@ -385,7 +385,7 @@ export class Board {
           // also be a misclick/readjustment in order to begin dragging. Wait
           // till corresponding mouseup event in order to cancel.
           this._getBoardSquare(this.tabbableSquare).blur()
-          this._setInteractionState({
+          this._setBoardState({
             id: "canceling-second-touch",
             startSquare: clickedSquare,
             touchStartX: e.clientX,
@@ -399,6 +399,8 @@ export class Board {
       case "canceling-second-touch":
         // Noop: mouse is already down while dragging or touching first square
         break
+      case "default":
+        break
       // istanbul ignore next
       default:
         assertUnreachable(this._boardState)
@@ -408,7 +410,7 @@ export class Board {
   private _handleMouseUp(this: Board, square: Square | undefined) {
     switch (this._boardState.id) {
       case "touching-first-square":
-        this._setInteractionState({
+        this._setBoardState({
           id: "awaiting-second-touch",
           startSquare: this._boardState.startSquare,
         })
@@ -443,6 +445,8 @@ export class Board {
         // Noop: mouse up only matters when there is an active
         // touch interaction
         break
+      case "default":
+        break
       // istanbul ignore next
       default:
         assertUnreachable(this._boardState)
@@ -473,7 +477,7 @@ export class Board {
             (squareWidth !== 0 && delta > threshold) ||
             square !== this._boardState.startSquare
           ) {
-            this._setInteractionState({
+            this._setBoardState({
               id: "dragging",
               startSquare: this._boardState.startSquare,
             })
@@ -496,6 +500,7 @@ export class Board {
       case "awaiting-input":
       case "awaiting-second-touch":
       case "moving-piece-kb":
+      case "default":
         break
       // istanbul ignore next
       default:
@@ -527,6 +532,8 @@ export class Board {
       case "dragging":
         // Noop: continue with drag operation even if focus was moved around
         break
+      case "default":
+        break
       // istanbul ignore next
       default:
         assertUnreachable(this._boardState)
@@ -543,7 +550,7 @@ export class Board {
         case "awaiting-input":
           // Ignore presses for squares that have no piece on them
           if (pressedSquare && this._pieceOn(pressedSquare)) {
-            this._setInteractionState({
+            this._setBoardState({
               id: "moving-piece-kb",
               startSquare: pressedSquare,
             })
@@ -565,6 +572,8 @@ export class Board {
         case "touching-first-square":
         case "canceling-second-touch":
           // Noop: don't handle keypresses in active mouse states
+          break
+        case "default":
           break
         // istanbul ignore next
         default:
@@ -632,7 +641,7 @@ export class Board {
           case "moving-piece-kb":
             break
           case "awaiting-second-touch":
-            this._setInteractionState({
+            this._setBoardState({
               id: "moving-piece-kb",
               startSquare: this._boardState.startSquare,
             })
@@ -643,10 +652,12 @@ export class Board {
             // Similar to canceling move, but don't blur focused square
             // since we just gave it focus through keyboard navigation
             // istanbul ignore next
-            this._setInteractionState({ id: "awaiting-input" })
+            this._setBoardState({ id: "awaiting-input" })
             break
           case "dragging":
             // Noop: continue with drag operation even if focus was moved around
+            break
+          case "default":
             break
           // istanbul ignore next
           default:
@@ -662,7 +673,7 @@ export class Board {
    * interaction state.
    */
   private _updateContainerInteractionStateLabel() {
-    if (this._interactive) {
+    if (this._boardState.id !== "default") {
       this._table.dataset.moveState = this._boardState.id
     } else {
       delete this._table.dataset["moveState"]

@@ -2,6 +2,9 @@ import { Square } from "./chess"
 
 export type BoardState =
   | {
+      id: "default"
+    }
+  | {
       id: "awaiting-input"
     }
   | {

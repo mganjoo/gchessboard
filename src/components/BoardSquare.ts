@@ -234,11 +234,10 @@ export class BoardSquare {
     }
 
     // Interactivity
-    if (this._props.interactive) {
-      this._element.setAttribute("role", "gridcell")
-    } else {
-      this._element.removeAttribute("role")
-    }
+    this._element.setAttribute(
+      "role",
+      this._props.interactive ? "gridcell" : "cell"
+    )
     this._updateTabIndex()
     this._updateMoveStartClass()
   }
