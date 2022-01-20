@@ -42,10 +42,6 @@ export class Board {
   private _hideCoords: boolean
   private _position: Position
   private _tabbableSquare: Square | undefined
-  private _currentMove?: {
-    square: Square
-    piecePositionPx?: { x: number; y: number }
-  }
   private _secondaryPieceSquare?: Square
   private _boardState: BoardState
 
@@ -77,11 +73,11 @@ export class Board {
     this._interactive = config.interactive || false
     this._hideCoords = config.hideCoords || false
     this._position = { ...config.position }
-    this._boardState = { id: this._interactive ? "awaiting-input" : "default" }
+    this._boardState = { id: this.interactive ? "awaiting-input" : "default" }
 
     this._table = makeHTMLElement("table", {
       attributes: {
-        role: this._interactive ? "grid" : "table",
+        role: this.interactive ? "grid" : "table",
         "aria-label": "Chess board",
       },
       classes: ["board"],
@@ -122,7 +118,7 @@ export class Board {
     this._table.addEventListener("slotchange", this._slotChangeHandler)
     this._table.addEventListener("transitionend", this._transitionHandler)
     this._table.addEventListener("transitioncancel", this._transitionHandler)
-    this._toggleHandlers(this._interactive)
+    this._toggleHandlers(this.interactive)
     this._updateContainerInteractionStateLabel()
   }
 
@@ -164,7 +160,9 @@ export class Board {
   set interactive(value: boolean) {
     this._interactive = value
     this._table.setAttribute("role", value ? "grid" : "table")
-    this._setBoardState({ id: value ? "awaiting-input" : "default" })
+    this._cancelMove()
+    this._getBoardSquare(this.tabbableSquare).blur()
+    this._setBoardState(value ? { id: "awaiting-input" } : { id: "default" })
     this._updateAllSquareProps()
     this._toggleHandlers(value)
   }
@@ -206,30 +204,92 @@ export class Board {
     this._tabbableSquare = value
   }
 
-  private _startMove(
-    square: Square,
-    piecePositionPx?: { x: number; y: number }
-  ) {
-    if (
-      this._currentMove !== undefined &&
-      square !== this._currentMove.square
-    ) {
-      // Note that this is an async method but we simply ignore the side effect
-      this._getBoardSquare(this._currentMove.square).finishMove()
+  private _startMove() {
+    switch (this._boardState.id) {
+      case "moving-piece-kb":
+      case "awaiting-second-touch":
+        this._getBoardSquare(this._boardState.startSquare).startMove()
+        break
+      case "dragging":
+        this._getBoardSquare(this._boardState.startSquare).startMove({
+          x: this._boardState.x,
+          y: this._boardState.y,
+        })
+        break
+      case "awaiting-input":
+      case "touching-first-square":
+      case "canceling-second-touch":
+      case "default":
+        break
+      // istanbul ignore next
+      default:
+        assertUnreachable(this._boardState)
     }
-    this._currentMove = {
-      square,
-      piecePositionPx: piecePositionPx ? { ...piecePositionPx } : undefined,
+  }
+
+  private _finishMove(to: Square, instant?: boolean) {
+    switch (this._boardState.id) {
+      case "moving-piece-kb":
+      case "awaiting-second-touch":
+      case "dragging":
+        {
+          const from = this._boardState.startSquare
+          const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
+          const [toRow, toCol] = getVisualRowColumn(to, this.orientation)
+          const startingPosition = this._getBoardSquare(from)
+            .explicitPiecePosition || {
+            type: "squareOffset",
+            deltaRows: fromRow - toRow,
+            deltaCols: fromCol - toCol,
+          }
+          this._getBoardSquare(from).setPiece(undefined)
+          this._getBoardSquare(from).finishMove()
+          this._getBoardSquare(to).setPiece(
+            this._position[from],
+            startingPosition
+          )
+          this._position[to] = this._position[from]
+          delete this._position[from]
+          this.tabbableSquare = to
+          this._getBoardSquare(to).finishMove(!instant)
+          this._setBoardState({ id: "awaiting-input" })
+        }
+        break
+      case "awaiting-input":
+      case "touching-first-square":
+      case "canceling-second-touch":
+      case "default":
+        break
+      // istanbul ignore next
+      default:
+        assertUnreachable(this._boardState)
     }
-    this._getBoardSquare(this._currentMove.square).startMove(
-      this._currentMove.piecePositionPx
-    )
+  }
+
+  private _cancelMove(instant?: boolean) {
+    switch (this._boardState.id) {
+      case "moving-piece-kb":
+      case "awaiting-second-touch":
+      case "dragging":
+      case "touching-first-square":
+      case "canceling-second-touch":
+        this._getBoardSquare(this._boardState.startSquare).finishMove(!instant)
+        this._setBoardState({
+          id: this.interactive ? "awaiting-input" : "default",
+        })
+        break
+      case "awaiting-input":
+      case "default":
+        break
+      // istanbul ignore next
+      default:
+        assertUnreachable(this._boardState)
+    }
   }
 
   private _showSecondaryPiece(square: Square) {
-    this._removeSecondaryPiece()
     this._secondaryPieceSquare = square
-    this._getBoardSquare(square).toggleSecondaryPiece(true)
+    this._getBoardSquare(this._secondaryPieceSquare).toggleSecondaryPiece(true)
   }
 
   private _removeSecondaryPiece() {
@@ -263,11 +323,8 @@ export class Board {
         !!this._secondaryPieceSquare && this._secondaryPieceSquare === square
       )
     }
-    if (this._currentMove !== undefined) {
-      this._getBoardSquare(this._currentMove.square).startMove(
-        this._currentMove.piecePositionPx
-      )
-    }
+    // Refresh existing move, if one is in progress
+    this._startMove()
   }
 
   private _getBoardSquare(square: Square) {
@@ -292,43 +349,6 @@ export class Board {
       }
     }
     return getSquare(56, this.orientation)
-  }
-
-  private _finishMove(to: Square, instant?: boolean) {
-    const move = this._currentMove
-    if (
-      move !== undefined &&
-      this._pieceOn(move.square) &&
-      to !== move.square
-    ) {
-      const from = move.square
-      const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
-      const [toRow, toCol] = getVisualRowColumn(to, this.orientation)
-      const startingPosition = this._getBoardSquare(from)
-        .explicitPiecePosition || {
-        type: "squareOffset",
-        deltaRows: fromRow - toRow,
-        deltaCols: fromCol - toCol,
-      }
-      this._getBoardSquare(from).setPiece(undefined)
-      this._getBoardSquare(from).finishMove()
-      this._getBoardSquare(to).setPiece(this._position[from], startingPosition)
-      this._position[to] = this._position[from]
-      delete this._position[from]
-      this.tabbableSquare = to
-      this._currentMove = undefined
-      this._getBoardSquare(to).finishMove(!instant)
-    }
-    this._setBoardState({ id: "awaiting-input" })
-  }
-
-  private _cancelMove(instant?: boolean) {
-    if (this._currentMove !== undefined) {
-      const moveSquare = this._getBoardSquare(this._currentMove.square)
-      this._currentMove = undefined
-      moveSquare.finishMove(!instant)
-    }
-    this._setBoardState({ id: "awaiting-input" })
   }
 
   private _setBoardState(state: BoardState) {
@@ -418,7 +438,7 @@ export class Board {
         })
         this._removeSecondaryPiece()
         this.tabbableSquare = this._boardState.startSquare
-        this._startMove(this._boardState.startSquare)
+        this._startMove()
         this._getBoardSquare(this._boardState.startSquare).focus()
         break
       case "dragging":
@@ -482,22 +502,20 @@ export class Board {
             this._setBoardState({
               id: "dragging",
               startSquare: this._boardState.startSquare,
-            })
-            this._startMove(this._boardState.startSquare, {
               x: e.clientX,
               y: e.clientY,
             })
+            this._startMove()
             this.tabbableSquare = this._boardState.startSquare
           }
         }
         break
       case "dragging":
-        if (this._currentMove) {
-          this._currentMove.piecePositionPx = { x: e.clientX, y: e.clientY }
-          this._getBoardSquare(this._currentMove.square).updateMove(
-            this._currentMove.piecePositionPx
-          )
-        }
+        this._boardState = { ...this._boardState, x: e.clientX, y: e.clientY }
+        this._getBoardSquare(this._boardState.startSquare).updateMove({
+          x: e.clientX,
+          y: e.clientY,
+        })
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -556,7 +574,7 @@ export class Board {
               id: "moving-piece-kb",
               startSquare: pressedSquare,
             })
-            this._startMove(pressedSquare)
+            this._startMove()
             this.tabbableSquare = pressedSquare
           }
           break
