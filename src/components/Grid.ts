@@ -117,6 +117,8 @@ export class Grid {
     this._focusOutHandler = this._makeEventHandler(this._handleFocusOut)
 
     this._table.addEventListener("slotchange", this._slotChangeHandler)
+    this._table.addEventListener("transitionend", this._transitionHandler)
+    this._table.addEventListener("transitioncancel", this._transitionHandler)
     this._toggleHandlers(this._interactive)
     this._updateContainerInteractionStateLabel()
 
@@ -128,10 +130,9 @@ export class Grid {
    */
   destroy() {
     this._table.removeEventListener("slotchange", this._slotChangeHandler)
+    this._table.removeEventListener("transitionend", this._transitionHandler)
+    this._table.removeEventListener("transitioncancel", this._transitionHandler)
     this._toggleHandlers(false)
-    this._boardSquares.forEach((square) => {
-      square.destroy()
-    })
   }
 
   /**
@@ -306,7 +307,6 @@ export class Grid {
       this._pieceOn(move.square) &&
       to !== move.square
     ) {
-      this._updateInteractionState({ id: "animating" })
       const from = move.square
       const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
       const [toRow, toCol] = getVisualRowColumn(to, this.orientation)
@@ -323,31 +323,18 @@ export class Grid {
       delete this._position[from]
       this.tabbableSquare = to
       this._currentMove = undefined
-      this._getBoardSquare(to)
-        .finishMove(!instant)
-        .then(this._resetStateIfAnimating.bind(this))
-    } else {
-      this._updateInteractionState({ id: "awaiting-input" })
+      this._getBoardSquare(to).finishMove(!instant)
     }
+    this._updateInteractionState({ id: "awaiting-input" })
   }
 
   private _cancelMove(instant?: boolean) {
     if (this._currentMove !== undefined) {
-      this._updateInteractionState({ id: "animating" })
       const moveSquare = this._getBoardSquare(this._currentMove.square)
       this._currentMove = undefined
-      moveSquare
-        .finishMove(!instant)
-        .then(this._resetStateIfAnimating.bind(this))
-    } else {
-      this._updateInteractionState({ id: "awaiting-input" })
+      moveSquare.finishMove(!instant)
     }
-  }
-
-  private _resetStateIfAnimating() {
-    if (this._interactionState.id === "animating") {
-      this._updateInteractionState({ id: "awaiting-input" })
-    }
+    this._updateInteractionState({ id: "awaiting-input" })
   }
 
   private _updateInteractionState(state: InteractionState) {
@@ -380,7 +367,6 @@ export class Grid {
     e.preventDefault()
     switch (this._interactionState.id) {
       case "awaiting-input":
-      case "animating":
         if (clickedSquare && this._pieceOn(clickedSquare)) {
           // Blur any existing tabbable square if it exists. This cancels
           // existing moves by default so must occur before we update to
@@ -464,7 +450,6 @@ export class Grid {
       case "awaiting-input":
       case "awaiting-second-touch":
       case "moving-piece-kb":
-      case "animating":
         // Noop: mouse up only matters when there is an active
         // touch interaction
         break
@@ -514,7 +499,6 @@ export class Grid {
       case "awaiting-input":
       case "awaiting-second-touch":
       case "moving-piece-kb":
-      case "animating":
         break
       // istanbul ignore next
       default:
@@ -569,7 +553,6 @@ export class Grid {
         }
         break
       case "awaiting-input":
-      case "animating": // TODO: should this be handled separately?
       case "dragging":
         // Noop: continue with drag operation even if focus was moved around
         break
@@ -587,7 +570,6 @@ export class Grid {
     if (e.key === "Enter") {
       switch (this._interactionState.id) {
         case "awaiting-input":
-        case "animating":
           // Ignore presses for squares that have no piece on them
           if (pressedSquare && this._pieceOn(pressedSquare)) {
             this._updateInteractionState({
@@ -679,7 +661,6 @@ export class Grid {
         // still transition to one since we started keyboard navigation.
         switch (this._interactionState.id) {
           case "awaiting-input":
-          case "animating":
           case "moving-piece-kb":
             break
           case "awaiting-second-touch":
@@ -743,6 +724,14 @@ export class Grid {
     if (Grid._isSlotElement(e.target) && keyIsSquare(e.target.name)) {
       this._getBoardSquare(e.target.name).hasContent =
         e.target.assignedElements().length > 0
+    }
+  }
+
+  private _transitionHandler: (e: TransitionEvent) => void = (e) => {
+    // Delete transition-property style at the end of all transitions
+    if (e.target && (e.target as HTMLElement).style !== undefined) {
+      const style = (e.target as HTMLElement).style
+      style.removeProperty("transition-property")
     }
   }
 

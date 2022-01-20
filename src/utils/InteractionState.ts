@@ -28,6 +28,3 @@ export type InteractionState =
       touchStartX: number
       touchStartY: number
     }
-  | {
-      id: "animating"
-    }

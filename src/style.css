@@ -146,8 +146,7 @@
     var(--p-move-start-outline-color);
 }
 
-:is([data-move-state="awaiting-input"], [data-move-state="animating"])
-  [data-square].has-piece {
+[data-move-state="awaiting-input"] [data-square].has-piece {
   cursor: pointer;
 }
 
@@ -214,15 +213,15 @@
 
 [data-square] .piece {
   z-index: 10;
+  transition-duration: var(--piece-transition-duration);
+
+  /* By default, disable all transitions and override for specific transitions. */
+  transition-property: none;
 }
 
 [data-square] .piece.secondary {
   z-index: 5;
   opacity: var(--ghost-piece-opacity);
-}
-
-[data-move-state="animating"] .piece {
-  transition-duration: max(var(--piece-transition-duration), 1ms);
 }
 
 [data-square].move-start .piece:not(.secondary) {

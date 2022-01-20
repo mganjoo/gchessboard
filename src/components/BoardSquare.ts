@@ -85,11 +85,6 @@ export class BoardSquare {
     container.appendChild(this._element)
   }
 
-  destroy() {
-    this._boardPiece?.remove()
-    this._secondaryBoardPiece?.remove()
-  }
-
   /**
    * Update all props of the square at once. Useful for cases requiring
    * a large-scale re-render, e.g. change in orientation or interactivity.
@@ -211,13 +206,12 @@ export class BoardSquare {
   }
 
   /**
-   * Finish ongoing move, if it exists. The method is declared as async
-   * for callers to perform side effects on animation end.
+   * Finish ongoing move, if it exists.
    */
-  async finishMove(animate?: boolean) {
+  finishMove(animate?: boolean) {
     this._moveStart = false
     this._updateMoveStartClass()
-    await this._boardPiece?.resetPosition(animate)
+    this._boardPiece?.resetPosition(animate)
   }
 
   private _updateSquareVisuals() {
