@@ -25,7 +25,7 @@ export class Board {
   private _moveStartSquare?: Square
   private _movingPiecePositionPx?: { x: number; y: number }
   private _tabbableSquare?: Square
-  private _pressedSquare?: Square
+  private _secondaryPieceShown?: boolean
   private _focused?: boolean
 
   // Event handlers
@@ -152,7 +152,6 @@ export class Board {
     this._table.setAttribute("role", value ? "grid" : "table")
     this._cancelMove(false)
     this._blurTabbableSquare()
-    this._resetBoardState()
     this._updateAllSquareProps()
   }
 
@@ -218,16 +217,16 @@ export class Board {
       this.tabbableSquare = to
       this._position[to] = this._position[from]
       delete this._position[from]
-      this._resetBoardState()
     }
+    this._resetBoardState()
   }
 
   private _cancelMove(animate: boolean) {
     if (this._moveStartSquare) {
       this._getBoardSquare(this._moveStartSquare).finishMove(animate)
       this._removeSecondaryPiece()
-      this._resetBoardState()
     }
+    this._resetBoardState()
   }
 
   private _focusTabbableSquare() {
@@ -246,15 +245,17 @@ export class Board {
     this._setBoardState({ id: this.interactive ? "awaiting-input" : "default" })
   }
 
-  private _showSecondaryPiece(square: Square) {
-    this._pressedSquare = square
-    this._getBoardSquare(this._pressedSquare).toggleSecondaryPiece(true)
+  private _showSecondaryPiece() {
+    if (this._moveStartSquare) {
+      this._secondaryPieceShown = true
+      this._getBoardSquare(this._moveStartSquare).toggleSecondaryPiece(true)
+    }
   }
 
   private _removeSecondaryPiece() {
-    if (this._pressedSquare) {
-      this._getBoardSquare(this._pressedSquare).toggleSecondaryPiece(false)
-      this._pressedSquare = undefined
+    if (this._moveStartSquare) {
+      this._secondaryPieceShown = false
+      this._getBoardSquare(this._moveStartSquare).toggleSecondaryPiece(false)
     }
   }
 
@@ -277,7 +278,7 @@ export class Board {
       })
       this._boardSquares[i].setPiece(this._position[square])
       this._boardSquares[i].toggleSecondaryPiece(
-        !!this._pressedSquare && this._pressedSquare === square
+        !!this._moveStartSquare && !!this._secondaryPieceShown
       )
     }
     // Refresh existing move, if one is in progress
@@ -332,7 +333,8 @@ export class Board {
             touchStartX: e.clientX,
             touchStartY: e.clientY,
           })
-          this._showSecondaryPiece(square)
+          this._startMove(square)
+          this._showSecondaryPiece()
           this._blurTabbableSquare()
           this.tabbableSquare = square
         }
@@ -354,7 +356,7 @@ export class Board {
             touchStartY: e.clientY,
           })
           this._blurTabbableSquare()
-          this._showSecondaryPiece(square)
+          this._showSecondaryPiece()
         }
         break
       case "dragging":
@@ -377,7 +379,6 @@ export class Board {
           id: "awaiting-second-touch",
           startSquare: this._boardState.startSquare,
         })
-        this._startMove(this._boardState.startSquare)
         this._removeSecondaryPiece()
         this._focusTabbableSquare()
         break
@@ -397,7 +398,6 @@ export class Board {
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
         this._cancelMove(false)
-        this._removeSecondaryPiece()
         this._blurTabbableSquare()
         break
       case "awaiting-input":
@@ -617,7 +617,7 @@ export class Board {
             // Similar to canceling move, but don't blur focused square
             // since we just gave it focus through keyboard navigation
             // istanbul ignore next
-            this._resetBoardState()
+            this._cancelMove(false)
             break
           case "dragging":
             // Noop: continue with drag operation even if focus was moved around

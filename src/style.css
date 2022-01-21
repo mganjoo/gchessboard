@@ -136,7 +136,8 @@
   --p-square-color: var(--p-move-start-square-color);
 }
 
-[data-square].move-start:not(:focus) {
+:is([data-board-state="dragging"], [data-board-state="moving-piece-kb"])
+  [data-square].move-start:not(:focus) {
   box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
     var(--p-move-start-outline-color);
 }
