@@ -20,10 +20,13 @@ export class Board {
   private _interactive: boolean
   private _hideCoords: boolean
   private _position: Position
-  private _tabbableSquare: Square | undefined
-  private _secondaryPieceSquare?: Square
-  private _focusedSquare?: Square
   private _boardState: BoardState
+
+  private _moveStartSquare?: Square
+  private _movingPiecePositionPx?: { x: number; y: number }
+  private _tabbableSquare?: Square
+  private _pressedSquare?: Square
+  private _focused?: boolean
 
   // Event handlers
   private _mouseDownHandler: (e: MouseEvent) => void
@@ -130,8 +133,8 @@ export class Board {
   set orientation(value: Side) {
     this._orientation = value
     this._updateAllSquareProps()
-    if (this._focusedSquare) {
-      this._getBoardSquare(this._focusedSquare).focus()
+    if (this._focused) {
+      this._focusTabbableSquare()
     }
     this._cancelMove(false)
   }
@@ -148,8 +151,8 @@ export class Board {
     this._interactive = value
     this._table.setAttribute("role", value ? "grid" : "table")
     this._cancelMove(false)
-    this._getBoardSquare(this.tabbableSquare).blur()
-    this._setBoardState(value ? { id: "awaiting-input" } : { id: "default" })
+    this._blurTabbableSquare()
+    this._resetBoardState()
     this._updateAllSquareProps()
   }
 
@@ -190,101 +193,68 @@ export class Board {
     this._tabbableSquare = value
   }
 
-  private _startMove() {
-    switch (this._boardState.id) {
-      case "moving-piece-kb":
-      case "awaiting-second-touch":
-        this._getBoardSquare(this._boardState.startSquare).startMove()
-        break
-      case "dragging":
-        this._getBoardSquare(this._boardState.startSquare).startMove({
-          x: this._boardState.x,
-          y: this._boardState.y,
-        })
-        break
-      case "awaiting-input":
-      case "touching-first-square":
-      case "canceling-second-touch":
-      case "default":
-        break
-      // istanbul ignore next
-      default:
-        assertUnreachable(this._boardState)
-    }
+  private _startMove(square: Square, positionPx?: { x: number; y: number }) {
+    this._moveStartSquare = square
+    this._movingPiecePositionPx = positionPx
+    this._getBoardSquare(square).startMove(positionPx)
+    this.tabbableSquare = square
   }
 
   private _finishMove(to: Square, animate: boolean) {
-    switch (this._boardState.id) {
-      case "moving-piece-kb":
-      case "awaiting-second-touch":
-      case "dragging":
-        {
-          const from = this._boardState.startSquare
-          const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
-          const [toRow, toCol] = getVisualRowColumn(to, this.orientation)
-          const startingPosition = this._getBoardSquare(from)
-            .explicitPiecePosition || {
-            type: "squareOffset",
-            deltaRows: fromRow - toRow,
-            deltaCols: fromCol - toCol,
-          }
-          this._getBoardSquare(from).setPiece(undefined)
-          this._getBoardSquare(from).finishMove()
-          this._getBoardSquare(to).setPiece(
-            this._position[from],
-            startingPosition
-          )
-          this._position[to] = this._position[from]
-          delete this._position[from]
-          this.tabbableSquare = to
-          this._getBoardSquare(to).finishMove(animate)
-          this._setBoardState({ id: "awaiting-input" })
-        }
-        break
-      case "awaiting-input":
-      case "touching-first-square":
-      case "canceling-second-touch":
-      case "default":
-        break
-      // istanbul ignore next
-      default:
-        assertUnreachable(this._boardState)
+    if (this._moveStartSquare) {
+      const from = this._moveStartSquare
+      const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
+      const [toRow, toCol] = getVisualRowColumn(to, this.orientation)
+      const startingPosition = this._getBoardSquare(from)
+        .explicitPiecePosition || {
+        type: "squareOffset",
+        deltaRows: fromRow - toRow,
+        deltaCols: fromCol - toCol,
+      }
+      this._getBoardSquare(from).setPiece(undefined)
+      this._getBoardSquare(from).finishMove()
+      this._getBoardSquare(to).setPiece(this._position[from], startingPosition)
+      this._getBoardSquare(to).finishMove(animate)
+      this.tabbableSquare = to
+      this._position[to] = this._position[from]
+      delete this._position[from]
+      this._resetBoardState()
     }
   }
 
   private _cancelMove(animate: boolean) {
-    switch (this._boardState.id) {
-      case "moving-piece-kb":
-      case "awaiting-second-touch":
-      case "dragging":
-      case "touching-first-square":
-      case "canceling-second-touch":
-        this._getBoardSquare(this._boardState.startSquare).finishMove(animate)
-        this._setBoardState({
-          id: this.interactive ? "awaiting-input" : "default",
-        })
-        this._removeSecondaryPiece()
-        break
-      case "awaiting-input":
-      case "default":
-        break
-      // istanbul ignore next
-      default:
-        assertUnreachable(this._boardState)
+    if (this._moveStartSquare) {
+      this._getBoardSquare(this._moveStartSquare).finishMove(animate)
+      this._removeSecondaryPiece()
+      this._resetBoardState()
     }
   }
 
+  private _focusTabbableSquare() {
+    if (this.tabbableSquare) {
+      this._getBoardSquare(this.tabbableSquare).focus()
+    }
+  }
+
+  private _blurTabbableSquare() {
+    if (this.tabbableSquare) {
+      this._getBoardSquare(this.tabbableSquare).blur()
+    }
+  }
+
+  private _resetBoardState() {
+    this._setBoardState({ id: this.interactive ? "awaiting-input" : "default" })
+  }
+
   private _showSecondaryPiece(square: Square) {
-    this._secondaryPieceSquare = square
-    this._getBoardSquare(this._secondaryPieceSquare).toggleSecondaryPiece(true)
+    this._pressedSquare = square
+    this._getBoardSquare(this._pressedSquare).toggleSecondaryPiece(true)
   }
 
   private _removeSecondaryPiece() {
-    if (this._secondaryPieceSquare) {
-      this._getBoardSquare(this._secondaryPieceSquare).toggleSecondaryPiece(
-        false
-      )
-      this._secondaryPieceSquare = undefined
+    if (this._pressedSquare) {
+      this._getBoardSquare(this._pressedSquare).toggleSecondaryPiece(false)
+      this._pressedSquare = undefined
     }
   }
 
@@ -307,11 +277,13 @@ export class Board {
       })
       this._boardSquares[i].setPiece(this._position[square])
       this._boardSquares[i].toggleSecondaryPiece(
-        !!this._secondaryPieceSquare && this._secondaryPieceSquare === square
+        !!this._pressedSquare && this._pressedSquare === square
       )
     }
     // Refresh existing move, if one is in progress
-    this._startMove()
+    if (this._moveStartSquare) {
+      this._startMove(this._moveStartSquare, this._movingPiecePositionPx)
+    }
   }
 
   private _getBoardSquare(square: Square) {
@@ -345,50 +317,49 @@ export class Board {
 
   private _handleMouseDown(
     this: Board,
-    clickedSquare: Square | undefined,
+    square: Square | undefined,
     e: MouseEvent
   ) {
     // We will control focus entirely ourselves
     e.preventDefault()
+
     switch (this._boardState.id) {
       case "awaiting-input":
-        if (clickedSquare && this._pieceOn(clickedSquare)) {
-          // Blur any existing tabbable square if it exists. This cancels
-          // existing moves by default so must occur before we update to
-          // new state.
-          this._getBoardSquare(this.tabbableSquare).blur()
+        if (square && this._pieceOn(square)) {
           this._setBoardState({
             id: "touching-first-square",
-            startSquare: clickedSquare,
+            startSquare: square,
             touchStartX: e.clientX,
             touchStartY: e.clientY,
           })
-          this._showSecondaryPiece(clickedSquare)
+          this._showSecondaryPiece(square)
+          this._blurTabbableSquare()
+          this.tabbableSquare = square
         }
         break
-      case "moving-piece-kb":
       case "awaiting-second-touch":
-        if (clickedSquare && this._boardState.startSquare !== clickedSquare) {
+      case "moving-piece-kb":
+        if (square && this._boardState.startSquare !== square) {
           const tabbableSquare = this.tabbableSquare
-          this._finishMove(clickedSquare, true)
+          this._finishMove(square, true)
           this._getBoardSquare(tabbableSquare).blur()
-        } else if (this._boardState.startSquare === clickedSquare) {
+        } else if (this._boardState.startSquare === square) {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
           // till corresponding mouseup event in order to cancel.
-          this._getBoardSquare(this.tabbableSquare).blur()
           this._setBoardState({
             id: "canceling-second-touch",
-            startSquare: clickedSquare,
+            startSquare: square,
             touchStartX: e.clientX,
             touchStartY: e.clientY,
           })
-          this._showSecondaryPiece(clickedSquare)
+          this._blurTabbableSquare()
+          this._showSecondaryPiece(square)
         }
         break
       case "dragging":
-      case "touching-first-square":
       case "canceling-second-touch":
+      case "touching-first-square":
         // Noop: mouse is already down while dragging or touching first square
         break
       case "default":
@@ -406,30 +377,28 @@ export class Board {
           id: "awaiting-second-touch",
           startSquare: this._boardState.startSquare,
         })
+        this._startMove(this._boardState.startSquare)
         this._removeSecondaryPiece()
-        this.tabbableSquare = this._boardState.startSquare
-        this._startMove()
-        this._getBoardSquare(this._boardState.startSquare).focus()
+        this._focusTabbableSquare()
         break
       case "dragging":
         this._removeSecondaryPiece()
         if (square && this._boardState.startSquare !== square) {
           const tabbableSquare = this.tabbableSquare
-          // Snap after drag should be instant
           this._finishMove(square, false)
           this._getBoardSquare(tabbableSquare).blur()
         } else {
           // For pieces that left board area, do an animated snap back.
           // For others move instantly (without animation)
           this._cancelMove(!square)
-          this._getBoardSquare(this.tabbableSquare).blur()
+          this._blurTabbableSquare()
         }
         break
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
-        this._removeSecondaryPiece()
         this._cancelMove(false)
-        this._getBoardSquare(this.tabbableSquare).blur()
+        this._removeSecondaryPiece()
+        this._blurTabbableSquare()
         break
       case "awaiting-input":
       case "awaiting-second-touch":
@@ -451,8 +420,8 @@ export class Board {
     e: MouseEvent
   ) {
     switch (this._boardState.id) {
-      case "touching-first-square":
       case "canceling-second-touch":
+      case "touching-first-square":
         {
           const delta = Math.sqrt(
             (e.clientX - this._boardState.touchStartX) ** 2 +
@@ -475,22 +444,22 @@ export class Board {
               x: e.clientX,
               y: e.clientY,
             })
-            this._startMove()
-            this.tabbableSquare = this._boardState.startSquare
+            this._startMove(this._boardState.startSquare)
           }
         }
         break
       case "dragging":
-        this._boardState = { ...this._boardState, x: e.clientX, y: e.clientY }
-        this._getBoardSquare(this._boardState.startSquare).updateMove({
-          x: e.clientX,
-          y: e.clientY,
-        })
+        if (this._moveStartSquare) {
+          const position = { x: e.clientX, y: e.clientY }
+          this._boardState = { ...this._boardState, ...position }
+          this._movingPiecePositionPx = position
+          this._getBoardSquare(this._moveStartSquare).updateMove(position)
+        }
         break
       case "awaiting-input":
       case "awaiting-second-touch":
-      case "moving-piece-kb":
       case "default":
+      case "moving-piece-kb":
         break
       // istanbul ignore next
       default:
@@ -500,7 +469,7 @@ export class Board {
 
   private _handleFocusIn(this: Board, square: Square | undefined) {
     if (square) {
-      this._focusedSquare = square
+      this._focused = true
     }
   }
 
@@ -509,27 +478,26 @@ export class Board {
     square: Square | undefined,
     e: FocusEvent
   ) {
-    this._focusedSquare = undefined
+    this._focused = false
+
     switch (this._boardState.id) {
-      case "moving-piece-kb":
       case "awaiting-second-touch":
-      case "touching-first-square":
-      case "canceling-second-touch":
+      case "moving-piece-kb":
         {
           const hasFocusInSquare =
             hasDataset(e.relatedTarget) && "square" in e.relatedTarget.dataset
-          // If outgoing focus target has a square, and incoming does not, then board
-          // lost focus and we can cancel ongoing moves.
+          // If outgoing focus target has a square, and incoming does not,
+          // then board lost focus and we can cancel ongoing moves.
           if (square && !hasFocusInSquare) {
             this._cancelMove(false)
           }
         }
         break
       case "awaiting-input":
-      case "dragging":
-        // Noop: continue with drag operation even if focus was moved around
-        break
+      case "canceling-second-touch":
       case "default":
+      case "dragging": // noop: dragging continues even with focus moving around
+      case "touching-first-square":
         break
       // istanbul ignore next
       default:
@@ -539,28 +507,28 @@ export class Board {
 
   private _handleKeyDown(
     this: Board,
-    pressedSquare: Square | undefined,
+    square: Square | undefined,
     e: KeyboardEvent
   ) {
     if (e.key === "Enter") {
+      e.preventDefault()
       switch (this._boardState.id) {
         case "awaiting-input":
           // Ignore presses for squares that have no piece on them
-          if (pressedSquare && this._pieceOn(pressedSquare)) {
+          if (square && this._pieceOn(square)) {
             this._setBoardState({
               id: "moving-piece-kb",
-              startSquare: pressedSquare,
+              startSquare: square,
             })
-            this._startMove()
-            this.tabbableSquare = pressedSquare
+            this._startMove(square)
           }
           break
         case "moving-piece-kb":
         case "awaiting-second-touch":
           // Only move if enter was inside squares area and if start
           // and end square are not the same.
-          if (pressedSquare && this._boardState.startSquare !== pressedSquare) {
-            this._finishMove(pressedSquare, true)
+          if (square && this._boardState.startSquare !== square) {
+            this._finishMove(square, true)
           } else {
             this._cancelMove(false)
           }
@@ -629,7 +597,7 @@ export class Board {
 
       if (newIdx !== currentIdx) {
         this.tabbableSquare = getSquare(newIdx, this.orientation)
-        this._getBoardSquare(this.tabbableSquare).focus()
+        this._focusTabbableSquare()
 
         // If we are currently in a non-keyboard friendly state, we should
         // still transition to one since we started keyboard navigation.
@@ -649,7 +617,7 @@ export class Board {
             // Similar to canceling move, but don't blur focused square
             // since we just gave it focus through keyboard navigation
             // istanbul ignore next
-            this._setBoardState({ id: "awaiting-input" })
+            this._resetBoardState()
             break
           case "dragging":
             // Noop: continue with drag operation even if focus was moved around
