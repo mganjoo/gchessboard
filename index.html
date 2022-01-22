@@ -71,7 +71,7 @@
     </script>
     <style type="text/tailwindcss">
       .btn {
-        @apply bg-green-800 text-gray-100 text-sm px-3 py-2 rounded-md hover:bg-green-700 active:bg-green-600;
+        @apply bg-green-800 text-gray-100 text-sm px-3 py-1 rounded-md hover:bg-green-700 active:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-400 focus-visible:ring-offset-gray-100 dark:focus-visible:ring-offset-gray-900 dark:focus-visible:ring-green-300/75;
       }
     </style>
   </head>
@@ -123,9 +123,9 @@
       </svg>
     </template>
     <main
-      class="flex flex-col items-center gap-y-4 bg-gray-100 min-h-screen py-8 font-sans font-semibold dark:bg-gray-900"
+      class="flex flex-col px-2 items-center gap-y-4 bg-gray-100 min-h-screen py-8 font-sans font-semibold dark:bg-gray-900"
     >
-      <h1 class="text-2xl dark:text-gray-100">
+      <h1 class="text-xl sm:text-2xl dark:text-gray-100">
         <code class="font-mono">&lt;chessx-board&gt;</code>
         demo
       </h1>
@@ -136,14 +136,14 @@
         fen="start"
         interactive
       ></chessx-board>
-      <div>
+      <div class="flex py-1 gap-x-3 gap-y-2 flex-wrap justify-center">
         <button id="btn-flip" class="btn">Flip</button>
         <button id="btn-interactivity" class="btn">Disable interaction</button>
         <button id="btn-animation" class="btn">Disable animation</button>
         <button id="btn-coords" class="btn">Hide coords</button>
         <button id="btn-svg" class="btn">Show SVGs</button>
       </div>
-      <div>
+      <div class="flex py-1 gap-x-3 gap-y-2 flex-wrap justify-center">
         <button id="btn-position-start" class="btn">Start position</button>
         <button id="btn-position-puzzle" class="btn">Puzzle position</button>
         <button id="btn-position-empty" class="btn">Empty</button>
