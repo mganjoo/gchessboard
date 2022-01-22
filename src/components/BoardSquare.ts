@@ -169,16 +169,18 @@ export class BoardSquare {
    * piece in the DOM.
    */
   toggleSecondaryPiece(show: boolean) {
-    if (!show && this._secondaryBoardPiece !== undefined) {
-      this._secondaryBoardPiece.remove()
+    if (show && !this._secondaryBoardPiece && this._boardPiece) {
+      this._secondaryBoardPiece = new BoardPiece(this._element, {
+        piece: this._boardPiece.piece,
+        secondary: true,
+      })
     }
-    this._secondaryBoardPiece =
-      show && this._boardPiece !== undefined
-        ? new BoardPiece(this._element, {
-            piece: this._boardPiece.piece,
-            secondary: true,
-          })
-        : undefined
+    if (!show) {
+      if (this._secondaryBoardPiece !== undefined) {
+        this._secondaryBoardPiece.remove()
+      }
+      this._secondaryBoardPiece = undefined
+    }
   }
 
   /**

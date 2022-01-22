@@ -196,7 +196,6 @@ export class Board {
     this._moveStartSquare = square
     this._movingPiecePositionPx = positionPx
     this._getBoardSquare(square).startMove(positionPx)
-    this.tabbableSquare = square
   }
 
   private _finishMove(to: Square, animate: boolean) {
@@ -220,7 +219,7 @@ export class Board {
       this._position[to] = this._position[from]
       delete this._position[from]
     }
-    this._resetBoardState()
+    this._resetBoardStateAndMoves()
   }
 
   private _cancelMove(animate: boolean) {
@@ -228,7 +227,7 @@ export class Board {
       this._getBoardSquare(this._moveStartSquare).finishMove(animate)
       this._removeSecondaryPiece()
     }
-    this._resetBoardState()
+    this._resetBoardStateAndMoves()
   }
 
   private _focusTabbableSquare() {
@@ -243,7 +242,7 @@ export class Board {
     }
   }
 
-  private _resetBoardState() {
+  private _resetBoardStateAndMoves() {
     this._moveStartSquare = undefined
     this._movingPiecePositionPx = undefined
     this._setBoardState({ id: this.interactive ? "awaiting-input" : "default" })
@@ -282,7 +281,7 @@ export class Board {
       })
       this._boardSquares[i].setPiece(this._position[square])
       this._boardSquares[i].toggleSecondaryPiece(
-        !!this._moveStartSquare && !!this._secondaryPieceShown
+        this._moveStartSquare === square && !!this._secondaryPieceShown
       )
     }
     // Refresh existing move, if one is in progress
@@ -449,6 +448,7 @@ export class Board {
               y: e.clientY,
             })
             this._startMove(this._boardState.startSquare)
+            this.tabbableSquare = this._boardState.startSquare
           }
         }
         break
@@ -525,6 +525,7 @@ export class Board {
               startSquare: square,
             })
             this._startMove(square)
+            this.tabbableSquare = square
           }
           break
         case "moving-piece-kb":
