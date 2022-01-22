@@ -244,6 +244,8 @@ export class Board {
   }
 
   private _resetBoardState() {
+    this._moveStartSquare = undefined
+    this._movingPiecePositionPx = undefined
     this._setBoardState({ id: this.interactive ? "awaiting-input" : "default" })
   }
 
