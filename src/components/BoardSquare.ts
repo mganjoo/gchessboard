@@ -139,17 +139,21 @@ export class BoardSquare {
 
   /**
    * Set primary piece associated with the square. This piece is rendered either
-   * onto the square (default) or at an explicit location `position`.
+   * directly onto the square (default) or optionally, animating in from an
+   * explicit position `animateFromPosition`.
    */
-  setPiece(piece: Piece | undefined, explicitPosition?: ExplicitPiecePosition) {
+  setPiece(
+    piece: Piece | undefined,
+    animateFromPosition?: ExplicitPiecePosition
+  ) {
     // Avoid unnecessary rendering if the existing piece is exactly the same
-    if (!pieceEqual(this._boardPiece?.piece, piece) || explicitPosition) {
+    if (!pieceEqual(this._boardPiece?.piece, piece) || animateFromPosition) {
       if (this._boardPiece) {
         // Also cancels animations
         this._boardPiece.remove()
       }
       this._boardPiece = piece
-        ? new BoardPiece(this._element, { piece, explicitPosition })
+        ? new BoardPiece(this._element, { piece, animateFromPosition })
         : undefined
       this._element.classList.toggle("has-piece", !!piece)
 
@@ -185,6 +189,7 @@ export class BoardSquare {
     if (this._boardPiece !== undefined) {
       this._moveStart = true
       this._updateMoveStartClass()
+      this._boardPiece.removeAnimation()
 
       if (piecePositionPx !== undefined) {
         this.updateMove(piecePositionPx)

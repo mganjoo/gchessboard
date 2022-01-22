@@ -17,9 +17,10 @@ export interface BoardPieceConfig {
   secondary?: boolean
 
   /**
-   * Optional position for piece, in case it needs to be placed off square.
+   * Optional position for piece, in case it needs to be placed off square
+   * and animate into the square.
    */
-  explicitPosition?: ExplicitPiecePosition
+  animateFromPosition?: ExplicitPiecePosition
 }
 
 /**
@@ -78,6 +79,9 @@ export class BoardPiece {
    */
   private static PIECE_PADDING_PCT = 3
 
+  private static PIECE_START_X_PROPERTY = "--p-piece-startX"
+  private static PIECE_START_Y_PROPERTY = "--p-piece-startY"
+
   constructor(container: HTMLElement, config: BoardPieceConfig) {
     this.piece = config.piece
     this._parentElement = container
@@ -105,8 +109,12 @@ export class BoardPiece {
         },
       })
     )
-    if (config.explicitPosition !== undefined) {
-      this.setExplicitPosition(config.explicitPosition)
+
+    if (config.animateFromPosition !== undefined) {
+      const coords = this._getLeftTopValues(config.animateFromPosition)
+      if (coords) {
+        this._setAnimation(coords)
+      }
     }
 
     if (config.secondary) {
@@ -117,6 +125,14 @@ export class BoardPiece {
   }
 
   remove() {
+    this._element.removeEventListener(
+      "animationend",
+      this._handleAnimationEndOrCancel
+    )
+    this._element.removeEventListener(
+      "animationcancel",
+      this._handleAnimationEndOrCancel
+    )
     this._parentElement.removeChild(this._element)
   }
 
@@ -125,22 +141,10 @@ export class BoardPiece {
    */
   setExplicitPosition(explicitPosition: ExplicitPiecePosition) {
     this._explicitPosition = explicitPosition
-    if (explicitPosition.type === "coordinates") {
-      const squareDims = this._parentElement.getBoundingClientRect()
-      const deltaX = explicitPosition.x - squareDims.left - squareDims.width / 2
-      const deltaY = explicitPosition.y - squareDims.top - squareDims.height / 2
-      if (deltaX !== 0 || deltaY !== 0) {
-        this._element.style.left = `${deltaX}px`
-        this._element.style.top = `${deltaY}px`
-      }
-    } else {
-      if (
-        explicitPosition.deltaCols !== 0 ||
-        explicitPosition.deltaRows !== 0
-      ) {
-        this._element.style.left = `${explicitPosition.deltaCols * 100}%`
-        this._element.style.top = `${explicitPosition.deltaRows * 100}%`
-      }
+    const coords = this._getLeftTopValues(explicitPosition)
+    if (coords) {
+      this._element.style.left = coords.left
+      this._element.style.top = coords.top
     }
   }
 
@@ -148,21 +152,23 @@ export class BoardPiece {
    * Reset any explicit position set on the piece. If `transition` is true, then
    * the change is accompanied with a transition.
    */
-  resetPosition(transition?: boolean) {
-    this._explicitPosition = undefined
-
-    if (transition) {
-      this._element.style.transitionProperty = "top, left"
-      // Get bounding box for element to force layout before
-      // removing top/left property
-      // https://gist.github.com/paulirish/5d52fb081b3570c81e3a
-      this._parentElement.getBoundingClientRect()
-    } else {
-      this._element.style.removeProperty("transition-property")
+  resetPosition(animate?: boolean) {
+    if (animate && this._explicitPosition) {
+      const coords = this._getLeftTopValues(this._explicitPosition)
+      if (coords) {
+        this._setAnimation(coords)
+      }
     }
 
     this._element.style.removeProperty("left")
     this._element.style.removeProperty("top")
+    this._explicitPosition = undefined
+  }
+
+  removeAnimation = () => {
+    this._element.style.removeProperty("animation-name")
+    this._element.style.removeProperty(BoardPiece.PIECE_START_X_PROPERTY)
+    this._element.style.removeProperty(BoardPiece.PIECE_START_Y_PROPERTY)
   }
 
   /**
@@ -170,5 +176,59 @@ export class BoardPiece {
    */
   get explicitPosition() {
     return this._explicitPosition
+  }
+
+  private _getLeftTopValues(explicitPosition: ExplicitPiecePosition) {
+    if (explicitPosition.type === "coordinates") {
+      const squareDims = this._parentElement.getBoundingClientRect()
+      const deltaX = explicitPosition.x - squareDims.left - squareDims.width / 2
+      const deltaY = explicitPosition.y - squareDims.top - squareDims.height / 2
+      if (deltaX !== 0 || deltaY !== 0) {
+        return { left: `${deltaX}px`, top: `${deltaY}px` }
+      }
+    } else {
+      if (
+        explicitPosition.deltaCols !== 0 ||
+        explicitPosition.deltaRows !== 0
+      ) {
+        return {
+          left: `${explicitPosition.deltaCols * 100}%`,
+          top: `${explicitPosition.deltaRows * 100}%`,
+        }
+      }
+    }
+    return undefined
+  }
+
+  private _setAnimation(coords: { left: string; top: string }) {
+    this._element.style.animationName = "move-piece"
+    this._element.style.setProperty(
+      BoardPiece.PIECE_START_X_PROPERTY,
+      coords.left
+    )
+    this._element.style.setProperty(
+      BoardPiece.PIECE_START_Y_PROPERTY,
+      coords.top
+    )
+    this._element.addEventListener(
+      "animationend",
+      this._handleAnimationEndOrCancel
+    )
+    this._element.addEventListener(
+      "animationcancel",
+      this._handleAnimationEndOrCancel
+    )
+  }
+
+  private _handleAnimationEndOrCancel = () => {
+    this.removeAnimation()
+    this._element.removeEventListener(
+      "animationend",
+      this._handleAnimationEndOrCancel
+    )
+    this._element.removeEventListener(
+      "animationcancel",
+      this._handleAnimationEndOrCancel
+    )
   }
 }

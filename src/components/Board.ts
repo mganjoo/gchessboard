@@ -212,8 +212,10 @@ export class Board {
       }
       this._getBoardSquare(from).setPiece(undefined)
       this._getBoardSquare(from).finishMove()
-      this._getBoardSquare(to).setPiece(this._position[from], startingPosition)
-      this._getBoardSquare(to).finishMove(animate)
+      this._getBoardSquare(to).setPiece(
+        this._position[from],
+        animate ? startingPosition : undefined
+      )
       this.tabbableSquare = to
       this._position[to] = this._position[from]
       delete this._position[from]
