@@ -11,3 +11,6 @@ dist-ssr
 
 # other
 .DS_Store
+
+# testing
+test-results
