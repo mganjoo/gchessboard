@@ -111,7 +111,7 @@ export class BoardPiece {
     )
 
     if (config.animateFromPosition !== undefined) {
-      const coords = this._getLeftTopValues(config.animateFromPosition)
+      const coords = this._getTranslateValues(config.animateFromPosition)
       if (coords) {
         this._setAnimation(coords)
       }
@@ -141,10 +141,9 @@ export class BoardPiece {
    */
   setExplicitPosition(explicitPosition: ExplicitPiecePosition) {
     this._explicitPosition = explicitPosition
-    const coords = this._getLeftTopValues(explicitPosition)
+    const coords = this._getTranslateValues(explicitPosition)
     if (coords) {
-      this._element.style.left = coords.left
-      this._element.style.top = coords.top
+      this._element.style.transform = `translate(${coords.x}, ${coords.y})`
     }
   }
 
@@ -154,14 +153,13 @@ export class BoardPiece {
    */
   resetPosition(animate?: boolean) {
     if (animate && this._explicitPosition) {
-      const coords = this._getLeftTopValues(this._explicitPosition)
+      const coords = this._getTranslateValues(this._explicitPosition)
       if (coords) {
         this._setAnimation(coords)
       }
     }
 
-    this._element.style.removeProperty("left")
-    this._element.style.removeProperty("top")
+    this._element.style.removeProperty("transform")
     this._explicitPosition = undefined
   }
 
@@ -178,13 +176,13 @@ export class BoardPiece {
     return this._explicitPosition
   }
 
-  private _getLeftTopValues(explicitPosition: ExplicitPiecePosition) {
+  private _getTranslateValues(explicitPosition: ExplicitPiecePosition) {
     if (explicitPosition.type === "coordinates") {
       const squareDims = this._parentElement.getBoundingClientRect()
       const deltaX = explicitPosition.x - squareDims.left - squareDims.width / 2
       const deltaY = explicitPosition.y - squareDims.top - squareDims.height / 2
       if (deltaX !== 0 || deltaY !== 0) {
-        return { left: `${deltaX}px`, top: `${deltaY}px` }
+        return { x: `${deltaX}px`, y: `${deltaY}px` }
       }
     } else {
       if (
@@ -192,24 +190,18 @@ export class BoardPiece {
         explicitPosition.deltaRows !== 0
       ) {
         return {
-          left: `${explicitPosition.deltaCols * 100}%`,
-          top: `${explicitPosition.deltaRows * 100}%`,
+          x: `${explicitPosition.deltaCols * 100}%`,
+          y: `${explicitPosition.deltaRows * 100}%`,
         }
       }
     }
     return undefined
   }
 
-  private _setAnimation(coords: { left: string; top: string }) {
+  private _setAnimation(coords: { x: string; y: string }) {
     this._element.style.animationName = "move-piece"
-    this._element.style.setProperty(
-      BoardPiece.PIECE_START_X_PROPERTY,
-      coords.left
-    )
-    this._element.style.setProperty(
-      BoardPiece.PIECE_START_Y_PROPERTY,
-      coords.top
-    )
+    this._element.style.setProperty(BoardPiece.PIECE_START_X_PROPERTY, coords.x)
+    this._element.style.setProperty(BoardPiece.PIECE_START_Y_PROPERTY, coords.y)
     this._element.addEventListener(
       "animationend",
       this._handleAnimationEndOrCancel
