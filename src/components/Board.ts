@@ -1,4 +1,5 @@
 import {
+  calcPositionDiff,
   getSquare,
   getVisualIndex,
   getVisualRowColumn,
@@ -161,7 +162,33 @@ export class Board {
 
   set position(value: Position) {
     if (!positionsEqual(this._position, value)) {
+      const diff = calcPositionDiff(this._position, value)
       this._position = { ...value }
+
+      diff.moved.forEach(({ oldSquare }) => {
+        // Remove all copies of moved piece from starting squares, without animation
+        this._getBoardSquare(oldSquare).setPiece(undefined)
+      })
+
+      diff.removed.forEach(({ square }) => {
+        // TODO: animate
+        this._getBoardSquare(square).setPiece(undefined)
+      })
+
+      diff.moved.forEach(({ piece, oldSquare, newSquare }) => {
+        // Render moved piece at location of old square, and animate in to new square
+        const startingPosition = this._getStartingPositionForMove(
+          oldSquare,
+          newSquare
+        )
+        this._getBoardSquare(newSquare).setPiece(piece, startingPosition)
+      })
+
+      diff.added.forEach(({ piece, square }) => {
+        // TODO: animate
+        this._getBoardSquare(square).setPiece(piece)
+      })
+
       this._updateAllSquareProps()
     }
   }
@@ -201,16 +228,8 @@ export class Board {
   private _finishMove(to: Square, animate: boolean) {
     if (this._moveStartSquare) {
       const from = this._moveStartSquare
-      const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
-      const [toRow, toCol] = getVisualRowColumn(to, this.orientation)
-      const startingPosition = this._getBoardSquare(from)
-        .explicitPiecePosition || {
-        type: "squareOffset",
-        deltaRows: fromRow - toRow,
-        deltaCols: fromCol - toCol,
-      }
+      const startingPosition = this._getStartingPositionForMove(from, to)
       this._getBoardSquare(from).setPiece(undefined)
-      this._getBoardSquare(from).finishMove()
       this._getBoardSquare(to).setPiece(
         this._position[from],
         animate ? startingPosition : undefined
@@ -292,6 +311,24 @@ export class Board {
 
   private _getBoardSquare(square: Square) {
     return this._boardSquares[getVisualIndex(square, this.orientation)]
+  }
+
+  /**
+   * Compute an explicit position to apply to a piece that is being moved
+   * from `from` to `to`. This can either be the explicit piece position,
+   * if already set, for that piece, or it is computed as the offset or
+   * difference in rows and columns between the two squares.
+   */
+  private _getStartingPositionForMove(from: Square, to: Square) {
+    const [fromRow, fromCol] = getVisualRowColumn(from, this.orientation)
+    const [toRow, toCol] = getVisualRowColumn(to, this.orientation)
+    return (
+      this._getBoardSquare(from).explicitPiecePosition || {
+        type: "squareOffset",
+        deltaRows: fromRow - toRow,
+        deltaCols: fromCol - toCol,
+      }
+    )
   }
 
   /**

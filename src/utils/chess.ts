@@ -36,34 +36,32 @@ const SQUARES_MAP = {
   a2:  96, b2:  97, c2:  98, d2:  99, e2: 100, f2: 101, g2: 102, h2: 103,
   a1: 112, b1: 113, c1: 114, d1: 115, e1: 116, f1: 117, g1: 118, h1: 119
 }
+const SQUARES = Object.keys(SQUARES_MAP) as Square[]
 export type Square = keyof typeof SQUARES_MAP
 
 // prettier-ignore
 const SQUARE_DISTANCE_TABLE = [
-  7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0,
-  7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 0,
-  7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 0,
-  7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7, 0,
-  7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 0,
-  7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 0,
-  7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7, 0,
-  7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7, 0,
-  7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7, 0,
-  7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 0,
-  7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 0,
-  7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7, 0,
-  7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 0,
-  7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 0,
-  7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0,
+  14, 13, 12, 11, 10, 9, 8, 7, 8, 9, 10, 11, 12, 13, 14, 0,
+  13, 12, 11, 10, 9 , 8, 7, 6, 7, 8, 9 , 10, 11, 12, 13, 0,
+  12, 11, 10, 9 , 8 , 7, 6, 5, 6, 7, 8 , 9 , 10, 11, 12, 0,
+  11, 10, 9 , 8 , 7 , 6, 5, 4, 5, 6, 7 , 8 , 9 , 10, 11, 0,
+  10, 9 , 8 , 7 , 6 , 5, 4, 3, 4, 5, 6 , 7 , 8 , 9 , 10, 0,
+  9 , 8 , 7 , 6 , 5 , 4, 3, 2, 3, 4, 5 , 6 , 7 , 8 , 9 , 0,
+  8 , 7 , 6 , 5 , 4 , 3, 2, 1, 2, 3, 4 , 5 , 6 , 7 , 8 , 0,
+  7 , 6 , 5 , 4 , 3 , 2, 1, 0, 1, 2, 3 , 4 , 5 , 6 , 7 , 0,
+  8 , 7 , 6 , 5 , 4 , 3, 2, 1, 2, 3, 4 , 5 , 6 , 7 , 8 , 0,
+  9 , 8 , 7 , 6 , 5 , 4, 3, 2, 3, 4, 5 , 6 , 7 , 8 , 9 , 0,
+  10, 9 , 8 , 7 , 6 , 5, 4, 3, 4, 5, 6 , 7 , 8 , 9 , 10, 0,
+  11, 10, 9 , 8 , 7 , 6, 5, 4, 5, 6, 7 , 8 , 9 , 10, 11, 0,
+  12, 11, 10, 9 , 8 , 7, 6, 5, 6, 7, 8 , 9 , 10, 11, 12, 0,
+  13, 12, 11, 10, 9 , 8, 7, 6, 7, 8, 9 , 10, 11, 12, 13, 0,
+  14, 13, 12, 11, 10, 9, 8, 7, 8, 9, 10, 11, 12, 13, 14, 0,
 ]
 
-const REVERSE_SQUARES_MAP = (Object.keys(SQUARES_MAP) as Square[]).reduce(
-  (acc, key) => {
-    acc[SQUARES_MAP[key]] = key
-    return acc
-  },
-  {} as Record<number, Square>
-)
+const REVERSE_SQUARES_MAP = SQUARES.reduce((acc, key) => {
+  acc[SQUARES_MAP[key]] = key
+  return acc
+}, {} as Record<number, Square>)
 
 const FEN_PIECE_TYPE_MAP: { [key: string]: PieceType } = {
   p: "pawn",
@@ -274,22 +272,21 @@ export function isSide(s: string | null): s is Side {
  * Deep equality check for Position objects.
  */
 export function positionsEqual(a: Position, b: Position) {
-  return Object.keys(SQUARES_MAP).every((square) =>
-    pieceEqual(a[square as Square], b[square as Square])
-  )
+  return SQUARES.every((square) => pieceEqual(a[square], b[square]))
 }
 
 export function calcPositionDiff(
-  oldPos: Position,
-  newPos: Position
+  oldPosition: Position,
+  newPosition: Position
 ): PositionDiff {
-  const oldPosCopy = { ...oldPos }
-  const newPosCopy = { ...newPos }
-  Object.keys(newPos).forEach((k) => {
+  // Limit old and new positions only to squares that are different
+  const oldPositionLimited = { ...oldPosition }
+  const newPositionLimited = { ...newPosition }
+  Object.keys(newPosition).forEach((k) => {
     const square = k as Square
-    if (pieceEqual(newPos[square], oldPos[square])) {
-      delete oldPosCopy[square]
-      delete newPosCopy[square]
+    if (pieceEqual(newPosition[square], oldPosition[square])) {
+      delete oldPositionLimited[square]
+      delete newPositionLimited[square]
     }
   })
 
@@ -298,11 +295,11 @@ export function calcPositionDiff(
   const moved: Array<{ piece: Piece; oldSquare: Square; newSquare: Square }> =
     []
 
-  Object.entries(newPosCopy).forEach(([k, newPiece]) => {
+  Object.entries(newPositionLimited).forEach(([k, newPiece]) => {
     const newSquare = k as Square
-    let minDistance = 8
+    let minDistance = 15
     let closestSquare: Square | undefined
-    for (const [l, oldPiece] of Object.entries(oldPosCopy)) {
+    Object.entries(oldPositionLimited).forEach(([l, oldPiece]) => {
       const oldSquare = l as Square
       if (pieceEqual(newPiece, oldPiece)) {
         const distance = squareDistance(newSquare, oldSquare)
@@ -311,27 +308,23 @@ export function calcPositionDiff(
           closestSquare = oldSquare
         }
       }
-    }
+    })
     if (closestSquare !== undefined) {
       moved.push({ piece: newPiece, oldSquare: closestSquare, newSquare })
-      delete oldPosCopy[closestSquare]
-      delete newPosCopy[newSquare]
+      delete oldPositionLimited[closestSquare]
+      delete newPositionLimited[newSquare]
     }
   })
 
-  Object.entries(newPosCopy).forEach(([k, piece]) => {
+  Object.entries(newPositionLimited).forEach(([k, piece]) => {
     added.push({ piece, square: k as Square })
   })
 
-  Object.entries(oldPosCopy).forEach(([k, piece]) => {
+  Object.entries(oldPositionLimited).forEach(([k, piece]) => {
     removed.push({ piece, square: k as Square })
   })
 
-  return {
-    added,
-    removed,
-    moved,
-  }
+  return { added, removed, moved }
 }
 
 export function squareDistance(a: Square, b: Square) {
