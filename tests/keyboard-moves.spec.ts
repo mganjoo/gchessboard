@@ -224,7 +224,7 @@ test("navigation with Home works correctly", async ({ page }) => {
   await page.focus("text=Flip")
   await page.keyboard.press("Shift+Tab")
 
-  // start move on a2 -> move to e3
+  // start move on e2 -> move to a3
   await page.keyboard.press("ArrowRight")
   await page.keyboard.press("ArrowRight")
   await page.keyboard.press("ArrowRight")
