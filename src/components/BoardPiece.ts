@@ -179,7 +179,7 @@ export class BoardPiece {
   /**
    * Return explicit position of piece on square, if any.
    */
-  get explicitPosition() {
+  get explicitPosition(): ExplicitPiecePosition | undefined {
     return this._explicitPosition
   }
 
