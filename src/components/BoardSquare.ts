@@ -180,10 +180,8 @@ export class BoardSquare {
       this._moveStart = false
       this._updateMoveStartClass()
 
-      // If piece is being unset, ensure secondary piece is toggled off
-      if (piece === undefined) {
-        this.toggleSecondaryPiece(false)
-      }
+      // Ensure secondary piece is toggled off if piece is changed
+      this.toggleSecondaryPiece(false)
     }
   }
 
