@@ -213,7 +213,6 @@ export class BoardSquare {
     if (this._boardPiece !== undefined) {
       this._moveStart = true;
       this._updateMoveStartClass();
-      this._boardPiece.removeAnimation();
 
       if (piecePositionPx !== undefined) {
         this.updateMove(piecePositionPx);

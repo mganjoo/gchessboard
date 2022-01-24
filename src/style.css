@@ -26,9 +26,6 @@
   --outline-blur-radius: 3px;
   --outline-spread-radius: 4px;
 
-  /* Duration for animation of piece (on moves and snapbacks). */
-  --piece-animation-duration: 200ms;
-
   /* Label font properties */
   --label-font-size: 0.7rem;
 
@@ -210,18 +207,6 @@
 
 [data-square] .piece {
   z-index: 10;
-  animation-duration: var(--piece-animation-duration);
-}
-
-/* Animation sequence for piece movements (translations). */
-@keyframes move-piece {
-  0% {
-    transform: translate(var(--p-piece-startX, 0), var(--p-piece-startY, 0));
-  }
-
-  100% {
-    transform: none;
-  }
 }
 
 [data-square] .piece.secondary {

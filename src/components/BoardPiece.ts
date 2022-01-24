@@ -79,9 +79,6 @@ export class BoardPiece {
    */
   private static PIECE_PADDING_PCT = 3;
 
-  private static PIECE_START_X_PROPERTY = "--p-piece-startX";
-  private static PIECE_START_Y_PROPERTY = "--p-piece-startY";
-
   constructor(container: HTMLElement, config: BoardPieceConfig) {
     this.piece = config.piece;
     this._parentElement = container;
@@ -111,10 +108,7 @@ export class BoardPiece {
     );
 
     if (config.animateFromPosition !== undefined) {
-      const coords = this._getTranslateValues(config.animateFromPosition);
-      if (coords) {
-        this._setAnimation(coords);
-      }
+      this._setAnimation(config.animateFromPosition);
     }
 
     if (config.secondary) {
@@ -129,14 +123,6 @@ export class BoardPiece {
    * listeners.
    */
   remove() {
-    this._element.removeEventListener(
-      "animationend",
-      this._handleAnimationEndOrCancel
-    );
-    this._element.removeEventListener(
-      "animationcancel",
-      this._handleAnimationEndOrCancel
-    );
     this._parentElement.removeChild(this._element);
   }
 
@@ -144,6 +130,7 @@ export class BoardPiece {
    * Set explicit offset for piece relative to default location in square.
    */
   setExplicitPosition(explicitPosition: ExplicitPiecePosition) {
+    this._finishAnimations();
     this._explicitPosition = explicitPosition;
     const coords = this._getTranslateValues(explicitPosition);
     if (coords) {
@@ -157,24 +144,12 @@ export class BoardPiece {
    */
   resetPosition(animate?: boolean) {
     if (animate && this._explicitPosition) {
-      const coords = this._getTranslateValues(this._explicitPosition);
-      if (coords) {
-        this._setAnimation(coords);
-      }
+      this._setAnimation(this._explicitPosition);
     }
 
     this._element.style.removeProperty("transform");
     this._explicitPosition = undefined;
   }
-
-  /**
-   * Stops and removes any animations in progress.
-   */
-  removeAnimation = () => {
-    this._element.style.removeProperty("animation-name");
-    this._element.style.removeProperty(BoardPiece.PIECE_START_X_PROPERTY);
-    this._element.style.removeProperty(BoardPiece.PIECE_START_Y_PROPERTY);
-  };
 
   /**
    * Return explicit position of piece on square, if any.
@@ -207,35 +182,26 @@ export class BoardPiece {
     return undefined;
   }
 
-  private _setAnimation(coords: { x: string; y: string }) {
-    this._element.style.animationName = "move-piece";
-    this._element.style.setProperty(
-      BoardPiece.PIECE_START_X_PROPERTY,
-      coords.x
-    );
-    this._element.style.setProperty(
-      BoardPiece.PIECE_START_Y_PROPERTY,
-      coords.y
-    );
-    this._element.addEventListener(
-      "animationend",
-      this._handleAnimationEndOrCancel
-    );
-    this._element.addEventListener(
-      "animationcancel",
-      this._handleAnimationEndOrCancel
-    );
+  private _setAnimation(position: ExplicitPiecePosition) {
+    const coords = this._getTranslateValues(position);
+    if (coords) {
+      this._element.animate(
+        [
+          {
+            transform: `translate(${coords.x}, ${coords.y})`,
+          },
+          {
+            transform: "none",
+          },
+        ],
+        { duration: 200 }
+      );
+    }
   }
 
-  private _handleAnimationEndOrCancel = () => {
-    this.removeAnimation();
-    this._element.removeEventListener(
-      "animationend",
-      this._handleAnimationEndOrCancel
-    );
-    this._element.removeEventListener(
-      "animationcancel",
-      this._handleAnimationEndOrCancel
-    );
-  };
+  private _finishAnimations() {
+    this._element.getAnimations().forEach((a) => {
+      a.finish();
+    });
+  }
 }
