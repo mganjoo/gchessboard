@@ -28,6 +28,7 @@ export class Board {
   private _tabbableSquare?: Square
   private _secondaryPieceShown?: boolean
   private _focused?: boolean
+  private _defaultTabbableSquare: Square
 
   // Event handlers
   private _mouseDownHandler: (e: MouseEvent) => void
@@ -59,6 +60,9 @@ export class Board {
     this._hideCoords = false
     this._position = {}
     this._boardState = { id: "default" }
+
+    // Bottom left corner white orientation = white
+    this._defaultTabbableSquare = "a1"
 
     this._table = makeHTMLElement("table", {
       attributes: {
@@ -126,12 +130,20 @@ export class Board {
   }
 
   set orientation(value: Side) {
+    this._cancelMove(false)
+
     this._orientation = value
-    this._updateAllSquareProps()
+    this._refreshDefaultTabbableSquare()
+    for (let i = 0; i < 64; i++) {
+      const square = getSquare(i, value)
+      this._boardSquares[i].label = square
+      this._boardSquares[i].tabbable = this.tabbableSquare === square
+      this._boardSquares[i].setPiece(this._position[square])
+    }
     if (this._focused) {
+      // Refresh focused square on orientation change
       this._focusTabbableSquare()
     }
-    this._cancelMove(false)
   }
 
   /**
@@ -158,6 +170,7 @@ export class Board {
 
   set position(value: Position) {
     if (!positionsEqual(this._position, value)) {
+      this._cancelMove(false)
       const diff = calcPositionDiff(this._position, value)
       this._position = { ...value }
 
@@ -185,7 +198,7 @@ export class Board {
         this._getBoardSquare(square).setPiece(piece)
       })
 
-      this._updateAllSquareProps()
+      this._refreshDefaultTabbableSquare()
     }
   }
 
@@ -207,7 +220,7 @@ export class Board {
    * the keyboard).
    */
   get tabbableSquare(): Square {
-    return this._tabbableSquare || this._getDefaultTabbableSquare()
+    return this._tabbableSquare || this._defaultTabbableSquare
   }
 
   set tabbableSquare(value: Square) {
@@ -283,26 +296,6 @@ export class Board {
     return !!this._position[square]
   }
 
-  /**
-   * Iterate over all squares and set individual props based on top-level config.
-   */
-  private _updateAllSquareProps() {
-    const tabbableSquare = this.tabbableSquare
-    for (let i = 0; i < 64; i++) {
-      const square = getSquare(i, this.orientation)
-      this._boardSquares[i].label = square
-      this._boardSquares[i].tabbable = tabbableSquare === square
-      this._boardSquares[i].setPiece(this._position[square])
-      this._boardSquares[i].toggleSecondaryPiece(
-        this._moveStartSquare === square && !!this._secondaryPieceShown
-      )
-    }
-    // Refresh existing move, if one is in progress
-    if (this._moveStartSquare) {
-      this._startMove(this._moveStartSquare, this._movingPiecePositionPx)
-    }
-  }
-
   private _getBoardSquare(square: Square) {
     return this._boardSquares[getVisualIndex(square, this.orientation)]
   }
@@ -333,16 +326,35 @@ export class Board {
    *   bottom left of board), or
    * - the bottom left square of the board.
    */
-  private _getDefaultTabbableSquare(): Square {
-    for (let row = 7; row >= 0; row--) {
-      for (let col = 0; col <= 7; col++) {
-        const square = getSquare(8 * row + col, this.orientation)
-        if (this._pieceOn(square)) {
-          return square
+  private _refreshDefaultTabbableSquare() {
+    const oldDefaultSquare = this._defaultTabbableSquare
+    let pieceFound = false
+
+    if (Object.keys(this._position).length > 0) {
+      for (let row = 7; row >= 0 && !pieceFound; row--) {
+        for (let col = 0; col <= 7 && !pieceFound; col++) {
+          const square = getSquare(8 * row + col, this.orientation)
+          if (this._pieceOn(square)) {
+            this._defaultTabbableSquare = square
+            pieceFound = true
+          }
         }
       }
     }
-    return getSquare(56, this.orientation)
+
+    if (!pieceFound) {
+      this._defaultTabbableSquare = getSquare(56, this.orientation)
+    }
+
+    // If tabbable square is det to default and has changed, then
+    // update the two squares accordingly.
+    if (
+      this._tabbableSquare === undefined &&
+      oldDefaultSquare !== this._defaultTabbableSquare
+    ) {
+      this._getBoardSquare(oldDefaultSquare).tabbable = false
+      this._getBoardSquare(this._defaultTabbableSquare).tabbable = true
+    }
   }
 
   private _setBoardState(state: BoardState) {
@@ -505,6 +517,9 @@ export class Board {
   private _handleFocusIn(this: Board, square: Square | undefined) {
     if (square) {
       this._focused = true
+      if (this._tabbableSquare === undefined) {
+        this._tabbableSquare = square
+      }
     }
   }
 
