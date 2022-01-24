@@ -209,6 +209,10 @@
   z-index: 10;
 }
 
+[data-square] .piece.moving {
+  z-index: 15;
+}
+
 [data-square] .piece.secondary {
   z-index: 5;
   opacity: var(--ghost-piece-opacity);

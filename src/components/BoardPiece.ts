@@ -1,8 +1,9 @@
 import { Piece, PieceType, Side } from "../utils/chess";
 import { makeSvgElement } from "../utils/dom";
 import sprite from "../sprite.svg";
+import { assertUnreachable } from "../utils/typing";
 
-export interface BoardPieceConfig {
+export type BoardPieceConfig = {
   /**
    * Piece type and color.
    */
@@ -17,11 +18,10 @@ export interface BoardPieceConfig {
   secondary?: boolean;
 
   /**
-   * Optional position for piece, in case it needs to be placed off square
-   * and animate into the square.
+   * Optional animation for piece as it transitions onto square.
    */
-  animateFromPosition?: ExplicitPiecePosition;
-}
+  animation?: SlideInAnimation | FadeInAnimation;
+};
 
 /**
  * Explicit position for piece that is displaced from the center of a square.
@@ -40,6 +40,29 @@ export interface BoardPieceConfig {
 export type ExplicitPiecePosition =
   | { type: "coordinates"; x: number; y: number }
   | { type: "squareOffset"; deltaRows: number; deltaCols: number };
+
+interface BoardPieceAnimationBase {
+  type: string;
+  durationMs: number;
+}
+
+export interface SlideInAnimation extends BoardPieceAnimationBase {
+  type: "slide-in";
+  from: ExplicitPiecePosition;
+}
+
+export interface FadeInAnimation extends BoardPieceAnimationBase {
+  type: "fade-in";
+}
+
+export interface FadeOutAnimation extends BoardPieceAnimationBase {
+  type: "fade-out";
+}
+
+export type BoardPieceAnimation =
+  | SlideInAnimation
+  | FadeInAnimation
+  | FadeOutAnimation;
 
 /**
  * Visual representation of a chessboard piece and associated sprite.
@@ -107,8 +130,8 @@ export class BoardPiece {
       })
     );
 
-    if (config.animateFromPosition !== undefined) {
-      this._setAnimation(config.animateFromPosition);
+    if (config.animation !== undefined) {
+      this._setAnimation(config.animation);
     }
 
     if (config.secondary) {
@@ -122,8 +145,13 @@ export class BoardPiece {
    * Remove piece for square it is contained on, along with any animation
    * listeners.
    */
-  remove() {
-    this._parentElement.removeChild(this._element);
+  remove(animationDurationMs?: number) {
+    if (animationDurationMs) {
+      // TODO: use promises
+      this._setAnimation({ type: "fade-out", durationMs: animationDurationMs });
+    } else {
+      this._parentElement.removeChild(this._element);
+    }
   }
 
   /**
@@ -142,9 +170,15 @@ export class BoardPiece {
    * Reset any explicit position set on the piece. If `transition` is true, then
    * the change is accompanied with a transition.
    */
-  resetPosition(animate?: boolean) {
-    if (animate && this._explicitPosition) {
-      this._setAnimation(this._explicitPosition);
+  resetPosition(animateDurationMs?: number) {
+    if (animateDurationMs) {
+      if (this._explicitPosition) {
+        this._setAnimation({
+          type: "slide-in",
+          from: this._explicitPosition,
+          durationMs: animateDurationMs,
+        });
+      }
     }
 
     this._element.style.removeProperty("transform");
@@ -182,20 +216,47 @@ export class BoardPiece {
     return undefined;
   }
 
-  private _setAnimation(position: ExplicitPiecePosition) {
-    const coords = this._getTranslateValues(position);
-    if (coords) {
-      this._element.animate(
-        [
-          {
-            transform: `translate(${coords.x}, ${coords.y})`,
-          },
-          {
-            transform: "none",
-          },
-        ],
-        { duration: 200 }
-      );
+  private _setAnimation(animationSpec: BoardPieceAnimation) {
+    let keyframes: Keyframe[] | undefined;
+    switch (animationSpec.type) {
+      case "slide-in":
+        {
+          const coords = this._getTranslateValues(animationSpec.from);
+          if (coords) {
+            keyframes = [
+              { transform: `translate(${coords.x}, ${coords.y})` },
+              { transform: "none" },
+            ];
+            this._element.classList.add("moving");
+          }
+        }
+        break;
+      case "fade-in":
+        keyframes = [{ opacity: 0 }, { opacity: 1 }];
+        break;
+      case "fade-out":
+        keyframes = [{ opacity: 1 }, { opacity: 0 }];
+        break;
+      default:
+        assertUnreachable(animationSpec);
+    }
+    if (keyframes !== undefined) {
+      const animation = this._element.animate(keyframes, {
+        duration: animationSpec.durationMs,
+      });
+
+      if (animationSpec.type === "fade-out") {
+        const element = this._element;
+        animation.onfinish = () => {
+          this._parentElement.removeChild(element);
+        };
+      }
+
+      if (animationSpec.type === "slide-in") {
+        animation.onfinish = () => {
+          this._element.classList.remove("moving");
+        };
+      }
     }
   }
 

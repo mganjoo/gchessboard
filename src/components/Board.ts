@@ -28,6 +28,7 @@ export class Board {
   private _focused?: boolean;
   private _doingProgrammaticBlur = false;
   private _defaultTabbableSquare: Square;
+  private animationDurationMs = 200;
 
   // Event handlers
   private _mouseDownHandler: (e: MouseEvent) => void;
@@ -142,9 +143,14 @@ export class Board {
     this._refreshDefaultTabbableSquare();
     for (let i = 0; i < 64; i++) {
       const square = getSquare(i, value);
+      const piece = this._position[square];
       this._boardSquares[i].label = square;
       this._boardSquares[i].tabbable = this.tabbableSquare === square;
-      this._boardSquares[i].setPiece(this._position[square]);
+      if (piece) {
+        this._boardSquares[i].setPiece(piece);
+      } else {
+        this._boardSquares[i].clearPiece();
+      }
     }
     if (this._focused) {
       // Refresh focused square on orientation change
@@ -186,12 +192,11 @@ export class Board {
 
       diff.moved.forEach(({ oldSquare }) => {
         // Remove all copies of moved piece from starting squares, without animation
-        this._getBoardSquare(oldSquare).setPiece(undefined);
+        this._getBoardSquare(oldSquare).clearPiece();
       });
 
       diff.removed.forEach(({ square }) => {
-        // TODO: animate
-        this._getBoardSquare(square).setPiece(undefined);
+        this._getBoardSquare(square).clearPiece(this.animationDurationMs);
       });
 
       diff.moved.forEach(({ piece, oldSquare, newSquare }) => {
@@ -200,12 +205,18 @@ export class Board {
           oldSquare,
           newSquare
         );
-        this._getBoardSquare(newSquare).setPiece(piece, startingPosition);
+        this._getBoardSquare(newSquare).setPiece(piece, {
+          type: "slide-in",
+          from: startingPosition,
+          durationMs: this.animationDurationMs,
+        });
       });
 
       diff.added.forEach(({ piece, square }) => {
-        // TODO: animate
-        this._getBoardSquare(square).setPiece(piece);
+        this._getBoardSquare(square).setPiece(piece, {
+          type: "fade-in",
+          durationMs: this.animationDurationMs,
+        });
       });
 
       // Default tabbable square might change with position change
@@ -258,24 +269,35 @@ export class Board {
   private _finishMove(to: Square, animate: boolean) {
     if (this._moveStartSquare) {
       const from = this._moveStartSquare;
-      const startingPosition = this._getStartingPositionForMove(from, to);
-      this._getBoardSquare(from).setPiece(undefined);
-      this._getBoardSquare(to).setPiece(
-        this._position[from],
-        // Animate transition only when piece is displaced to a specific location
-        animate ? startingPosition : undefined
-      );
-      // Tabbable square always updates to target square
-      this.tabbableSquare = to;
-      this._position[to] = this._position[from];
-      delete this._position[from];
+      const piece = this._position[from];
+      if (piece !== undefined) {
+        const startingPosition = this._getStartingPositionForMove(from, to);
+        this._getBoardSquare(from).clearPiece();
+        this._getBoardSquare(to).setPiece(
+          piece,
+          // Animate transition only when piece is displaced to a specific location
+          animate
+            ? {
+                type: "slide-in",
+                from: startingPosition,
+                durationMs: this.animationDurationMs,
+              }
+            : undefined
+        );
+        // Tabbable square always updates to target square
+        this.tabbableSquare = to;
+        this._position[to] = this._position[from];
+        delete this._position[from];
+      }
     }
     this._resetBoardStateAndMoves();
   }
 
   private _cancelMove(animate: boolean) {
     if (this._moveStartSquare) {
-      this._getBoardSquare(this._moveStartSquare).finishMove(animate);
+      this._getBoardSquare(this._moveStartSquare).finishMove(
+        animate ? this.animationDurationMs : undefined
+      );
       this._removeSecondaryPiece();
     }
     this._resetBoardStateAndMoves();

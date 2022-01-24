@@ -1,6 +1,11 @@
 import { getSquareColor, Piece, pieceEqual, Square } from "../utils/chess";
 import { makeHTMLElement } from "../utils/dom";
-import { BoardPiece, ExplicitPiecePosition } from "./BoardPiece";
+import {
+  BoardPiece,
+  ExplicitPiecePosition,
+  FadeInAnimation,
+  SlideInAnimation,
+} from "./BoardPiece";
 
 /**
  * Visual representation of a chessboard square, along with attributes
@@ -163,25 +168,21 @@ export class BoardSquare {
    * be a no-op since the position of the two pieces would otherwise be exactly
    * the same.
    */
-  setPiece(
-    piece: Piece | undefined,
-    animateFromPosition?: ExplicitPiecePosition
-  ) {
-    if (!pieceEqual(this._boardPiece?.piece, piece) || animateFromPosition) {
+  setPiece(piece: Piece, animation?: SlideInAnimation | FadeInAnimation) {
+    if (!pieceEqual(this._boardPiece?.piece, piece) || animation) {
       if (this._boardPiece !== undefined) {
         this._boardPiece.remove();
       }
-      this._boardPiece = piece
-        ? new BoardPiece(this._element, { piece, animateFromPosition })
-        : undefined;
-      this._element.classList.toggle("has-piece", !!piece);
+      this._boardPiece = new BoardPiece(this._element, { piece, animation });
+      this._updateSquareAfterPieceChange();
+    }
+  }
 
-      // Always treat a piece change as the end of a move
-      this._moveStart = false;
-      this._updateMoveStartClass();
-
-      // Ensure secondary piece is toggled off if piece is changed
-      this.toggleSecondaryPiece(false);
+  clearPiece(animationDurationMs?: number) {
+    if (this._boardPiece) {
+      this._boardPiece.remove(animationDurationMs);
+      this._boardPiece = undefined;
+      this._updateSquareAfterPieceChange();
     }
   }
 
@@ -236,10 +237,10 @@ export class BoardSquare {
   /**
    * Finish ongoing move, if it exists.
    */
-  finishMove(animate?: boolean) {
+  finishMove(animateDurationMs?: number) {
     this._moveStart = false;
     this._updateMoveStartClass();
-    this._boardPiece?.resetPosition(animate);
+    this._boardPiece?.resetPosition(animateDurationMs);
   }
 
   private _updateLabelVisuals() {
@@ -277,5 +278,16 @@ export class BoardSquare {
     } else {
       this._element.classList.remove("move-start");
     }
+  }
+
+  private _updateSquareAfterPieceChange() {
+    this._element.classList.toggle("has-piece", !!this._boardPiece);
+
+    // Always treat a piece change as the end of a move
+    this._moveStart = false;
+    this._updateMoveStartClass();
+
+    // Ensure secondary piece is toggled off if piece is changed
+    this.toggleSecondaryPiece(false);
   }
 }
