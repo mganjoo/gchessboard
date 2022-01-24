@@ -3,8 +3,8 @@ import { makeHTMLElement } from "../utils/dom"
 import { BoardPiece, ExplicitPiecePosition } from "./BoardPiece"
 
 /**
- * Visual attributes related to a square, that can change over the
- * course of the square lifecycle.
+ * Visual attributes related to a square that are dependent on the square's
+ * location within the grid. The `Board` class usually changes these all at once.
  */
 export interface BoardSquareProps {
   /**
@@ -21,10 +21,6 @@ export interface BoardSquareProps {
    * all chessboard squares are focusable but not user-tabbable (tabindex = -1).
    */
   tabbable: boolean
-  /**
-   * Whether rank or file labels on the square (if they exist) should be shown.
-   */
-  showCoords: boolean
 }
 
 /**
@@ -37,13 +33,21 @@ export class BoardSquare {
   private readonly _rankLabelElement?: HTMLSpanElement
   private readonly _fileLabelElement?: HTMLSpanElement
   private readonly _slotElement: HTMLSlotElement
+
   private _boardPiece?: BoardPiece
   private _secondaryBoardPiece?: BoardPiece
   private _props: BoardSquareProps
   private _hasContent?: boolean
 
-  // Whether this square should be marked as the start of an ongoing move.
-  private _moveStart?: boolean
+  /**
+   * Whether this square should be marked as the start of an ongoing move.
+   */
+  private _moveStart = false
+
+  /**
+   * Whether rank or file labels on the square (if they exist) should be hidden.
+   */
+  private _hideCoords = false
 
   constructor(
     container: HTMLElement,
@@ -95,12 +99,21 @@ export class BoardSquare {
   }
 
   get tabbable(): boolean {
-    return !!this._props.tabbable
+    return this._props.tabbable
   }
 
   set tabbable(value: boolean) {
     this._props.tabbable = value
     this._updateTabIndex()
+  }
+
+  get hideCoords(): boolean {
+    return this._hideCoords
+  }
+
+  set hideCoords(value: boolean) {
+    this._hideCoords = value
+    this._updateCoords()
   }
 
   /**
@@ -141,15 +154,18 @@ export class BoardSquare {
    * Set primary piece associated with the square. This piece is rendered either
    * directly onto the square (default) or optionally, animating in from an
    * explicit position `animateFromPosition`.
+   *
+   * If the piece being set is the same as the one already present on the
+   * square, and the new piece is not animating in from anywhere, this will
+   * be a no-op since the position of the two pieces would otherwise be exactly
+   * the same.
    */
   setPiece(
     piece: Piece | undefined,
     animateFromPosition?: ExplicitPiecePosition
   ) {
-    // Avoid unnecessary rendering if the existing piece is exactly the same
     if (!pieceEqual(this._boardPiece?.piece, piece) || animateFromPosition) {
-      if (this._boardPiece) {
-        // Also cancels animations
+      if (this._boardPiece !== undefined) {
         this._boardPiece.remove()
       }
       this._boardPiece = piece
@@ -160,6 +176,11 @@ export class BoardSquare {
       // Always treat a piece change as the end of a move
       this._moveStart = false
       this._updateMoveStartClass()
+
+      // If piece is being unset, ensure secondary piece is toggled off
+      if (piece === undefined) {
+        this.toggleSecondaryPiece(false)
+      }
     }
   }
 
@@ -228,33 +249,13 @@ export class BoardSquare {
     this._labelSpanElement.textContent = this._props.label
     this._slotElement.name = this._props.label
 
-    const [filePart, rankPart] = this._props.label.split("")
-    if (this._rankLabelElement) {
-      this._rankLabelElement.textContent = this._props.showCoords
-        ? rankPart
-        : null
-    }
-    if (this._fileLabelElement) {
-      this._fileLabelElement.textContent = this._props.showCoords
-        ? filePart
-        : null
-    }
-
-    // Interactivity
     this._element.setAttribute(
       "role",
       this._props.interactive ? "gridcell" : "cell"
     )
     this._updateTabIndex()
     this._updateMoveStartClass()
-  }
-
-  private _updateMoveStartClass() {
-    if (this._props.interactive) {
-      this._element.classList.toggle("move-start", !!this._moveStart)
-    } else {
-      this._element.classList.remove("move-start")
-    }
+    this._updateCoords()
   }
 
   private _updateTabIndex() {
@@ -262,6 +263,24 @@ export class BoardSquare {
       this._element.tabIndex = this._props.tabbable ? 0 : -1
     } else {
       this._element.removeAttribute("tabindex")
+    }
+  }
+
+  private _updateMoveStartClass() {
+    if (this._props.interactive) {
+      this._element.classList.toggle("move-start", this._moveStart)
+    } else {
+      this._element.classList.remove("move-start")
+    }
+  }
+
+  private _updateCoords() {
+    const [filePart, rankPart] = this._props.label.split("")
+    if (this._rankLabelElement) {
+      this._rankLabelElement.textContent = this._hideCoords ? null : rankPart
+    }
+    if (this._fileLabelElement) {
+      this._fileLabelElement.textContent = this._hideCoords ? null : filePart
     }
   }
 }

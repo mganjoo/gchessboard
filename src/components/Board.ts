@@ -82,7 +82,6 @@ export class Board {
             label: square,
             interactive: false,
             tabbable: tabbableSquare === square,
-            showCoords: true,
           },
           {
             makeFileLabel: i === 7,
@@ -199,7 +198,9 @@ export class Board {
 
   set hideCoords(value: boolean) {
     this._hideCoords = value
-    this._updateAllSquareProps()
+    this._boardSquares.forEach((s) => {
+      s.hideCoords = value
+    })
   }
 
   /**
@@ -296,7 +297,6 @@ export class Board {
         label: square,
         interactive: this.interactive,
         tabbable: tabbableSquare === square,
-        showCoords: !this.hideCoords,
       })
       this._boardSquares[i].setPiece(this._position[square])
       this._boardSquares[i].toggleSecondaryPiece(
