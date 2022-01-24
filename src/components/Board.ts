@@ -106,16 +106,26 @@ export class Board {
     this._table.addEventListener("transitioncancel", this._transitionHandler)
   }
 
+  /**
+   * Add event listeners that operate outside shadow DOM (mouse up and move).
+   * These listeners should be unbound when the element is removed from the DOM.
+   */
   addGlobalListeners() {
     document.addEventListener("mouseup", this._mouseUpHandler)
     document.addEventListener("mousemove", this._mouseMoveHandler)
   }
 
+  /**
+   * Removes global listeners for mouse up and move.
+   */
   removeGlobalListeners() {
     document.removeEventListener("mouseup", this._mouseUpHandler)
     document.removeEventListener("mousemove", this._mouseMoveHandler)
   }
 
+  /**
+   * HTML element associated with board.
+   */
   get element() {
     return this._table
   }
@@ -283,7 +293,7 @@ export class Board {
   private _blurTabbableSquare() {
     if (this.tabbableSquare) {
       // Mark blur as programmatic to ensure the blur handler
-      // does not do side effects
+      // does not do side effects (canceling moves etc)
       this._doingProgrammaticBlur = true
       this._getBoardSquare(this.tabbableSquare).blur()
       this._doingProgrammaticBlur = false
@@ -361,7 +371,7 @@ export class Board {
       this._defaultTabbableSquare = getSquare(56, this.orientation)
     }
 
-    // If tabbable square is det to default and has changed, then
+    // If tabbable square is set to default and has changed, then
     // update the two squares accordingly.
     if (
       this._tabbableSquare === undefined &&
