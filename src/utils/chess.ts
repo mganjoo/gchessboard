@@ -4,8 +4,8 @@
  * https://www.chessprogramming.org/0x88
  */
 
-export const SQUARE_COLORS = ["light", "dark"] as const
-export const SIDE_COLORS = ["white", "black"] as const
+export const SQUARE_COLORS = ["light", "dark"] as const;
+export const SIDE_COLORS = ["white", "black"] as const;
 export const PIECE_TYPES = [
   "queen",
   "king",
@@ -13,16 +13,16 @@ export const PIECE_TYPES = [
   "bishop",
   "rook",
   "pawn",
-] as const
+] as const;
 
-export type SquareColor = typeof SQUARE_COLORS[number]
-export type Side = typeof SIDE_COLORS[number]
-export type PieceType = typeof PIECE_TYPES[number]
-export type Position = Partial<Record<Square, Piece>>
+export type SquareColor = typeof SQUARE_COLORS[number];
+export type Side = typeof SIDE_COLORS[number];
+export type PieceType = typeof PIECE_TYPES[number];
+export type Position = Partial<Record<Square, Piece>>;
 
 export interface Piece {
-  pieceType: PieceType
-  color: Side
+  pieceType: PieceType;
+  color: Side;
 }
 
 // prettier-ignore
@@ -36,8 +36,8 @@ const SQUARES_MAP = {
   a2:  96, b2:  97, c2:  98, d2:  99, e2: 100, f2: 101, g2: 102, h2: 103,
   a1: 112, b1: 113, c1: 114, d1: 115, e1: 116, f1: 117, g1: 118, h1: 119
 }
-const SQUARES = Object.keys(SQUARES_MAP) as Square[]
-export type Square = keyof typeof SQUARES_MAP
+const SQUARES = Object.keys(SQUARES_MAP) as Square[];
+export type Square = keyof typeof SQUARES_MAP;
 
 // prettier-ignore
 const SQUARE_DISTANCE_TABLE = [
@@ -59,9 +59,9 @@ const SQUARE_DISTANCE_TABLE = [
 ]
 
 const REVERSE_SQUARES_MAP = SQUARES.reduce((acc, key) => {
-  acc[SQUARES_MAP[key]] = key
-  return acc
-}, {} as Record<number, Square>)
+  acc[SQUARES_MAP[key]] = key;
+  return acc;
+}, {} as Record<number, Square>);
 
 const FEN_PIECE_TYPE_MAP: { [key: string]: PieceType } = {
   p: "pawn",
@@ -70,19 +70,19 @@ const FEN_PIECE_TYPE_MAP: { [key: string]: PieceType } = {
   r: "rook",
   q: "queen",
   k: "king",
-}
+};
 const REVERSE_FEN_PIECE_TYPE_MAP: Record<PieceType, string> = Object.keys(
   FEN_PIECE_TYPE_MAP
 ).reduce((acc, key) => {
-  acc[FEN_PIECE_TYPE_MAP[key]] = key
-  return acc
-}, {} as Record<PieceType, string>)
+  acc[FEN_PIECE_TYPE_MAP[key]] = key;
+  return acc;
+}, {} as Record<PieceType, string>);
 
 export type PositionDiff = {
-  added: Array<{ piece: Piece; square: Square }>
-  removed: Array<{ piece: Piece; square: Square }>
-  moved: Array<{ piece: Piece; oldSquare: Square; newSquare: Square }>
-}
+  added: Array<{ piece: Piece; square: Square }>;
+  removed: Array<{ piece: Piece; square: Square }>;
+  moved: Array<{ piece: Piece; oldSquare: Square; newSquare: Square }>;
+};
 
 /**
  * Parse a FEN string and return an object that maps squares to pieces.
@@ -99,42 +99,42 @@ export type PositionDiff = {
  */
 export function getPosition(fen: string): Position | undefined {
   if (fen === "initial" || fen === "start") {
-    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
   }
 
-  const parts = fen.split(" ")
-  const ranks = parts[0].split("/")
+  const parts = fen.split(" ");
+  const ranks = parts[0].split("/");
   if (ranks.length !== 8) {
-    return undefined
+    return undefined;
   }
 
-  const position: Position = {}
+  const position: Position = {};
   for (let i = 0; i < 8; i++) {
-    const rank = 8 - i
-    let fileOffset = 0
+    const rank = 8 - i;
+    let fileOffset = 0;
     for (let j = 0; j < ranks[i].length; j++) {
-      const pieceLetter = ranks[i][j].toLowerCase()
+      const pieceLetter = ranks[i][j].toLowerCase();
       if (pieceLetter in FEN_PIECE_TYPE_MAP) {
-        const square = (String.fromCharCode(97 + fileOffset) + rank) as Square
+        const square = (String.fromCharCode(97 + fileOffset) + rank) as Square;
         position[square] = {
           pieceType: FEN_PIECE_TYPE_MAP[pieceLetter],
           color: pieceLetter === ranks[i][j] ? "black" : "white",
-        }
-        fileOffset += 1
+        };
+        fileOffset += 1;
       } else {
-        const emptySpaces = parseInt(ranks[i][j])
+        const emptySpaces = parseInt(ranks[i][j]);
         if (isNaN(emptySpaces) || emptySpaces === 0 || emptySpaces > 8) {
-          return undefined
+          return undefined;
         } else {
-          fileOffset += emptySpaces
+          fileOffset += emptySpaces;
         }
       }
     }
     if (fileOffset !== 8) {
-      return undefined
+      return undefined;
     }
   }
-  return position
+  return position;
 }
 
 /**
@@ -142,30 +142,30 @@ export function getPosition(fen: string): Position | undefined {
  * the first (piece placement) component of the FEN string.
  */
 export function getFen(position: Position): string {
-  const rankSpecs = []
+  const rankSpecs = [];
   for (let i = 0; i < 8; i++) {
-    let rankSpec = ""
-    let gap = 0
+    let rankSpec = "";
+    let gap = 0;
     for (let j = 0; j < 8; j++) {
-      const square = REVERSE_SQUARES_MAP[16 * i + j]
-      const piece = position[square]
+      const square = REVERSE_SQUARES_MAP[16 * i + j];
+      const piece = position[square];
       if (piece !== undefined) {
-        const pieceStr = REVERSE_FEN_PIECE_TYPE_MAP[piece.pieceType]
+        const pieceStr = REVERSE_FEN_PIECE_TYPE_MAP[piece.pieceType];
         if (gap > 0) {
-          rankSpec += gap
+          rankSpec += gap;
         }
-        rankSpec += piece.color === "white" ? pieceStr.toUpperCase() : pieceStr
-        gap = 0
+        rankSpec += piece.color === "white" ? pieceStr.toUpperCase() : pieceStr;
+        gap = 0;
       } else {
-        gap += 1
+        gap += 1;
       }
     }
     if (gap > 0) {
-      rankSpec += gap
+      rankSpec += gap;
     }
-    rankSpecs.push(rankSpec)
+    rankSpecs.push(rankSpec);
   }
-  return rankSpecs.join("/")
+  return rankSpecs.join("/");
 }
 
 /**
@@ -186,8 +186,8 @@ export function getFen(position: Position): string {
  * https://www.chessprogramming.org/0x88#Coordinate_Transformation
  */
 export function getSquare(visualIndex: number, orientation: Side) {
-  const idx = visualIndex + (visualIndex & ~0x7)
-  return REVERSE_SQUARES_MAP[orientation === "black" ? 0x77 - idx : idx]
+  const idx = visualIndex + (visualIndex & ~0x7);
+  return REVERSE_SQUARES_MAP[orientation === "black" ? 0x77 - idx : idx];
 }
 
 /**
@@ -212,9 +212,9 @@ export function getSquare(visualIndex: number, orientation: Side) {
  * @returns a visual index for the square in question.
  */
 export function getVisualIndex(square: Square, orientation: Side) {
-  const idx = SQUARES_MAP[square]
-  const orientedIdx = orientation === "black" ? 0x77 - idx : idx
-  return (orientedIdx + (orientedIdx & 0x7)) >> 1
+  const idx = SQUARES_MAP[square];
+  const orientedIdx = orientation === "black" ? 0x77 - idx : idx;
+  return (orientedIdx + (orientedIdx & 0x7)) >> 1;
 }
 
 /**
@@ -228,24 +228,24 @@ export function getVisualRowColumn(
   square: Square,
   orientation: Side
 ): [number, number] {
-  const idx = getVisualIndex(square, orientation)
-  return [idx >> 3, idx & 0x7]
+  const idx = getVisualIndex(square, orientation);
+  return [idx >> 3, idx & 0x7];
 }
 
 /**
  * https://www.chessprogramming.org/Color_of_a_Square#By_Anti-Diagonal_Index
  */
 export function getSquareColor(square: Square): SquareColor {
-  const idx0x88 = SQUARES_MAP[square]
-  const idx = (idx0x88 + (idx0x88 & 0x7)) >> 1
-  return ((idx * 9) & 8) === 0 ? "light" : "dark"
+  const idx0x88 = SQUARES_MAP[square];
+  const idx = (idx0x88 + (idx0x88 & 0x7)) >> 1;
+  return ((idx * 9) & 8) === 0 ? "light" : "dark";
 }
 
 /**
  * Type guard to check if `key` (string) is a valid chess square.
  */
 export function keyIsSquare(key: string | undefined): key is Square {
-  return key !== undefined && key in SQUARES_MAP
+  return key !== undefined && key in SQUARES_MAP;
 }
 
 /**
@@ -258,21 +258,21 @@ export function pieceEqual(a: Piece | undefined, b: Piece | undefined) {
       b !== undefined &&
       a.color === b.color &&
       a.pieceType === b.pieceType)
-  )
+  );
 }
 
 /**
  * Type guard for string values that need to confirm to a `Side` definition.
  */
 export function isSide(s: string | null): s is Side {
-  return SIDE_COLORS.includes(s as Side)
+  return SIDE_COLORS.includes(s as Side);
 }
 
 /**
  * Deep equality check for Position objects.
  */
 export function positionsEqual(a: Position, b: Position) {
-  return SQUARES.every((square) => pieceEqual(a[square], b[square]))
+  return SQUARES.every((square) => pieceEqual(a[square], b[square]));
 }
 
 export function calcPositionDiff(
@@ -280,53 +280,53 @@ export function calcPositionDiff(
   newPosition: Position
 ): PositionDiff {
   // Limit old and new positions only to squares that are different
-  const oldPositionLimited = { ...oldPosition }
-  const newPositionLimited = { ...newPosition }
+  const oldPositionLimited = { ...oldPosition };
+  const newPositionLimited = { ...newPosition };
   Object.keys(newPosition).forEach((k) => {
-    const square = k as Square
+    const square = k as Square;
     if (pieceEqual(newPosition[square], oldPosition[square])) {
-      delete oldPositionLimited[square]
-      delete newPositionLimited[square]
+      delete oldPositionLimited[square];
+      delete newPositionLimited[square];
     }
-  })
+  });
 
-  const added: Array<{ piece: Piece; square: Square }> = []
-  const removed: Array<{ piece: Piece; square: Square }> = []
+  const added: Array<{ piece: Piece; square: Square }> = [];
+  const removed: Array<{ piece: Piece; square: Square }> = [];
   const moved: Array<{ piece: Piece; oldSquare: Square; newSquare: Square }> =
-    []
+    [];
 
   Object.entries(newPositionLimited).forEach(([k, newPiece]) => {
-    const newSquare = k as Square
-    let minDistance = 15
-    let closestSquare: Square | undefined
+    const newSquare = k as Square;
+    let minDistance = 15;
+    let closestSquare: Square | undefined;
     Object.entries(oldPositionLimited).forEach(([l, oldPiece]) => {
-      const oldSquare = l as Square
+      const oldSquare = l as Square;
       if (pieceEqual(newPiece, oldPiece)) {
-        const distance = squareDistance(newSquare, oldSquare)
+        const distance = squareDistance(newSquare, oldSquare);
         if (distance < minDistance) {
-          minDistance = distance
-          closestSquare = oldSquare
+          minDistance = distance;
+          closestSquare = oldSquare;
         }
       }
-    })
+    });
     if (closestSquare !== undefined) {
-      moved.push({ piece: newPiece, oldSquare: closestSquare, newSquare })
-      delete oldPositionLimited[closestSquare]
-      delete newPositionLimited[newSquare]
+      moved.push({ piece: newPiece, oldSquare: closestSquare, newSquare });
+      delete oldPositionLimited[closestSquare];
+      delete newPositionLimited[newSquare];
     }
-  })
+  });
 
   Object.entries(newPositionLimited).forEach(([k, piece]) => {
-    added.push({ piece, square: k as Square })
-  })
+    added.push({ piece, square: k as Square });
+  });
 
   Object.entries(oldPositionLimited).forEach(([k, piece]) => {
-    removed.push({ piece, square: k as Square })
-  })
+    removed.push({ piece, square: k as Square });
+  });
 
-  return { added, removed, moved }
+  return { added, removed, moved };
 }
 
 export function squareDistance(a: Square, b: Square) {
-  return SQUARE_DISTANCE_TABLE[SQUARES_MAP[a] - SQUARES_MAP[b] + 0x77]
+  return SQUARE_DISTANCE_TABLE[SQUARES_MAP[a] - SQUARES_MAP[b] + 0x77];
 }

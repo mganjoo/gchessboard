@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { test, expect } from "@playwright/test"
+import { test, expect } from "@playwright/test";
 import {
   calcPositionDiff,
   getFen,
@@ -8,48 +8,48 @@ import {
   getSquareColor,
   getVisualIndex,
   PositionDiff,
-} from "../../src/utils/chess"
+} from "../../src/utils/chess";
 
 test.describe("chess utilities", () => {
   test("getSquare()", () => {
-    expect(getSquare(0, "white")).toBe("a8")
-    expect(getSquare(7, "white")).toBe("h8")
-    expect(getSquare(56, "white")).toBe("a1")
-    expect(getSquare(63, "white")).toBe("h1")
-    expect(getSquare(0, "black")).toBe("h1")
-    expect(getSquare(7, "black")).toBe("a1")
-    expect(getSquare(56, "black")).toBe("h8")
-    expect(getSquare(63, "black")).toBe("a8")
-    expect(getSquare(34, "white")).toBe("c4")
-    expect(getSquare(53, "black")).toBe("c7")
-    expect(getSquare(25, "white")).toBe("b5")
-    expect(getSquare(18, "black")).toBe("f3")
-  })
+    expect(getSquare(0, "white")).toBe("a8");
+    expect(getSquare(7, "white")).toBe("h8");
+    expect(getSquare(56, "white")).toBe("a1");
+    expect(getSquare(63, "white")).toBe("h1");
+    expect(getSquare(0, "black")).toBe("h1");
+    expect(getSquare(7, "black")).toBe("a1");
+    expect(getSquare(56, "black")).toBe("h8");
+    expect(getSquare(63, "black")).toBe("a8");
+    expect(getSquare(34, "white")).toBe("c4");
+    expect(getSquare(53, "black")).toBe("c7");
+    expect(getSquare(25, "white")).toBe("b5");
+    expect(getSquare(18, "black")).toBe("f3");
+  });
 
   test("getVisualIndex()", () => {
-    expect(getVisualIndex("a8", "white")).toEqual(0)
-    expect(getVisualIndex("h8", "white")).toEqual(7)
-    expect(getVisualIndex("a1", "white")).toEqual(56)
-    expect(getVisualIndex("h1", "white")).toEqual(63)
-    expect(getVisualIndex("h1", "black")).toEqual(0)
-    expect(getVisualIndex("a1", "black")).toEqual(7)
-    expect(getVisualIndex("h8", "black")).toEqual(56)
-    expect(getVisualIndex("a8", "black")).toEqual(63)
-    expect(getVisualIndex("c4", "white")).toEqual(34)
-    expect(getVisualIndex("c7", "black")).toEqual(53)
-    expect(getVisualIndex("b5", "white")).toEqual(25)
-    expect(getVisualIndex("f3", "black")).toEqual(18)
-    expect(getVisualIndex("d6", "white")).toEqual(19)
-  })
+    expect(getVisualIndex("a8", "white")).toEqual(0);
+    expect(getVisualIndex("h8", "white")).toEqual(7);
+    expect(getVisualIndex("a1", "white")).toEqual(56);
+    expect(getVisualIndex("h1", "white")).toEqual(63);
+    expect(getVisualIndex("h1", "black")).toEqual(0);
+    expect(getVisualIndex("a1", "black")).toEqual(7);
+    expect(getVisualIndex("h8", "black")).toEqual(56);
+    expect(getVisualIndex("a8", "black")).toEqual(63);
+    expect(getVisualIndex("c4", "white")).toEqual(34);
+    expect(getVisualIndex("c7", "black")).toEqual(53);
+    expect(getVisualIndex("b5", "white")).toEqual(25);
+    expect(getVisualIndex("f3", "black")).toEqual(18);
+    expect(getVisualIndex("d6", "white")).toEqual(19);
+  });
 
   test("getSquareColor()", () => {
-    expect(getSquareColor("c5")).toBe("dark")
-    expect(getSquareColor("a6")).toBe("light")
-    expect(getSquareColor("d3")).toBe("light")
-    expect(getSquareColor("e7")).toBe("dark")
-    expect(getSquareColor("h1")).toBe("light")
-    expect(getSquareColor("f4")).toBe("dark")
-  })
+    expect(getSquareColor("c5")).toBe("dark");
+    expect(getSquareColor("a6")).toBe("light");
+    expect(getSquareColor("d3")).toBe("light");
+    expect(getSquareColor("e7")).toBe("dark");
+    expect(getSquareColor("h1")).toBe("light");
+    expect(getSquareColor("f4")).toBe("dark");
+  });
 
   test("getPosition()", () => {
     expect(getPosition("8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8 w - - 1 2")).toEqual({
@@ -63,7 +63,7 @@ test.describe("chess utilities", () => {
       c5: { pieceType: "bishop", color: "black" },
       f5: { pieceType: "king", color: "black" },
       f7: { pieceType: "pawn", color: "black" },
-    })
+    });
 
     expect(
       getPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
@@ -100,7 +100,7 @@ test.describe("chess utilities", () => {
       f7: { color: "black", pieceType: "pawn" },
       g7: { color: "black", pieceType: "pawn" },
       h7: { color: "black", pieceType: "pawn" },
-    })
+    });
 
     expect(
       getPosition("r3r1k1/1bqn1p1p/ppnpp1p1/6P1/P2NPP2/2N4R/1PP2QBP/5R1K")
@@ -133,8 +133,8 @@ test.describe("chess utilities", () => {
       a8: { color: "black", pieceType: "rook" },
       e8: { color: "black", pieceType: "rook" },
       g8: { color: "black", pieceType: "king" },
-    })
-  })
+    });
+  });
 
   test("getFen()", () => {
     expect(
@@ -150,7 +150,7 @@ test.describe("chess utilities", () => {
         f5: { pieceType: "king", color: "black" },
         f7: { pieceType: "pawn", color: "black" },
       })
-    ).toEqual("8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8")
+    ).toEqual("8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8");
 
     expect(
       getFen({
@@ -187,7 +187,7 @@ test.describe("chess utilities", () => {
         g7: { color: "black", pieceType: "pawn" },
         h7: { color: "black", pieceType: "pawn" },
       })
-    ).toEqual("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+    ).toEqual("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
     expect(
       getFen({
@@ -220,23 +220,23 @@ test.describe("chess utilities", () => {
         e8: { color: "black", pieceType: "rook" },
         g8: { color: "black", pieceType: "king" },
       })
-    ).toEqual("r3r1k1/1bqn1p1p/ppnpp1p1/6P1/P2NPP2/2N4R/1PP2QBP/5R1K")
-  })
+    ).toEqual("r3r1k1/1bqn1p1p/ppnpp1p1/6P1/P2NPP2/2N4R/1PP2QBP/5R1K");
+  });
 
   test.describe("calcPositionDiff()", () => {
     function normalizeDiff(position: PositionDiff) {
       position.added = position.added.sort((a, b) =>
         a.square.localeCompare(b.square)
-      )
+      );
       position.removed = position.removed.sort((a, b) =>
         a.square.localeCompare(b.square)
-      )
+      );
       position.moved = position.moved.sort((a, b) =>
         `${a.oldSquare}${a.newSquare}`.localeCompare(
           `${b.oldSquare}${b.newSquare}`
         )
-      )
-      return position
+      );
+      return position;
     }
     test("test 1", () => {
       expect(
@@ -282,8 +282,8 @@ test.describe("chess utilities", () => {
             },
           ],
         })
-      )
-    })
+      );
+    });
 
     test("test 2", () => {
       expect(
@@ -330,7 +330,7 @@ test.describe("chess utilities", () => {
             },
           ],
         })
-      )
-    })
-  })
-})
+      );
+    });
+  });
+});

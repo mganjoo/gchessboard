@@ -1,26 +1,26 @@
-import { getSquareColor, Piece, pieceEqual, Square } from "../utils/chess"
-import { makeHTMLElement } from "../utils/dom"
-import { BoardPiece, ExplicitPiecePosition } from "./BoardPiece"
+import { getSquareColor, Piece, pieceEqual, Square } from "../utils/chess";
+import { makeHTMLElement } from "../utils/dom";
+import { BoardPiece, ExplicitPiecePosition } from "./BoardPiece";
 
 /**
  * Visual representation of a chessboard square, along with attributes
  * that aid in interactivity (ARIA role, labels etc).
  */
 export class BoardSquare {
-  private readonly _element: HTMLTableCellElement
-  private readonly _labelSpanElement: HTMLSpanElement
-  private readonly _rankLabelElement?: HTMLSpanElement
-  private readonly _fileLabelElement?: HTMLSpanElement
-  private readonly _slotElement: HTMLSlotElement
+  private readonly _element: HTMLTableCellElement;
+  private readonly _labelSpanElement: HTMLSpanElement;
+  private readonly _rankLabelElement?: HTMLSpanElement;
+  private readonly _fileLabelElement?: HTMLSpanElement;
+  private readonly _slotElement: HTMLSlotElement;
 
-  private _label: Square
-  private _tabbable = false
-  private _hideCoords = false
-  private _interactive = false
-  private _boardPiece?: BoardPiece
-  private _secondaryBoardPiece?: BoardPiece
-  private _hasContent?: boolean
-  private _moveStart = false
+  private _label: Square;
+  private _tabbable = false;
+  private _hideCoords = false;
+  private _interactive = false;
+  private _boardPiece?: BoardPiece;
+  private _secondaryBoardPiece?: BoardPiece;
+  private _hasContent?: boolean;
+  private _moveStart = false;
 
   constructor(
     container: HTMLElement,
@@ -28,35 +28,35 @@ export class BoardSquare {
     // File and rank label creation is determined exactly once at construction
     constructorOptions?: { makeRankLabel?: boolean; makeFileLabel?: boolean }
   ) {
-    this._element = makeHTMLElement("td", { attributes: { role: "cell" } })
+    this._element = makeHTMLElement("td", { attributes: { role: "cell" } });
 
-    this._label = label
-    this._labelSpanElement = makeHTMLElement("span", { classes: ["label"] })
-    this._element.appendChild(this._labelSpanElement)
+    this._label = label;
+    this._labelSpanElement = makeHTMLElement("span", { classes: ["label"] });
+    this._element.appendChild(this._labelSpanElement);
 
-    const slotWrapper = makeHTMLElement("div", { classes: ["content"] })
-    this._slotElement = document.createElement("slot")
-    slotWrapper.appendChild(this._slotElement)
-    this._element.appendChild(slotWrapper)
+    const slotWrapper = makeHTMLElement("div", { classes: ["content"] });
+    this._slotElement = document.createElement("slot");
+    slotWrapper.appendChild(this._slotElement);
+    this._element.appendChild(slotWrapper);
 
     if (constructorOptions?.makeFileLabel) {
       this._fileLabelElement = makeHTMLElement("span", {
         attributes: { "aria-hidden": "true" },
         classes: ["file-label"],
-      })
+      });
 
-      this._element.appendChild(this._fileLabelElement)
+      this._element.appendChild(this._fileLabelElement);
     }
     if (constructorOptions?.makeRankLabel) {
       this._rankLabelElement = makeHTMLElement("span", {
         attributes: { "aria-hidden": "true" },
         classes: ["rank-label"],
-      })
-      this._element.appendChild(this._rankLabelElement)
+      });
+      this._element.appendChild(this._rankLabelElement);
     }
-    this.label = label
+    this.label = label;
 
-    container.appendChild(this._element)
+    container.appendChild(this._element);
   }
 
   /**
@@ -64,13 +64,13 @@ export class BoardSquare {
    * on the board).
    */
   get label(): Square {
-    return this._label
+    return this._label;
   }
 
   set label(value: Square) {
-    this._label = value
-    this._updateLabelVisuals()
-    this._updateCoords()
+    this._label = value;
+    this._updateLabelVisuals();
+    this._updateCoords();
   }
 
   /**
@@ -78,26 +78,26 @@ export class BoardSquare {
    * the square should get visual attributes like tabindex, labels etc.
    */
   get interactive(): boolean {
-    return this._interactive
+    return this._interactive;
   }
 
   set interactive(value: boolean) {
-    this._interactive = value
-    this._updateAriaRole()
-    this._updateTabIndex()
-    this._updateMoveStartClass()
+    this._interactive = value;
+    this._updateAriaRole();
+    this._updateTabIndex();
+    this._updateMoveStartClass();
   }
 
   /**
    * Whether rank or file labels on the square (if they exist) should be hidden.
    */
   get hideCoords(): boolean {
-    return this._hideCoords
+    return this._hideCoords;
   }
 
   set hideCoords(value: boolean) {
-    this._hideCoords = value
-    this._updateCoords()
+    this._hideCoords = value;
+    this._updateCoords();
   }
 
   /**
@@ -105,52 +105,52 @@ export class BoardSquare {
    * all chessboard squares are focusable but not user-tabbable (tabindex = -1).
    */
   get tabbable(): boolean {
-    return this._tabbable
+    return this._tabbable;
   }
 
   set tabbable(value: boolean) {
-    this._tabbable = value
-    this._updateTabIndex()
+    this._tabbable = value;
+    this._updateTabIndex();
   }
 
   /**
    * Whether this square should be marked as containing any slotted content.
    */
   get hasContent(): boolean {
-    return !!this._hasContent
+    return !!this._hasContent;
   }
 
   set hasContent(value: boolean) {
-    this._hasContent = value
-    this._element.classList.toggle("has-content", value)
+    this._hasContent = value;
+    this._element.classList.toggle("has-content", value);
   }
 
   /**
    * Rendered width of element (in integer), used in making drag threshold calculations.
    */
   get width(): number {
-    return this._element.clientWidth
+    return this._element.clientWidth;
   }
 
   /**
    * Get explicit position of primary piece, if set.
    */
   get explicitPiecePosition(): ExplicitPiecePosition | undefined {
-    return this._boardPiece?.explicitPosition
+    return this._boardPiece?.explicitPosition;
   }
 
   /**
    * Focus element associated with square.
    */
   focus() {
-    this._element.focus()
+    this._element.focus();
   }
 
   /**
    * Blur element associated with square.
    */
   blur() {
-    this._element.blur()
+    this._element.blur();
   }
 
   /**
@@ -169,19 +169,19 @@ export class BoardSquare {
   ) {
     if (!pieceEqual(this._boardPiece?.piece, piece) || animateFromPosition) {
       if (this._boardPiece !== undefined) {
-        this._boardPiece.remove()
+        this._boardPiece.remove();
       }
       this._boardPiece = piece
         ? new BoardPiece(this._element, { piece, animateFromPosition })
-        : undefined
-      this._element.classList.toggle("has-piece", !!piece)
+        : undefined;
+      this._element.classList.toggle("has-piece", !!piece);
 
       // Always treat a piece change as the end of a move
-      this._moveStart = false
-      this._updateMoveStartClass()
+      this._moveStart = false;
+      this._updateMoveStartClass();
 
       // Ensure secondary piece is toggled off if piece is changed
-      this.toggleSecondaryPiece(false)
+      this.toggleSecondaryPiece(false);
     }
   }
 
@@ -195,13 +195,13 @@ export class BoardSquare {
       this._secondaryBoardPiece = new BoardPiece(this._element, {
         piece: this._boardPiece.piece,
         secondary: true,
-      })
+      });
     }
     if (!show) {
       if (this._secondaryBoardPiece !== undefined) {
-        this._secondaryBoardPiece.remove()
+        this._secondaryBoardPiece.remove();
       }
-      this._secondaryBoardPiece = undefined
+      this._secondaryBoardPiece = undefined;
     }
   }
 
@@ -211,12 +211,12 @@ export class BoardSquare {
    */
   startMove(piecePositionPx?: { x: number; y: number }) {
     if (this._boardPiece !== undefined) {
-      this._moveStart = true
-      this._updateMoveStartClass()
-      this._boardPiece.removeAnimation()
+      this._moveStart = true;
+      this._updateMoveStartClass();
+      this._boardPiece.removeAnimation();
 
       if (piecePositionPx !== undefined) {
-        this.updateMove(piecePositionPx)
+        this.updateMove(piecePositionPx);
       }
     }
   }
@@ -230,7 +230,7 @@ export class BoardSquare {
       this._boardPiece.setExplicitPosition({
         type: "coordinates",
         ...piecePositionPx,
-      })
+      });
     }
   }
 
@@ -238,45 +238,45 @@ export class BoardSquare {
    * Finish ongoing move, if it exists.
    */
   finishMove(animate?: boolean) {
-    this._moveStart = false
-    this._updateMoveStartClass()
-    this._boardPiece?.resetPosition(animate)
+    this._moveStart = false;
+    this._updateMoveStartClass();
+    this._boardPiece?.resetPosition(animate);
   }
 
   private _updateLabelVisuals() {
-    this._element.dataset.square = this.label
-    this._element.dataset.squareColor = getSquareColor(this.label)
-    this._labelSpanElement.textContent = this.label
-    this._slotElement.name = this.label
+    this._element.dataset.square = this.label;
+    this._element.dataset.squareColor = getSquareColor(this.label);
+    this._labelSpanElement.textContent = this.label;
+    this._slotElement.name = this.label;
   }
 
   private _updateCoords() {
-    const [filePart, rankPart] = this.label.split("")
+    const [filePart, rankPart] = this.label.split("");
     if (this._rankLabelElement) {
-      this._rankLabelElement.textContent = this.hideCoords ? null : rankPart
+      this._rankLabelElement.textContent = this.hideCoords ? null : rankPart;
     }
     if (this._fileLabelElement) {
-      this._fileLabelElement.textContent = this.hideCoords ? null : filePart
+      this._fileLabelElement.textContent = this.hideCoords ? null : filePart;
     }
   }
 
   private _updateAriaRole() {
-    this._element.setAttribute("role", this.interactive ? "gridcell" : "cell")
+    this._element.setAttribute("role", this.interactive ? "gridcell" : "cell");
   }
 
   private _updateTabIndex() {
     if (this.interactive) {
-      this._element.tabIndex = this.tabbable ? 0 : -1
+      this._element.tabIndex = this.tabbable ? 0 : -1;
     } else {
-      this._element.removeAttribute("tabindex")
+      this._element.removeAttribute("tabindex");
     }
   }
 
   private _updateMoveStartClass() {
     if (this.interactive) {
-      this._element.classList.toggle("move-start", this._moveStart)
+      this._element.classList.toggle("move-start", this._moveStart);
     } else {
-      this._element.classList.remove("move-start")
+      this._element.classList.remove("move-start");
     }
   }
 }

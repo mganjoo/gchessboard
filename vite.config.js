@@ -1,5 +1,5 @@
-import { resolve } from "path"
-import { defineConfig } from "vite"
+import { resolve } from "path";
+import { defineConfig } from "vite";
 
 module.exports = defineConfig({
   build: {
@@ -9,4 +9,4 @@ module.exports = defineConfig({
       fileName: (format) => `chessx.${format}.js`,
     },
   },
-})
+});

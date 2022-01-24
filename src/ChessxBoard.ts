@@ -1,36 +1,36 @@
-import { isSide, getFen, getPosition, Position, Side } from "./utils/chess"
-import { Board } from "./components/Board"
-import importedStyles from "./style.css?inline"
-import { assertUnreachable } from "./utils/typing"
+import { isSide, getFen, getPosition, Position, Side } from "./utils/chess";
+import { Board } from "./components/Board";
+import importedStyles from "./style.css?inline";
+import { assertUnreachable } from "./utils/typing";
 
 export class ChessxBoard extends HTMLElement {
   static get observedAttributes() {
-    return ["orientation", "interactive", "fen", "hide-coords"] as const
+    return ["orientation", "interactive", "fen", "hide-coords"] as const;
   }
 
-  private _shadow: ShadowRoot
-  private _style: HTMLStyleElement
-  private _board: Board
-  private _position: Position = {}
+  private _shadow: ShadowRoot;
+  private _style: HTMLStyleElement;
+  private _board: Board;
+  private _position: Position = {};
 
   constructor() {
-    super()
-    this._shadow = this.attachShadow({ mode: "open" })
+    super();
+    this._shadow = this.attachShadow({ mode: "open" });
 
-    this._style = document.createElement("style")
-    this._style.textContent = importedStyles
-    this._shadow.appendChild(this._style)
+    this._style = document.createElement("style");
+    this._style.textContent = importedStyles;
+    this._shadow.appendChild(this._style);
 
-    this._board = new Board()
-    this._shadow.appendChild(this._board.element)
+    this._board = new Board();
+    this._shadow.appendChild(this._board.element);
   }
 
   connectedCallback() {
-    this._board.addGlobalListeners()
+    this._board.addGlobalListeners();
   }
 
   disconnectedCallback() {
-    this._board.removeGlobalListeners()
+    this._board.removeGlobalListeners();
   }
 
   attributeChangedCallback(
@@ -40,23 +40,23 @@ export class ChessxBoard extends HTMLElement {
   ) {
     switch (name) {
       case "interactive":
-        this._board.interactive = this._parseBooleanAttribute(newValue)
-        break
+        this._board.interactive = this._parseBooleanAttribute(newValue);
+        break;
       case "hide-coords":
-        this._board.hideCoords = this._parseBooleanAttribute(newValue)
-        break
+        this._board.hideCoords = this._parseBooleanAttribute(newValue);
+        break;
       case "orientation":
-        this._board.orientation = this._parseSideAttribute(newValue)
-        break
+        this._board.orientation = this._parseSideAttribute(newValue);
+        break;
       case "fen":
         if (newValue !== null) {
-          this.fen = newValue
+          this.fen = newValue;
         } else {
-          this.position = {}
+          this.position = {};
         }
-        break
+        break;
       default:
-        assertUnreachable(name)
+        assertUnreachable(name);
     }
   }
 
@@ -65,11 +65,11 @@ export class ChessxBoard extends HTMLElement {
    * the bottom as viewed on the screen).
    */
   get orientation(): Side {
-    return this._parseSideAttribute(this.getAttribute("orientation"))
+    return this._parseSideAttribute(this.getAttribute("orientation"));
   }
 
   set orientation(value: Side) {
-    this.setAttribute("orientation", value)
+    this.setAttribute("orientation", value);
   }
 
   /**
@@ -77,11 +77,11 @@ export class ChessxBoard extends HTMLElement {
    * like ARIA labels and roles.
    */
   get interactive() {
-    return this.hasAttribute("interactive")
+    return this.hasAttribute("interactive");
   }
 
   set interactive(interactive: boolean) {
-    this._setBooleanAttribute("interactive", interactive)
+    this._setBooleanAttribute("interactive", interactive);
   }
 
   /**
@@ -90,12 +90,12 @@ export class ChessxBoard extends HTMLElement {
    * onto the "fen" attribute of the element.
    */
   get position() {
-    return this._position
+    return this._position;
   }
 
   set position(value: Position) {
-    this._position = { ...value }
-    this._board.position = this._position
+    this._position = { ...value };
+    this._board.position = this._position;
   }
 
   /**
@@ -104,16 +104,16 @@ export class ChessxBoard extends HTMLElement {
    * of the element.
    */
   get fen() {
-    return getFen(this._position)
+    return getFen(this._position);
   }
 
   set fen(value: string) {
-    const position = getPosition(value)
+    const position = getPosition(value);
     if (position !== undefined) {
-      this.position = position
+      this.position = position;
     } else {
       // TODO: dispatch an ErrorEvent instead
-      throw new Error(`Invalid FEN position: ${value}`)
+      throw new Error(`Invalid FEN position: ${value}`);
     }
   }
 
@@ -121,32 +121,32 @@ export class ChessxBoard extends HTMLElement {
    * Whether to hide coordinate labels for the board.
    */
   get hideCoords() {
-    return this.hasAttribute("hide-coords")
+    return this.hasAttribute("hide-coords");
   }
 
   set hideCoords(value: boolean) {
-    this._setBooleanAttribute("hide-coords", value)
+    this._setBooleanAttribute("hide-coords", value);
   }
 
   private _parseSideAttribute(value: string | null): Side {
-    return isSide(value) ? value : "white"
+    return isSide(value) ? value : "white";
   }
 
   private _parseBooleanAttribute(value: string | null): boolean {
-    return value === null ? false : true
+    return value === null ? false : true;
   }
 
   private _setBooleanAttribute(name: string, value: boolean) {
     if (value) {
-      this.setAttribute(name, "")
+      this.setAttribute(name, "");
     } else {
-      this.removeAttribute(name)
+      this.removeAttribute(name);
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "chessx-board": ChessxBoard
+    "chessx-board": ChessxBoard;
   }
 }

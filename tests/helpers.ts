@@ -1,11 +1,11 @@
-import { expect } from "@playwright/test"
-import { Page } from "@playwright/test"
+import { expect } from "@playwright/test";
+import { Page } from "@playwright/test";
 
 /**
  * Returns a Locator object for a specific chessboard square.
  */
 export function squareLocator(page: Page, square: string) {
-  return page.locator(`[role="gridcell"]:has-text("${square}")`)
+  return page.locator(`[role="gridcell"]:has-text("${square}")`);
 }
 
 /**
@@ -14,7 +14,10 @@ export function squareLocator(page: Page, square: string) {
  * 'awaiting-input').
  */
 export async function expectMoveState(page: Page, state: string) {
-  await expect(page.locator("table")).toHaveAttribute("data-board-state", state)
+  await expect(page.locator("table")).toHaveAttribute(
+    "data-board-state",
+    state
+  );
 }
 
 /**
@@ -29,7 +32,7 @@ export async function expectHasPiece(
     await squareLocator(page, square).evaluate((e) =>
       e.classList.contains("has-piece")
     )
-  ).toBe(value)
+  ).toBe(value);
 }
 
 /**
@@ -44,5 +47,5 @@ export async function expectIsMoveStart(
     await squareLocator(page, square).evaluate((e) =>
       e.classList.contains("move-start")
     )
-  ).toBe(value)
+  ).toBe(value);
 }

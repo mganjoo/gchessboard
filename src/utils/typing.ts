@@ -3,7 +3,7 @@
  */
 // istanbul ignore next
 export function assertUnreachable(x: never): never {
-  throw new Error(`Unreachable code reached with value ${x}`)
+  throw new Error(`Unreachable code reached with value ${x}`);
 }
 
 /**
@@ -13,5 +13,5 @@ export function assertUnreachable(x: never): never {
 export function hasDataset(
   x: EventTarget | null
 ): x is EventTarget & { dataset: DOMStringMap } {
-  return !!x && !!(x as HTMLElement | SVGElement).dataset
+  return !!x && !!(x as HTMLElement | SVGElement).dataset;
 }
