@@ -12,11 +12,6 @@ export interface BoardSquareProps {
    */
   label: Square
   /**
-   * Whether the square is used in an interactive grid. Decides whether
-   * the square should get visual attributes like tabindex, labels etc.
-   */
-  interactive: boolean
-  /**
    * Whether this square can be tabbed to by the user (tabindex = 0). By default,
    * all chessboard squares are focusable but not user-tabbable (tabindex = -1).
    */
@@ -38,16 +33,13 @@ export class BoardSquare {
   private _secondaryBoardPiece?: BoardPiece
   private _props: BoardSquareProps
   private _hasContent?: boolean
+  private _hideCoords = false
+  private _interactive = false
 
   /**
    * Whether this square should be marked as the start of an ongoing move.
    */
   private _moveStart = false
-
-  /**
-   * Whether rank or file labels on the square (if they exist) should be hidden.
-   */
-  private _hideCoords = false
 
   constructor(
     container: HTMLElement,
@@ -98,15 +90,22 @@ export class BoardSquare {
     this._updateSquareVisuals()
   }
 
-  get tabbable(): boolean {
-    return this._props.tabbable
+  /**
+   * Whether the square is used in an interactive grid. Decides whether
+   * the square should get visual attributes like tabindex, labels etc.
+   */
+  get interactive(): boolean {
+    return this._interactive
   }
 
-  set tabbable(value: boolean) {
-    this._props.tabbable = value
-    this._updateTabIndex()
+  set interactive(value: boolean) {
+    this._interactive = value
+    this._updateSquareVisuals()
   }
 
+  /**
+   * Whether rank or file labels on the square (if they exist) should be hidden.
+   */
   get hideCoords(): boolean {
     return this._hideCoords
   }
@@ -114,6 +113,15 @@ export class BoardSquare {
   set hideCoords(value: boolean) {
     this._hideCoords = value
     this._updateCoords()
+  }
+
+  get tabbable(): boolean {
+    return this._props.tabbable
+  }
+
+  set tabbable(value: boolean) {
+    this._props.tabbable = value
+    this._updateTabIndex()
   }
 
   /**
@@ -243,23 +251,18 @@ export class BoardSquare {
   }
 
   private _updateSquareVisuals() {
-    // Label and color
     this._element.dataset.square = this._props.label
     this._element.dataset.squareColor = getSquareColor(this._props.label)
     this._labelSpanElement.textContent = this._props.label
     this._slotElement.name = this._props.label
-
-    this._element.setAttribute(
-      "role",
-      this._props.interactive ? "gridcell" : "cell"
-    )
+    this._element.setAttribute("role", this.interactive ? "gridcell" : "cell")
     this._updateTabIndex()
     this._updateMoveStartClass()
     this._updateCoords()
   }
 
   private _updateTabIndex() {
-    if (this._props.interactive) {
+    if (this.interactive) {
       this._element.tabIndex = this._props.tabbable ? 0 : -1
     } else {
       this._element.removeAttribute("tabindex")
@@ -267,7 +270,7 @@ export class BoardSquare {
   }
 
   private _updateMoveStartClass() {
-    if (this._props.interactive) {
+    if (this.interactive) {
       this._element.classList.toggle("move-start", this._moveStart)
     } else {
       this._element.classList.remove("move-start")

@@ -80,7 +80,6 @@ export class Board {
           row,
           {
             label: square,
-            interactive: false,
             tabbable: tabbableSquare === square,
           },
           {
@@ -152,7 +151,9 @@ export class Board {
     this._table.setAttribute("role", value ? "grid" : "table")
     this._cancelMove(false)
     this._blurTabbableSquare()
-    this._updateAllSquareProps()
+    this._boardSquares.forEach((s) => {
+      s.interactive = value
+    })
   }
 
   get position() {
@@ -295,7 +296,6 @@ export class Board {
       const square = getSquare(i, this.orientation)
       this._boardSquares[i].updateAllProps({
         label: square,
-        interactive: this.interactive,
         tabbable: tabbableSquare === square,
       })
       this._boardSquares[i].setPiece(this._position[square])
