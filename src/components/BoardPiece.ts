@@ -124,6 +124,10 @@ export class BoardPiece {
     container.appendChild(this._element)
   }
 
+  /**
+   * Remove piece for square it is contained on, along with any animation
+   * listeners.
+   */
   remove() {
     this._element.removeEventListener(
       "animationend",
@@ -163,6 +167,9 @@ export class BoardPiece {
     this._explicitPosition = undefined
   }
 
+  /**
+   * Stops and removes any animations in progress.
+   */
   removeAnimation = () => {
     this._element.style.removeProperty("animation-name")
     this._element.style.removeProperty(BoardPiece.PIECE_START_X_PROPERTY)
