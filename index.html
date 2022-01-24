@@ -20,14 +20,6 @@
               ? "Disable interaction"
               : "Enable interaction";
           });
-        document
-          .getElementById("btn-animation")
-          .addEventListener("click", (e) => {
-            board.disableAnimation = !board.disableAnimation;
-            e.target.innerText = board.disableAnimation
-              ? "Enable animation"
-              : "Disable animation";
-          });
         document.getElementById("btn-coords").addEventListener("click", (e) => {
           board.hideCoords = !board.hideCoords;
           e.target.innerText = board.hideCoords ? "Show coords" : "Hide coords";
@@ -139,7 +131,6 @@
       <div class="flex py-1 gap-x-3 gap-y-2 flex-wrap justify-center">
         <button id="btn-flip" class="btn">Flip</button>
         <button id="btn-interactivity" class="btn">Disable interaction</button>
-        <button id="btn-animation" class="btn">Disable animation</button>
         <button id="btn-coords" class="btn">Hide coords</button>
         <button id="btn-svg" class="btn">Show SVGs</button>
       </div>
