@@ -216,13 +216,11 @@
 /* Animation sequence for piece movements (translations). */
 @keyframes move-piece {
   0% {
-    left: var(--p-piece-startX, 0);
-    top: var(--p-piece-startY, 0);
+    transform: translate(var(--p-piece-startX, 0), var(--p-piece-startY, 0));
   }
 
   100% {
-    left: 0;
-    top: 0;
+    transform: none;
   }
 }
 
