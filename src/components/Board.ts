@@ -71,7 +71,6 @@ export class Board {
       classes: ["board"],
     })
 
-    const tabbableSquare = this._tabbableSquare
     for (let i = 0; i < 8; i++) {
       const row = makeHTMLElement("tr", {
         attributes: { role: "row" },
@@ -86,9 +85,7 @@ export class Board {
       }
       this._table.appendChild(row)
     }
-    if (tabbableSquare) {
-      this._getBoardSquare(tabbableSquare).tabbable = true
-    }
+    this._getBoardSquare(this._defaultTabbableSquare).tabbable = true
 
     this._mouseDownHandler = this._makeEventHandler(this._handleMouseDown)
     this._mouseUpHandler = this._makeEventHandler(this._handleMouseUp)
