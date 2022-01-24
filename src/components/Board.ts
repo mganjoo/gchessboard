@@ -76,19 +76,15 @@ export class Board {
       for (let j = 0; j < 8; j++) {
         const idx = 8 * i + j
         const square = getSquare(idx, this.orientation)
-        this._boardSquares[idx] = new BoardSquare(
-          row,
-          {
-            label: square,
-            tabbable: tabbableSquare === square,
-          },
-          {
-            makeFileLabel: i === 7,
-            makeRankLabel: j === 0,
-          }
-        )
+        this._boardSquares[idx] = new BoardSquare(row, square, {
+          makeFileLabel: i === 7,
+          makeRankLabel: j === 0,
+        })
       }
       this._table.appendChild(row)
+    }
+    if (tabbableSquare) {
+      this._getBoardSquare(tabbableSquare).tabbable = true
     }
 
     this._mouseDownHandler = this._makeEventHandler(this._handleMouseDown)
@@ -294,10 +290,8 @@ export class Board {
     const tabbableSquare = this.tabbableSquare
     for (let i = 0; i < 64; i++) {
       const square = getSquare(i, this.orientation)
-      this._boardSquares[i].updateAllProps({
-        label: square,
-        tabbable: tabbableSquare === square,
-      })
+      this._boardSquares[i].label = square
+      this._boardSquares[i].tabbable = tabbableSquare === square
       this._boardSquares[i].setPiece(this._position[square])
       this._boardSquares[i].toggleSecondaryPiece(
         this._moveStartSquare === square && !!this._secondaryPieceShown

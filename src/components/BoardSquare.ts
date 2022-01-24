@@ -3,22 +3,6 @@ import { makeHTMLElement } from "../utils/dom"
 import { BoardPiece, ExplicitPiecePosition } from "./BoardPiece"
 
 /**
- * Visual attributes related to a square that are dependent on the square's
- * location within the grid. The `Board` class usually changes these all at once.
- */
-export interface BoardSquareProps {
-  /**
-   * Square label, e.g. "a5".
-   */
-  label: Square
-  /**
-   * Whether this square can be tabbed to by the user (tabindex = 0). By default,
-   * all chessboard squares are focusable but not user-tabbable (tabindex = -1).
-   */
-  tabbable: boolean
-}
-
-/**
  * Visual representation of a chessboard square, along with attributes
  * that aid in interactivity (ARIA role, labels etc).
  */
@@ -29,36 +13,30 @@ export class BoardSquare {
   private readonly _fileLabelElement?: HTMLSpanElement
   private readonly _slotElement: HTMLSlotElement
 
-  private _boardPiece?: BoardPiece
-  private _secondaryBoardPiece?: BoardPiece
-  private _props: BoardSquareProps
-  private _hasContent?: boolean
+  private _label: Square
+  private _tabbable = false
   private _hideCoords = false
   private _interactive = false
-
-  /**
-   * Whether this square should be marked as the start of an ongoing move.
-   */
+  private _boardPiece?: BoardPiece
+  private _secondaryBoardPiece?: BoardPiece
+  private _hasContent?: boolean
   private _moveStart = false
 
   constructor(
     container: HTMLElement,
-    props: BoardSquareProps,
+    label: Square,
     // File and rank label creation is determined exactly once at construction
     constructorOptions?: { makeRankLabel?: boolean; makeFileLabel?: boolean }
   ) {
-    this._props = { ...props }
-    this._element = document.createElement("td")
-    this._labelSpanElement = makeHTMLElement("span", {
-      classes: ["label"],
-    })
-    const slotWrapper = makeHTMLElement("div", {
-      classes: ["content"],
-    })
+    this._element = makeHTMLElement("td", { attributes: { role: "cell" } })
+
+    this._label = label
+    this._labelSpanElement = makeHTMLElement("span", { classes: ["label"] })
+    this._element.appendChild(this._labelSpanElement)
+
+    const slotWrapper = makeHTMLElement("div", { classes: ["content"] })
     this._slotElement = document.createElement("slot")
     slotWrapper.appendChild(this._slotElement)
-
-    this._element.appendChild(this._labelSpanElement)
     this._element.appendChild(slotWrapper)
 
     if (constructorOptions?.makeFileLabel) {
@@ -76,18 +54,23 @@ export class BoardSquare {
       })
       this._element.appendChild(this._rankLabelElement)
     }
+    this.label = label
 
-    this._updateSquareVisuals()
     container.appendChild(this._element)
   }
 
   /**
-   * Update all props of the square at once. Useful for cases requiring
-   * a large-scale re-render, e.g. change in orientation or interactivity.
+   * Label associated with the square (depends on orientation of square
+   * on the board).
    */
-  updateAllProps(props: BoardSquareProps) {
-    this._props = { ...props }
-    this._updateSquareVisuals()
+  get label(): Square {
+    return this._label
+  }
+
+  set label(value: Square) {
+    this._label = value
+    this._updateLabelVisuals()
+    this._updateCoords()
   }
 
   /**
@@ -100,7 +83,9 @@ export class BoardSquare {
 
   set interactive(value: boolean) {
     this._interactive = value
-    this._updateSquareVisuals()
+    this._updateAriaRole()
+    this._updateTabIndex()
+    this._updateMoveStartClass()
   }
 
   /**
@@ -115,12 +100,16 @@ export class BoardSquare {
     this._updateCoords()
   }
 
+  /**
+   * Whether this square can be tabbed to by the user (tabindex = 0). By default,
+   * all chessboard squares are focusable but not user-tabbable (tabindex = -1).
+   */
   get tabbable(): boolean {
-    return this._props.tabbable
+    return this._tabbable
   }
 
   set tabbable(value: boolean) {
-    this._props.tabbable = value
+    this._tabbable = value
     this._updateTabIndex()
   }
 
@@ -150,10 +139,16 @@ export class BoardSquare {
     return this._boardPiece?.explicitPosition
   }
 
+  /**
+   * Focus element associated with square.
+   */
   focus() {
     this._element.focus()
   }
 
+  /**
+   * Blur element associated with square.
+   */
   blur() {
     this._element.blur()
   }
@@ -250,20 +245,30 @@ export class BoardSquare {
     this._boardPiece?.resetPosition(animate)
   }
 
-  private _updateSquareVisuals() {
-    this._element.dataset.square = this._props.label
-    this._element.dataset.squareColor = getSquareColor(this._props.label)
-    this._labelSpanElement.textContent = this._props.label
-    this._slotElement.name = this._props.label
+  private _updateLabelVisuals() {
+    this._element.dataset.square = this.label
+    this._element.dataset.squareColor = getSquareColor(this.label)
+    this._labelSpanElement.textContent = this.label
+    this._slotElement.name = this.label
+  }
+
+  private _updateCoords() {
+    const [filePart, rankPart] = this.label.split("")
+    if (this._rankLabelElement) {
+      this._rankLabelElement.textContent = this.hideCoords ? null : rankPart
+    }
+    if (this._fileLabelElement) {
+      this._fileLabelElement.textContent = this.hideCoords ? null : filePart
+    }
+  }
+
+  private _updateAriaRole() {
     this._element.setAttribute("role", this.interactive ? "gridcell" : "cell")
-    this._updateTabIndex()
-    this._updateMoveStartClass()
-    this._updateCoords()
   }
 
   private _updateTabIndex() {
     if (this.interactive) {
-      this._element.tabIndex = this._props.tabbable ? 0 : -1
+      this._element.tabIndex = this.tabbable ? 0 : -1
     } else {
       this._element.removeAttribute("tabindex")
     }
@@ -274,16 +279,6 @@ export class BoardSquare {
       this._element.classList.toggle("move-start", this._moveStart)
     } else {
       this._element.classList.remove("move-start")
-    }
-  }
-
-  private _updateCoords() {
-    const [filePart, rankPart] = this._props.label.split("")
-    if (this._rankLabelElement) {
-      this._rankLabelElement.textContent = this._hideCoords ? null : rankPart
-    }
-    if (this._fileLabelElement) {
-      this._fileLabelElement.textContent = this._hideCoords ? null : filePart
     }
   }
 }
