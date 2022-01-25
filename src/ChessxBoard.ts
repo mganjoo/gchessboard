@@ -5,13 +5,22 @@ import { assertUnreachable } from "./utils/typing";
 
 export class ChessxBoard extends HTMLElement {
   static get observedAttributes() {
-    return ["orientation", "interactive", "fen", "hide-coords"] as const;
+    return [
+      "orientation",
+      "interactive",
+      "fen",
+      "hide-coords",
+      "animation-duration",
+    ] as const;
   }
 
   private _shadow: ShadowRoot;
   private _style: HTMLStyleElement;
   private _board: Board;
   private _position: Position = {};
+
+  private static _DEFAULT_SIDE: Side = "white";
+  private static _DEFAULT_ANIMATION_DURATION_MS = 200;
 
   constructor() {
     super();
@@ -21,7 +30,10 @@ export class ChessxBoard extends HTMLElement {
     this._style.textContent = importedStyles;
     this._shadow.appendChild(this._style);
 
-    this._board = new Board();
+    this._board = new Board({
+      orientation: ChessxBoard._DEFAULT_SIDE,
+      animationDurationMs: ChessxBoard._DEFAULT_ANIMATION_DURATION_MS,
+    });
     this._shadow.appendChild(this._board.element);
   }
 
@@ -40,13 +52,13 @@ export class ChessxBoard extends HTMLElement {
   ) {
     switch (name) {
       case "interactive":
-        this._board.interactive = this._parseBooleanAttribute(newValue);
+        this._board.interactive = this.interactive;
         break;
       case "hide-coords":
-        this._board.hideCoords = this._parseBooleanAttribute(newValue);
+        this._board.hideCoords = this.hideCoords;
         break;
       case "orientation":
-        this._board.orientation = this._parseSideAttribute(newValue);
+        this._board.orientation = this.orientation;
         break;
       case "fen":
         if (newValue !== null) {
@@ -54,6 +66,9 @@ export class ChessxBoard extends HTMLElement {
         } else {
           this.position = {};
         }
+        break;
+      case "animation-duration":
+        this._board.animationDurationMs = this.animationDuration;
         break;
       default:
         assertUnreachable(name);
@@ -65,7 +80,11 @@ export class ChessxBoard extends HTMLElement {
    * the bottom as viewed on the screen).
    */
   get orientation(): Side {
-    return this._parseSideAttribute(this.getAttribute("orientation"));
+    return this._parseRestrictedStringAttribute<Side>(
+      "orientation",
+      isSide,
+      ChessxBoard._DEFAULT_SIDE
+    );
   }
 
   set orientation(value: Side) {
@@ -128,12 +147,15 @@ export class ChessxBoard extends HTMLElement {
     this._setBooleanAttribute("hide-coords", value);
   }
 
-  private _parseSideAttribute(value: string | null): Side {
-    return isSide(value) ? value : "white";
+  get animationDuration() {
+    return this._parseNumberAttribute(
+      "animation-duration",
+      ChessxBoard._DEFAULT_ANIMATION_DURATION_MS
+    );
   }
 
-  private _parseBooleanAttribute(value: string | null): boolean {
-    return value === null ? false : true;
+  set animationDuration(value: number) {
+    this._setNumberAttribute("animation-duration", value);
   }
 
   private _setBooleanAttribute(name: string, value: boolean) {
@@ -142,6 +164,26 @@ export class ChessxBoard extends HTMLElement {
     } else {
       this.removeAttribute(name);
     }
+  }
+
+  private _setNumberAttribute(name: string, value: number) {
+    this.setAttribute(name, value.toString());
+  }
+
+  private _parseRestrictedStringAttribute<T extends string>(
+    name: string,
+    guard: (value: string | null) => value is T,
+    defaultValue: T
+  ): T {
+    const value = this.getAttribute(name);
+    return guard(value) ? value : defaultValue;
+  }
+
+  private _parseNumberAttribute(name: string, defaultValue: number): number {
+    const value = this.getAttribute(name);
+    return value === null || Number.isNaN(Number(value))
+      ? defaultValue
+      : Number(value);
   }
 }
 

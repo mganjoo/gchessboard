@@ -28,7 +28,6 @@ export class Board {
   private _focused?: boolean;
   private _doingProgrammaticBlur = false;
   private _defaultTabbableSquare: Square;
-  private animationDurationMs = 200;
 
   // Event handlers
   private _mouseDownHandler: (e: MouseEvent) => void;
@@ -53,9 +52,10 @@ export class Board {
    * Creates a set of elements representing chessboard squares, as well
    * as managing and displaying pieces rendered on the squares.
    */
-  constructor() {
+  constructor(initValues: { orientation: Side; animationDurationMs: number }) {
     this._boardSquares = new Array(64);
-    this._orientation = "white";
+    this._orientation = initValues.orientation;
+    this.animationDurationMs = initValues.animationDurationMs;
     this._interactive = false;
     this._hideCoords = false;
     this._position = {};
@@ -259,6 +259,11 @@ export class Board {
     }
     this._tabbableSquare = value;
   }
+
+  /**
+   * Duration (in milliseconds) for all animations.
+   */
+  animationDurationMs: number;
 
   private _startMove(square: Square, positionPx?: { x: number; y: number }) {
     this._moveStartSquare = square;

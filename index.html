@@ -44,6 +44,11 @@
           }
           e.target.innerText = window.showSVG ? "Hide SVGs" : "Show SVGs";
         });
+        document.getElementById("btn-speed").addEventListener("click", (e) => {
+          window.slowAnimations = !window.slowAnimations;
+          board.animationDuration = window.slowAnimations ? 3500 : 200;
+          e.target.innerText = window.slowAnimations ? "Speed up" : "Slow down";
+        });
         document
           .getElementById("btn-position-start")
           .addEventListener("click", () => {
@@ -124,7 +129,6 @@
       <chessx-board
         id="board"
         class="max-w-md"
-        orientation="white"
         fen="start"
         interactive
       ></chessx-board>
@@ -133,6 +137,7 @@
         <button id="btn-interactivity" class="btn">Disable interaction</button>
         <button id="btn-coords" class="btn">Hide coords</button>
         <button id="btn-svg" class="btn">Show SVGs</button>
+        <button id="btn-speed" class="btn">Slow down</button>
       </div>
       <div class="flex py-1 gap-x-3 gap-y-2 flex-wrap justify-center">
         <button id="btn-position-start" class="btn">Start position</button>
