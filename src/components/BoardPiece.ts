@@ -158,7 +158,6 @@ export class BoardPiece {
    * Set explicit offset for piece relative to default location in square.
    */
   setExplicitPosition(explicitPosition: ExplicitPiecePosition) {
-    this._finishAnimations();
     this._explicitPosition = explicitPosition;
     const coords = this._getTranslateValues(explicitPosition);
     if (coords) {
@@ -192,6 +191,15 @@ export class BoardPiece {
     return this._explicitPosition;
   }
 
+  /**
+   * Finish any animations, if in progress.
+   */
+  finishAnimations() {
+    this._element.getAnimations().forEach((a) => {
+      a.finish();
+    });
+  }
+
   private _getTranslateValues(explicitPosition: ExplicitPiecePosition) {
     if (explicitPosition.type === "coordinates") {
       const squareDims = this._parentElement.getBoundingClientRect();
@@ -218,6 +226,7 @@ export class BoardPiece {
 
   private _setAnimation(animationSpec: BoardPieceAnimation) {
     let keyframes: Keyframe[] | undefined;
+    let onfinish: (() => void) | undefined;
     switch (animationSpec.type) {
       case "slide-in":
         {
@@ -229,40 +238,36 @@ export class BoardPiece {
             ];
             this._element.classList.add("moving");
           }
+          onfinish = () => {
+            this._element.classList.remove("moving");
+          };
         }
         break;
       case "fade-in":
         keyframes = [{ opacity: 0 }, { opacity: 1 }];
         break;
       case "fade-out":
-        keyframes = [{ opacity: 1 }, { opacity: 0 }];
+        {
+          keyframes = [{ opacity: 1 }, { opacity: 0 }];
+          const elementCopy = this._element;
+          onfinish = () => {
+            this._parentElement.removeChild(elementCopy);
+          };
+        }
         break;
       default:
         assertUnreachable(animationSpec);
     }
-    if (keyframes !== undefined) {
+    if (keyframes !== undefined && "animate" in this._element) {
       const animation = this._element.animate(keyframes, {
         duration: animationSpec.durationMs,
       });
 
-      if (animationSpec.type === "fade-out") {
-        const element = this._element;
-        animation.onfinish = () => {
-          this._parentElement.removeChild(element);
-        };
+      if (onfinish !== undefined) {
+        animation.onfinish = onfinish;
       }
-
-      if (animationSpec.type === "slide-in") {
-        animation.onfinish = () => {
-          this._element.classList.remove("moving");
-        };
-      }
+    } else if (onfinish !== undefined) {
+      onfinish();
     }
-  }
-
-  private _finishAnimations() {
-    this._element.getAnimations().forEach((a) => {
-      a.finish();
-    });
   }
 }

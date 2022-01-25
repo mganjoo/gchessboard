@@ -170,16 +170,14 @@ export class BoardSquare {
    */
   setPiece(piece: Piece, animation?: SlideInAnimation | FadeInAnimation) {
     if (!pieceEqual(this._boardPiece?.piece, piece) || animation) {
-      if (this._boardPiece !== undefined) {
-        this._boardPiece.remove();
-      }
+      this.clearPiece(animation?.durationMs);
       this._boardPiece = new BoardPiece(this._element, { piece, animation });
       this._updateSquareAfterPieceChange();
     }
   }
 
   clearPiece(animationDurationMs?: number) {
-    if (this._boardPiece) {
+    if (this._boardPiece !== undefined) {
       this._boardPiece.remove(animationDurationMs);
       this._boardPiece = undefined;
       this._updateSquareAfterPieceChange();
@@ -214,6 +212,7 @@ export class BoardSquare {
     if (this._boardPiece !== undefined) {
       this._moveStart = true;
       this._updateMoveStartClass();
+      this._boardPiece.finishAnimations();
 
       if (piecePositionPx !== undefined) {
         this.updateMove(piecePositionPx);
