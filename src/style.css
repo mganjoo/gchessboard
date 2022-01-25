@@ -1,23 +1,23 @@
 :host {
   /* Square colors */
-  --dark-square-color: #4c946a;
-  --light-square-color: #e0ddcc;
+  --dark-square-color: hsl(145deg 32% 44%);
+  --light-square-color: hsl(51deg 24% 84%);
 
   /* Square colors when in :hover state */
-  --hover-dark-square-color: #3f7b58;
-  --hover-light-square-color: #e3d798;
+  --hover-dark-square-color: rgb(45 114 73);
+  --hover-light-square-color: hsl(50deg 69% 69%);
 
   /* Square colors when the square is marked as start of move */
-  --move-start-dark-square-color: #10b756;
-  --move-start-light-square-color: #fadd4c;
+  --move-start-dark-square-color: hsl(145deg 84% 39%);
+  --move-start-light-square-color: hsl(50deg 95% 64%);
 
   /* Color of outline when square is marked as start of move */
   --move-start-dark-outline-color: hsl(138deg 85% 53% / 95%);
   --move-start-light-outline-color: hsl(66deg 97% 72% / 95%);
 
   /* Square highlight colors when the square is an eligible move target */
-  --move-eligible-dark-square-highlight-color: #000;
-  --move-eligible-light-square-highlight-color: #000;
+  --move-eligible-dark-square-highlight-color: hsl(0deg 0% 0%);
+  --move-eligible-light-square-highlight-color: hsl(0deg 0% 0%);
 
   /* Color of outline when square has focus */
   --focus-outline-color: hsl(30deg 94% 55% / 90%);
