@@ -64,6 +64,11 @@
           .addEventListener("click", () => {
             board.position = {};
           });
+        board.addEventListener("movestart", (e) => {
+          console.log(
+            `Move initiated: ${e.detail.piece.color} ${e.detail.piece.pieceType} on ${e.detail.square}`
+          );
+        });
       });
     </script>
     <style type="text/tailwindcss">

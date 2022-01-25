@@ -22,6 +22,7 @@ export class Board {
   private _hideCoords: boolean;
   private _position: Position;
   private _boardState: BoardState;
+  private _dispatchEvent: <T>(e: CustomEvent<T>) => void;
 
   private _moveStartSquare?: Square;
   private _tabbableSquare?: Square;
@@ -52,7 +53,10 @@ export class Board {
    * Creates a set of elements representing chessboard squares, as well
    * as managing and displaying pieces rendered on the squares.
    */
-  constructor(initValues: { orientation: Side; animationDurationMs: number }) {
+  constructor(
+    initValues: { orientation: Side; animationDurationMs: number },
+    dispatchEvent: <T>(e: CustomEvent<T>) => void
+  ) {
     this._boardSquares = new Array(64);
     this._orientation = initValues.orientation;
     this.animationDurationMs = initValues.animationDurationMs;
@@ -60,6 +64,7 @@ export class Board {
     this._hideCoords = false;
     this._position = {};
     this._boardState = { id: "default" };
+    this._dispatchEvent = dispatchEvent;
 
     // Bottom left corner white orientation = white
     this._defaultTabbableSquare = "a1";
@@ -265,10 +270,30 @@ export class Board {
    */
   animationDurationMs: number;
 
-  private _startMove(square: Square, positionPx?: { x: number; y: number }) {
+  private _startMove(
+    square: Square,
+    positionPx?: { x: number; y: number }
+  ): boolean {
+    const piece = this._position[square];
+    if (!piece) {
+      return false;
+    }
+    const e = new CustomEvent("movestart", {
+      bubbles: true,
+      cancelable: true,
+      detail: {
+        square,
+        piece,
+      },
+    });
+    this._dispatchEvent(e);
+    if (e.defaultPrevented) {
+      return false;
+    }
     this._moveStartSquare = square;
     this._getBoardSquare(square).startMove(positionPx);
     this.tabbableSquare = square;
+    return true;
   }
 
   private _finishMove(to: Square, animate: boolean) {
@@ -424,15 +449,16 @@ export class Board {
     switch (this._boardState.id) {
       case "awaiting-input":
         if (square && this._pieceOn(square)) {
-          this._setBoardState({
-            id: "touching-first-square",
-            startSquare: square,
-            touchStartX: e.clientX,
-            touchStartY: e.clientY,
-          });
-          this._startMove(square);
-          this._showSecondaryPiece();
-          this._blurTabbableSquare();
+          if (this._startMove(square)) {
+            this._setBoardState({
+              id: "touching-first-square",
+              startSquare: square,
+              touchStartX: e.clientX,
+              touchStartY: e.clientY,
+            });
+            this._showSecondaryPiece();
+            this._blurTabbableSquare();
+          }
         }
         break;
       case "awaiting-second-touch":
@@ -530,13 +556,14 @@ export class Board {
             (squareWidth !== 0 && delta > threshold) ||
             square !== this._boardState.startSquare
           ) {
-            this._setBoardState({
-              id: "dragging",
-              startSquare: this._boardState.startSquare,
-              x: e.clientX,
-              y: e.clientY,
-            });
-            this._startMove(this._boardState.startSquare);
+            if (this._startMove(this._boardState.startSquare)) {
+              this._setBoardState({
+                id: "dragging",
+                startSquare: this._boardState.startSquare,
+                x: e.clientX,
+                y: e.clientY,
+              });
+            }
           }
         }
         break;
@@ -613,11 +640,12 @@ export class Board {
         case "awaiting-input":
           // Ignore presses for squares that have no piece on them
           if (square && this._pieceOn(square)) {
-            this._setBoardState({
-              id: "moving-piece-kb",
-              startSquare: square,
-            });
-            this._startMove(square);
+            if (this._startMove(square)) {
+              this._setBoardState({
+                id: "moving-piece-kb",
+                startSquare: square,
+              });
+            }
           }
           break;
         case "moving-piece-kb":

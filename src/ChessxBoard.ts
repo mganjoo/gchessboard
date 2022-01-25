@@ -30,10 +30,13 @@ export class ChessxBoard extends HTMLElement {
     this._style.textContent = importedStyles;
     this._shadow.appendChild(this._style);
 
-    this._board = new Board({
-      orientation: ChessxBoard._DEFAULT_SIDE,
-      animationDurationMs: ChessxBoard._DEFAULT_ANIMATION_DURATION_MS,
-    });
+    this._board = new Board(
+      {
+        orientation: ChessxBoard._DEFAULT_SIDE,
+        animationDurationMs: ChessxBoard._DEFAULT_ANIMATION_DURATION_MS,
+      },
+      (e) => this.dispatchEvent(e)
+    );
     this._shadow.appendChild(this._board.element);
   }
 
