@@ -254,15 +254,14 @@ export class Board {
   }
 
   set tabbableSquare(value: Square) {
-    // Unset previous tabbable square so that tabindex is changed to -1
-    this._getBoardSquare(this.tabbableSquare).tabbable = false;
-    this._getBoardSquare(value).tabbable = true;
-
-    // Blur existing square before setting new one
     if (this.tabbableSquare !== value) {
+      // Blur existing square before setting new one
       this._blurTabbableSquare();
+      // Unset previous tabbable square so that tabindex is changed to -1
+      this._getBoardSquare(this.tabbableSquare).tabbable = false;
+      this._getBoardSquare(value).tabbable = true;
+      this._tabbableSquare = value;
     }
-    this._tabbableSquare = value;
   }
 
   /**
@@ -280,16 +279,12 @@ export class Board {
     }
     const e = new CustomEvent("movestart", {
       bubbles: true,
-      cancelable: true,
       detail: {
         square,
         piece,
       },
     });
     this._dispatchEvent(e);
-    if (e.defaultPrevented) {
-      return false;
-    }
     this._moveStartSquare = square;
     this._getBoardSquare(square).startMove(positionPx);
     this.tabbableSquare = square;
@@ -448,8 +443,8 @@ export class Board {
 
     switch (this._boardState.id) {
       case "awaiting-input":
-        if (square && this._pieceOn(square)) {
-          if (this._startMove(square)) {
+        if (square) {
+          if (this._pieceOn(square) && this._startMove(square)) {
             this._setBoardState({
               id: "touching-first-square",
               startSquare: square,
@@ -458,6 +453,13 @@ export class Board {
             });
             this._showSecondaryPiece();
             this._blurTabbableSquare();
+          } else {
+            if (this._tabbableSquare !== square || !this._focused) {
+              this.tabbableSquare = square;
+              this._focusTabbableSquare();
+            } else {
+              this._blurTabbableSquare();
+            }
           }
         }
         break;
