@@ -78,6 +78,7 @@
             board.position = {};
           });
         board.addEventListener("movestart", (e) => {
+          e.detail.setTargets(["e4", "e5"]);
           console.log(
             `Move initiated: ${e.detail.piece.color} ${e.detail.piece.pieceType} on ${e.detail.square}`
           );

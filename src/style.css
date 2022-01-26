@@ -111,7 +111,7 @@
     var(--focus-outline-color);
 }
 
-[data-square].move-target {
+[data-board-state].has-limited-targets [data-square].move-target {
   background: radial-gradient(
     var(--p-move-target-highlight-color) var(--move-target-marker-radius),
     /* Add pixel offset to boundary to reduce jaggedness. */
@@ -119,8 +119,8 @@
   );
 }
 
-[data-square].has-piece.move-target,
-[data-square].has-content.move-target {
+[data-board-state].has-limited-targets [data-square].has-piece.move-target,
+[data-board-state].has-limited-targets [data-square].has-content.move-target {
   /* Wide circle with transparent interior if square is occupied. */
   background: radial-gradient(
     var(--p-square-color) var(--move-target-marker-radius-occupied),
@@ -133,31 +133,23 @@
   --p-square-color: var(--p-move-start-square-color);
 }
 
-:is([data-board-state="dragging"], [data-board-state="moving-piece-kb"])
-  [data-square].move-start:not(:focus) {
-  /* Additional outline for active-move-square when dragging or KB-navigating. */
+[data-board-state].moving [data-square].move-start:not(:focus) {
+  /* Add additional outline to move start square when actively moving. */
   box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
     var(--p-move-start-outline-color);
 }
 
-[data-board-state="awaiting-input"] [data-square].moveable {
+[data-board-state="awaiting-input"] [data-square].moveable,
+[data-board-state].moving:not(.mousedown) [data-square].move-target {
   cursor: pointer;
 }
 
-:is([data-board-state="touching-first-square"], [data-board-state="dragging"], [data-board-state="canceling-second-touch"])
-  [data-square] {
+[data-board-state].mousedown {
   cursor: grab;
 }
 
-:is([data-board-state="awaiting-second-touch"], [data-board-state="moving-piece-kb"])
-  [data-square] {
-  cursor: pointer;
-}
-
-[data-board-state] [data-square].moveable:hover:not(.move-start),
-:is([data-board-state="dragging"], [data-board-state="awaiting-second-touch"], [data-board-state="moving-piece-kb"])
-  [data-square]:hover:not(.move-start) {
-  /* Only change hover if board is interactive, i.e. has [data-board-state]. */
+[data-board-state="awaiting-input"] [data-square].moveable:hover,
+[data-board-state].moving [data-square].move-target:hover {
   --p-square-color: var(--p-hover-square-color);
 }
 

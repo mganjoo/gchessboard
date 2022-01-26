@@ -55,7 +55,7 @@ export class Board {
   /**
    * Class applied to board when only a few squares are eligible for a move.
    */
-  private static HAS_MOVE_TARGETS_CLASS = "has-move-targets";
+  private static HAS_LIMITED_TARGETS_CLASS = "has-limited-targets";
 
   /**
    * Creates a set of elements representing chessboard squares, as well
@@ -330,7 +330,7 @@ export class Board {
     this._dispatchEvent(e);
     this._moveStartSquare = square;
     if (movesLimited && this._moveTargetSquares !== undefined) {
-      this._table.classList.add(Board.HAS_MOVE_TARGETS_CLASS);
+      this._table.classList.add(Board.HAS_LIMITED_TARGETS_CLASS);
       this._moveTargetSquares.forEach((s) => {
         this._getBoardSquare(s).moveTarget = true;
       });
@@ -396,7 +396,7 @@ export class Board {
   }
 
   private _resetBoardStateAndMoves() {
-    this._table.classList.remove(Board.HAS_MOVE_TARGETS_CLASS);
+    this._table.classList.remove(Board.HAS_LIMITED_TARGETS_CLASS);
     this._moveStartSquare = undefined;
     if (this._moveTargetSquares !== undefined) {
       this._moveTargetSquares.forEach((s) => {
@@ -500,7 +500,26 @@ export class Board {
 
   private _setBoardState(state: BoardState) {
     this._boardState = state;
-    this._updateContainerInteractionStateLabel();
+
+    if (this._boardState.id !== "default") {
+      this._table.dataset.boardState = this._boardState.id;
+    } else {
+      delete this._table.dataset["boardState"];
+    }
+
+    this._table.classList.toggle(
+      "moving",
+      ["awaiting-second-touch", "moving-piece-kb", "dragging"].includes(
+        this._boardState.id
+      )
+    );
+
+    this._table.classList.toggle(
+      "mousedown",
+      ["touching-first-square", "dragging", "canceling-second-touch"].includes(
+        this._boardState.id
+      )
+    );
   }
 
   private _handleMouseDown(
@@ -823,19 +842,6 @@ export class Board {
             assertUnreachable(this._boardState);
         }
       }
-    }
-  }
-
-  /**
-   * Sets (or removes) the `board-state` attribute on the container, which
-   * facilitates CSS styling (pointer events, hover state) based on current
-   * interaction state.
-   */
-  private _updateContainerInteractionStateLabel() {
-    if (this._boardState.id !== "default") {
-      this._table.dataset.boardState = this._boardState.id;
-    } else {
-      delete this._table.dataset["boardState"];
     }
   }
 
