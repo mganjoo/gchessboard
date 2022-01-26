@@ -27,6 +27,7 @@ export class Board {
   private _dispatchEvent: <T>(e: CustomEvent<T>) => void;
 
   private _moveStartSquare?: Square;
+  private _moveTargetSquares?: Square[];
   private _tabbableSquare?: Square;
   private _focused?: boolean;
   private _doingProgrammaticBlur = false;
@@ -50,6 +51,11 @@ export class Board {
    * Minimum number of pixels to enable dragging.
    */
   private static DRAG_THRESHOLD_MIN_PIXELS = 2;
+
+  /**
+   * Class applied to board when only a few squares are eligible for a move.
+   */
+  private static HAS_MOVE_TARGETS_CLASS = "has-move-targets";
 
   /**
    * Creates a set of elements representing chessboard squares, as well
@@ -301,6 +307,7 @@ export class Board {
     positionPx?: { x: number; y: number }
   ): boolean {
     const piece = this._position[square];
+    let movesLimited = false;
     if (!piece || !this._pieceMoveable(piece)) {
       return false;
     }
@@ -309,10 +316,25 @@ export class Board {
       detail: {
         square,
         piece,
+        setTargets: (squares: Square[]) => {
+          movesLimited = true;
+          this._moveTargetSquares = [];
+          for (const s of squares) {
+            if (keyIsSquare(s)) {
+              this._moveTargetSquares.push(s);
+            }
+          }
+        },
       },
     });
     this._dispatchEvent(e);
     this._moveStartSquare = square;
+    if (movesLimited && this._moveTargetSquares !== undefined) {
+      this._table.classList.add(Board.HAS_MOVE_TARGETS_CLASS);
+      this._moveTargetSquares.forEach((s) => {
+        this._getBoardSquare(s).moveTarget = true;
+      });
+    }
     this._getBoardSquare(square).startMove(positionPx);
     this.tabbableSquare = square;
     return true;
@@ -337,6 +359,7 @@ export class Board {
               }
             : undefined
         );
+
         // Tabbable square always updates to target square
         this.tabbableSquare = to;
         this._position[to] = this._position[from];
@@ -373,7 +396,14 @@ export class Board {
   }
 
   private _resetBoardStateAndMoves() {
+    this._table.classList.remove(Board.HAS_MOVE_TARGETS_CLASS);
     this._moveStartSquare = undefined;
+    if (this._moveTargetSquares !== undefined) {
+      this._moveTargetSquares.forEach((s) => {
+        this._getBoardSquare(s).moveTarget = false;
+      });
+      this._moveTargetSquares = undefined;
+    }
     this._setBoardState({
       id: this.interactive ? "awaiting-input" : "default",
     });
@@ -397,6 +427,14 @@ export class Board {
 
   private _pieceMoveable(piece: Piece): boolean {
     return !this.turn || piece.color === this.turn;
+  }
+
+  private _isValidMove(from: Square, to: Square): boolean {
+    return (
+      from !== to &&
+      (this._moveTargetSquares === undefined ||
+        this._moveTargetSquares.includes(to))
+    );
   }
 
   private _getBoardSquare(square: Square) {
@@ -489,8 +527,11 @@ export class Board {
       case "awaiting-second-touch":
       case "moving-piece-kb":
         this._blurTabbableSquare();
-        if (square && this._boardState.startSquare !== square) {
+        if (square && this._isValidMove(this._boardState.startSquare, square)) {
           this._finishMove(square, true);
+        } else if (square && this._boardState.startSquare !== square) {
+          // Not a valid move (e.g. not a move destination) but also not the same square
+          this._cancelMove(false);
         } else if (this._boardState.startSquare === square) {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
@@ -531,7 +572,7 @@ export class Board {
       case "dragging":
         this._removeSecondaryPiece();
         this._blurTabbableSquare();
-        if (square && this._boardState.startSquare !== square) {
+        if (square && this._isValidMove(this._boardState.startSquare, square)) {
           this._finishMove(square, false);
         } else {
           // Animate the snap back only if the piece left the board are (square undefined)
@@ -677,7 +718,10 @@ export class Board {
         case "awaiting-second-touch":
           // Only move if enter was inside squares area and if start
           // and end square are not the same.
-          if (square && this._boardState.startSquare !== square) {
+          if (
+            square &&
+            this._isValidMove(this._boardState.startSquare, square)
+          ) {
             this._finishMove(square, true);
           } else {
             this._cancelMove(false);

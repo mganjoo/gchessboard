@@ -16,8 +16,8 @@
   --move-start-light-outline-color: hsl(66deg 97% 72% / 95%);
 
   /* Square highlight colors when the square is an eligible move target */
-  --move-eligible-dark-square-highlight-color: hsl(0deg 0% 0%);
-  --move-eligible-light-square-highlight-color: hsl(0deg 0% 0%);
+  --move-target-dark-square-highlight-color: hsl(0deg 0% 0%);
+  --move-target-light-square-highlight-color: hsl(0deg 0% 0%);
 
   /* Color of outline when square has focus */
   --focus-outline-color: hsl(30deg 94% 55% / 90%);
@@ -29,11 +29,11 @@
   /* Label font properties */
   --label-font-size: 0.7rem;
 
-  /* Radius of marker on move-eligible square */
-  --move-eligible-marker-radius: 24%;
+  /* Radius of marker on move-target square */
+  --move-target-marker-radius: 24%;
 
-  /* Radius of marker on move-eligible square that is occupied */
-  --move-eligible-marker-radius-occupied: 82%;
+  /* Radius of marker on move-target square that is occupied */
+  --move-target-marker-radius-occupied: 82%;
 
   /* Opacity of ghost piece shown while dragging */
   --ghost-piece-opacity: 0.35;
@@ -111,21 +111,21 @@
     var(--focus-outline-color);
 }
 
-[data-square].move-eligible {
+[data-square].move-target {
   background: radial-gradient(
-    var(--p-move-eligible-highlight-color) var(--move-eligible-marker-radius),
+    var(--p-move-target-highlight-color) var(--move-target-marker-radius),
     /* Add pixel offset to boundary to reduce jaggedness. */
-      var(--p-square-color) calc(var(--move-eligible-marker-radius) + 1px)
+      var(--p-square-color) calc(var(--move-target-marker-radius) + 1px)
   );
 }
 
-[data-square].has-piece.move-eligible,
-[data-square].has-content.move-eligible {
+[data-square].has-piece.move-target,
+[data-square].has-content.move-target {
   /* Wide circle with transparent interior if square is occupied. */
   background: radial-gradient(
-    var(--p-square-color) var(--move-eligible-marker-radius-occupied),
-    var(--p-move-eligible-highlight-color)
-      calc(var(--move-eligible-marker-radius-occupied) + 1px)
+    var(--p-square-color) var(--move-target-marker-radius-occupied),
+    var(--p-move-target-highlight-color)
+      calc(var(--move-target-marker-radius-occupied) + 1px)
   );
 }
 
@@ -171,8 +171,8 @@
   /* Label colors for inline labels should be inverse of square color */
   --p-label-color: var(--light-square-color);
   --p-hover-square-color: var(--hover-dark-square-color);
-  --p-move-eligible-highlight-color: var(
-    --move-eligible-dark-square-highlight-color
+  --p-move-target-highlight-color: var(
+    --move-target-dark-square-highlight-color
   );
   --p-move-start-square-color: var(--move-start-dark-square-color);
   --p-move-start-outline-color: var(--move-start-dark-outline-color);
@@ -182,8 +182,8 @@
   --p-square-color: var(--light-square-color);
   --p-label-color: var(--dark-square-color);
   --p-hover-square-color: var(--hover-light-square-color);
-  --p-move-eligible-highlight-color: var(
-    --move-eligible-light-square-highlight-color
+  --p-move-target-highlight-color: var(
+    --move-target-light-square-highlight-color
   );
   --p-move-start-square-color: var(--move-start-light-square-color);
   --p-move-start-outline-color: var(--move-start-light-outline-color);
