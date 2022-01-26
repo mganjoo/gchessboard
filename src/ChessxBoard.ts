@@ -7,6 +7,7 @@ export class ChessxBoard extends HTMLElement {
   static get observedAttributes() {
     return [
       "orientation",
+      "turn",
       "interactive",
       "fen",
       "hide-coords",
@@ -63,6 +64,9 @@ export class ChessxBoard extends HTMLElement {
       case "orientation":
         this._board.orientation = this.orientation;
         break;
+      case "turn":
+        this._board.turn = this.turn;
+        break;
       case "fen":
         if (newValue !== null) {
           this.fen = newValue;
@@ -83,7 +87,7 @@ export class ChessxBoard extends HTMLElement {
    * the bottom as viewed on the screen).
    */
   get orientation(): Side {
-    return this._parseRestrictedStringAttribute<Side>(
+    return this._parseRestrictedStringAttributeWithDefault<Side>(
       "orientation",
       isSide,
       ChessxBoard._DEFAULT_SIDE
@@ -92,6 +96,22 @@ export class ChessxBoard extends HTMLElement {
 
   set orientation(value: Side) {
     this.setAttribute("orientation", value);
+  }
+
+  /**
+   * What side is allowed to move pieces. This may be undefined, in which
+   * pieces from either side can be moved around.
+   */
+  get turn(): Side | undefined {
+    return this._parseRestrictedStringAttribute<Side>("turn", isSide);
+  }
+
+  set turn(value: Side | undefined) {
+    if (value) {
+      this.setAttribute("turn", value);
+    } else {
+      this.removeAttribute("turn");
+    }
   }
 
   /**
@@ -175,11 +195,19 @@ export class ChessxBoard extends HTMLElement {
 
   private _parseRestrictedStringAttribute<T extends string>(
     name: string,
+    guard: (value: string | null) => value is T
+  ): T | undefined {
+    const value = this.getAttribute(name);
+    return guard(value) ? value : undefined;
+  }
+
+  private _parseRestrictedStringAttributeWithDefault<T extends string>(
+    name: string,
     guard: (value: string | null) => value is T,
     defaultValue: T
   ): T {
-    const value = this.getAttribute(name);
-    return guard(value) ? value : defaultValue;
+    const parsed = this._parseRestrictedStringAttribute(name, guard);
+    return parsed !== undefined ? parsed : defaultValue;
   }
 
   private _parseNumberAttribute(name: string, defaultValue: number): number {

@@ -140,7 +140,7 @@
     var(--p-move-start-outline-color);
 }
 
-[data-board-state="awaiting-input"] [data-square].has-piece {
+[data-board-state="awaiting-input"] [data-square].moveable {
   cursor: pointer;
 }
 
@@ -154,7 +154,7 @@
   cursor: pointer;
 }
 
-[data-board-state] [data-square].has-piece:hover:not(.move-start),
+[data-board-state] [data-square].moveable:hover:not(.move-start),
 :is([data-board-state="dragging"], [data-board-state="awaiting-second-touch"], [data-board-state="moving-piece-kb"])
   [data-square]:hover:not(.move-start) {
   /* Only change hover if board is interactive, i.e. has [data-board-state]. */

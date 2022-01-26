@@ -20,6 +20,7 @@ export class BoardSquare {
 
   private _label: Square;
   private _tabbable = false;
+  private _moveable = false;
   private _hideCoords = false;
   private _interactive = false;
   private _boardPiece?: BoardPiece;
@@ -91,6 +92,7 @@ export class BoardSquare {
     this._updateAriaRole();
     this._updateTabIndex();
     this._updateMoveStartClass();
+    this._updateMoveableClass();
   }
 
   /**
@@ -131,6 +133,21 @@ export class BoardSquare {
   }
 
   /**
+   * Whether the piece on this square is moveable through user interaction.
+   * To be set to true, a piece must actually exist on the square.
+   */
+  get moveable(): boolean {
+    return this._moveable;
+  }
+
+  set moveable(value: boolean) {
+    if (!value || this._boardPiece) {
+      this._moveable = value;
+      this._updateMoveableClass();
+    }
+  }
+
+  /**
    * Rendered width of element (in integer), used in making drag threshold calculations.
    */
   get width(): number {
@@ -168,16 +185,22 @@ export class BoardSquare {
    * be a no-op since the position of the two pieces would otherwise be exactly
    * the same.
    */
-  setPiece(piece: Piece, animation?: SlideInAnimation | FadeInAnimation) {
+  setPiece(
+    piece: Piece,
+    moveable: boolean,
+    animation?: SlideInAnimation | FadeInAnimation
+  ) {
     if (!pieceEqual(this._boardPiece?.piece, piece) || animation) {
       this.clearPiece(animation?.durationMs);
       this._boardPiece = new BoardPiece(this._element, { piece, animation });
+      this.moveable = moveable;
       this._updateSquareAfterPieceChange();
     }
   }
 
   clearPiece(animationDurationMs?: number) {
     if (this._boardPiece !== undefined) {
+      this.moveable = false;
       this._boardPiece.remove(animationDurationMs);
       this._boardPiece = undefined;
       this._updateSquareAfterPieceChange();
@@ -209,7 +232,7 @@ export class BoardSquare {
    * explicitly.
    */
   startMove(piecePositionPx?: { x: number; y: number }) {
-    if (this._boardPiece !== undefined) {
+    if (this._boardPiece !== undefined && this.moveable) {
       this._moveStart = true;
       this._updateMoveStartClass();
       this._boardPiece.finishAnimations();
@@ -276,6 +299,14 @@ export class BoardSquare {
       this._element.classList.toggle("move-start", this._moveStart);
     } else {
       this._element.classList.remove("move-start");
+    }
+  }
+
+  private _updateMoveableClass() {
+    if (this.interactive) {
+      this._element.classList.toggle("moveable", this.moveable);
+    } else {
+      this._element.classList.remove("moveable");
     }
   }
 

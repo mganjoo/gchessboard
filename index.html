@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChessxBoard Demo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script type="module" src="/src/index.ts"></script>
     <script type="module">
       window.addEventListener("DOMContentLoaded", () => {
@@ -13,21 +13,18 @@
           board.orientation = board.orientation === "black" ? "white" : "black";
         });
         document
-          .getElementById("btn-interactivity")
-          .addEventListener("click", (e) => {
-            board.interactive = !board.interactive;
-            e.target.innerText = board.interactive
-              ? "Disable interaction"
-              : "Enable interaction";
+          .getElementById("chk-interactive")
+          .addEventListener("change", (e) => {
+            board.interactive = e.target.checked;
           });
-        document.getElementById("btn-coords").addEventListener("click", (e) => {
-          board.hideCoords = !board.hideCoords;
-          e.target.innerText = board.hideCoords ? "Show coords" : "Hide coords";
-        });
-        document.getElementById("btn-svg").addEventListener("click", (e) => {
-          window.showSVG = !window.showSVG;
+        document
+          .getElementById("chk-coords")
+          .addEventListener("change", (e) => {
+            board.hideCoords = !e.target.checked;
+          });
+        document.getElementById("chk-svg").addEventListener("change", (e) => {
           const svgSquares = ["a3", "c5", "e4"];
-          if (window.showSVG) {
+          if (e.target.checked) {
             svgSquares.forEach((s) => {
               const square = document
                 .getElementById(`svg-${s}`)
@@ -42,12 +39,26 @@
                 .removeChild(document.querySelector(`#board [slot="${s}"]`));
             });
           }
-          e.target.innerText = window.showSVG ? "Hide SVGs" : "Show SVGs";
         });
-        document.getElementById("btn-speed").addEventListener("click", (e) => {
-          window.slowAnimations = !window.slowAnimations;
-          board.animationDuration = window.slowAnimations ? 3500 : 200;
-          e.target.innerText = window.slowAnimations ? "Speed up" : "Slow down";
+        document
+          .getElementById("sel-slowdown")
+          .addEventListener("change", (e) => {
+            let duration;
+            switch (e.target.value) {
+              case "normal":
+                duration = 200;
+                break;
+              case "slow":
+                duration = 3500;
+                break;
+              default:
+                duration = 10;
+                break;
+            }
+            board.animationDuration = duration;
+          });
+        document.getElementById("sel-turn").addEventListener("change", (e) => {
+          board.turn = e.target.value === "either" ? undefined : e.target.value;
         });
         document
           .getElementById("btn-position-start")
@@ -74,6 +85,15 @@
     <style type="text/tailwindcss">
       .btn {
         @apply bg-green-800 text-gray-100 text-sm px-3 py-1 rounded-md hover:bg-green-700 active:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-400 focus-visible:ring-offset-gray-100 dark:focus-visible:ring-offset-gray-900 dark:focus-visible:ring-green-300/75;
+      }
+      .input-label {
+        @apply inline-flex items-center mx-2 text-sm gap-x-2;
+      }
+      .chk {
+        @apply rounded text-green-600 border-gray-300 focus:ring focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-100 dark:border-transparent dark:focus:ring-offset-gray-900 dark:focus:ring-green-300/75;
+      }
+      .sel {
+        @apply rounded-md px-2 py-1 w-24 text-gray-900 text-sm border-gray-300 focus:ring focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-100 dark:border-transparent dark:focus:ring-offset-gray-900 dark:focus:ring-green-300/75;
       }
     </style>
   </head>
@@ -137,14 +157,49 @@
         fen="start"
         interactive
       ></chessx-board>
-      <div class="flex py-1 gap-x-3 gap-y-2 flex-wrap justify-center">
+      <div class="flex py-2 gap-x-3 gap-y-2 flex-wrap justify-center">
         <button id="btn-flip" class="btn">Flip</button>
-        <button id="btn-interactivity" class="btn">Disable interaction</button>
-        <button id="btn-coords" class="btn">Hide coords</button>
-        <button id="btn-svg" class="btn">Show SVGs</button>
-        <button id="btn-speed" class="btn">Slow down</button>
+        <label class="input-label">
+          <input
+            id="chk-interactive"
+            type="checkbox"
+            class="chk"
+            checked
+            autocomplete="off"
+          />
+          <span>Interactive</span>
+        </label>
+        <label class="input-label">
+          <input
+            id="chk-coords"
+            type="checkbox"
+            class="chk"
+            checked
+            autocomplete="off"
+          />
+          <span>Show coords</span>
+        </label>
+        <label class="input-label">
+          <input id="chk-svg" type="checkbox" class="chk" autocomplete="off" />
+          <span>Show SVGs</span>
+        </label>
+        <label class="input-label">
+          <span>Animation speed</span>
+          <select id="sel-slowdown" class="sel" autocomplete="off">
+            <option>normal</option>
+            <option>slow</option>
+          </select>
+        </label>
+        <label class="input-label">
+          <span>Side to play</span>
+          <select id="sel-turn" class="sel" autocomplete="off">
+            <option>either</option>
+            <option>white</option>
+            <option>black</option>
+          </select>
+        </label>
       </div>
-      <div class="flex py-1 gap-x-3 gap-y-2 flex-wrap justify-center">
+      <div class="flex py-2 gap-x-3 gap-y-2 flex-wrap justify-center">
         <button id="btn-position-start" class="btn">Start position</button>
         <button id="btn-position-puzzle" class="btn">Puzzle position</button>
         <button id="btn-position-empty" class="btn">Empty</button>

@@ -8,6 +8,7 @@ import {
   Side,
   Square,
   keyIsSquare,
+  Piece,
 } from "../utils/chess";
 import { makeHTMLElement } from "../utils/dom";
 import { BoardState } from "./BoardState";
@@ -18,6 +19,7 @@ export class Board {
   private readonly _table: HTMLElement;
   private readonly _boardSquares: BoardSquare[];
   private _orientation: Side;
+  private _turn?: Side;
   private _interactive: boolean;
   private _hideCoords: boolean;
   private _position: Position;
@@ -66,8 +68,8 @@ export class Board {
     this._boardState = { id: "default" };
     this._dispatchEvent = dispatchEvent;
 
-    // Bottom left corner white orientation = white
-    this._defaultTabbableSquare = "a1";
+    // Bottom left corner
+    this._defaultTabbableSquare = getSquare(56, initValues.orientation);
 
     this._table = makeHTMLElement("table", {
       attributes: {
@@ -152,7 +154,7 @@ export class Board {
       this._boardSquares[i].label = square;
       this._boardSquares[i].tabbable = this.tabbableSquare === square;
       if (piece) {
-        this._boardSquares[i].setPiece(piece);
+        this._boardSquares[i].setPiece(piece, this._pieceMoveable(piece));
       } else {
         this._boardSquares[i].clearPiece();
       }
@@ -179,6 +181,23 @@ export class Board {
     this._boardSquares.forEach((s) => {
       s.interactive = value;
     });
+  }
+
+  get turn(): Side | undefined {
+    return this._turn;
+  }
+
+  /**
+   * What side is allowed to move pieces. This may be undefined, in which
+   * pieces from either side can be moved around.
+   */
+  set turn(value: Side | undefined) {
+    this._turn = value;
+    for (let idx = 0; idx < 64; idx++) {
+      const square = getSquare(idx, this.orientation);
+      const piece = this._position[square];
+      this._boardSquares[idx].moveable = !piece || this._pieceMoveable(piece);
+    }
   }
 
   /**
@@ -210,18 +229,26 @@ export class Board {
           oldSquare,
           newSquare
         );
-        this._getBoardSquare(newSquare).setPiece(piece, {
-          type: "slide-in",
-          from: startingPosition,
-          durationMs: this.animationDurationMs,
-        });
+        this._getBoardSquare(newSquare).setPiece(
+          piece,
+          this._pieceMoveable(piece),
+          {
+            type: "slide-in",
+            from: startingPosition,
+            durationMs: this.animationDurationMs,
+          }
+        );
       });
 
       diff.added.forEach(({ piece, square }) => {
-        this._getBoardSquare(square).setPiece(piece, {
-          type: "fade-in",
-          durationMs: this.animationDurationMs,
-        });
+        this._getBoardSquare(square).setPiece(
+          piece,
+          this._pieceMoveable(piece),
+          {
+            type: "fade-in",
+            durationMs: this.animationDurationMs,
+          }
+        );
       });
 
       // Default tabbable square might change with position change
@@ -274,7 +301,7 @@ export class Board {
     positionPx?: { x: number; y: number }
   ): boolean {
     const piece = this._position[square];
-    if (!piece) {
+    if (!piece || !this._pieceMoveable(piece)) {
       return false;
     }
     const e = new CustomEvent("movestart", {
@@ -300,6 +327,7 @@ export class Board {
         this._getBoardSquare(from).clearPiece();
         this._getBoardSquare(to).setPiece(
           piece,
+          this._pieceMoveable(piece),
           // Animate transition only when piece is displaced to a specific location
           animate
             ? {
@@ -365,6 +393,10 @@ export class Board {
 
   private _pieceOn(square: Square): boolean {
     return !!this._position[square];
+  }
+
+  private _pieceMoveable(piece: Piece): boolean {
+    return !this.turn || piece.color === this.turn;
   }
 
   private _getBoardSquare(square: Square) {
@@ -443,24 +475,15 @@ export class Board {
 
     switch (this._boardState.id) {
       case "awaiting-input":
-        if (square) {
-          if (this._pieceOn(square) && this._startMove(square)) {
-            this._setBoardState({
-              id: "touching-first-square",
-              startSquare: square,
-              touchStartX: e.clientX,
-              touchStartY: e.clientY,
-            });
-            this._showSecondaryPiece();
-            this._blurTabbableSquare();
-          } else {
-            if (this._tabbableSquare !== square || !this._focused) {
-              this.tabbableSquare = square;
-              this._focusTabbableSquare();
-            } else {
-              this._blurTabbableSquare();
-            }
-          }
+        if (square && this._pieceOn(square) && this._startMove(square)) {
+          this._setBoardState({
+            id: "touching-first-square",
+            startSquare: square,
+            touchStartX: e.clientX,
+            touchStartY: e.clientY,
+          });
+          this._showSecondaryPiece();
+          this._blurTabbableSquare();
         }
         break;
       case "awaiting-second-touch":
