@@ -258,9 +258,12 @@ export class BoardPiece {
       default:
         assertUnreachable(animationSpec);
     }
-    if (keyframes !== undefined && "animate" in this._element) {
+    if (
+      keyframes !== undefined &&
+      typeof this._element.animate === "function"
+    ) {
       const animation = this._element.animate(keyframes, {
-        duration: animationSpec.durationMs,
+        duration: Math.max(0, animationSpec.durationMs),
       });
 
       if (onfinish !== undefined) {

@@ -97,7 +97,7 @@
           });
         board.addEventListener("movestart", (e) => {
           console.log(
-            `Move initiated: ${e.detail.piece.color} ${e.detail.piece.pieceType} on ${e.detail.square}`
+            `movestart: ${e.detail.piece.color} ${e.detail.piece.pieceType} on ${e.detail.square}`
           );
           if (window.turn !== "other") {
             e.detail.setTargets(
@@ -109,7 +109,7 @@
         });
         board.addEventListener("moveend", (e) => {
           console.log(
-            `Move ended: ${e.detail.piece.color} ${e.detail.piece.pieceType} from ${e.detail.from}-${e.detail.to}`
+            `moveend: ${e.detail.piece.color} ${e.detail.piece.pieceType} from ${e.detail.from}-${e.detail.to}`
           );
           window.placement = board.fen;
           updateGame();
