@@ -5,10 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChessxBoard Demo</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script src="https://unpkg.com/chess.js@0.12.0/chess.js"></script>
     <script type="module" src="/src/index.ts"></script>
     <script type="module">
       window.addEventListener("DOMContentLoaded", () => {
         const board = document.getElementById("board");
+        let game = new Chess();
+        window.placement = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+        window.turn = "other";
+        function updateGame() {
+          if (window.turn === "either") {
+            return;
+          }
+          const turn = window.turn === "white" ? "w" : "b";
+          const fen = `${window.placement} ${turn} - - 0 1`;
+          game.load(fen);
+        }
         document.getElementById("btn-flip").addEventListener("click", () => {
           board.orientation = board.orientation === "black" ? "white" : "black";
         });
@@ -59,26 +71,48 @@
           });
         document.getElementById("sel-turn").addEventListener("change", (e) => {
           board.turn = e.target.value === "either" ? undefined : e.target.value;
+          window.turn = e.target.value;
+          updateGame();
         });
         document
           .getElementById("btn-position-start")
           .addEventListener("click", () => {
+            window.placement = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
             board.fen = "start";
+            updateGame();
           });
         document
           .getElementById("btn-position-puzzle")
           .addEventListener("click", () => {
+            window.placement = "8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8";
             board.fen = "8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8";
+            updateGame();
           });
         document
           .getElementById("btn-position-empty")
           .addEventListener("click", () => {
+            window.placement = "8/8/8/8/8/8/8/8";
             board.position = {};
+            game.clear();
           });
         board.addEventListener("movestart", (e) => {
           console.log(
             `Move initiated: ${e.detail.piece.color} ${e.detail.piece.pieceType} on ${e.detail.square}`
           );
+          if (window.turn !== "other") {
+            e.detail.setTargets(
+              game
+                .moves({ square: e.detail.square, verbose: true })
+                .map((m) => m.to)
+            );
+          }
+        });
+        board.addEventListener("moveend", (e) => {
+          console.log(
+            `Move ended: ${e.detail.piece.color} ${e.detail.piece.pieceType} from ${e.detail.from}-${e.detail.to}`
+          );
+          window.placement = board.fen;
+          updateGame();
         });
       });
     </script>
@@ -97,7 +131,7 @@
       }
     </style>
   </head>
-  <body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+  <body class="text-gray-900 bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
     <template id="svg-a3">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +164,7 @@
     <template id="svg-e4">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="w-1/3 h-1/3 bottom-1 right-1 top-auto left-auto"
+        class="top-auto left-auto w-1/3 h-1/3 bottom-1 right-1"
         role="img"
         fill="none"
         viewBox="0 0 24 24"
@@ -145,9 +179,9 @@
       </svg>
     </template>
     <main
-      class="mx-auto max-w-2xl flex flex-col px-3 items-center gap-y-3 min-h-screen py-8 font-sans"
+      class="flex flex-col items-center max-w-2xl min-h-screen px-3 py-8 mx-auto font-sans gap-y-3"
     >
-      <h1 class="text-xl text-center font-semibold max-w-lg sm:text-2xl">
+      <h1 class="max-w-lg text-xl font-semibold text-center sm:text-2xl">
         <code class="font-mono">&lt;chessx-board&gt;</code>
         development demo
       </h1>
@@ -157,7 +191,7 @@
         fen="start"
         interactive
       ></chessx-board>
-      <div class="flex py-2 gap-x-3 gap-y-2 flex-wrap justify-center">
+      <div class="flex flex-wrap justify-center py-2 gap-x-3 gap-y-2">
         <button id="btn-flip" class="btn">Flip</button>
         <label class="input-label">
           <input
@@ -199,7 +233,7 @@
           </select>
         </label>
       </div>
-      <div class="flex py-2 gap-x-3 gap-y-2 flex-wrap justify-center">
+      <div class="flex flex-wrap justify-center py-2 gap-x-3 gap-y-2">
         <button id="btn-position-start" class="btn">Start position</button>
         <button id="btn-position-puzzle" class="btn">Puzzle position</button>
         <button id="btn-position-empty" class="btn">Empty</button>

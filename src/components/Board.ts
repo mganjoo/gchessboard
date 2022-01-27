@@ -9,6 +9,7 @@ import {
   Square,
   keyIsSquare,
   Piece,
+  SQUARES,
 } from "../utils/chess";
 import { makeHTMLElement } from "../utils/dom";
 import { BoardState } from "./BoardState";
@@ -27,6 +28,7 @@ export class Board {
   private _dispatchEvent: <T>(e: CustomEvent<T>) => void;
 
   private _moveStartSquare?: Square;
+  private _moveTargetSquares?: Square[];
   private _tabbableSquare?: Square;
   private _focused?: boolean;
   private _doingProgrammaticBlur = false;
@@ -50,6 +52,11 @@ export class Board {
    * Minimum number of pixels to enable dragging.
    */
   private static DRAG_THRESHOLD_MIN_PIXELS = 2;
+
+  /**
+   * Class applied to board when only a few squares are eligible for a move.
+   */
+  private static HAS_LIMITED_TARGETS_CLASS = "has-limited-targets";
 
   /**
    * Creates a set of elements representing chessboard squares, as well
@@ -301,6 +308,8 @@ export class Board {
     positionPx?: { x: number; y: number }
   ): boolean {
     const piece = this._position[square];
+    let targetsLimited = false;
+    const targetSquares: Square[] = [];
     if (!piece || !this._pieceMoveable(piece)) {
       return false;
     }
@@ -309,10 +318,31 @@ export class Board {
       detail: {
         square,
         piece,
+        setTargets: (squares: Square[]) => {
+          targetsLimited = true;
+          for (const s of squares) {
+            if (keyIsSquare(s)) {
+              targetSquares.push(s);
+            }
+          }
+        },
       },
     });
     this._dispatchEvent(e);
     this._moveStartSquare = square;
+    if (targetsLimited) {
+      this._table.classList.add(Board.HAS_LIMITED_TARGETS_CLASS);
+      this._moveTargetSquares = [];
+      targetSquares.forEach((s) => {
+        this._moveTargetSquares?.push(s);
+        this._getBoardSquare(s).moveTarget = true;
+      });
+    } else {
+      this._moveTargetSquares = SQUARES.filter((s) => s !== square);
+      this._moveTargetSquares.forEach((s) => {
+        this._getBoardSquare(s).moveTarget = true;
+      });
+    }
     this._getBoardSquare(square).startMove(positionPx);
     this.tabbableSquare = square;
     return true;
@@ -337,10 +367,17 @@ export class Board {
               }
             : undefined
         );
+
         // Tabbable square always updates to target square
         this.tabbableSquare = to;
         this._position[to] = this._position[from];
         delete this._position[from];
+
+        const e = new CustomEvent("moveend", {
+          bubbles: true,
+          detail: { from, to, piece },
+        });
+        this._dispatchEvent(e);
       }
     }
     this._resetBoardStateAndMoves();
@@ -373,7 +410,14 @@ export class Board {
   }
 
   private _resetBoardStateAndMoves() {
+    this._table.classList.remove(Board.HAS_LIMITED_TARGETS_CLASS);
     this._moveStartSquare = undefined;
+    if (this._moveTargetSquares !== undefined) {
+      this._moveTargetSquares.forEach((s) => {
+        this._getBoardSquare(s).moveTarget = false;
+      });
+      this._moveTargetSquares = undefined;
+    }
     this._setBoardState({
       id: this.interactive ? "awaiting-input" : "default",
     });
@@ -397,6 +441,14 @@ export class Board {
 
   private _pieceMoveable(piece: Piece): boolean {
     return !this.turn || piece.color === this.turn;
+  }
+
+  private _isValidMove(from: Square, to: Square): boolean {
+    return (
+      from !== to &&
+      (this._moveTargetSquares === undefined ||
+        this._moveTargetSquares.includes(to))
+    );
   }
 
   private _getBoardSquare(square: Square) {
@@ -461,8 +513,32 @@ export class Board {
   }
 
   private _setBoardState(state: BoardState) {
+    const oldState = this._boardState;
     this._boardState = state;
-    this._updateContainerInteractionStateLabel();
+
+    if (this._boardState.id !== oldState.id) {
+      if (this._boardState.id !== "default") {
+        this._table.dataset.boardState = this._boardState.id;
+      } else {
+        delete this._table.dataset["boardState"];
+      }
+
+      this._table.classList.toggle(
+        "moving",
+        ["awaiting-second-touch", "moving-piece-kb", "dragging"].includes(
+          this._boardState.id
+        )
+      );
+
+      this._table.classList.toggle(
+        "mousedown",
+        [
+          "touching-first-square",
+          "dragging",
+          "canceling-second-touch",
+        ].includes(this._boardState.id)
+      );
+    }
   }
 
   private _handleMouseDown(
@@ -489,8 +565,11 @@ export class Board {
       case "awaiting-second-touch":
       case "moving-piece-kb":
         this._blurTabbableSquare();
-        if (square && this._boardState.startSquare !== square) {
+        if (square && this._isValidMove(this._boardState.startSquare, square)) {
           this._finishMove(square, true);
+        } else if (square && this._boardState.startSquare !== square) {
+          // Not a valid move (e.g. not a move destination) but also not the same square
+          this._cancelMove(false);
         } else if (this._boardState.startSquare === square) {
           // Second mousedown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
@@ -531,7 +610,7 @@ export class Board {
       case "dragging":
         this._removeSecondaryPiece();
         this._blurTabbableSquare();
-        if (square && this._boardState.startSquare !== square) {
+        if (square && this._isValidMove(this._boardState.startSquare, square)) {
           this._finishMove(square, false);
         } else {
           // Animate the snap back only if the piece left the board are (square undefined)
@@ -581,21 +660,19 @@ export class Board {
             (squareWidth !== 0 && delta > threshold) ||
             square !== this._boardState.startSquare
           ) {
-            if (this._startMove(this._boardState.startSquare)) {
-              this._setBoardState({
-                id: "dragging",
-                startSquare: this._boardState.startSquare,
-                x: e.clientX,
-                y: e.clientY,
-              });
-            }
+            this._setBoardState({
+              id: "dragging",
+              startSquare: this._boardState.startSquare,
+              x: e.clientX,
+              y: e.clientY,
+            });
           }
         }
         break;
       case "dragging":
         if (this._moveStartSquare) {
           const position = { x: e.clientX, y: e.clientY };
-          this._boardState = { ...this._boardState, ...position };
+          this._setBoardState({ ...this._boardState, ...position });
           this._getBoardSquare(this._moveStartSquare).updateMove(position);
         }
         break;
@@ -677,7 +754,10 @@ export class Board {
         case "awaiting-second-touch":
           // Only move if enter was inside squares area and if start
           // and end square are not the same.
-          if (square && this._boardState.startSquare !== square) {
+          if (
+            square &&
+            this._isValidMove(this._boardState.startSquare, square)
+          ) {
             this._finishMove(square, true);
           } else {
             this._cancelMove(false);
@@ -779,19 +859,6 @@ export class Board {
             assertUnreachable(this._boardState);
         }
       }
-    }
-  }
-
-  /**
-   * Sets (or removes) the `board-state` attribute on the container, which
-   * facilitates CSS styling (pointer events, hover state) based on current
-   * interaction state.
-   */
-  private _updateContainerInteractionStateLabel() {
-    if (this._boardState.id !== "default") {
-      this._table.dataset.boardState = this._boardState.id;
-    } else {
-      delete this._table.dataset["boardState"];
     }
   }
 

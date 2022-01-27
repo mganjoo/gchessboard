@@ -27,6 +27,7 @@ export class BoardSquare {
   private _secondaryBoardPiece?: BoardPiece;
   private _hasContent?: boolean;
   private _moveStart = false;
+  private _moveTarget = false;
 
   constructor(
     container: HTMLElement,
@@ -93,6 +94,7 @@ export class BoardSquare {
     this._updateTabIndex();
     this._updateMoveStartClass();
     this._updateMoveableClass();
+    this._updateMoveTargetClass();
   }
 
   /**
@@ -145,6 +147,19 @@ export class BoardSquare {
       this._moveable = value;
       this._updateMoveableClass();
     }
+  }
+
+  /**
+   * Whether this square is a valid move target. These are highlighted
+   * square shown when move is in progress, indicating squares that we can move to.
+   */
+  get moveTarget(): boolean {
+    return this._moveTarget;
+  }
+
+  set moveTarget(value: boolean) {
+    this._moveTarget = value;
+    this._updateMoveTargetClass();
   }
 
   /**
@@ -295,18 +310,22 @@ export class BoardSquare {
   }
 
   private _updateMoveStartClass() {
-    if (this.interactive) {
-      this._element.classList.toggle("move-start", this._moveStart);
-    } else {
-      this._element.classList.remove("move-start");
-    }
+    this._updateInteractiveCssClass("move-start", this._moveStart);
+  }
+
+  private _updateMoveTargetClass() {
+    this._updateInteractiveCssClass("move-target", this._moveTarget);
   }
 
   private _updateMoveableClass() {
+    this._updateInteractiveCssClass("moveable", this.moveable);
+  }
+
+  private _updateInteractiveCssClass(name: string, value: boolean) {
     if (this.interactive) {
-      this._element.classList.toggle("moveable", this.moveable);
+      this._element.classList.toggle(name, value);
     } else {
-      this._element.classList.remove("moveable");
+      this._element.classList.remove(name);
     }
   }
 
