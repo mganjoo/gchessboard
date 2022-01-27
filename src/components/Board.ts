@@ -624,8 +624,8 @@ export class Board {
         if (square && this._isValidMove(this._boardState.startSquare, square)) {
           this._finishMove(square, false);
         } else {
-          // Animate the snap back only if the piece left the board are (square undefined)
-          this._cancelMove(!square);
+          // Animate the snap back only if the piece left the original square
+          this._cancelMove(square !== this._boardState.startSquare);
         }
         break;
       case "canceling-second-touch":
