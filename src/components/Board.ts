@@ -28,6 +28,7 @@ export class Board {
   private _dispatchEvent: <T>(e: CustomEvent<T>) => void;
 
   private _moveStartSquare?: Square;
+  private _movePositionPx?: { x: number; y: number };
   private _moveTargetSquares?: Square[];
   private _tabbableSquare?: Square;
   private _focused?: boolean;
@@ -348,6 +349,15 @@ export class Board {
     return true;
   }
 
+  private _updateMove(x: number, y: number) {
+    if (this._moveStartSquare) {
+      this._movePositionPx = { x, y };
+      this._getBoardSquare(this._moveStartSquare).updateMove(
+        this._movePositionPx
+      );
+    }
+  }
+
   private _finishMove(to: Square, animate: boolean) {
     if (this._moveStartSquare) {
       const from = this._moveStartSquare;
@@ -412,6 +422,7 @@ export class Board {
   private _resetBoardStateAndMoves() {
     this._table.classList.remove(Board.HAS_LIMITED_TARGETS_CLASS);
     this._moveStartSquare = undefined;
+    this._movePositionPx = undefined;
     if (this._moveTargetSquares !== undefined) {
       this._moveTargetSquares.forEach((s) => {
         this._getBoardSquare(s).moveTarget = false;
@@ -663,17 +674,14 @@ export class Board {
             this._setBoardState({
               id: "dragging",
               startSquare: this._boardState.startSquare,
-              x: e.clientX,
-              y: e.clientY,
             });
+            this._updateMove(e.clientX, e.clientY);
           }
         }
         break;
       case "dragging":
         if (this._moveStartSquare) {
-          const position = { x: e.clientX, y: e.clientY };
-          this._setBoardState({ ...this._boardState, ...position });
-          this._getBoardSquare(this._moveStartSquare).updateMove(position);
+          this._updateMove(e.clientX, e.clientY);
         }
         break;
       case "awaiting-input":
