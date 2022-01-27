@@ -18,7 +18,6 @@ export class ChessxBoard extends HTMLElement {
   private _shadow: ShadowRoot;
   private _style: HTMLStyleElement;
   private _board: Board;
-  private _position: Position = {};
 
   private static _DEFAULT_SIDE: Side = "white";
   private static _DEFAULT_ANIMATION_DURATION_MS = 200;
@@ -132,12 +131,11 @@ export class ChessxBoard extends HTMLElement {
    * onto the "fen" attribute of the element.
    */
   get position() {
-    return this._position;
+    return this._board.position;
   }
 
   set position(value: Position) {
-    this._position = { ...value };
-    this._board.position = this._position;
+    this._board.position = { ...value };
   }
 
   /**
@@ -146,7 +144,7 @@ export class ChessxBoard extends HTMLElement {
    * of the element.
    */
   get fen() {
-    return getFen(this._position);
+    return getFen(this._board.position);
   }
 
   set fen(value: string) {

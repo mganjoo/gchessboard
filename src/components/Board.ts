@@ -9,6 +9,7 @@ import {
   Square,
   keyIsSquare,
   Piece,
+  SQUARES,
 } from "../utils/chess";
 import { makeHTMLElement } from "../utils/dom";
 import { BoardState } from "./BoardState";
@@ -307,7 +308,8 @@ export class Board {
     positionPx?: { x: number; y: number }
   ): boolean {
     const piece = this._position[square];
-    let movesLimited = false;
+    let targetsLimited = false;
+    const targetSquares: Square[] = [];
     if (!piece || !this._pieceMoveable(piece)) {
       return false;
     }
@@ -317,11 +319,10 @@ export class Board {
         square,
         piece,
         setTargets: (squares: Square[]) => {
-          movesLimited = true;
-          this._moveTargetSquares = [];
+          targetsLimited = true;
           for (const s of squares) {
             if (keyIsSquare(s)) {
-              this._moveTargetSquares.push(s);
+              targetSquares.push(s);
             }
           }
         },
@@ -329,8 +330,15 @@ export class Board {
     });
     this._dispatchEvent(e);
     this._moveStartSquare = square;
-    if (movesLimited && this._moveTargetSquares !== undefined) {
+    if (targetsLimited) {
       this._table.classList.add(Board.HAS_LIMITED_TARGETS_CLASS);
+      this._moveTargetSquares = [];
+      targetSquares.forEach((s) => {
+        this._moveTargetSquares?.push(s);
+        this._getBoardSquare(s).moveTarget = true;
+      });
+    } else {
+      this._moveTargetSquares = SQUARES.filter((s) => s !== square);
       this._moveTargetSquares.forEach((s) => {
         this._getBoardSquare(s).moveTarget = true;
       });
@@ -364,6 +372,12 @@ export class Board {
         this.tabbableSquare = to;
         this._position[to] = this._position[from];
         delete this._position[from];
+
+        const e = new CustomEvent("moveend", {
+          bubbles: true,
+          detail: { from, to, piece },
+        });
+        this._dispatchEvent(e);
       }
     }
     this._resetBoardStateAndMoves();
@@ -499,27 +513,32 @@ export class Board {
   }
 
   private _setBoardState(state: BoardState) {
+    const oldState = this._boardState;
     this._boardState = state;
 
-    if (this._boardState.id !== "default") {
-      this._table.dataset.boardState = this._boardState.id;
-    } else {
-      delete this._table.dataset["boardState"];
+    if (this._boardState.id !== oldState.id) {
+      if (this._boardState.id !== "default") {
+        this._table.dataset.boardState = this._boardState.id;
+      } else {
+        delete this._table.dataset["boardState"];
+      }
+
+      this._table.classList.toggle(
+        "moving",
+        ["awaiting-second-touch", "moving-piece-kb", "dragging"].includes(
+          this._boardState.id
+        )
+      );
+
+      this._table.classList.toggle(
+        "mousedown",
+        [
+          "touching-first-square",
+          "dragging",
+          "canceling-second-touch",
+        ].includes(this._boardState.id)
+      );
     }
-
-    this._table.classList.toggle(
-      "moving",
-      ["awaiting-second-touch", "moving-piece-kb", "dragging"].includes(
-        this._boardState.id
-      )
-    );
-
-    this._table.classList.toggle(
-      "mousedown",
-      ["touching-first-square", "dragging", "canceling-second-touch"].includes(
-        this._boardState.id
-      )
-    );
   }
 
   private _handleMouseDown(
@@ -641,21 +660,19 @@ export class Board {
             (squareWidth !== 0 && delta > threshold) ||
             square !== this._boardState.startSquare
           ) {
-            if (this._startMove(this._boardState.startSquare)) {
-              this._setBoardState({
-                id: "dragging",
-                startSquare: this._boardState.startSquare,
-                x: e.clientX,
-                y: e.clientY,
-              });
-            }
+            this._setBoardState({
+              id: "dragging",
+              startSquare: this._boardState.startSquare,
+              x: e.clientX,
+              y: e.clientY,
+            });
           }
         }
         break;
       case "dragging":
         if (this._moveStartSquare) {
           const position = { x: e.clientX, y: e.clientY };
-          this._boardState = { ...this._boardState, ...position };
+          this._setBoardState({ ...this._boardState, ...position });
           this._getBoardSquare(this._moveStartSquare).updateMove(position);
         }
         break;

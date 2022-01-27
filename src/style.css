@@ -140,7 +140,7 @@
 }
 
 [data-board-state="awaiting-input"] [data-square].moveable,
-[data-board-state].moving:not(.mousedown) [data-square].move-target {
+[data-board-state]:not(.mousedown) [data-square]:is(.move-start, .move-target) {
   cursor: pointer;
 }
 
