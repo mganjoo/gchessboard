@@ -34,15 +34,15 @@ export class Board {
   private _moveTargetSquares: Square[] = [];
 
   // Event handlers
-  private _mouseDownHandler: (e: MouseEvent) => void;
-  private _mouseUpHandler: (e: MouseEvent) => void;
-  private _mouseMoveHandler: (e: MouseEvent) => void;
+  private _pointerDownHandler: (e: PointerEvent) => void;
+  private _pointerUpHandler: (e: PointerEvent) => void;
+  private _pointerMoveHandler: (e: PointerEvent) => void;
   private _focusInHandler: (e: FocusEvent) => void;
   private _focusOutHandler: (e: FocusEvent) => void;
   private _keyDownHandler: (e: KeyboardEvent) => void;
 
   /**
-   * Fraction of square width that mouse must be moved to be
+   * Fraction of square width that pointer must be moved to be
    * considered a "drag" action.
    */
   private static DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION = 0.1;
@@ -101,14 +101,14 @@ export class Board {
     }
     this._getBoardSquare(this._defaultTabbableSquare).tabbable = true;
 
-    this._mouseDownHandler = this._makeEventHandler(this._handleMouseDown);
-    this._mouseUpHandler = this._makeEventHandler(this._handleMouseUp);
-    this._mouseMoveHandler = this._makeEventHandler(this._handleMouseMove);
+    this._pointerDownHandler = this._makeEventHandler(this._handlePointerDown);
+    this._pointerUpHandler = this._makeEventHandler(this._handlePointerUp);
+    this._pointerMoveHandler = this._makeEventHandler(this._handlePointerMove);
     this._keyDownHandler = this._makeEventHandler(this._handleKeyDown);
     this._focusInHandler = this._makeEventHandler(this._handleFocusIn);
     this._focusOutHandler = this._makeEventHandler(this._handleFocusOut);
 
-    this._table.addEventListener("mousedown", this._mouseDownHandler);
+    this._table.addEventListener("pointerdown", this._pointerDownHandler);
     this._table.addEventListener("focusin", this._focusInHandler);
     this._table.addEventListener("focusout", this._focusOutHandler);
     this._table.addEventListener("keydown", this._keyDownHandler);
@@ -118,20 +118,20 @@ export class Board {
   }
 
   /**
-   * Add event listeners that operate outside shadow DOM (mouse up and move).
+   * Add event listeners that operate outside shadow DOM (pointer up and move).
    * These listeners should be unbound when the element is removed from the DOM.
    */
   addGlobalListeners() {
-    document.addEventListener("mouseup", this._mouseUpHandler);
-    document.addEventListener("mousemove", this._mouseMoveHandler);
+    document.addEventListener("pointerup", this._pointerUpHandler);
+    document.addEventListener("pointermove", this._pointerMoveHandler);
   }
 
   /**
-   * Removes global listeners for mouse up and move.
+   * Removes global listeners for pointer up and move.
    */
   removeGlobalListeners() {
-    document.removeEventListener("mouseup", this._mouseUpHandler);
-    document.removeEventListener("mousemove", this._mouseMoveHandler);
+    document.removeEventListener("pointerup", this._pointerUpHandler);
+    document.removeEventListener("pointermove", this._pointerMoveHandler);
   }
 
   /**
@@ -508,7 +508,7 @@ export class Board {
       );
 
       this._table.classList.toggle(
-        "mousedown",
+        "pointer-down",
         [
           "touching-first-square",
           "dragging",
@@ -518,10 +518,10 @@ export class Board {
     }
   }
 
-  private _handleMouseDown(
+  private _handlePointerDown(
     this: Board,
     square: Square | undefined,
-    e: MouseEvent
+    e: PointerEvent
   ) {
     // Primary clicks only
     if (e.button !== 0) {
@@ -554,23 +554,23 @@ export class Board {
           // Not a valid move (e.g. not a move destination) but also not the same square
           this._cancelMove(false);
         } else if (this._boardState.startSquare === square) {
-          // Second mousedown on the same square *may* be a cancel, but could
+          // Second pointerdown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
-          // till corresponding mouseup event in order to cancel.
+          // till corresponding pointerup event in order to cancel.
           this._setBoardState({
             id: "canceling-second-touch",
             startSquare: square,
             touchStartX: e.clientX,
             touchStartY: e.clientY,
           });
-          // Show secondary piece while mouse is down
+          // Show secondary piece while pointer is down
           this._getBoardSquare(square).toggleSecondaryPiece(true);
         }
         break;
       case "dragging":
       case "canceling-second-touch":
       case "touching-first-square":
-        // Noop: mouse is already down while dragging or touching first square
+        // Noop: pointer is already down while dragging or touching first square
         break;
       case "default":
         break;
@@ -580,7 +580,7 @@ export class Board {
     }
   }
 
-  private _handleMouseUp(this: Board, square: Square | undefined) {
+  private _handlePointerUp(this: Board, square: Square | undefined) {
     switch (this._boardState.id) {
       case "touching-first-square":
         this._setBoardState({
@@ -612,7 +612,7 @@ export class Board {
       case "awaiting-input":
       case "awaiting-second-touch":
       case "moving-piece-kb":
-        // Noop: mouse up only matters when there is an active
+        // Noop: pointer up only matters when there is an active
         // touch interaction
         break;
       case "default":
@@ -623,10 +623,10 @@ export class Board {
     }
   }
 
-  private _handleMouseMove(
+  private _handlePointerMove(
     this: Board,
     square: Square | undefined,
-    e: MouseEvent
+    e: PointerEvent
   ) {
     switch (this._boardState.id) {
       case "canceling-second-touch":
@@ -641,7 +641,7 @@ export class Board {
             Board.DRAG_THRESHOLD_MIN_PIXELS,
             Board.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION * squareWidth
           );
-          // Consider a "dragging" action to be when we have moved the mouse a sufficient
+          // Consider a "dragging" action to be when we have moved the pointer a sufficient
           // threshold, or we are now in a different square from where we started.
           if (
             (squareWidth !== 0 && delta > threshold) ||
@@ -753,7 +753,7 @@ export class Board {
         case "dragging":
         case "touching-first-square":
         case "canceling-second-touch":
-          // Noop: don't handle keypresses in active mouse states
+          // Noop: don't handle keypresses in active pointer states
           break;
         case "default":
           break;
@@ -850,11 +850,13 @@ export class Board {
   }
 
   /**
-   * Convenience wrapper to make mouse, blur, or keyboard event handler for
+   * Convenience wrapper to make pointer, blur, or keyboard event handler for
    * square elements. Attempts to extract square label from the element in
    * question, then passes square label and current event to `callback`.
    */
-  private _makeEventHandler<K extends MouseEvent | KeyboardEvent | FocusEvent>(
+  private _makeEventHandler<
+    K extends PointerEvent | KeyboardEvent | FocusEvent
+  >(
     callback: (this: Board, square: Square | undefined, e: K) => void
   ): (e: K) => void {
     const boundCallback = callback.bind(this);

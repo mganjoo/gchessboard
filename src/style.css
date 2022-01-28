@@ -140,11 +140,11 @@
 }
 
 [data-board-state="awaiting-input"] [data-square].moveable,
-[data-board-state]:not(.mousedown) [data-square]:is(.active, .move-target) {
+[data-board-state]:not(.pointer-down) [data-square]:is(.active, .move-target) {
   cursor: pointer;
 }
 
-[data-board-state].mousedown {
+[data-board-state].pointer-down {
   cursor: grab;
 }
 
