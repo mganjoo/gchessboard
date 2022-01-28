@@ -557,6 +557,11 @@ export class Board {
     square: Square | undefined,
     e: MouseEvent
   ) {
+    // Primary clicks only
+    if (e.button !== 0) {
+      return;
+    }
+
     // We will control focus entirely ourselves
     e.preventDefault();
 
