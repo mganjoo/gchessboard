@@ -2,6 +2,12 @@ import { isSide, getFen, getPosition, Position, Side } from "./utils/chess";
 import { Board } from "./components/Board";
 import importedStyles from "./style.css?inline";
 import { assertUnreachable } from "./utils/typing";
+import { makeHTMLElement } from "./utils/dom";
+import {
+  Coordinates,
+  CoordinatesPlacement,
+  isCoordinatesPlacement,
+} from "./components/Coordinates";
 
 export class ChessxBoard extends HTMLElement {
   static get observedAttributes() {
@@ -10,17 +16,21 @@ export class ChessxBoard extends HTMLElement {
       "turn",
       "interactive",
       "fen",
-      "hide-coords",
+      "coordinates",
       "animation-duration",
     ] as const;
   }
 
   private _shadow: ShadowRoot;
   private _style: HTMLStyleElement;
+  private _wrapper: HTMLDivElement;
   private _board: Board;
+  private _fileCoords: Coordinates;
+  private _rankCoords: Coordinates;
 
   private static _DEFAULT_SIDE: Side = "white";
   private static _DEFAULT_ANIMATION_DURATION_MS = 200;
+  private static _DEFAULT_COORDS_PLACEMENT: CoordinatesPlacement = "inside";
 
   constructor() {
     super();
@@ -30,6 +40,11 @@ export class ChessxBoard extends HTMLElement {
     this._style.textContent = importedStyles;
     this._shadow.appendChild(this._style);
 
+    this._wrapper = makeHTMLElement("div", {
+      classes: ["wrapper", ChessxBoard._DEFAULT_COORDS_PLACEMENT],
+    });
+    this._shadow.appendChild(this._wrapper);
+
     this._board = new Board(
       {
         orientation: ChessxBoard._DEFAULT_SIDE,
@@ -37,7 +52,20 @@ export class ChessxBoard extends HTMLElement {
       },
       (e) => this.dispatchEvent(e)
     );
-    this._shadow.appendChild(this._board.element);
+    this._wrapper.appendChild(this._board.element);
+
+    this._fileCoords = new Coordinates({
+      direction: "file",
+      placement: ChessxBoard._DEFAULT_COORDS_PLACEMENT,
+      orientation: ChessxBoard._DEFAULT_SIDE,
+    });
+    this._rankCoords = new Coordinates({
+      direction: "rank",
+      placement: ChessxBoard._DEFAULT_COORDS_PLACEMENT,
+      orientation: ChessxBoard._DEFAULT_SIDE,
+    });
+    this._wrapper.appendChild(this._fileCoords.element);
+    this._wrapper.appendChild(this._rankCoords.element);
   }
 
   connectedCallback() {
@@ -57,11 +85,19 @@ export class ChessxBoard extends HTMLElement {
       case "interactive":
         this._board.interactive = this.interactive;
         break;
-      case "hide-coords":
-        this._board.hideCoords = this.hideCoords;
+      case "coordinates":
+        this._wrapper.classList.toggle(
+          "outside",
+          this.coordinates === "outside"
+        );
+        this._wrapper.classList.toggle("inside", this.coordinates === "inside");
+        this._fileCoords.placement = this.coordinates;
+        this._rankCoords.placement = this.coordinates;
         break;
       case "orientation":
         this._board.orientation = this.orientation;
+        this._fileCoords.orientation = this.orientation;
+        this._rankCoords.orientation = this.orientation;
         break;
       case "turn":
         this._board.turn = this.turn;
@@ -158,14 +194,19 @@ export class ChessxBoard extends HTMLElement {
   }
 
   /**
-   * Whether to hide coordinate labels for the board.
+   * How to display coordinates for squares. Could be `inside` the board (default),
+   * `outside`, or `hidden`.
    */
-  get hideCoords() {
-    return this.hasAttribute("hide-coords");
+  get coordinates(): CoordinatesPlacement {
+    return this._parseRestrictedStringAttributeWithDefault<CoordinatesPlacement>(
+      "coordinates",
+      isCoordinatesPlacement,
+      ChessxBoard._DEFAULT_COORDS_PLACEMENT
+    );
   }
 
-  set hideCoords(value: boolean) {
-    this._setBooleanAttribute("hide-coords", value);
+  set coordinates(value: CoordinatesPlacement) {
+    this.setAttribute("coordinates", value);
   }
 
   get animationDuration() {

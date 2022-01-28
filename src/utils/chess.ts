@@ -262,7 +262,7 @@ export function pieceEqual(a: Piece | undefined, b: Piece | undefined) {
 }
 
 /**
- * Type guard for string values that need to confirm to a `Side` definition.
+ * Type guard for string values that need to conform to a `Side` definition.
  */
 export function isSide(s: string | null): s is Side {
   return SIDE_COLORS.includes(s as Side);

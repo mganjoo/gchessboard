@@ -14,14 +14,11 @@ import {
 export class BoardSquare {
   private readonly _element: HTMLTableCellElement;
   private readonly _labelSpanElement: HTMLSpanElement;
-  private readonly _rankLabelElement?: HTMLSpanElement;
-  private readonly _fileLabelElement?: HTMLSpanElement;
   private readonly _slotElement: HTMLSlotElement;
 
   private _label: Square;
   private _tabbable = false;
   private _moveable = false;
-  private _hideCoords = false;
   private _interactive = false;
   private _boardPiece?: BoardPiece;
   private _secondaryBoardPiece?: BoardPiece;
@@ -29,39 +26,18 @@ export class BoardSquare {
   private _active = false;
   private _moveTarget = false;
 
-  constructor(
-    container: HTMLElement,
-    label: Square,
-    // File and rank label creation is determined exactly once at construction
-    constructorOptions?: { makeRankLabel?: boolean; makeFileLabel?: boolean }
-  ) {
+  constructor(container: HTMLElement, label: Square) {
     this._element = makeHTMLElement("td", { attributes: { role: "cell" } });
-
-    this._label = label;
     this._labelSpanElement = makeHTMLElement("span", { classes: ["label"] });
     this._element.appendChild(this._labelSpanElement);
+    this._label = label;
 
     const slotWrapper = makeHTMLElement("div", { classes: ["content"] });
     this._slotElement = document.createElement("slot");
     slotWrapper.appendChild(this._slotElement);
     this._element.appendChild(slotWrapper);
 
-    if (constructorOptions?.makeFileLabel) {
-      this._fileLabelElement = makeHTMLElement("span", {
-        attributes: { "aria-hidden": "true" },
-        classes: ["file-label"],
-      });
-
-      this._element.appendChild(this._fileLabelElement);
-    }
-    if (constructorOptions?.makeRankLabel) {
-      this._rankLabelElement = makeHTMLElement("span", {
-        attributes: { "aria-hidden": "true" },
-        classes: ["rank-label"],
-      });
-      this._element.appendChild(this._rankLabelElement);
-    }
-    this.label = label;
+    this._updateLabelVisuals();
 
     container.appendChild(this._element);
   }
@@ -77,7 +53,6 @@ export class BoardSquare {
   set label(value: Square) {
     this._label = value;
     this._updateLabelVisuals();
-    this._updateCoords();
   }
 
   /**
@@ -95,18 +70,6 @@ export class BoardSquare {
     this._updateActiveClass();
     this._updateMoveableClass();
     this._updateMoveTargetClass();
-  }
-
-  /**
-   * Whether rank or file labels on the square (if they exist) should be hidden.
-   */
-  get hideCoords(): boolean {
-    return this._hideCoords;
-  }
-
-  set hideCoords(value: boolean) {
-    this._hideCoords = value;
-    this._updateCoords();
   }
 
   /**
@@ -272,18 +235,8 @@ export class BoardSquare {
   private _updateLabelVisuals() {
     this._element.dataset.square = this.label;
     this._element.dataset.squareColor = getSquareColor(this.label);
-    this._labelSpanElement.textContent = this.label;
     this._slotElement.name = this.label;
-  }
-
-  private _updateCoords() {
-    const [filePart, rankPart] = this.label.split("");
-    if (this._rankLabelElement) {
-      this._rankLabelElement.textContent = this.hideCoords ? null : rankPart;
-    }
-    if (this._fileLabelElement) {
-      this._fileLabelElement.textContent = this.hideCoords ? null : filePart;
-    }
+    this._labelSpanElement.textContent = this.label;
   }
 
   private _updateAriaRole() {

@@ -29,11 +29,6 @@
           .addEventListener("change", (e) => {
             board.interactive = e.target.checked;
           });
-        document
-          .getElementById("chk-coords")
-          .addEventListener("change", (e) => {
-            board.hideCoords = !e.target.checked;
-          });
         document.getElementById("chk-svg").addEventListener("change", (e) => {
           const svgSquares = ["a3", "c5", "e4"];
           if (e.target.checked) {
@@ -52,6 +47,11 @@
             });
           }
         });
+        document
+          .getElementById("sel-coords")
+          .addEventListener("change", (e) => {
+            board.coordinates = e.target.value;
+          });
         document
           .getElementById("sel-slowdown")
           .addEventListener("change", (e) => {
@@ -127,7 +127,7 @@
         @apply rounded text-green-600 border-gray-300 focus:ring focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-100 dark:border-transparent dark:focus:ring-offset-gray-900 dark:focus:ring-green-300/75;
       }
       .sel {
-        @apply rounded-md px-2 py-1 w-24 text-gray-900 text-sm border-gray-300 focus:ring focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-100 dark:border-transparent dark:focus:ring-offset-gray-900 dark:focus:ring-green-300/75;
+        @apply rounded-md px-2 py-1 w-24 text-gray-900 text-sm border-gray-300 focus:border-green-300 focus:ring focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-100 dark:border-transparent dark:focus:border-transparent dark:focus:ring-offset-gray-900 dark:focus:ring-green-300/75;
       }
     </style>
   </head>
@@ -204,18 +204,16 @@
           <span>Interactive</span>
         </label>
         <label class="input-label">
-          <input
-            id="chk-coords"
-            type="checkbox"
-            class="chk"
-            checked
-            autocomplete="off"
-          />
-          <span>Show coords</span>
-        </label>
-        <label class="input-label">
           <input id="chk-svg" type="checkbox" class="chk" autocomplete="off" />
           <span>Show SVGs</span>
+        </label>
+        <label class="input-label">
+          <span>Coordinates</span>
+          <select id="sel-coords" class="sel" autocomplete="off">
+            <option>inside</option>
+            <option>outside</option>
+            <option>hidden</option>
+          </select>
         </label>
         <label class="input-label">
           <span>Animation speed</span>

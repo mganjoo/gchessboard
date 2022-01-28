@@ -28,6 +28,7 @@
 
   /* Label font properties */
   --label-font-size: 0.7rem;
+  --label-font-family: sans-serif;
 
   /* Radius of marker on move-target square */
   --move-target-marker-radius: 24%;
@@ -38,16 +39,11 @@
   /* Opacity of ghost piece shown while dragging */
   --ghost-piece-opacity: 0.35;
 
-  /* Rank label placement */
-  --rank-label-top-margin: 1%;
-  --rank-label-left-margin: 4%;
-
-  /* File label placement */
-  --file-label-bottom-margin: 0%;
-  --file-label-right-margin: 4%;
-
   /* z-index of piece while dragging */
   --piece-drag-z-index: 9999;
+
+  /* padding to apply to wrapper for coordinates */
+  --wrapper-padding: 4%;
 
   display: inline-block;
 }
@@ -59,6 +55,7 @@
 
 .board {
   width: 100%;
+  box-sizing: border-box;
   table-layout: fixed;
   border-collapse: collapse;
 
@@ -66,18 +63,8 @@
   user-select: none;
 }
 
-.rank-label {
-  position: absolute;
-  top: var(--rank-label-top-margin);
-  left: var(--rank-label-left-margin);
-  pointer-events: none;
-}
-
-.file-label {
-  position: absolute;
-  bottom: var(--file-label-bottom-margin);
-  right: var(--file-label-right-margin);
-  pointer-events: none;
+.wrapper.outside > .board {
+  border: 1px solid var(--dark-square-color);
 }
 
 .label {
@@ -99,7 +86,7 @@
      ensures square aspect ratio. */
   padding: 12.5% 0 0;
   position: relative;
-  font-family: sans-serif;
+  font-family: var(--label-font-family);
   font-size: var(--label-font-size);
   background-color: var(--p-square-color);
   color: var(--p-label-color);
@@ -151,6 +138,78 @@
 [data-board-state="awaiting-input"] [data-square].moveable:hover,
 [data-board-state].moving [data-square].move-target:hover {
   --p-square-color: var(--p-hover-square-color);
+}
+
+/***************
+ * Coordinates *
+ ****************/
+
+.wrapper {
+  position: relative;
+}
+
+.coords {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+}
+
+.wrapper.outside {
+  padding: var(--wrapper-padding);
+  background-color: var(--light-square-color);
+}
+
+.wrapper.outside > .coords {
+  display: block;
+  fill: var(--dark-square-color);
+  font-family: var(--label-font-family);
+  font-size: var(--label-font-size);
+}
+
+.wrapper.outside > .coords.file {
+  width: calc(100% - 2 * var(--wrapper-padding));
+  height: var(--wrapper-padding);
+  top: calc(100% - var(--wrapper-padding));
+  left: var(--wrapper-padding);
+  right: var(--wrapper-padding);
+}
+
+.wrapper.outside > .coords.rank {
+  width: var(--wrapper-padding);
+  height: calc(100% - 2 * var(--wrapper-padding));
+  top: var(--wrapper-padding);
+  right: calc(100% - var(--wrapper-padding));
+  bottom: var(--wrapper-padding);
+}
+
+.wrapper.inside > .coords {
+  display: block;
+  font-family: var(--label-font-family);
+  font-size: var(--label-font-size);
+}
+
+.wrapper.inside > .coords > .light {
+  fill: var(--dark-square-color);
+}
+
+.wrapper.inside > .coords > .dark {
+  fill: var(--light-square-color);
+}
+
+.wrapper.inside > .coords.file {
+  width: 100%;
+  height: 100%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.wrapper.inside > .coords.rank {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
 }
 
 /**************************

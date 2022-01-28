@@ -22,7 +22,6 @@ export class Board {
   private _orientation: Side;
   private _turn?: Side;
   private _interactive: boolean;
-  private _hideCoords: boolean;
   private _position: Position;
   private _boardState: BoardState;
   private _dispatchEvent: <T>(e: CustomEvent<T>) => void;
@@ -69,7 +68,6 @@ export class Board {
     this._orientation = initValues.orientation;
     this.animationDurationMs = initValues.animationDurationMs;
     this._interactive = false;
-    this._hideCoords = false;
     this._position = {};
     this._boardState = { id: "default" };
     this._dispatchEvent = dispatchEvent;
@@ -92,10 +90,7 @@ export class Board {
       for (let j = 0; j < 8; j++) {
         const idx = 8 * i + j;
         const square = getSquare(idx, this.orientation);
-        this._boardSquares[idx] = new BoardSquare(row, square, {
-          makeFileLabel: i === 7,
-          makeRankLabel: j === 0,
-        });
+        this._boardSquares[idx] = new BoardSquare(row, square);
       }
       this._table.appendChild(row);
     }
@@ -260,20 +255,6 @@ export class Board {
       // Default tabbable square might change with position change
       this._refreshDefaultTabbableSquare();
     }
-  }
-
-  /**
-   * Whether to hide coordinates on the board (by default, coordinates are shown).
-   */
-  get hideCoords() {
-    return this._hideCoords;
-  }
-
-  set hideCoords(value: boolean) {
-    this._hideCoords = value;
-    this._boardSquares.forEach((s) => {
-      s.hideCoords = value;
-    });
   }
 
   /**
