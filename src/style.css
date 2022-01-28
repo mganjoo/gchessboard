@@ -7,13 +7,13 @@
   --hover-dark-square-color: rgb(45 114 73);
   --hover-light-square-color: hsl(50deg 69% 69%);
 
-  /* Square colors when the square is marked as start of move */
-  --move-start-dark-square-color: hsl(145deg 84% 39%);
-  --move-start-light-square-color: hsl(50deg 95% 64%);
+  /* Square colors when the square is actively being interacted with (moved). */
+  --active-dark-square-color: hsl(145deg 84% 39%);
+  --active-light-square-color: hsl(50deg 95% 64%);
 
   /* Color of outline when square is marked as start of move */
-  --move-start-dark-outline-color: hsl(138deg 85% 53% / 95%);
-  --move-start-light-outline-color: hsl(66deg 97% 72% / 95%);
+  --active-dark-outline-color: hsl(138deg 85% 53% / 95%);
+  --active-light-outline-color: hsl(66deg 97% 72% / 95%);
 
   /* Square highlight colors when the square is an eligible move target */
   --move-target-dark-square-highlight-color: hsl(0deg 0% 0%);
@@ -129,18 +129,18 @@
   );
 }
 
-[data-square].move-start {
-  --p-square-color: var(--p-move-start-square-color);
+[data-square].active {
+  --p-square-color: var(--p-active-square-color);
 }
 
-[data-board-state].moving [data-square].move-start:not(:focus) {
+[data-board-state].moving [data-square].active:not(:focus) {
   /* Add additional outline to move start square when actively moving. */
   box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
-    var(--p-move-start-outline-color);
+    var(--p-active-outline-color);
 }
 
 [data-board-state="awaiting-input"] [data-square].moveable,
-[data-board-state]:not(.mousedown) [data-square]:is(.move-start, .move-target) {
+[data-board-state]:not(.mousedown) [data-square]:is(.active, .move-target) {
   cursor: pointer;
 }
 
@@ -166,8 +166,8 @@
   --p-move-target-highlight-color: var(
     --move-target-dark-square-highlight-color
   );
-  --p-move-start-square-color: var(--move-start-dark-square-color);
-  --p-move-start-outline-color: var(--move-start-dark-outline-color);
+  --p-active-square-color: var(--active-dark-square-color);
+  --p-active-outline-color: var(--active-dark-outline-color);
 }
 
 [data-square-color="light"] {
@@ -177,8 +177,8 @@
   --p-move-target-highlight-color: var(
     --move-target-light-square-highlight-color
   );
-  --p-move-start-square-color: var(--move-start-light-square-color);
-  --p-move-start-outline-color: var(--move-start-light-outline-color);
+  --p-active-square-color: var(--active-light-square-color);
+  --p-active-outline-color: var(--active-light-outline-color);
 }
 
 /****************
@@ -212,7 +212,7 @@
   opacity: var(--ghost-piece-opacity);
 }
 
-[data-square].move-start .piece:not(.secondary) {
+[data-square].active .piece:not(.secondary) {
   /* Ensure that the piece appears above most other elements in document. */
   z-index: var(--piece-drag-z-index);
 }

@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import {
   expectHasPiece,
-  expectIsMoveStart,
-  expectMoveState,
+  expectIsActive,
+  expectBoardState,
   squareLocator,
 } from "./helpers";
 
@@ -16,8 +16,8 @@ test("two-click moves work correctly", async ({ page }) => {
 
   // square should be marked as start square, and we should
   // now be waiting for second touch
-  await expectIsMoveStart(page, "e2", true);
-  await expectMoveState(page, "awaiting-second-touch");
+  await expectIsActive(page, "e2", true);
+  await expectBoardState(page, "awaiting-second-touch");
 
   // click on second square
   await squareLocator(page, "e4").click();
@@ -28,8 +28,8 @@ test("two-click moves work correctly", async ({ page }) => {
   // first square should no longer have move class or piece class on it,
   // and we should be re-awaiting input
   await expectHasPiece(page, "e2", false);
-  await expectIsMoveStart(page, "e2", false);
-  await expectMoveState(page, "awaiting-input");
+  await expectIsActive(page, "e2", false);
+  await expectBoardState(page, "awaiting-input");
 });
 
 test("occupied first square is focused when clicking on it", async ({

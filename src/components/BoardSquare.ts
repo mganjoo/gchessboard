@@ -26,7 +26,7 @@ export class BoardSquare {
   private _boardPiece?: BoardPiece;
   private _secondaryBoardPiece?: BoardPiece;
   private _hasContent?: boolean;
-  private _moveStart = false;
+  private _active = false;
   private _moveTarget = false;
 
   constructor(
@@ -92,7 +92,7 @@ export class BoardSquare {
     this._interactive = value;
     this._updateAriaRole();
     this._updateTabIndex();
-    this._updateMoveStartClass();
+    this._updateActiveClass();
     this._updateMoveableClass();
     this._updateMoveTargetClass();
   }
@@ -243,40 +243,29 @@ export class BoardSquare {
   }
 
   /**
-   * Start a move. If provided, piece position is set to `piecePositionPx`
-   * explicitly.
+   * Mark this square as being interacted with.
    */
-  startMove(piecePositionPx?: { x: number; y: number }) {
+  startInteraction() {
     if (this._boardPiece !== undefined && this.moveable) {
-      this._moveStart = true;
-      this._updateMoveStartClass();
+      this._active = true;
+      this._updateActiveClass();
       this._boardPiece.finishAnimations();
-
-      if (piecePositionPx !== undefined) {
-        this.updateMove(piecePositionPx);
-      }
     }
   }
 
   /**
-   * Update piece location for existing move. Ignore if square has no
-   * piece or no move is in progress.
+   * Set piece to explicit pixel location. Ignore if square has no piece.
    */
-  updateMove(piecePositionPx: { x: number; y: number }) {
-    if (this._boardPiece !== undefined && this._moveStart) {
-      this._boardPiece.setExplicitPosition({
-        type: "coordinates",
-        ...piecePositionPx,
-      });
-    }
+  displacePiece(x: number, y: number) {
+    this._boardPiece?.setExplicitPosition({ type: "coordinates", x, y });
   }
 
   /**
-   * Finish ongoing move, if it exists.
+   * Cancel ongoing interaction and reset position.
    */
-  finishMove(animateDurationMs?: number) {
-    this._moveStart = false;
-    this._updateMoveStartClass();
+  cancelInteraction(animateDurationMs?: number) {
+    this._active = false;
+    this._updateActiveClass();
     this._boardPiece?.resetPosition(animateDurationMs);
   }
 
@@ -309,8 +298,8 @@ export class BoardSquare {
     }
   }
 
-  private _updateMoveStartClass() {
-    this._updateInteractiveCssClass("move-start", this._moveStart);
+  private _updateActiveClass() {
+    this._updateInteractiveCssClass("active", this._active);
   }
 
   private _updateMoveTargetClass() {
@@ -332,9 +321,9 @@ export class BoardSquare {
   private _updateSquareAfterPieceChange() {
     this._element.classList.toggle("has-piece", !!this._boardPiece);
 
-    // Always treat a piece change as the end of a move
-    this._moveStart = false;
-    this._updateMoveStartClass();
+    // Always cancel ongoing interactions when piece changes
+    this._active = false;
+    this._updateActiveClass();
 
     // Ensure secondary piece is toggled off if piece is changed
     this.toggleSecondaryPiece(false);

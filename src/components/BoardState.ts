@@ -3,9 +3,11 @@ import { Square } from "../utils/chess";
 export type BoardState =
   | {
       id: "default";
+      startSquare?: undefined;
     }
   | {
       id: "awaiting-input";
+      startSquare?: undefined;
     }
   | {
       id: "touching-first-square";

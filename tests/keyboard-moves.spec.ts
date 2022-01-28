@@ -1,8 +1,8 @@
 import { test } from "@playwright/test";
 import {
   expectHasPiece,
-  expectIsMoveStart,
-  expectMoveState,
+  expectIsActive,
+  expectBoardState,
   squareLocator,
 } from "./helpers";
 
@@ -22,8 +22,8 @@ test("keyboard-based moves work correctly", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   // move should have started at c2
-  await expectMoveState(page, "moving-piece-kb");
-  await expectIsMoveStart(page, "c2", true);
+  await expectBoardState(page, "moving-piece-kb");
+  await expectIsActive(page, "c2", true);
 
   // move piece c2 -> (right) -> d2 -> (up) -> d3 -> (up) -> d4 -> (left) -> c4
   await page.keyboard.press("ArrowRight");
@@ -33,7 +33,7 @@ test("keyboard-based moves work correctly", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   // move should have finished and c4 should now have piece
-  await expectMoveState(page, "awaiting-input");
+  await expectBoardState(page, "awaiting-input");
   await expectHasPiece(page, "c4", true);
 });
 
@@ -56,8 +56,8 @@ test("focus remains on destination square after move", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   // move should have started again, this time at a3
-  await expectMoveState(page, "moving-piece-kb");
-  await expectIsMoveStart(page, "a3", true);
+  await expectBoardState(page, "moving-piece-kb");
+  await expectIsActive(page, "a3", true);
 });
 
 test("pressing enter on an unoccupied square does not start move", async ({
@@ -73,7 +73,7 @@ test("pressing enter on an unoccupied square does not start move", async ({
   await page.keyboard.press("Enter");
 
   // no move should have started
-  await expectMoveState(page, "awaiting-input");
+  await expectBoardState(page, "awaiting-input");
 });
 
 test("click move overrides keyboard-based move", async ({ page }) => {
@@ -98,7 +98,7 @@ test("click move overrides keyboard-based move", async ({ page }) => {
 
   // f4 should now have piece, and we should be back to awaiting input
   await expectHasPiece(page, "f4", true);
-  await expectMoveState(page, "awaiting-input");
+  await expectBoardState(page, "awaiting-input");
 });
 
 test("tabbing into board focuses on the first occupied square from the bottom, orientation = white", async ({

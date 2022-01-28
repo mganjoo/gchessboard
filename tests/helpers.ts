@@ -13,7 +13,7 @@ export function squareLocator(page: Page, square: string) {
  * `state`, which corresponds to the "id" field of InteractionState (e.g.
  * 'awaiting-input').
  */
-export async function expectMoveState(page: Page, state: string) {
+export async function expectBoardState(page: Page, state: string) {
   await expect(page.locator("table")).toHaveAttribute(
     "data-board-state",
     state
@@ -38,14 +38,14 @@ export async function expectHasPiece(
 /**
  * Assert that `square` is marked as the starting square of an in-progress move.
  */
-export async function expectIsMoveStart(
+export async function expectIsActive(
   page: Page,
   square: string,
   value: boolean
 ) {
   expect(
     await squareLocator(page, square).evaluate((e) =>
-      e.classList.contains("move-start")
+      e.classList.contains("active")
     )
   ).toBe(value);
 }

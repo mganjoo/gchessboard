@@ -170,14 +170,12 @@ export class BoardPiece {
    * the change is accompanied with a transition.
    */
   resetPosition(animateDurationMs?: number) {
-    if (animateDurationMs) {
-      if (this._explicitPosition) {
-        this._setAnimation({
-          type: "slide-in",
-          from: this._explicitPosition,
-          durationMs: animateDurationMs,
-        });
-      }
+    if (animateDurationMs && this._explicitPosition) {
+      this._setAnimation({
+        type: "slide-in",
+        from: this._explicitPosition,
+        durationMs: animateDurationMs,
+      });
     }
 
     this._element.style.removeProperty("transform");

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { expectHasPiece, expectMoveState, squareLocator } from "./helpers";
+import { expectHasPiece, expectBoardState, squareLocator } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -14,7 +14,7 @@ test("drag-based moves work correctly", async ({ page }) => {
 
   // second square should be marked with a piece on it, and we should be back to awaiting input
   await expectHasPiece(page, "g4", true);
-  await expectMoveState(page, "awaiting-input");
+  await expectBoardState(page, "awaiting-input");
 
   // no square should have focus
   await expect(page.locator("body")).toBeFocused();
@@ -51,5 +51,5 @@ test("drag is completed even after previous click on square", async ({
 
   // second square should be marked with a piece on it, and we should be back to awaiting input
   await expectHasPiece(page, "e6", true);
-  await expectMoveState(page, "awaiting-input");
+  await expectBoardState(page, "awaiting-input");
 });
