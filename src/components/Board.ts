@@ -581,6 +581,10 @@ export class Board {
           false
         );
         this._blurTabbableSquare();
+        if (this._boardState.hoverSquare) {
+          this._getBoardSquare(this._boardState.hoverSquare).dragHovering =
+            false;
+        }
         if (square && this._isValidMove(this._boardState.startSquare, square)) {
           this._finishMove(square, false);
         } else {
@@ -631,14 +635,22 @@ export class Board {
             (squareWidth !== 0 && delta > threshold) ||
             square !== this._boardState.startSquare
           ) {
+            const validTarget =
+              square &&
+              square !== this._boardState.startSquare &&
+              this._isValidMove(this._boardState.startSquare, square);
             this._setBoardState({
               id: "dragging",
               startSquare: this._boardState.startSquare,
+              hoverSquare: validTarget ? square : undefined,
             });
             this._getBoardSquare(this._boardState.startSquare).displacePiece(
               e.clientX,
               e.clientY
             );
+            if (validTarget) {
+              this._getBoardSquare(square).dragHovering = true;
+            }
           }
         }
         break;
@@ -647,6 +659,20 @@ export class Board {
           e.clientX,
           e.clientY
         );
+        if (square !== this._boardState.hoverSquare) {
+          if (this._boardState.hoverSquare) {
+            this._getBoardSquare(this._boardState.hoverSquare).dragHovering =
+              false;
+            this._boardState.hoverSquare = undefined;
+          }
+          if (
+            square &&
+            this._isValidMove(this._boardState.startSquare, square)
+          ) {
+            this._boardState.hoverSquare = square;
+            this._getBoardSquare(square).dragHovering = true;
+          }
+        }
         break;
       case "awaiting-input":
       case "awaiting-second-touch":

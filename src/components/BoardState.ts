@@ -18,6 +18,7 @@ export type BoardState =
   | {
       id: "dragging";
       startSquare: Square;
+      hoverSquare: Square | undefined;
     }
   | {
       id: "moving-piece-kb";

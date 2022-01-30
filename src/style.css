@@ -137,7 +137,8 @@
 }
 
 [data-board-state="awaiting-input"] [data-square].moveable:hover,
-[data-board-state].moving [data-square].move-target:hover {
+[data-board-state].moving [data-square].move-target:hover,
+[data-board-state="dragging"] [data-square].drag-hovering {
   --p-square-color: var(--p-hover-square-color);
 }
 

@@ -25,6 +25,7 @@ export class BoardSquare {
   private _hasContent?: boolean;
   private _active = false;
   private _moveTarget = false;
+  private _dragHovering = false;
 
   constructor(container: HTMLElement, label: Square) {
     this._element = makeHTMLElement("td", { attributes: { role: "cell" } });
@@ -70,6 +71,7 @@ export class BoardSquare {
     this._updateActiveClass();
     this._updateMoveableClass();
     this._updateMoveTargetClass();
+    this._updateDragHoveringClass();
   }
 
   /**
@@ -114,7 +116,7 @@ export class BoardSquare {
 
   /**
    * Whether this square is a valid move target. These are highlighted
-   * square shown when move is in progress, indicating squares that we can move to.
+   * when move is in progress, indicating squares that we can move to.
    */
   get moveTarget(): boolean {
     return this._moveTarget;
@@ -123,6 +125,18 @@ export class BoardSquare {
   set moveTarget(value: boolean) {
     this._moveTarget = value;
     this._updateMoveTargetClass();
+  }
+
+  /**
+   * Whether this square is currently being hovered over (during a drag move).
+   */
+  get dragHovering(): boolean {
+    return this._dragHovering;
+  }
+
+  set dragHovering(value: boolean) {
+    this._dragHovering = value;
+    this._updateDragHoveringClass();
   }
 
   /**
@@ -261,6 +275,10 @@ export class BoardSquare {
 
   private _updateMoveableClass() {
     this._updateInteractiveCssClass("moveable", this.moveable);
+  }
+
+  private _updateDragHoveringClass() {
+    this._updateInteractiveCssClass("drag-hovering", this.dragHovering);
   }
 
   private _updateInteractiveCssClass(name: string, value: boolean) {
