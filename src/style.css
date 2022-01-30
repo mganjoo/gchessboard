@@ -61,6 +61,7 @@
 
   /* Prevent native dragging caused if any of the children are "selected". */
   user-select: none;
+  touch-action: none;
 }
 
 .wrapper.outside > .board {
