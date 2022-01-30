@@ -12,7 +12,7 @@
         const board = document.getElementById("board");
         let game = new Chess();
         window.placement = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-        window.turn = "other";
+        window.turn = "either";
         function updateGame() {
           if (window.turn === "either") {
             return;
@@ -99,7 +99,7 @@
           console.log(
             `movestart: ${e.detail.piece.color} ${e.detail.piece.pieceType} on ${e.detail.square}`
           );
-          if (window.turn !== "other") {
+          if (window.turn !== "either") {
             e.detail.setTargets(
               game
                 .moves({ square: e.detail.square, verbose: true })
