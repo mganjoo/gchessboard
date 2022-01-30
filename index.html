@@ -107,9 +107,9 @@
             );
           }
         });
-        board.addEventListener("moveend", (e) => {
+        board.addEventListener("movedone", (e) => {
           console.log(
-            `moveend: ${e.detail.piece.color} ${e.detail.piece.pieceType} from ${e.detail.from}-${e.detail.to}`
+            `movedone: ${e.detail.piece.color} ${e.detail.piece.pieceType} from ${e.detail.from}-${e.detail.to}`
           );
           window.placement = board.fen;
           updateGame();

@@ -69,6 +69,8 @@ export type BoardPieceAnimation =
  */
 export class BoardPiece {
   readonly piece: Piece;
+  animationFinished?: Promise<void>;
+
   private readonly _element: SVGSVGElement;
   private readonly _parentElement: HTMLElement;
   private _explicitPosition?: ExplicitPiecePosition;
@@ -225,6 +227,10 @@ export class BoardPiece {
   private _setAnimation(animationSpec: BoardPieceAnimation) {
     let keyframes: Keyframe[] | undefined;
     let onfinish: (() => void) | undefined;
+
+    // Always have exactly one animation running at a time.
+    this.finishAnimations();
+
     switch (animationSpec.type) {
       case "slide-in":
         {
@@ -264,9 +270,15 @@ export class BoardPiece {
         duration: Math.max(0, animationSpec.durationMs),
       });
 
-      if (onfinish !== undefined) {
-        animation.onfinish = onfinish;
-      }
+      this.animationFinished = new Promise<void>((resolve) => {
+        animation.onfinish = () => {
+          if (onfinish !== undefined) {
+            onfinish();
+          }
+          this.animationFinished = undefined;
+          resolve();
+        };
+      });
     } else if (onfinish !== undefined) {
       onfinish();
     }

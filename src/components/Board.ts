@@ -348,16 +348,18 @@ export class Board {
             : undefined
         );
 
+        this._getBoardSquare(to).boardPiece?.animationFinished?.then(() => {
+          const e = new CustomEvent("movedone", {
+            bubbles: true,
+            detail: { from, to, piece },
+          });
+          this._dispatchEvent(e);
+        });
+
         // Tabbable square always updates to target square
         this.tabbableSquare = to;
         this._position[to] = this._position[from];
         delete this._position[from];
-
-        const e = new CustomEvent("moveend", {
-          bubbles: true,
-          detail: { from, to, piece },
-        });
-        this._dispatchEvent(e);
       }
     }
     this._resetBoardStateAndMoves();

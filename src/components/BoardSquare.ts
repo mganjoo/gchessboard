@@ -168,6 +168,13 @@ export class BoardSquare {
   }
 
   /**
+   * Return BoardPiece on this square, if it exists.
+   */
+  get boardPiece() {
+    return this._boardPiece;
+  }
+
+  /**
    * Set primary piece associated with the square. This piece is rendered either
    * directly onto the square (default) or optionally, animating in from an
    * explicit position `animateFromPosition`.
