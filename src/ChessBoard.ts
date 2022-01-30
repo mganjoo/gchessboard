@@ -9,7 +9,7 @@ import {
   isCoordinatesPlacement,
 } from "./components/Coordinates";
 
-export class ChessxBoard extends HTMLElement {
+export class ChessBoard extends HTMLElement {
   static get observedAttributes() {
     return [
       "orientation",
@@ -41,14 +41,14 @@ export class ChessxBoard extends HTMLElement {
     this._shadow.appendChild(this._style);
 
     this._wrapper = makeHTMLElement("div", {
-      classes: ["wrapper", ChessxBoard._DEFAULT_COORDS_PLACEMENT],
+      classes: ["wrapper", ChessBoard._DEFAULT_COORDS_PLACEMENT],
     });
     this._shadow.appendChild(this._wrapper);
 
     this._board = new Board(
       {
-        orientation: ChessxBoard._DEFAULT_SIDE,
-        animationDurationMs: ChessxBoard._DEFAULT_ANIMATION_DURATION_MS,
+        orientation: ChessBoard._DEFAULT_SIDE,
+        animationDurationMs: ChessBoard._DEFAULT_ANIMATION_DURATION_MS,
       },
       (e) => this.dispatchEvent(e),
       this._shadow
@@ -57,13 +57,13 @@ export class ChessxBoard extends HTMLElement {
 
     this._fileCoords = new Coordinates({
       direction: "file",
-      placement: ChessxBoard._DEFAULT_COORDS_PLACEMENT,
-      orientation: ChessxBoard._DEFAULT_SIDE,
+      placement: ChessBoard._DEFAULT_COORDS_PLACEMENT,
+      orientation: ChessBoard._DEFAULT_SIDE,
     });
     this._rankCoords = new Coordinates({
       direction: "rank",
-      placement: ChessxBoard._DEFAULT_COORDS_PLACEMENT,
-      orientation: ChessxBoard._DEFAULT_SIDE,
+      placement: ChessBoard._DEFAULT_COORDS_PLACEMENT,
+      orientation: ChessBoard._DEFAULT_SIDE,
     });
     this._wrapper.appendChild(this._fileCoords.element);
     this._wrapper.appendChild(this._rankCoords.element);
@@ -78,7 +78,7 @@ export class ChessxBoard extends HTMLElement {
   }
 
   attributeChangedCallback(
-    name: typeof ChessxBoard.observedAttributes[number],
+    name: typeof ChessBoard.observedAttributes[number],
     _: string | null,
     newValue: string | null
   ) {
@@ -126,7 +126,7 @@ export class ChessxBoard extends HTMLElement {
     return this._parseRestrictedStringAttributeWithDefault<Side>(
       "orientation",
       isSide,
-      ChessxBoard._DEFAULT_SIDE
+      ChessBoard._DEFAULT_SIDE
     );
   }
 
@@ -202,7 +202,7 @@ export class ChessxBoard extends HTMLElement {
     return this._parseRestrictedStringAttributeWithDefault<CoordinatesPlacement>(
       "coordinates",
       isCoordinatesPlacement,
-      ChessxBoard._DEFAULT_COORDS_PLACEMENT
+      ChessBoard._DEFAULT_COORDS_PLACEMENT
     );
   }
 
@@ -213,7 +213,7 @@ export class ChessxBoard extends HTMLElement {
   get animationDuration() {
     return this._parseNumberAttribute(
       "animation-duration",
-      ChessxBoard._DEFAULT_ANIMATION_DURATION_MS
+      ChessBoard._DEFAULT_ANIMATION_DURATION_MS
     );
   }
 
@@ -260,6 +260,6 @@ export class ChessxBoard extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "chessx-board": ChessxBoard;
+    "g-chess-board": ChessBoard;
   }
 }

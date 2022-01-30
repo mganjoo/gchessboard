@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ChessxBoard Demo</title>
+    <title>g-chess-board Demo</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script src="https://unpkg.com/chess.js@0.12.0/chess.js"></script>
     <script type="module" src="/src/index.ts"></script>
@@ -182,15 +182,15 @@
       class="flex flex-col items-center max-w-2xl min-h-screen px-3 py-8 mx-auto font-sans gap-y-5"
     >
       <h1 class="max-w-lg text-xl font-semibold text-center sm:text-2xl">
-        <code class="font-mono">&lt;chessx-board&gt;</code>
+        <code class="font-mono">&lt;g-chess-board&gt;</code>
         development demo
       </h1>
-      <chessx-board
+      <g-chess-board
         id="board"
         class="max-w-md"
         fen="start"
         interactive
-      ></chessx-board>
+      ></g-chess-board>
       <div class="flex flex-wrap justify-center py-2 gap-x-3 gap-y-3">
         <button id="btn-flip" class="btn">Flip</button>
         <label class="input-label">

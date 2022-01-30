@@ -1,7 +1,7 @@
-import { ChessxBoard } from "./ChessxBoard";
+import { ChessBoard } from "./ChessBoard";
 
-export { ChessxBoard };
+export { ChessBoard as ChessBoard };
 
-if (customElements.get("chessx-board") === undefined) {
-  customElements.define("chessx-board", ChessxBoard);
+if (customElements.get("g-chess-board") === undefined) {
+  customElements.define("g-chess-board", ChessBoard);
 }
