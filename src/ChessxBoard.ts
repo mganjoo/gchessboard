@@ -50,7 +50,8 @@ export class ChessxBoard extends HTMLElement {
         orientation: ChessxBoard._DEFAULT_SIDE,
         animationDurationMs: ChessxBoard._DEFAULT_ANIMATION_DURATION_MS,
       },
-      (e) => this.dispatchEvent(e)
+      (e) => this.dispatchEvent(e),
+      this._shadow
     );
     this._wrapper.appendChild(this._board.element);
 

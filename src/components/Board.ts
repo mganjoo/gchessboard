@@ -19,13 +19,14 @@ import { BoardSquare } from "./BoardSquare";
 export class Board {
   private readonly _table: HTMLElement;
   private readonly _boardSquares: BoardSquare[];
+  private readonly _dispatchEvent: <T>(e: CustomEvent<T>) => void;
+  private readonly _shadowRef: ShadowRoot;
+
   private _orientation: Side;
   private _turn?: Side;
   private _interactive: boolean;
   private _position: Position;
   private _boardState: BoardState;
-  private _dispatchEvent: <T>(e: CustomEvent<T>) => void;
-
   private _tabbableSquare?: Square;
   private _defaultTabbableSquare: Square;
   private _focused = false;
@@ -62,7 +63,8 @@ export class Board {
    */
   constructor(
     initValues: { orientation: Side; animationDurationMs: number },
-    dispatchEvent: <T>(e: CustomEvent<T>) => void
+    dispatchEvent: <T>(e: CustomEvent<T>) => void,
+    shadowRef: ShadowRoot
   ) {
     this._boardSquares = new Array(64);
     this._orientation = initValues.orientation;
@@ -71,6 +73,7 @@ export class Board {
     this._position = {};
     this._boardState = { id: "default" };
     this._dispatchEvent = dispatchEvent;
+    this._shadowRef = shadowRef;
 
     // Bottom left corner
     this._defaultTabbableSquare = getSquare(56, initValues.orientation);
@@ -842,13 +845,23 @@ export class Board {
   ): (e: K) => void {
     const boundCallback = callback.bind(this);
     return (e: K) => {
-      const target =
-        e.composedPath().length > 0 ? e.composedPath()[0] : e.target;
+      let target: EventTarget | null;
+
+      // For pointer events, use client X and Y location to find target reliably.
+      if (this._isPointerEvent(e)) {
+        target = this._shadowRef.elementFromPoint(e.clientX, e.clientY);
+      } else {
+        target = e.target;
+      }
       const square = hasDataset(target)
         ? target.dataset.square
         : /* istanbul ignore next */ undefined;
       boundCallback(keyIsSquare(square) ? square : undefined, e);
     };
+  }
+
+  private _isPointerEvent(e: Event): e is PointerEvent {
+    return (e as PointerEvent).clientX !== undefined;
   }
 
   private _slotChangeHandler: (e: Event) => void = (e) => {
