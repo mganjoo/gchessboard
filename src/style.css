@@ -4,11 +4,11 @@
   --light-square-color: hsl(51deg 24% 84%);
 
   /* Square colors when in :hover state */
-  --hover-dark-square-color: rgb(45 114 73);
-  --hover-light-square-color: hsl(50deg 69% 69%);
+  --hover-dark-square-color: hsl(144deg 75% 44%);
+  --hover-light-square-color: hsl(52deg 98% 70%);
 
   /* Square colors when the square is actively being interacted with (moved). */
-  --active-dark-square-color: hsl(145deg 84% 39%);
+  --active-dark-square-color: hsl(142deg 77% 43%);
   --active-light-square-color: hsl(50deg 95% 64%);
 
   /* Color of outline when square is marked as start of move */
