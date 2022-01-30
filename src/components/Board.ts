@@ -396,6 +396,15 @@ export class Board {
       this._getBoardSquare(s).moveTarget = false;
     });
     this._moveTargetSquares = [];
+    if (
+      (this._boardState.id === "moving-piece-kb" ||
+        this._boardState.id === "dragging") &&
+      this._boardState.highlightedSquare
+    ) {
+      this._getBoardSquare(
+        this._boardState.highlightedSquare
+      ).highlightedTarget = false;
+    }
     this._setBoardState({
       id: this.interactive ? "awaiting-input" : "default",
     });
@@ -583,10 +592,6 @@ export class Board {
           false
         );
         this._blurTabbableSquare();
-        if (this._boardState.hoverSquare) {
-          this._getBoardSquare(this._boardState.hoverSquare).dragHovering =
-            false;
-        }
         if (square && this._isValidMove(this._boardState.startSquare, square)) {
           this._finishMove(square, false);
         } else {
@@ -638,20 +643,18 @@ export class Board {
             square !== this._boardState.startSquare
           ) {
             const validTarget =
-              square &&
-              square !== this._boardState.startSquare &&
-              this._isValidMove(this._boardState.startSquare, square);
+              square && this._isValidMove(this._boardState.startSquare, square);
             this._setBoardState({
               id: "dragging",
               startSquare: this._boardState.startSquare,
-              hoverSquare: validTarget ? square : undefined,
+              highlightedSquare: validTarget ? square : undefined,
             });
             this._getBoardSquare(this._boardState.startSquare).displacePiece(
               e.clientX,
               e.clientY
             );
             if (validTarget) {
-              this._getBoardSquare(square).dragHovering = true;
+              this._getBoardSquare(square).highlightedTarget = true;
             }
           }
         }
@@ -661,18 +664,19 @@ export class Board {
           e.clientX,
           e.clientY
         );
-        if (square !== this._boardState.hoverSquare) {
-          if (this._boardState.hoverSquare) {
-            this._getBoardSquare(this._boardState.hoverSquare).dragHovering =
-              false;
-            this._boardState.hoverSquare = undefined;
+        if (square !== this._boardState.highlightedSquare) {
+          if (this._boardState.highlightedSquare) {
+            this._getBoardSquare(
+              this._boardState.highlightedSquare
+            ).highlightedTarget = false;
+            this._boardState.highlightedSquare = undefined;
           }
           if (
             square &&
             this._isValidMove(this._boardState.startSquare, square)
           ) {
-            this._boardState.hoverSquare = square;
-            this._getBoardSquare(square).dragHovering = true;
+            this._boardState.highlightedSquare = square;
+            this._getBoardSquare(square).highlightedTarget = true;
           }
         }
         break;
@@ -745,6 +749,7 @@ export class Board {
             this._setBoardState({
               id: "moving-piece-kb",
               startSquare: square,
+              highlightedSquare: undefined,
             });
             this._startInteraction(square);
           }
@@ -832,13 +837,23 @@ export class Board {
         // still transition to one since we started keyboard navigation.
         switch (this._boardState.id) {
           case "awaiting-input":
+            break;
           case "moving-piece-kb":
+            if (this._boardState.highlightedSquare) {
+              this._getBoardSquare(
+                this._boardState.highlightedSquare
+              ).highlightedTarget = false;
+            }
+            this._getBoardSquare(this.tabbableSquare).highlightedTarget = true;
+            this._boardState.highlightedSquare = this.tabbableSquare;
             break;
           case "awaiting-second-touch":
             this._setBoardState({
               id: "moving-piece-kb",
               startSquare: this._boardState.startSquare,
+              highlightedSquare: this.tabbableSquare,
             });
+            this._getBoardSquare(this.tabbableSquare).highlightedTarget = true;
             break;
           // istanbul ignore next
           case "touching-first-square": // istanbul ignore next

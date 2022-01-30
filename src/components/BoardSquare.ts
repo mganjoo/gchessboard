@@ -25,7 +25,7 @@ export class BoardSquare {
   private _hasContent?: boolean;
   private _active = false;
   private _moveTarget = false;
-  private _dragHovering = false;
+  private _highlightedTarget = false;
 
   constructor(container: HTMLElement, label: Square) {
     this._element = makeHTMLElement("td", { attributes: { role: "cell" } });
@@ -71,7 +71,7 @@ export class BoardSquare {
     this._updateActiveClass();
     this._updateMoveableClass();
     this._updateMoveTargetClass();
-    this._updateDragHoveringClass();
+    this._updateHighlightedTargetClass();
   }
 
   /**
@@ -128,15 +128,17 @@ export class BoardSquare {
   }
 
   /**
-   * Whether this square is currently being hovered over (during a drag move).
+   * Whether this square is currently a highlighted target (during a drag or
+   * keyboard move). This is meant to be equivalent to the :hover pseudoclass
+   * when mousing over a target square.
    */
-  get dragHovering(): boolean {
-    return this._dragHovering;
+  get highlightedTarget(): boolean {
+    return this._highlightedTarget;
   }
 
-  set dragHovering(value: boolean) {
-    this._dragHovering = value;
-    this._updateDragHoveringClass();
+  set highlightedTarget(value: boolean) {
+    this._highlightedTarget = value;
+    this._updateHighlightedTargetClass();
   }
 
   /**
@@ -284,8 +286,11 @@ export class BoardSquare {
     this._updateInteractiveCssClass("moveable", this.moveable);
   }
 
-  private _updateDragHoveringClass() {
-    this._updateInteractiveCssClass("drag-hovering", this.dragHovering);
+  private _updateHighlightedTargetClass() {
+    this._updateInteractiveCssClass(
+      "highlighted-target",
+      this.highlightedTarget
+    );
   }
 
   private _updateInteractiveCssClass(name: string, value: boolean) {

@@ -18,11 +18,12 @@ export type BoardState =
   | {
       id: "dragging";
       startSquare: Square;
-      hoverSquare: Square | undefined;
+      highlightedSquare: Square | undefined;
     }
   | {
       id: "moving-piece-kb";
       startSquare: Square;
+      highlightedSquare: Square | undefined;
     }
   | {
       id: "awaiting-second-touch";
