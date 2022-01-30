@@ -11,7 +11,7 @@ test("clicking twice on a square cancels move and focus", async ({ page }) => {
   await squareLocator(page, "e2").click();
 
   // move state should be expecting input and no square should be focused
-  await expectBoardState(page, "awaiting-input");
+  await expectBoardState(page, "ready");
   await expect(page.locator("body")).toBeFocused();
 });
 
@@ -27,7 +27,7 @@ test("pressing enter twice on a square cancels move but not focus", async ({
   await page.keyboard.press("Enter");
 
   // move state should be expecting input and body should not be focused
-  await expectBoardState(page, "awaiting-input");
+  await expectBoardState(page, "ready");
   await expect(page.locator("body")).not.toBeFocused();
 });
 
@@ -39,7 +39,7 @@ test("clicking and then pressing enter on a square cancels move but not focus", 
   await page.keyboard.press("Enter");
 
   // move state should be expecting input and no square should be focused
-  await expectBoardState(page, "awaiting-input");
+  await expectBoardState(page, "ready");
   await expect(page.locator("body")).not.toBeFocused();
 });
 
@@ -55,7 +55,7 @@ test("pressing enter and then clicking on a square cancels move and focus", asyn
   await squareLocator(page, "a2").click();
 
   // move state should be expecting input and body should be focused
-  await expectBoardState(page, "awaiting-input");
+  await expectBoardState(page, "ready");
   await expect(page.locator("body")).toBeFocused();
 });
 
@@ -68,11 +68,11 @@ test("tabbing out of board cancels move", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   // page should be in awaiting keyboard input mode
-  await expectBoardState(page, "moving-piece-kb");
+  await expectBoardState(page, "moving");
 
   // tab out of keyboard
   await page.keyboard.press("Tab");
 
   // page should be in awaiting input
-  await expectBoardState(page, "awaiting-input");
+  await expectBoardState(page, "ready");
 });

@@ -16,8 +16,8 @@
   --active-light-outline-color: hsl(66deg 97% 72% / 95%);
 
   /* Square highlight colors when the square is an eligible move target */
-  --move-target-dark-square-highlight-color: hsl(0deg 0% 0%);
-  --move-target-light-square-highlight-color: hsl(0deg 0% 0%);
+  --move-target-dark-square-highlight-color: hsl(144deg 64% 9% / 90%);
+  --move-target-light-square-highlight-color: hsl(144deg 64% 9% / 90%);
 
   /* Color of outline when square has focus */
   --focus-outline-color: hsl(30deg 94% 55% / 90%);
@@ -99,7 +99,7 @@
     var(--focus-outline-color);
 }
 
-[data-board-state].has-limited-targets [data-square].move-target {
+.has-limited-targets [data-square].move-target {
   background: radial-gradient(
     var(--p-move-target-highlight-color) var(--move-target-marker-radius),
     /* Add pixel offset to boundary to reduce jaggedness. */
@@ -107,8 +107,8 @@
   );
 }
 
-[data-board-state].has-limited-targets [data-square].has-piece.move-target,
-[data-board-state].has-limited-targets [data-square].has-content.move-target {
+.has-limited-targets [data-square].has-piece.move-target,
+.has-limited-targets [data-square].has-content.move-target {
   /* Wide circle with transparent interior if square is occupied. */
   background: radial-gradient(
     var(--p-square-color) var(--move-target-marker-radius-occupied),
@@ -121,24 +121,24 @@
   --p-square-color: var(--p-active-square-color);
 }
 
-[data-board-state].moving [data-square].active:not(:focus) {
+.moving [data-square].active:not(:focus) {
   /* Add additional outline to move start square when actively moving. */
   box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
     var(--p-active-outline-color);
 }
 
-[data-board-state="awaiting-input"] [data-square].moveable,
-[data-board-state]:not(.pointer-down) [data-square]:is(.active, .move-target) {
+.ready [data-square].moveable,
+:not(.pointer-down) [data-square]:is(.active, .move-target) {
   cursor: pointer;
 }
 
-[data-board-state].pointer-down {
+.pointer-down {
   cursor: grab;
 }
 
-[data-board-state="awaiting-input"] [data-square].moveable:hover,
-[data-board-state].moving [data-square].move-target:hover,
-[data-board-state].moving [data-square].highlighted-target {
+.ready [data-square].moveable:hover,
+.moving [data-square].move-target:hover,
+.moving [data-square].highlighted-target {
   --p-square-color: var(--p-hover-square-color);
 }
 

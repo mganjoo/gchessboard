@@ -489,11 +489,10 @@ export class Board {
     this._boardState = state;
 
     if (this._boardState.id !== oldState.id) {
-      if (this._boardState.id !== "default") {
-        this._table.dataset.boardState = this._boardState.id;
-      } else {
-        delete this._table.dataset["boardState"];
-      }
+      this._table.classList.toggle(
+        "ready",
+        ["awaiting-input"].includes(this._boardState.id)
+      );
 
       this._table.classList.toggle(
         "moving",

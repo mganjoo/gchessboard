@@ -17,7 +17,7 @@ test("two-click moves work correctly", async ({ page }) => {
   // square should be marked as start square, and we should
   // now be waiting for second touch
   await expectIsActive(page, "e2", true);
-  await expectBoardState(page, "awaiting-second-touch");
+  await expectBoardState(page, "moving");
 
   // click on second square
   await squareLocator(page, "e4").click();
@@ -29,7 +29,7 @@ test("two-click moves work correctly", async ({ page }) => {
   // and we should be re-awaiting input
   await expectHasPiece(page, "e2", false);
   await expectIsActive(page, "e2", false);
-  await expectBoardState(page, "awaiting-input");
+  await expectBoardState(page, "ready");
 });
 
 test("occupied first square is focused when clicking on it", async ({

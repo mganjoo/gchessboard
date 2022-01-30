@@ -14,10 +14,11 @@ export function squareLocator(page: Page, square: string) {
  * 'awaiting-input').
  */
 export async function expectBoardState(page: Page, state: string) {
-  await expect(page.locator("table")).toHaveAttribute(
-    "data-board-state",
-    state
-  );
+  expect(
+    await page.locator("table").evaluate((e, state: string) => {
+      return e.classList.contains(state);
+    }, state)
+  ).toBe(true);
 }
 
 /**

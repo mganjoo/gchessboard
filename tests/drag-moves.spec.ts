@@ -14,7 +14,7 @@ test("drag-based moves work correctly", async ({ page }) => {
 
   // second square should be marked with a piece on it, and we should be back to awaiting input
   await expectHasPiece(page, "g4", true);
-  await expectBoardState(page, "awaiting-input");
+  await expectBoardState(page, "ready");
 
   // no square should have focus
   await expect(page.locator("body")).toBeFocused();
@@ -51,5 +51,5 @@ test("drag is completed even after previous click on square", async ({
 
   // second square should be marked with a piece on it, and we should be back to awaiting input
   await expectHasPiece(page, "e6", true);
-  await expectBoardState(page, "awaiting-input");
+  await expectBoardState(page, "ready");
 });
