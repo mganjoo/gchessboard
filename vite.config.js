@@ -1,5 +1,6 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
+import dts from "vite-dts";
 
 module.exports = defineConfig({
   build: {
@@ -8,5 +9,12 @@ module.exports = defineConfig({
       formats: ["cjs", "es"],
       fileName: (format) => `gchessboard.${format}.js`,
     },
+    rollupOptions: {
+      output: {
+        sourcemapExcludeSources: true,
+      },
+    },
+    sourcemap: true,
   },
+  plugins: [dts()],
 });
