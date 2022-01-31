@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "dev": "vite",
+    "dev:host": "vite --host",
     "build": "tsc && vite build",
     "test": "playwright test",
     "test:debug": "PWDEBUG=1 playwright test",
