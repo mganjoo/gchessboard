@@ -1,5 +1,4 @@
-import { ChessBoard } from "./ChessBoard";
+import { GChessBoardElement } from "./ChessBoardElement";
+export { GChessBoardElement };
 
-export { ChessBoard as ChessBoard };
-
-customElements.define("g-chess-board", ChessBoard);
+customElements.define("g-chess-board", GChessBoardElement);

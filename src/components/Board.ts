@@ -349,7 +349,7 @@ export class Board {
         );
 
         this._getBoardSquare(to).boardPiece?.animationFinished?.then(() => {
-          const e = new CustomEvent("movedone", {
+          const e = new CustomEvent("moveend", {
             bubbles: true,
             detail: { from, to, piece },
           });

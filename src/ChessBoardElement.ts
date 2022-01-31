@@ -1,4 +1,12 @@
-import { isSide, getFen, getPosition, Position, Side } from "./utils/chess";
+import {
+  isSide,
+  getFen,
+  getPosition,
+  Position,
+  Side,
+  Square,
+  Piece,
+} from "./utils/chess";
 import { Board } from "./components/Board";
 import importedStyles from "./style.css?inline";
 import { assertUnreachable } from "./utils/typing";
@@ -9,7 +17,7 @@ import {
   isCoordinatesPlacement,
 } from "./components/Coordinates";
 
-export class ChessBoard extends HTMLElement {
+export class GChessBoardElement extends HTMLElement {
   static get observedAttributes() {
     return [
       "orientation",
@@ -41,14 +49,14 @@ export class ChessBoard extends HTMLElement {
     this._shadow.appendChild(this._style);
 
     this._wrapper = makeHTMLElement("div", {
-      classes: ["wrapper", ChessBoard._DEFAULT_COORDS_PLACEMENT],
+      classes: ["wrapper", GChessBoardElement._DEFAULT_COORDS_PLACEMENT],
     });
     this._shadow.appendChild(this._wrapper);
 
     this._board = new Board(
       {
-        orientation: ChessBoard._DEFAULT_SIDE,
-        animationDurationMs: ChessBoard._DEFAULT_ANIMATION_DURATION_MS,
+        orientation: GChessBoardElement._DEFAULT_SIDE,
+        animationDurationMs: GChessBoardElement._DEFAULT_ANIMATION_DURATION_MS,
       },
       (e) => this.dispatchEvent(e),
       this._shadow
@@ -57,13 +65,13 @@ export class ChessBoard extends HTMLElement {
 
     this._fileCoords = new Coordinates({
       direction: "file",
-      placement: ChessBoard._DEFAULT_COORDS_PLACEMENT,
-      orientation: ChessBoard._DEFAULT_SIDE,
+      placement: GChessBoardElement._DEFAULT_COORDS_PLACEMENT,
+      orientation: GChessBoardElement._DEFAULT_SIDE,
     });
     this._rankCoords = new Coordinates({
       direction: "rank",
-      placement: ChessBoard._DEFAULT_COORDS_PLACEMENT,
-      orientation: ChessBoard._DEFAULT_SIDE,
+      placement: GChessBoardElement._DEFAULT_COORDS_PLACEMENT,
+      orientation: GChessBoardElement._DEFAULT_SIDE,
     });
     this._wrapper.appendChild(this._fileCoords.element);
     this._wrapper.appendChild(this._rankCoords.element);
@@ -78,7 +86,7 @@ export class ChessBoard extends HTMLElement {
   }
 
   attributeChangedCallback(
-    name: typeof ChessBoard.observedAttributes[number],
+    name: typeof GChessBoardElement.observedAttributes[number],
     _: string | null,
     newValue: string | null
   ) {
@@ -126,7 +134,7 @@ export class ChessBoard extends HTMLElement {
     return this._parseRestrictedStringAttributeWithDefault<Side>(
       "orientation",
       isSide,
-      ChessBoard._DEFAULT_SIDE
+      GChessBoardElement._DEFAULT_SIDE
     );
   }
 
@@ -202,7 +210,7 @@ export class ChessBoard extends HTMLElement {
     return this._parseRestrictedStringAttributeWithDefault<CoordinatesPlacement>(
       "coordinates",
       isCoordinatesPlacement,
-      ChessBoard._DEFAULT_COORDS_PLACEMENT
+      GChessBoardElement._DEFAULT_COORDS_PLACEMENT
     );
   }
 
@@ -210,15 +218,34 @@ export class ChessBoard extends HTMLElement {
     this.setAttribute("coordinates", value);
   }
 
+  /**
+   * Duration, in milliseconds, of animation when adding/removing/moving pieces.
+   */
   get animationDuration() {
     return this._parseNumberAttribute(
       "animation-duration",
-      ChessBoard._DEFAULT_ANIMATION_DURATION_MS
+      GChessBoardElement._DEFAULT_ANIMATION_DURATION_MS
     );
   }
 
   set animationDuration(value: number) {
     this._setNumberAttribute("animation-duration", value);
+  }
+
+  addEventListener<K extends keyof ChessBoardEventMap>(
+    type: K,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  addEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions
+  ): void {
+    super.addEventListener(type, listener, options);
   }
 
   private _setBooleanAttribute(name: string, value: boolean) {
@@ -260,6 +287,19 @@ export class ChessBoard extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "g-chess-board": ChessBoard;
+    "g-chess-board": GChessBoardElement;
+  }
+
+  interface ChessBoardEventMap {
+    movestart: CustomEvent<{
+      square: Square;
+      piece: Piece;
+      setTargets: (squares: Square[]) => void;
+    }>;
+    moveend: CustomEvent<{
+      from: Square;
+      to: Square;
+      piece: Piece;
+    }>;
   }
 }
