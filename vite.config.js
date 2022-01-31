@@ -6,7 +6,7 @@ module.exports = defineConfig({
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       formats: ["cjs", "es"],
-      fileName: (format) => `g-chess-board.${format}.js`,
+      fileName: (format) => `gchessboard.${format}.js`,
     },
   },
 });

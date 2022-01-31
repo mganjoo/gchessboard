@@ -1,11 +1,11 @@
 {
-  "name": "g-chess-board",
+  "name": "gchessboard",
   "version": "0.0.0",
   "description": "A dependency-free, customizable, and accessible JS chessboard.",
   "author": "Milind Ganjoo",
   "license": "MIT",
-  "main": "dist/g-chess-board.cjs.js",
-  "module": "dist/g-chess-board.es.js",
+  "main": "dist/gchessboard.cjs.js",
+  "module": "dist/gchessboard.es.js",
   "files": [
     "dist"
   ],
