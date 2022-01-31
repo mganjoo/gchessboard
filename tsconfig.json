@@ -26,7 +26,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Type shims for CSS files */
+    "types": ["vite/client"]
   },
   "include": ["./src", "./tests"]
 }
