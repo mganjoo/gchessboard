@@ -15,20 +15,23 @@
   --active-dark-outline-color: hsl(138deg 85% 53% / 95%);
   --active-light-outline-color: hsl(66deg 97% 72% / 95%);
 
-  /* Square highlight colors when the square is an eligible move target */
-  --move-target-dark-square-highlight-color: hsl(144deg 64% 9% / 90%);
-  --move-target-light-square-highlight-color: hsl(144deg 64% 9% / 90%);
+  /* Square marker colors when the square is an eligible move target */
+  --move-target-dark-square-marker-color: hsl(144deg 64% 9% / 90%);
+  --move-target-light-square-marker-color: hsl(144deg 64% 9% / 90%);
 
   /* Color of outline when square has focus */
   --focus-outline-color: hsl(30deg 94% 55% / 90%);
 
   /* Outline size properties */
-  --outline-blur-radius: 3px;
-  --outline-spread-radius: 4px;
+  --focus-outline-blur-radius: 3px;
+  --focus-outline-spread-radius: 4px;
 
   /* Label font properties */
-  --label-font-size: 0.7rem;
-  --label-font-family: sans-serif;
+  --coords-font-size: 0.7rem;
+  --coords-font-family: sans-serif;
+
+  /* padding to apply to wrapper for coordinates */
+  --coords-outside-padding: 4%;
 
   /* Radius of marker on move-target square */
   --move-target-marker-radius: 24%;
@@ -41,9 +44,6 @@
 
   /* z-index of piece while dragging */
   --piece-drag-z-index: 9999;
-
-  /* padding to apply to wrapper for coordinates */
-  --wrapper-padding: 4%;
 
   display: inline-block;
 }
@@ -87,21 +87,21 @@
      ensures square aspect ratio. */
   padding: 12.5% 0 0;
   position: relative;
-  font-family: var(--label-font-family);
-  font-size: var(--label-font-size);
+  font-family: var(--coords-font-family);
+  font-size: var(--coords-font-size);
   background-color: var(--p-square-color);
   color: var(--p-label-color);
 }
 
 [data-square]:focus {
   outline: none;
-  box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
-    var(--focus-outline-color);
+  box-shadow: inset 0 0 var(--focus-outline-blur-radius)
+    var(--focus-outline-spread-radius) var(--focus-outline-color);
 }
 
 .has-limited-targets [data-square].move-target {
   background: radial-gradient(
-    var(--p-move-target-highlight-color) var(--move-target-marker-radius),
+    var(--p-move-target-marker-color) var(--move-target-marker-radius),
     /* Add pixel offset to boundary to reduce jaggedness. */
       var(--p-square-color) calc(var(--move-target-marker-radius) + 1px)
   );
@@ -112,7 +112,7 @@
   /* Wide circle with transparent interior if square is occupied. */
   background: radial-gradient(
     var(--p-square-color) var(--move-target-marker-radius-occupied),
-    var(--p-move-target-highlight-color)
+    var(--p-move-target-marker-color)
       calc(var(--move-target-marker-radius-occupied) + 1px)
   );
 }
@@ -123,8 +123,8 @@
 
 .moving [data-square].active:not(:focus) {
   /* Add additional outline to move start square when actively moving. */
-  box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
-    var(--p-active-outline-color);
+  box-shadow: inset 0 0 var(--focus-outline-blur-radius)
+    var(--focus-outline-spread-radius) var(--p-active-outline-color);
 }
 
 .ready [data-square].moveable,
@@ -157,37 +157,37 @@
 }
 
 .wrapper.outside {
-  padding: var(--wrapper-padding);
+  padding: var(--coords-outside-padding);
   background-color: var(--light-square-color);
 }
 
 .wrapper.outside > .coords {
   display: block;
   fill: var(--dark-square-color);
-  font-family: var(--label-font-family);
-  font-size: var(--label-font-size);
+  font-family: var(--coords-font-family);
+  font-size: var(--coords-font-size);
 }
 
 .wrapper.outside > .coords.file {
-  width: calc(100% - 2 * var(--wrapper-padding));
-  height: var(--wrapper-padding);
-  top: calc(100% - var(--wrapper-padding));
-  left: var(--wrapper-padding);
-  right: var(--wrapper-padding);
+  width: calc(100% - 2 * var(--coords-outside-padding));
+  height: var(--coords-outside-padding);
+  top: calc(100% - var(--coords-outside-padding));
+  left: var(--coords-outside-padding);
+  right: var(--coords-outside-padding);
 }
 
 .wrapper.outside > .coords.rank {
-  width: var(--wrapper-padding);
-  height: calc(100% - 2 * var(--wrapper-padding));
-  top: var(--wrapper-padding);
-  right: calc(100% - var(--wrapper-padding));
-  bottom: var(--wrapper-padding);
+  width: var(--coords-outside-padding);
+  height: calc(100% - 2 * var(--coords-outside-padding));
+  top: var(--coords-outside-padding);
+  right: calc(100% - var(--coords-outside-padding));
+  bottom: var(--coords-outside-padding);
 }
 
 .wrapper.inside > .coords {
   display: block;
-  font-family: var(--label-font-family);
-  font-size: var(--label-font-size);
+  font-family: var(--coords-font-family);
+  font-size: var(--coords-font-size);
 }
 
 .wrapper.inside > .coords > .light {
@@ -224,9 +224,7 @@
   /* Label colors for inline labels should be inverse of square color */
   --p-label-color: var(--light-square-color);
   --p-hover-square-color: var(--hover-dark-square-color);
-  --p-move-target-highlight-color: var(
-    --move-target-dark-square-highlight-color
-  );
+  --p-move-target-marker-color: var(--move-target-dark-square-marker-color);
   --p-active-square-color: var(--active-dark-square-color);
   --p-active-outline-color: var(--active-dark-outline-color);
 }
@@ -235,9 +233,7 @@
   --p-square-color: var(--light-square-color);
   --p-label-color: var(--dark-square-color);
   --p-hover-square-color: var(--hover-light-square-color);
-  --p-move-target-highlight-color: var(
-    --move-target-light-square-highlight-color
-  );
+  --p-move-target-marker-color: var(--move-target-light-square-marker-color);
   --p-active-square-color: var(--active-light-square-color);
   --p-active-outline-color: var(--active-light-outline-color);
 }

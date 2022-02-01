@@ -17,6 +17,73 @@ import {
   isCoordinatesPlacement,
 } from "./components/Coordinates";
 
+/**
+ * A component that displays a chess board, with optional interactivity. Allows
+ * click, drag and keyboard-based moves.
+ *
+ * @fires movestart - Fired when the user initiates a move by clicking, dragging or
+ *   keyboard. The event has a `detail` object with the `square` and `piece` values
+ *   for the move.
+ *
+ *   It also has a function, `setTargets(squares)` that the caller
+ *   can invoke with an array of square labels. This limits the set of targets
+ *   that the piece can be moved to. Note that calling this function with an empty
+ *   list will still allow the piece to be dragged around, but no square will accept
+ *   the piece and thus it will always return to the starting square.
+ *
+ * @fires moveend - Fired after a move is completed (and animations are resolved).
+ *   The event has a `detail` object with `from` and `to` set to the square labels
+ *   of the move, and `piece` containing information about the piece that was moved.
+ *
+ * @cssprop [--dark-square-color=hsl(145deg 32% 44%)] - Color for dark square
+ * @cssprop [--light-square-color=hsl(51deg 24% 84%)] - Color for light square
+ *
+ * @cssprop [--hover-dark-square-color=hsl(144deg 75% 44%)] - Square color when
+ *   mouse or keyboard focus is hovering over a dark square
+ * @cssprop [--hover-light-square-color=hsl(52deg 98% 70%)] - Square color when
+ *   mouse or keyboard focus is hovering over a light square
+ *
+ * @cssprop [--active-dark-square-color=hsl(142deg 77% 43%)] - Color applied to
+ *   dark square when it is involved in (starting point) of a move. By default
+ *   this color is similar to, but slightly different from,
+ *   `--hover-dark-square-color`.
+ * @cssprop [--active-light-square-color=hsl(50deg 95% 64%)] - Color applied to
+ *   light square when it is involved in (starting point) of a move.
+ *
+ * Color of outline when square is marked as start of move
+ * @cssprop [--active-dark-outline-color=hsl(138deg 85% 53% / 95%)] - Color of
+ *   **outline** applied to dark square when it is the starting point of a move.
+ *   It is in addition to `--active-dark-square-color`, applied when the square
+ *   is not focused.
+ * @cssprop [--active-light-outline-color=hsl(66deg 97% 72% / 95%)] - Color of
+ *   **outline** applied to light square when it is the starting point of a move.
+ *   It is in addition to `--active-light-square-color`, applied when the square
+ *   is not focused.
+ * @cssprop [--move-target-dark-square-marker-color=hsl(144deg 64% 9% / 90%)] -
+ *   Color of marker shown on dark square when it is an eligible move target
+ * @cssprop [--move-target-light-square-marker-color=hsl(144deg 64% 9% / 90%)] -
+ *   Color of marker shown on light square when it is an eligible move target
+ * --move-target-marker-radius: 24%;
+ * --move-target-marker-radius-occupied: 82%;
+ *
+ * @cssprop [--focus-outline-color=hsl(30deg 94% 55% / 90%)] - Color of outline
+ *   of square when it has focus.
+ * @cssprop [--focus-outline-blur-radius=3px] - Blur radius of focus outline.
+ * @cssprop [--focus-outline-spread-radius=4px] - Spread radius of focus outline.
+ *   Usage: `box-shadow: inset 0 0 var(--focus-outline-blur-radius) var(--focus-outline-spread-radius) var(--focus-outline-color);`
+ *
+ * @cssprop [--coords-font-size=0.7rem] - Font size of coord labels shown on board
+ * @cssprop [--coords-font-family=sans-serif] - Font family of coord labels
+ * @cssprop [--coords-outside-padding=4%] - When coords mode is `outside`, this
+ *   property controls how much padding is applied to the border where coords are shown.
+ *
+ * @cssprop [--ghost-piece-opacity=0.35] - Opacity of ghost piece shown while dragging.
+ *   Set to 0 to hide ghost piece altogether.
+ * @cssprop [--piece-drag-z-index=9999] - z-index applied to piece while being dragged.
+ *
+ * @slot a1,a2,...,h8 - slots for placing custom content (SVGs, text, or
+ * any other annotation to show on the corresponding square).
+ */
 export class GChessBoardElement extends HTMLElement {
   static get observedAttributes() {
     return [
@@ -129,6 +196,8 @@ export class GChessBoardElement extends HTMLElement {
   /**
    * What side's perspective to render squares from (what color appears on
    * the bottom as viewed on the screen).
+   *
+   * @attr
    */
   get orientation(): Side {
     return this._parseRestrictedStringAttributeWithDefault<Side>(
@@ -143,8 +212,11 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   /**
-   * What side is allowed to move pieces. This may be undefined, in which
-   * pieces from either side can be moved around.
+   * What side is allowed to move pieces. This may be `undefined` (or unset,
+   * in the case of the equivalent element attribute), in which case pieces
+   * from either side can be moved around.
+   *
+   * @attr [turn=undefined]
    */
   get turn(): Side | undefined {
     return this._parseRestrictedStringAttribute<Side>("turn", isSide);
@@ -159,11 +231,13 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   /**
-   * Whether the squares are interactive. This decides whether to apply attributes
-   * like ARIA labels and roles.
+   * Whether the squares are interactive, i.e. user can interact with squares,
+   * move pieces etc. By default, this is false; i.e a board is only for display.
+   *
+   * @attr
    */
   get interactive() {
-    return this.hasAttribute("interactive");
+    return this._hasBooleanAttribute("interactive");
   }
 
   set interactive(interactive: boolean) {
@@ -184,9 +258,19 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   /**
-   * FEN string representing the board position. Note that changes to this property
-   * change the board `position` property, but do not reflect onto the "fen" attribute
-   * of the element.
+   * FEN string representing the board position. Note that changes to the `fen` property
+   * change the board `position` property, but do **not** reflect onto the "fen" _attribute_
+   * of the element. In other words, to get the latest FEN string for the board position,
+   * use the `fen` property on the element.
+   *
+   * This property accepts the special string `"start"` as shorthand for the starting position
+   * of a chess game. An empty string represents an empty board. Invalid FEN values are ignored
+   * with an error.
+   *
+   * Note that a FEN string contains 6 components, separated by slashes, but only the first
+   * component (the "piece placement" component) is used.
+   *
+   * @attr
    */
   get fen() {
     return getFen(this._board.position);
@@ -205,6 +289,8 @@ export class GChessBoardElement extends HTMLElement {
   /**
    * How to display coordinates for squares. Could be `inside` the board (default),
    * `outside`, or `hidden`.
+   *
+   * @attr [default=inside]
    */
   get coordinates(): CoordinatesPlacement {
     return this._parseRestrictedStringAttributeWithDefault<CoordinatesPlacement>(
@@ -220,6 +306,8 @@ export class GChessBoardElement extends HTMLElement {
 
   /**
    * Duration, in milliseconds, of animation when adding/removing/moving pieces.
+   *
+   * @attr [default=200]
    */
   get animationDuration() {
     return this._parseNumberAttribute(
@@ -232,6 +320,9 @@ export class GChessBoardElement extends HTMLElement {
     this._setNumberAttribute("animation-duration", value);
   }
 
+  /**
+   * Allows attaching listeners for custom events on this element.
+   */
   addEventListener<K extends keyof ChessBoardEventMap>(
     type: K,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -246,6 +337,13 @@ export class GChessBoardElement extends HTMLElement {
     options?: boolean | AddEventListenerOptions
   ): void {
     super.addEventListener(type, listener, options);
+  }
+
+  private _hasBooleanAttribute(name: string): boolean {
+    return (
+      this.hasAttribute(name) &&
+      this.getAttribute(name)?.toLowerCase() !== "false"
+    );
   }
 
   private _setBooleanAttribute(name: string, value: boolean) {
