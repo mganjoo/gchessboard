@@ -14,7 +14,7 @@
     "dev": "vite",
     "dev:host": "vite --host",
     "build": "tsc && vite build",
-    "build:api": "wca analyze src/ChessBoardElement.ts --outFile api.md",
+    "build:api": "wca analyze src/ChessBoardElement.ts --outFile API.md",
     "build:sprites": "svg-sprite --config svg-sprite-config.json pieces/*.svg",
     "test": "playwright test",
     "test:debug": "PWDEBUG=1 playwright test",
