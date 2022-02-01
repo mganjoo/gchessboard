@@ -197,7 +197,7 @@ export class GChessBoardElement extends HTMLElement {
    * What side's perspective to render squares from (what color appears on
    * the bottom as viewed on the screen).
    *
-   * @attr
+   * @attr [orientation=white]
    */
   get orientation(): Side {
     return this._parseRestrictedStringAttributeWithDefault<Side>(
@@ -216,7 +216,7 @@ export class GChessBoardElement extends HTMLElement {
    * in the case of the equivalent element attribute), in which case pieces
    * from either side can be moved around.
    *
-   * @attr [turn=undefined]
+   * @attr
    */
   get turn(): Side | undefined {
     return this._parseRestrictedStringAttribute<Side>("turn", isSide);
@@ -290,7 +290,7 @@ export class GChessBoardElement extends HTMLElement {
    * How to display coordinates for squares. Could be `inside` the board (default),
    * `outside`, or `hidden`.
    *
-   * @attr [default=inside]
+   * @attr [coordinates=inside]
    */
   get coordinates(): CoordinatesPlacement {
     return this._parseRestrictedStringAttributeWithDefault<CoordinatesPlacement>(
@@ -307,7 +307,7 @@ export class GChessBoardElement extends HTMLElement {
   /**
    * Duration, in milliseconds, of animation when adding/removing/moving pieces.
    *
-   * @attr [default=200]
+   * @attr [animation-duration=200]
    */
   get animationDuration() {
     return this._parseNumberAttribute(
