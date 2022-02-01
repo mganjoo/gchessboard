@@ -26,4 +26,8 @@ npm install gchessboard
 <g-chess-board fen="start" interactive></g-chess-board>
 ```
 
-TODO: additional steps and information about event handlers.
+TODO: add more examples
+
+## Customizing
+
+For details about properties and attributes of the element, events fired, and various CSS properties available for customization, see [API.md](https://github.com/mganjoo/gchessboard/blob/main/API.md).
