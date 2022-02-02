@@ -11,7 +11,7 @@ export function assertUnreachable(x: never): never {
  * target.
  */
 export function hasDataset(
-  x: EventTarget | null
+  x: EventTarget | undefined
 ): x is EventTarget & { dataset: DOMStringMap } {
   return !!x && !!(x as HTMLElement | SVGElement).dataset;
 }

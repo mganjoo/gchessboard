@@ -868,13 +868,15 @@ export class Board {
   ): (e: K) => void {
     const boundCallback = callback.bind(this);
     return (e: K) => {
-      let target: EventTarget | null;
+      let target: EventTarget | undefined;
 
       // For pointer events, use client X and Y location to find target reliably.
       if (this._isPointerEvent(e)) {
-        target = this._shadowRef.elementFromPoint(e.clientX, e.clientY);
+        target = this._shadowRef
+          .elementsFromPoint(e.clientX, e.clientY)
+          .find((e) => hasDataset(e) && !!e.dataset.square);
       } else {
-        target = e.target;
+        target = e.target ? (e.target as EventTarget) : undefined;
       }
       const square = hasDataset(target)
         ? target.dataset.square
