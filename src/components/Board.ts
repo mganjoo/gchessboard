@@ -272,8 +272,6 @@ export class Board {
 
   set tabbableSquare(value: Square) {
     if (this.tabbableSquare !== value) {
-      // Blur existing square before setting new one
-      this._blurTabbableSquare();
       // Unset previous tabbable square so that tabindex is changed to -1
       this._getBoardSquare(this.tabbableSquare).tabbable = false;
       this._getBoardSquare(value).tabbable = true;
@@ -532,16 +530,25 @@ export class Board {
 
     switch (this._boardState.id) {
       case "awaiting-input":
-        if (square && this._interactable(square)) {
-          this._setBoardState({
-            id: "touching-first-square",
-            startSquare: square,
-            touchStartX: e.clientX,
-            touchStartY: e.clientY,
-          });
-          this._startInteraction(square);
-          this._getBoardSquare(square).toggleSecondaryPiece(true);
-          this._blurTabbableSquare();
+        if (square) {
+          if (this._interactable(square)) {
+            this._blurTabbableSquare();
+            this._setBoardState({
+              id: "touching-first-square",
+              startSquare: square,
+              touchStartX: e.clientX,
+              touchStartY: e.clientY,
+            });
+            this._startInteraction(square);
+            this._getBoardSquare(square).toggleSecondaryPiece(true);
+          } else if (this._focused) {
+            if (this.tabbableSquare === square) {
+              this._blurTabbableSquare();
+            } else {
+              this.tabbableSquare = square;
+              this._focusTabbableSquare();
+            }
+          }
         }
         break;
       case "awaiting-second-touch":
@@ -698,9 +705,14 @@ export class Board {
   private _handleFocusIn(this: Board, square: Square | undefined) {
     if (square) {
       this._focused = true;
-      if (this._tabbableSquare === undefined) {
+      if (
+        // Some browsers (Safari) focus on board squares that are not tabbable
+        // (tabindex = -1). If that happens, update tabbable square manually.
+        square !== this.tabbableSquare ||
         // Assign tabbable square if none is assigned yet.
-        this._tabbableSquare = square;
+        this._tabbableSquare === undefined
+      ) {
+        this.tabbableSquare = square;
       }
     }
   }
