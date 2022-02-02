@@ -46,6 +46,7 @@
                 .removeChild(document.querySelector(`#board [slot="${s}"]`));
             });
           }
+          board.classList.toggle("custom-queen", e.target.checked);
         });
         document
           .getElementById("sel-coords")
@@ -128,6 +129,21 @@
       }
       .sel {
         @apply rounded-md px-2 py-1 w-24 text-gray-900 text-sm border-gray-300 focus:border-green-300 focus:ring focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-100 dark:border-transparent dark:focus:border-transparent dark:focus:ring-offset-gray-900 dark:focus:ring-green-300/75;
+      }
+    </style>
+    <style>
+      g-chess-board.custom-queen::part(piece-bq) {
+        background-image: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      g-chess-board.custom-queen::part(piece-bq)::before {
+        color: black;
+        font-size: 1.5rem;
+
+        /* Black queen unicode */
+        content: "\2655";
       }
     </style>
   </head>
