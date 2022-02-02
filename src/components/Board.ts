@@ -148,7 +148,6 @@ export class Board {
 
   set orientation(value: Side) {
     this._cancelMove(false);
-
     this._orientation = value;
     this._refreshDefaultTabbableSquare();
     for (let i = 0; i < 64; i++) {
@@ -177,13 +176,14 @@ export class Board {
   }
 
   set interactive(value: boolean) {
-    this._interactive = value;
     this._cancelMove(false);
+    this._interactive = value;
     this._blurTabbableSquare();
     this._table.setAttribute("role", value ? "grid" : "table");
     this._boardSquares.forEach((s) => {
       s.interactive = value;
     });
+    this._resetBoardStateAndMoves();
   }
 
   get turn(): Side | undefined {
@@ -195,6 +195,7 @@ export class Board {
    * pieces from either side can be moved around.
    */
   set turn(value: Side | undefined) {
+    this._cancelMove(false);
     this._turn = value;
     for (let idx = 0; idx < 64; idx++) {
       const square = getSquare(idx, this.orientation);
@@ -394,11 +395,7 @@ export class Board {
       this._getBoardSquare(s).moveTarget = false;
     });
     this._moveTargetSquares = [];
-    if (
-      (this._boardState.id === "moving-piece-kb" ||
-        this._boardState.id === "dragging") &&
-      this._boardState.highlightedSquare
-    ) {
+    if (this._boardState.highlightedSquare) {
       this._getBoardSquare(
         this._boardState.highlightedSquare
       ).highlightedTarget = false;
