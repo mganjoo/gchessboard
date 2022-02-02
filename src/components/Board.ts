@@ -30,7 +30,6 @@ export class Board {
   private _tabbableSquare?: Square;
   private _defaultTabbableSquare: Square;
   private _focused = false;
-  private _doingProgrammaticBlur = false;
   private _moveTargetSquares: Square[] = [];
 
   // Event handlers
@@ -385,11 +384,7 @@ export class Board {
 
   private _blurTabbableSquare() {
     if (this.tabbableSquare) {
-      // Mark blur as programmatic to ensure the blur handler
-      // does not do side effects (canceling moves etc)
-      this._doingProgrammaticBlur = true;
       this._getBoardSquare(this.tabbableSquare).blur();
-      this._doingProgrammaticBlur = false;
     }
   }
 
@@ -717,39 +712,8 @@ export class Board {
     }
   }
 
-  private _handleFocusOut(
-    this: Board,
-    square: Square | undefined,
-    e: FocusEvent
-  ) {
+  private _handleFocusOut(this: Board) {
     this._focused = false;
-
-    if (!this._doingProgrammaticBlur) {
-      switch (this._boardState.id) {
-        case "awaiting-second-touch":
-        case "moving-piece-kb":
-          {
-            const hasFocusInSquare =
-              hasDataset(e.relatedTarget) &&
-              "square" in e.relatedTarget.dataset;
-            // If outgoing focus target has a square, and incoming does not,
-            // then board lost focus and we can cancel ongoing moves.
-            if (square && !hasFocusInSquare) {
-              this._cancelMove(false);
-            }
-          }
-          break;
-        case "awaiting-input":
-        case "canceling-second-touch":
-        case "default":
-        case "dragging": // noop: dragging continues even with focus moving around
-        case "touching-first-square":
-          break;
-        // istanbul ignore next
-        default:
-          assertUnreachable(this._boardState);
-      }
-    }
   }
 
   private _handleKeyDown(
