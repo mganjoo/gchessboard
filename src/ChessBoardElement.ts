@@ -80,9 +80,19 @@ import {
  * @cssprop [--ghost-piece-opacity=0.35] - Opacity of ghost piece shown while dragging.
  *   Set to 0 to hide ghost piece altogether.
  * @cssprop [--piece-drag-z-index=9999] - z-index applied to piece while being dragged.
+ * @cssprop [--piece-padding=3%] - padding applied around piece when placing in a square.
  *
- * @slot a1,a2,...,h8 - slots for placing custom content (SVGs, text, or
+ * @slot a1,a2,...,h8 - Slots for placing custom content (SVGs, text, or
  * any other annotation to show on the corresponding square).
+ *
+ * @csspart piece-<b|w>-<b|r|p|n|k|q> - CSS parts for each of the piece classes. The part
+ *   name is of the form `piece-xy`, where `x` corresponds to the color of the piece --
+ *   either `w` for white or `b` for black, and `y` is the piece type -- one of `p` (pawn),
+ *   `r` (rook), `n` (knight), `b` (bishop), `k` (king), `q` (queen). Thus, `piece-wr`
+ *   would be the CSS part corresponding to the white rook.
+ *
+ *   The CSS parts can be used to set custom CSS for the pieces (such as changing the image
+ *   for a piece by changing the `background-image` property.
  */
 export class GChessBoardElement extends HTMLElement {
   static get observedAttributes() {

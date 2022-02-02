@@ -1,6 +1,5 @@
 import { Piece, PieceType, Side } from "../utils/chess";
-import { makeSvgElement } from "../utils/dom";
-import sprite from "../sprite.svg";
+import { makeHTMLElement } from "../utils/dom";
 import { assertUnreachable } from "../utils/typing";
 
 export type BoardPieceConfig = {
@@ -65,21 +64,20 @@ export type BoardPieceAnimation =
   | FadeOutAnimation;
 
 /**
- * Visual representation of a chessboard piece and associated sprite.
+ * Visual representation of a chessboard piece.
  */
 export class BoardPiece {
   readonly piece: Piece;
   animationFinished?: Promise<void>;
 
-  private readonly _element: SVGSVGElement;
+  private readonly _element: HTMLDivElement;
   private readonly _parentElement: HTMLElement;
   private _explicitPosition?: ExplicitPiecePosition;
 
   /**
-   * Map of piece to sprite ID in "sprite.svg". The ID will be referenced
-   * as `#id` in a <use> block.
+   * Map of piece to background image CSS class name.
    */
-  private static SPRITE_ID_MAP: Record<Side, Record<PieceType, string>> = {
+  private static PIECE_CLASS_MAP: Record<Side, Record<PieceType, string>> = {
     white: {
       queen: "wq",
       king: "wk",
@@ -98,39 +96,22 @@ export class BoardPiece {
     },
   };
 
-  /**
-   * Padding applied to a piece when placing a piece on a square,
-   * as a percentage of the width of the square.
-   */
-  private static PIECE_PADDING_PCT = 3;
-
   constructor(container: HTMLElement, config: BoardPieceConfig) {
     this.piece = config.piece;
     this._parentElement = container;
-    this._element = makeSvgElement("svg", {
+    this._element = makeHTMLElement("div", {
       attributes: {
-        viewbox: "0 0 45 45",
         role: "img",
+        part: `piece-${
+          BoardPiece.PIECE_CLASS_MAP[this.piece.color][this.piece.pieceType]
+        }`,
         "aria-label": `${this.piece.color} ${this.piece.pieceType}`,
       },
-      classes: ["piece"],
+      classes: [
+        "piece",
+        BoardPiece.PIECE_CLASS_MAP[this.piece.color][this.piece.pieceType],
+      ],
     });
-    this._element.appendChild(
-      makeSvgElement("use", {
-        attributes: {
-          href: `${sprite}#${
-            BoardPiece.SPRITE_ID_MAP[this.piece.color][this.piece.pieceType]
-          }`,
-          x: `${BoardPiece.PIECE_PADDING_PCT}%`,
-          y: `${BoardPiece.PIECE_PADDING_PCT}%`,
-          width: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
-          height: `${100 - BoardPiece.PIECE_PADDING_PCT * 2}%`,
-        },
-        data: {
-          piece: `${this.piece.color}-${this.piece.pieceType}`,
-        },
-      })
-    );
 
     if (config.animation !== undefined) {
       this._setAnimation(config.animation);

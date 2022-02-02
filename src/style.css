@@ -45,6 +45,9 @@
   /* z-index of piece while dragging */
   --piece-drag-z-index: 9999;
 
+  /* padding applied around piece. */
+  --piece-padding: 3%;
+
   display: inline-block;
 }
 
@@ -258,6 +261,13 @@
 
 [data-square] .piece {
   z-index: 10;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+  padding: var(--piece-padding);
+
+  /* Make background placement respect padding. */
+  background-origin: content-box;
 }
 
 [data-square] .piece.moving {
@@ -272,4 +282,56 @@
 [data-square].active .piece:not(.secondary) {
   /* Ensure that the piece appears above most other elements in document. */
   z-index: var(--piece-drag-z-index);
+}
+
+/**********
+ * Pieces *
+ **********/
+
+.bb {
+  background-image: url("../pieces/bb.svg");
+}
+
+.bk {
+  background-image: url("../pieces/bk.svg");
+}
+
+.bn {
+  background-image: url("../pieces/bn.svg");
+}
+
+.bp {
+  background-image: url("../pieces/bp.svg");
+}
+
+.bq {
+  background-image: url("../pieces/bq.svg");
+}
+
+.br {
+  background-image: url("../pieces/br.svg");
+}
+
+.wb {
+  background-image: url("../pieces/wb.svg");
+}
+
+.wk {
+  background-image: url("../pieces/wk.svg");
+}
+
+.wn {
+  background-image: url("../pieces/wn.svg");
+}
+
+.wp {
+  background-image: url("../pieces/wp.svg");
+}
+
+.wq {
+  background-image: url("../pieces/wq.svg");
+}
+
+.wr {
+  background-image: url("../pieces/wr.svg");
 }

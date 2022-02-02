@@ -32,7 +32,13 @@ click, drag and keyboard-based moves.
 
 | Name           | Description                                      |
 |----------------|--------------------------------------------------|
-| `a1,a2,...,h8` | slots for placing custom content (SVGs, text, or<br />any other annotation to show on the corresponding square). |
+| `a1,a2,...,h8` | Slots for placing custom content (SVGs, text, or<br />any other annotation to show on the corresponding square). |
+
+## CSS Shadow Parts
+
+| Part                              | Description                                      |
+|-----------------------------------|--------------------------------------------------|
+| `piece-<b\|w>-<b\|r\|p\|n\|k\|q>` | CSS parts for each of the piece classes. The part<br />name is of the form `piece-xy`, where `x` corresponds to the color of the piece --<br />either `w` for white or `b` for black, and `y` is the piece type -- one of `p` (pawn),<br />`r` (rook), `n` (knight), `b` (bishop), `k` (king), `q` (queen). Thus, `piece-wr`<br />would be the CSS part corresponding to the white rook.<br /><br />The CSS parts can be used to set custom CSS for the pieces (such as changing the image<br />for a piece by changing the `background-image` property. |
 
 ## CSS Custom Properties
 
@@ -56,3 +62,4 @@ click, drag and keyboard-based moves.
 | `--move-target-dark-square-marker-color`  | "hsl(144deg 64% 9% / 90%)"  | Color of marker shown on dark square when it is an eligible move target |
 | `--move-target-light-square-marker-color` | "hsl(144deg 64% 9% / 90%)"  | Color of marker shown on light square when it is an eligible move target<br />--move-target-marker-radius: 24%;<br />--move-target-marker-radius-occupied: 82%; |
 | `--piece-drag-z-index`                    | 9999                        | z-index applied to piece while being dragged.    |
+| `--piece-padding`                         | "3%"                        | padding applied around piece when placing in a square. |
