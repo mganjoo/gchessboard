@@ -3,9 +3,9 @@
   --square-color-dark: hsl(145deg 32% 44%);
   --square-color-light: hsl(51deg 24% 84%);
 
-  /* Square colors when in :hover state */
-  --square-color-dark-hover: hsl(144deg 75% 44%);
-  --square-color-light-hover: hsl(52deg 98% 70%);
+  /* Square colors when in :hover state. */
+  --square-color-dark-highlight: hsl(144deg 75% 44%);
+  --square-color-light-highlight: hsl(52deg 98% 70%);
 
   /* Square colors when the square is actively being interacted with (moved). */
   --square-color-dark-active: hsl(142deg 77% 43%);
@@ -15,34 +15,34 @@
   --outline-color-dark-active: hsl(138deg 85% 53% / 95%);
   --outline-color-light-active: hsl(66deg 97% 72% / 95%);
 
-  /* Color of outline when square has focus */
-  --focus-outline-color: hsl(30deg 94% 55% / 90%);
+  /* Color of outline when square has focus. */
+  --outline-color-focus: hsl(30deg 94% 55% / 90%);
 
-  /* Outline size properties */
-  --focus-outline-blur-radius: 3px;
-  --focus-outline-spread-radius: 4px;
+  /* Outline size properties. */
+  --outline-blur-radius: 3px;
+  --outline-spread-radius: 4px;
 
-  /* Label font properties */
+  /* Label font properties. */
   --coords-font-size: 0.7rem;
   --coords-font-family: sans-serif;
 
-  /* padding to apply to wrapper for coordinates */
+  /* padding to apply to wrapper for coordinates. */
   --coords-outside-padding: 4%;
 
-  /* Square marker colors when the square is an eligible move target */
+  /* Square marker colors when the square is an eligible move target. */
   --move-target-marker-color-dark-square: hsl(144deg 64% 9% / 90%);
   --move-target-marker-color-light-square: hsl(144deg 64% 9% / 90%);
 
-  /* Radius of marker on move-target square */
+  /* Radius of marker on move-target square. */
   --move-target-marker-radius: 24%;
 
-  /* Radius of marker on move-target square that is occupied */
+  /* Radius of marker on move-target square that is occupied. */
   --move-target-marker-radius-occupied: 82%;
 
-  /* Opacity of ghost piece shown while dragging */
+  /* Opacity of ghost piece shown while dragging. */
   --ghost-piece-opacity: 0.35;
 
-  /* z-index of piece while dragging */
+  /* z-index of piece while dragging. */
   --piece-drag-z-index: 9999;
 
   /* padding applied around piece. */
@@ -98,8 +98,8 @@
 
 [data-square]:focus {
   outline: none;
-  box-shadow: inset 0 0 var(--focus-outline-blur-radius)
-    var(--focus-outline-spread-radius) var(--focus-outline-color);
+  box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
+    var(--outline-color-focus);
 }
 
 .has-limited-targets [data-square].move-target {
@@ -126,8 +126,8 @@
 
 .moving [data-square].active:not(:focus) {
   /* Add additional outline to move start square when actively moving. */
-  box-shadow: inset 0 0 var(--focus-outline-blur-radius)
-    var(--focus-outline-spread-radius) var(--p-outline-color-active);
+  box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
+    var(--p-outline-color-active);
 }
 
 .ready [data-square].moveable,
@@ -142,7 +142,7 @@
 .ready [data-square].moveable:hover,
 .moving [data-square].move-target:hover,
 .moving [data-square].highlighted-target {
-  --p-square-color: var(--p-square-color-hover);
+  --p-square-color: var(--p-square-color-highlight);
 }
 
 /***************
@@ -226,7 +226,7 @@
 
   /* Label colors for inline labels should be inverse of square color */
   --p-label-color: var(--square-color-light);
-  --p-square-color-hover: var(--square-color-dark-hover);
+  --p-square-color-highlight: var(--square-color-dark-highlight);
   --p-move-target-marker-color: var(--move-target-marker-color-dark-square);
   --p-square-color-active: var(--square-color-dark-active);
   --p-outline-color-active: var(--outline-color-dark-active);
@@ -235,7 +235,7 @@
 [data-square-color="light"] {
   --p-square-color: var(--square-color-light);
   --p-label-color: var(--square-color-dark);
-  --p-square-color-hover: var(--square-color-light-hover);
+  --p-square-color-highlight: var(--square-color-light-highlight);
   --p-move-target-marker-color: var(--move-target-marker-color-light-square);
   --p-square-color-active: var(--square-color-light-active);
   --p-outline-color-active: var(--outline-color-light-active);

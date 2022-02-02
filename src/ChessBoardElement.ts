@@ -22,72 +22,73 @@ import {
  * click, drag and keyboard-based moves.
  *
  * @fires movestart - Fired when the user initiates a move by clicking, dragging or
- *   keyboard. The event has a `detail` object with the `square` and `piece` values
- *   for the move.
+ *   via the keyboard.
  *
- *   It also has a function, `setTargets(squares)` that the caller
- *   can invoke with an array of square labels. This limits the set of targets
- *   that the piece can be moved to. Note that calling this function with an empty
- *   list will still allow the piece to be dragged around, but no square will accept
- *   the piece and thus it will always return to the starting square.
+ *   The event has a `detail` object with the `square` and
+ *   `piece` values for the move. It also has a function, `setTargets(squares)`,
+ *   that the caller can invoke with an array of square labels. This limits the
+ *   set of targets that the piece can be moved to. Note that calling this
+ *   function with an empty list will still allow the piece to be dragged around,
+ *   but no square will accept the piece and thus it will always return to the
+ *   starting square.
  *
- * @fires moveend - Fired after a move is completed (and animations are resolved).
+ * @fires moveend - Fired after a move is completed and animations are resolved.
  *   The event has a `detail` object with `from` and `to` set to the square labels
  *   of the move, and `piece` containing information about the piece that was moved.
  *
- * @cssprop [--square-color-dark=hsl(145deg 32% 44%)] - Color for dark square
- * @cssprop [--square-color-light=hsl(51deg 24% 84%)] - Color for light square
+ * @cssprop [--square-color-dark=hsl(145deg 32% 44%)] - Color for dark squares.
+ * @cssprop [--square-color-light=hsl(51deg 24% 84%)] - Color for light squares.
  *
- * @cssprop [--square-color-dark-hover=hsl(144deg 75% 44%)] - Square color when
- *   mouse or keyboard focus is hovering over a dark square
- * @cssprop [--square-color-light-hover=hsl(52deg 98% 70%)] - Square color when
- *   mouse or keyboard focus is hovering over a light square
+ * @cssprop [--square-color-dark-highlight=hsl(144deg 75% 44%)] - Highlight color
+ *   for a dark square. Applied when mouse is hovering over an interactable square
+ *   or a square has keyboard focus during a move.
+ * @cssprop [--square-color-light-highlight=hsl(52deg 98% 70%)] - Highlight color
+ *   for a dark square. Applied when mouse is hovering over an interactable square
+ *   or a square has keyboard focus during a move.
  *
  * @cssprop [--square-color-dark-active=hsl(142deg 77% 43%)] - Color applied to
- *   dark square when it is involved in (starting point) of a move. By default
- *   this color is similar to, but slightly different from,
- *   `--square-color-dark-hover`.
+ *   dark square when it is involved in (the starting point) of a move. By default
+ *   this color is similar to, but slightly different from, `--square-color-dark-hover`.
  * @cssprop [--square-color-light-active=hsl(50deg 95% 64%)] - Color applied to
- *   light square when it is involved in (starting point) of a move.
+ *   light square when it is involved in (the starting point) of a move. By default
+ *   this color is similar to, but slightly different from, `--square-color-light-hover`.
  *
- * Color of outline when square is marked as start of move
  * @cssprop [--outline-color-dark-active=hsl(138deg 85% 53% / 95%)] - Color of
- *   **outline** applied to dark square when it is the starting point of a move.
- *   It is in addition to `--square-color-dark-active`, applied when the square
- *   is not focused.
+ *   outline applied to dark square when it is the starting point of a move.
+ *   It is applied in addition to `--square-color-dark-active`, and is visible
+ *   when the square does not have focus.
  * @cssprop [--outline-color-light-active=hsl(66deg 97% 72% / 95%)] - Color of
- *   **outline** applied to light square when it is the starting point of a move.
- *   It is in addition to `--square-color-light-active`, applied when the square
- *   is not focused.
+ *   outline applied to light square when it is the starting point of a move.
+ *   It is applied in addition to `--square-color-light-active`, and is visible
+ *   when the square does not have focus.
+ * @cssprop [--outline-color-focus=hsl(30deg 94% 55% / 90%)] - Color of outline applied to square when it has focus.
  *
  * @cssprop [--move-target-marker-color-dark-square=hsl(144deg 64% 9% / 90%)] -
  *   Color of marker shown on dark square when it is an eligible move target.
  * @cssprop [--move-target-marker-color-light-square=hsl(144deg 64% 9% / 90%)] -
  *   Color of marker shown on light square when it is an eligible move target.
  *
- * @cssprop [--move-target-marker-radius=24%] - Radius of marker on move-target
+ * @cssprop [--move-target-marker-radius=24%] - Radius of marker on a move target
  *   square.
  * @cssprop [--move-target-marker-radius-occupied=82%] - Radius of marker on
- *   move-target square that is occupied.
+ *   a move target square that is occupied (by a piece or custom content).
  *
- * @cssprop [--focus-outline-color=hsl(30deg 94% 55% / 90%)] - Color of outline
- *   of square when it has focus.
- * @cssprop [--focus-outline-blur-radius=3px] - Blur radius of focus outline.
- * @cssprop [--focus-outline-spread-radius=4px] - Spread radius of focus outline.
- *   Usage: `box-shadow: inset 0 0 var(--focus-outline-blur-radius) var(--focus-outline-spread-radius) var(--focus-outline-color);`
+ * @cssprop [--outline-blur-radius=3px] - Blur radius of all outlines applied to square.
+ * @cssprop [--outline-spread-radius=4px] - Spread radius of all outlines applied to square.
  *
- * @cssprop [--coords-font-size=0.7rem] - Font size of coord labels shown on board
- * @cssprop [--coords-font-family=sans-serif] - Font family of coord labels
- * @cssprop [--coords-outside-padding=4%] - When coords mode is `outside`, this
- *   property controls how much padding is applied to the border where coords are shown.
+ * @cssprop [--coords-font-size=0.7rem] - Font size of coord labels shown on board.
+ * @cssprop [--coords-font-family=sans-serif] - Font family of coord labels shown on board.
+ * @cssprop [--coords-outside-padding=4%] - When the `coordinates` property is `outside`,
+ *   this CSS property controls how much padding is applied to the outside border where
+ *   coords are shown.
  *
  * @cssprop [--ghost-piece-opacity=0.35] - Opacity of ghost piece shown while dragging.
  *   Set to 0 to hide ghost piece altogether.
- * @cssprop [--piece-drag-z-index=9999] - z-index applied to piece while being dragged.
- * @cssprop [--piece-padding=3%] - padding applied around piece when placing in a square.
+ * @cssprop [--piece-drag-z-index=9999] - Z-index applied to piece while being dragged.
+ * @cssprop [--piece-padding=3%] - Padding applied to square when piece is placed in it.
  *
- * @slot a1,a2,...,h8 - Slots for placing custom content (SVGs, text, or
- * any other annotation to show on the corresponding square).
+ * @slot a1,a2,...,h8 - Slots that allow placement of custom content -- SVGs, text, or
+ * any other annotation -- on the corresponding square.
  *
  * @csspart piece-<b|w>-<b|r|p|n|k|q> - CSS parts for each of the piece classes. The part
  *   name is of the form `piece-xy`, where `x` corresponds to the color of the piece --
@@ -96,7 +97,7 @@ import {
  *   would be the CSS part corresponding to the white rook.
  *
  *   The CSS parts can be used to set custom CSS for the pieces (such as changing the image
- *   for a piece by changing the `background-image` property.
+ *   for a piece by changing the `background-image` property).
  */
 export class GChessBoardElement extends HTMLElement {
   static get observedAttributes() {

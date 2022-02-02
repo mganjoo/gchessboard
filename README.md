@@ -30,4 +30,4 @@ TODO: add more examples
 
 ## Customizing
 
-For details about properties and attributes of the element, events fired, and various CSS properties available for customization, see [API.md](https://github.com/mganjoo/gchessboard/blob/main/API.md).
+More details on properties and attributes of the element, events fired, and various customizable CSS properties are available in [API.md](https://github.com/mganjoo/gchessboard/blob/main/API.md).
