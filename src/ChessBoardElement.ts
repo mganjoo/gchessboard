@@ -35,36 +35,40 @@ import {
  *   The event has a `detail` object with `from` and `to` set to the square labels
  *   of the move, and `piece` containing information about the piece that was moved.
  *
- * @cssprop [--dark-square-color=hsl(145deg 32% 44%)] - Color for dark square
- * @cssprop [--light-square-color=hsl(51deg 24% 84%)] - Color for light square
+ * @cssprop [--square-color-dark=hsl(145deg 32% 44%)] - Color for dark square
+ * @cssprop [--square-color-light=hsl(51deg 24% 84%)] - Color for light square
  *
- * @cssprop [--hover-dark-square-color=hsl(144deg 75% 44%)] - Square color when
+ * @cssprop [--square-color-dark-hover=hsl(144deg 75% 44%)] - Square color when
  *   mouse or keyboard focus is hovering over a dark square
- * @cssprop [--hover-light-square-color=hsl(52deg 98% 70%)] - Square color when
+ * @cssprop [--square-color-light-hover=hsl(52deg 98% 70%)] - Square color when
  *   mouse or keyboard focus is hovering over a light square
  *
- * @cssprop [--active-dark-square-color=hsl(142deg 77% 43%)] - Color applied to
+ * @cssprop [--square-color-dark-active=hsl(142deg 77% 43%)] - Color applied to
  *   dark square when it is involved in (starting point) of a move. By default
  *   this color is similar to, but slightly different from,
- *   `--hover-dark-square-color`.
- * @cssprop [--active-light-square-color=hsl(50deg 95% 64%)] - Color applied to
+ *   `--square-color-dark-hover`.
+ * @cssprop [--square-color-light-active=hsl(50deg 95% 64%)] - Color applied to
  *   light square when it is involved in (starting point) of a move.
  *
  * Color of outline when square is marked as start of move
- * @cssprop [--active-dark-outline-color=hsl(138deg 85% 53% / 95%)] - Color of
+ * @cssprop [--outline-color-dark-active=hsl(138deg 85% 53% / 95%)] - Color of
  *   **outline** applied to dark square when it is the starting point of a move.
- *   It is in addition to `--active-dark-square-color`, applied when the square
+ *   It is in addition to `--square-color-dark-active`, applied when the square
  *   is not focused.
- * @cssprop [--active-light-outline-color=hsl(66deg 97% 72% / 95%)] - Color of
+ * @cssprop [--outline-color-light-active=hsl(66deg 97% 72% / 95%)] - Color of
  *   **outline** applied to light square when it is the starting point of a move.
- *   It is in addition to `--active-light-square-color`, applied when the square
+ *   It is in addition to `--square-color-light-active`, applied when the square
  *   is not focused.
- * @cssprop [--move-target-dark-square-marker-color=hsl(144deg 64% 9% / 90%)] -
- *   Color of marker shown on dark square when it is an eligible move target
- * @cssprop [--move-target-light-square-marker-color=hsl(144deg 64% 9% / 90%)] -
- *   Color of marker shown on light square when it is an eligible move target
- * --move-target-marker-radius: 24%;
- * --move-target-marker-radius-occupied: 82%;
+ *
+ * @cssprop [--move-target-marker-color-dark-square=hsl(144deg 64% 9% / 90%)] -
+ *   Color of marker shown on dark square when it is an eligible move target.
+ * @cssprop [--move-target-marker-color-light-square=hsl(144deg 64% 9% / 90%)] -
+ *   Color of marker shown on light square when it is an eligible move target.
+ *
+ * @cssprop [--move-target-marker-radius=24%] - Radius of marker on move-target
+ *   square.
+ * @cssprop [--move-target-marker-radius-occupied=82%] - Radius of marker on
+ *   move-target square that is occupied.
  *
  * @cssprop [--focus-outline-color=hsl(30deg 94% 55% / 90%)] - Color of outline
  *   of square when it has focus.
