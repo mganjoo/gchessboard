@@ -522,13 +522,13 @@ export class Board {
     square: Square | undefined,
     e: PointerEvent
   ) {
+    // We will control focus entirely ourselves
+    e.preventDefault();
+
     // Primary clicks only
     if (e.button !== 0) {
       return;
     }
-
-    // We will control focus entirely ourselves
-    e.preventDefault();
 
     switch (this._boardState.id) {
       case "awaiting-input":
