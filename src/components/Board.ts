@@ -718,7 +718,7 @@ export class Board {
     square: Square | undefined,
     e: KeyboardEvent
   ) {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       switch (this._boardState.id) {
         case "awaiting-input":

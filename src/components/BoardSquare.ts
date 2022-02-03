@@ -12,8 +12,9 @@ import {
  * that aid in interactivity (ARIA role, labels etc).
  */
 export class BoardSquare {
-  private readonly _element: HTMLTableCellElement;
-  private readonly _labelSpanElement: HTMLSpanElement;
+  private readonly _tdElement: HTMLTableCellElement;
+  private readonly _contentElement: HTMLDivElement;
+  private readonly _slotWrapper: HTMLElement;
   private readonly _slotElement: HTMLSlotElement;
 
   private _label: Square;
@@ -28,19 +29,24 @@ export class BoardSquare {
   private _highlightedTarget = false;
 
   constructor(container: HTMLElement, label: Square) {
-    this._element = makeHTMLElement("td", { attributes: { role: "cell" } });
-    this._labelSpanElement = makeHTMLElement("span", { classes: ["label"] });
-    this._element.appendChild(this._labelSpanElement);
+    this._tdElement = makeHTMLElement("td", { attributes: { role: "cell" } });
     this._label = label;
 
-    const slotWrapper = makeHTMLElement("div", { classes: ["content"] });
+    this._contentElement = makeHTMLElement("div", { classes: ["content"] });
+
+    this._slotWrapper = makeHTMLElement("div", {
+      classes: ["slot"],
+      attributes: { role: "presentation" },
+    });
     this._slotElement = document.createElement("slot");
-    slotWrapper.appendChild(this._slotElement);
-    this._element.appendChild(slotWrapper);
+    this._slotWrapper.appendChild(this._slotElement);
+
+    this._contentElement.appendChild(this._slotWrapper);
 
     this._updateLabelVisuals();
 
-    container.appendChild(this._element);
+    this._tdElement.appendChild(this._contentElement);
+    container.appendChild(this._tdElement);
   }
 
   /**
@@ -96,7 +102,7 @@ export class BoardSquare {
 
   set hasContent(value: boolean) {
     this._hasContent = value;
-    this._element.classList.toggle("has-content", value);
+    this._contentElement.classList.toggle("has-content", value);
   }
 
   /**
@@ -145,7 +151,7 @@ export class BoardSquare {
    * Rendered width of element (in integer), used in making drag threshold calculations.
    */
   get width(): number {
-    return this._element.clientWidth;
+    return this._contentElement.clientWidth;
   }
 
   /**
@@ -159,14 +165,14 @@ export class BoardSquare {
    * Focus element associated with square.
    */
   focus() {
-    this._element.focus();
+    this._contentElement.focus();
   }
 
   /**
    * Blur element associated with square.
    */
   blur() {
-    this._element.blur();
+    this._contentElement.blur();
   }
 
   /**
@@ -193,7 +199,10 @@ export class BoardSquare {
   ) {
     if (!pieceEqual(this._boardPiece?.piece, piece) || animation) {
       this.clearPiece(animation?.durationMs);
-      this._boardPiece = new BoardPiece(this._element, { piece, animation });
+      this._boardPiece = new BoardPiece(this._contentElement, {
+        piece,
+        animation,
+      });
       this.moveable = moveable;
       this._updateSquareAfterPieceChange();
     }
@@ -215,7 +224,7 @@ export class BoardSquare {
    */
   toggleSecondaryPiece(show: boolean) {
     if (show && !this._secondaryBoardPiece && this._boardPiece) {
-      this._secondaryBoardPiece = new BoardPiece(this._element, {
+      this._secondaryBoardPiece = new BoardPiece(this._contentElement, {
         piece: this._boardPiece.piece,
         secondary: true,
       });
@@ -256,21 +265,29 @@ export class BoardSquare {
   }
 
   private _updateLabelVisuals() {
-    this._element.dataset.square = this.label;
-    this._element.dataset.squareColor = getSquareColor(this.label);
+    this._contentElement.dataset.square = this.label;
+    this._contentElement.dataset.squareColor = getSquareColor(this.label);
+    this._contentElement.setAttribute(
+      "aria-label",
+      this._boardPiece
+        ? `${this.label}, ${this._boardPiece.piece.color} ${this._boardPiece.piece.pieceType}`
+        : `${this.label}`
+    );
     this._slotElement.name = this.label;
-    this._labelSpanElement.textContent = this.label;
   }
 
   private _updateAriaRole() {
-    this._element.setAttribute("role", this.interactive ? "gridcell" : "cell");
+    this._tdElement.setAttribute(
+      "role",
+      this.interactive ? "gridcell" : "cell"
+    );
   }
 
   private _updateTabIndex() {
     if (this.interactive) {
-      this._element.tabIndex = this.tabbable ? 0 : -1;
+      this._contentElement.tabIndex = this.tabbable ? 0 : -1;
     } else {
-      this._element.removeAttribute("tabindex");
+      this._contentElement.removeAttribute("tabindex");
     }
   }
 
@@ -295,14 +312,14 @@ export class BoardSquare {
 
   private _updateInteractiveCssClass(name: string, value: boolean) {
     if (this.interactive) {
-      this._element.classList.toggle(name, value);
+      this._contentElement.classList.toggle(name, value);
     } else {
-      this._element.classList.remove(name);
+      this._contentElement.classList.remove(name);
     }
   }
 
   private _updateSquareAfterPieceChange() {
-    this._element.classList.toggle("has-piece", !!this._boardPiece);
+    this._contentElement.classList.toggle("has-piece", !!this._boardPiece);
 
     // Always cancel ongoing interactions when piece changes
     this._active = false;
@@ -310,5 +327,8 @@ export class BoardSquare {
 
     // Ensure secondary piece is toggled off if piece is changed
     this.toggleSecondaryPiece(false);
+
+    // Update label
+    this._updateLabelVisuals();
   }
 }

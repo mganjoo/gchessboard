@@ -101,11 +101,11 @@ export class BoardPiece {
     this._parentElement = container;
     this._element = makeHTMLElement("div", {
       attributes: {
-        role: "img",
+        role: "presentation",
+        "aria-hidden": "true",
         part: `piece-${
           BoardPiece.PIECE_CLASS_MAP[this.piece.color][this.piece.pieceType]
         }`,
-        "aria-label": `${this.piece.color} ${this.piece.pieceType}`,
       },
       classes: [
         "piece",
