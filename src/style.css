@@ -26,8 +26,12 @@
   --coords-font-size: 0.7rem;
   --coords-font-family: sans-serif;
 
-  /* padding to apply to wrapper for coordinates. */
-  --coords-outside-padding: 4%;
+  /* Width of wrapping gutter when showing coordinates outside board. */
+  --coords-outside-gutter-width: 4%;
+
+  /* Padding applied to coordinates when shown inside the board. */
+  --coords-inside-coord-padding-left: 0.5%;
+  --coords-inside-coord-padding-right: 0.5%;
 
   /* Square marker colors when the square is an eligible move target. */
   --move-target-marker-color-dark-square: hsl(144deg 64% 9% / 90%);
@@ -158,64 +162,84 @@
   position: absolute;
   pointer-events: none;
   user-select: none;
+  font-family: var(--coords-font-family);
+  font-size: var(--coords-font-size);
+}
+
+.coord {
+  box-sizing: border-box;
+  display: flex;
+}
+
+.coords.file > .coord {
+  width: 12.5%;
+}
+
+.coords.rank {
+  flex-direction: column;
+}
+
+.coords.rank > .coord {
+  height: 12.5%;
 }
 
 .wrapper.outside {
-  padding: var(--coords-outside-padding);
+  padding: var(--coords-outside-gutter-width);
   background-color: var(--square-color-light);
 }
 
 .wrapper.outside > .coords {
-  display: block;
-  fill: var(--square-color-dark);
-  font-family: var(--coords-font-family);
-  font-size: var(--coords-font-size);
+  display: flex;
+  color: var(--square-color-dark);
+}
+
+.wrapper.outside > .coords > .coord {
+  justify-content: center;
+  align-items: center;
 }
 
 .wrapper.outside > .coords.file {
-  width: calc(100% - 2 * var(--coords-outside-padding));
-  height: var(--coords-outside-padding);
-  top: calc(100% - var(--coords-outside-padding));
-  left: var(--coords-outside-padding);
-  right: var(--coords-outside-padding);
+  width: calc(100% - 2 * var(--coords-outside-gutter-width));
+  height: var(--coords-outside-gutter-width);
+  bottom: 0;
+  left: var(--coords-outside-gutter-width);
+  right: var(--coords-outside-gutter-width);
 }
 
 .wrapper.outside > .coords.rank {
-  width: var(--coords-outside-padding);
-  height: calc(100% - 2 * var(--coords-outside-padding));
-  top: var(--coords-outside-padding);
-  right: calc(100% - var(--coords-outside-padding));
-  bottom: var(--coords-outside-padding);
+  width: var(--coords-outside-gutter-width);
+  height: calc(100% - 2 * var(--coords-outside-gutter-width));
+  left: 0;
+  top: var(--coords-outside-gutter-width);
+  bottom: var(--coords-outside-gutter-width);
 }
 
 .wrapper.inside > .coords {
-  display: block;
-  font-family: var(--coords-font-family);
-  font-size: var(--coords-font-size);
-}
-
-.wrapper.inside > .coords > .light {
-  fill: var(--square-color-dark);
-}
-
-.wrapper.inside > .coords > .dark {
-  fill: var(--square-color-light);
-}
-
-.wrapper.inside > .coords.file {
-  width: 100%;
-  height: 100%;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.wrapper.inside > .coords.rank {
+  display: flex;
   width: 100%;
   height: 100%;
   top: 0;
-  left: 0;
+  right: 0;
   bottom: 0;
+  left: 0;
+}
+
+.wrapper.inside > .coords > .coord.light {
+  color: var(--square-color-dark);
+}
+
+.wrapper.inside > .coords > .coord.dark {
+  color: var(--square-color-light);
+}
+
+.wrapper.inside > .coords.file > .coord {
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding-right: var(--coords-inside-coord-padding-right);
+}
+
+.wrapper.inside > .coords.rank > .coord {
+  padding-left: var(--coords-inside-coord-padding-left);
 }
 
 /**************************

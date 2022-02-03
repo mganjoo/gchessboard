@@ -78,9 +78,12 @@ import {
  *
  * @cssprop [--coords-font-size=0.7rem] - Font size of coord labels shown on board.
  * @cssprop [--coords-font-family=sans-serif] - Font family of coord labels shown on board.
- * @cssprop [--coords-outside-padding=4%] - When the `coordinates` property is `outside`,
- *   this CSS property controls how much padding is applied to the outside border where
- *   coords are shown.
+ * @cssprop [--coords-outside-gutter-width=4%] - When the `coordinates` property is `outside`,
+ *   this CSS property controls the width of the gutter outside the board where coords are shown.
+ * @cssprop [--coords-inside-coord-padding-left=0.5%] - Left padding applied to coordinates
+ *   when shown inside the board. Percentage values are relative to the width of the board.
+ * @cssprop [--coords-inside-coord-padding-right=0.5%] - Right padding applied to coordinates
+ *   when shown inside the board. Percentage values are relative to the width of the board.
  *
  * @cssprop [--ghost-piece-opacity=0.35] - Opacity of ghost piece shown while dragging.
  *   Set to 0 to hide ghost piece altogether.
@@ -182,8 +185,6 @@ export class GChessBoardElement extends HTMLElement {
           this.coordinates === "outside"
         );
         this._wrapper.classList.toggle("inside", this.coordinates === "inside");
-        this._fileCoords.placement = this.coordinates;
-        this._rankCoords.placement = this.coordinates;
         break;
       case "orientation":
         this._board.orientation = this.orientation;

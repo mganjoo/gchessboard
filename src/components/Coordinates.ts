@@ -1,35 +1,29 @@
 import { Side } from "../utils/chess";
-import { makeSvgElement } from "../utils/dom";
+import { makeHTMLElement } from "../utils/dom";
 
 const COORDINATES_PLACEMENTS = ["inside", "outside", "hidden"] as const;
 export type CoordinatesPlacement = typeof COORDINATES_PLACEMENTS[number];
 type CoordinatesDirection = "file" | "rank";
 
 export class Coordinates {
-  element: SVGSVGElement;
-  private _coordElements: SVGTextElement[];
-  private readonly _direction: CoordinatesDirection;
-  private _placement: CoordinatesPlacement;
+  element: HTMLDivElement;
+  private _coordElements: HTMLDivElement[];
   private _orientation: Side;
-
-  private static _COORDS_PADDING_PCT_X = 0.75;
-  private static _COORDS_PADDING_PCT_Y = 1;
+  private readonly _direction: CoordinatesDirection;
 
   constructor(props: {
     direction: CoordinatesDirection;
     placement: CoordinatesPlacement;
     orientation: Side;
   }) {
-    this.element = makeSvgElement("svg", {
+    this.element = makeHTMLElement("div", {
       attributes: {
         role: "presentation",
         "aria-hidden": "true",
-        viewbox: "0 0 100 100",
       },
       classes: ["coords", props.direction],
     });
     this._direction = props.direction;
-    this._placement = props.placement;
     this._orientation = props.orientation;
 
     this._coordElements = new Array(8);
@@ -37,26 +31,12 @@ export class Coordinates {
     const oddSquareColor = props.direction === "file" ? "light" : "dark";
     for (let i = 0; i < 8; i++) {
       const color = i % 2 === 0 ? evenSquareColor : oddSquareColor;
-      const textElement = makeSvgElement("text", { classes: [color] });
+      const textElement = makeHTMLElement("div", { classes: ["coord", color] });
       this._coordElements[i] = textElement;
       this.element.appendChild(textElement);
     }
 
-    this._updatePlacementAttributes();
     this._updateCoordsText();
-  }
-
-  /**
-   * Placement of coordinates. Values include `inside` or `outside` the board,
-   * or `hidden` to completely hide coordinates.
-   */
-  get placement(): CoordinatesPlacement {
-    return this._placement;
-  }
-
-  set placement(value: CoordinatesPlacement) {
-    this._placement = value;
-    this._updatePlacementAttributes();
   }
 
   /**
@@ -81,44 +61,6 @@ export class Coordinates {
         this._coordElements[i].textContent = `${
           this.orientation === "white" ? 8 - i : i + 1
         }`;
-      }
-    }
-  }
-
-  private _updatePlacementAttributes() {
-    for (let i = 0; i < 8; i++) {
-      if (this.placement === "outside") {
-        this._coordElements[i].setAttribute(
-          "x",
-          this._direction === "file" ? `${6.25 + i * 12.5}%` : `50%`
-        );
-        this._coordElements[i].setAttribute(
-          "y",
-          this._direction === "file" ? `50%` : `${6.25 + i * 12.5}%`
-        );
-        this._coordElements[i].setAttribute("dominant-baseline", "middle");
-        this._coordElements[i].setAttribute("text-anchor", "middle");
-      } else if (this.placement === "inside") {
-        this._coordElements[i].setAttribute(
-          "x",
-          this._direction === "file"
-            ? `${(i + 1) * 12.5 - Coordinates._COORDS_PADDING_PCT_X}%`
-            : `${Coordinates._COORDS_PADDING_PCT_X}%`
-        );
-        this._coordElements[i].setAttribute(
-          "y",
-          this._direction === "file"
-            ? `${100 - Coordinates._COORDS_PADDING_PCT_Y}%`
-            : `${i * 12.5 + Coordinates._COORDS_PADDING_PCT_Y}%`
-        );
-        this._coordElements[i].setAttribute(
-          "dominant-baseline",
-          this._direction === "file" ? "auto" : "hanging"
-        );
-        this._coordElements[i].setAttribute(
-          "text-anchor",
-          this._direction === "file" ? "end" : "start"
-        );
       }
     }
   }
