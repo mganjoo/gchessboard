@@ -103,10 +103,10 @@
 }
 
 .has-limited-targets [data-square].move-target {
+  /* Add pixel offset to boundary to reduce jaggedness. */
   background: radial-gradient(
     var(--p-move-target-marker-color) var(--move-target-marker-radius),
-    /* Add pixel offset to boundary to reduce jaggedness. */
-      var(--p-square-color) calc(var(--move-target-marker-radius) + 1px)
+    var(--p-square-color) calc(var(--move-target-marker-radius) + 1px)
   );
 }
 
@@ -157,6 +157,7 @@
   display: none;
   position: absolute;
   pointer-events: none;
+  user-select: none;
 }
 
 .wrapper.outside {
