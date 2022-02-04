@@ -59,7 +59,7 @@ test("pressing enter and then clicking on a square cancels move and focus", asyn
   await expect(page.locator("body")).toBeFocused();
 });
 
-test("tabbing out of board cancels move", async ({ page }) => {
+test("tabbing out of board does not cancel move", async ({ page }) => {
   // tab into chessboard
   await page.focus("text=Flip");
   await page.keyboard.press("Shift+Tab");
@@ -74,5 +74,5 @@ test("tabbing out of board cancels move", async ({ page }) => {
   await page.keyboard.press("Tab");
 
   // page should be in awaiting input
-  await expectBoardState(page, "ready");
+  await expectBoardState(page, "moving");
 });

@@ -5,7 +5,7 @@ import { Page } from "@playwright/test";
  * Returns a Locator object for a specific chessboard square.
  */
 export function squareLocator(page: Page, square: string) {
-  return page.locator(`[role="gridcell"]:has-text("${square}")`);
+  return page.locator(`[data-square="${square}"]`);
 }
 
 /**
