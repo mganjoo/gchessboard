@@ -140,8 +140,15 @@
   cursor: grab;
 }
 
-.ready [data-square].moveable:hover,
-.moving [data-square].move-target:hover,
+@media (hover: hover) {
+  /* Hover styles only shown on devices with mouse pointers.
+     Prevent iOS Safari from persisting a hover style. */
+  .ready [data-square].moveable:hover,
+  .moving [data-square].move-target:hover {
+    --p-square-color: var(--p-square-color-highlight);
+  }
+}
+
 .moving [data-square].highlighted-target {
   --p-square-color: var(--p-square-color-highlight);
 }

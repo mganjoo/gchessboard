@@ -70,7 +70,7 @@ export class BoardPiece {
   readonly piece: Piece;
   animationFinished?: Promise<void>;
 
-  private readonly _element: HTMLDivElement;
+  private readonly _element: HTMLSpanElement;
   private readonly _parentElement: HTMLElement;
   private _explicitPosition?: ExplicitPiecePosition;
 
@@ -99,7 +99,7 @@ export class BoardPiece {
   constructor(container: HTMLElement, config: BoardPieceConfig) {
     this.piece = config.piece;
     this._parentElement = container;
-    this._element = makeHTMLElement("div", {
+    this._element = makeHTMLElement("span", {
       attributes: {
         role: "presentation",
         "aria-hidden": "true",
@@ -130,7 +130,6 @@ export class BoardPiece {
    */
   remove(animationDurationMs?: number) {
     if (animationDurationMs) {
-      // TODO: use promises
       this._setAnimation({ type: "fade-out", durationMs: animationDurationMs });
     } else {
       this._parentElement.removeChild(this._element);

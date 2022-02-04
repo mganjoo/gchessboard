@@ -36,6 +36,7 @@ export class Board {
   private _pointerDownHandler: (e: PointerEvent) => void;
   private _pointerUpHandler: (e: PointerEvent) => void;
   private _pointerMoveHandler: (e: PointerEvent) => void;
+  private _clickHandler: (e: MouseEvent) => void;
   private _focusInHandler: (e: FocusEvent) => void;
   private _focusOutHandler: (e: FocusEvent) => void;
   private _keyDownHandler: (e: KeyboardEvent) => void;
@@ -101,11 +102,13 @@ export class Board {
     this._pointerDownHandler = this._makeEventHandler(this._handlePointerDown);
     this._pointerUpHandler = this._makeEventHandler(this._handlePointerUp);
     this._pointerMoveHandler = this._makeEventHandler(this._handlePointerMove);
+    this._clickHandler = this._makeEventHandler(this._handleClick);
     this._keyDownHandler = this._makeEventHandler(this._handleKeyDown);
     this._focusInHandler = this._makeEventHandler(this._handleFocusIn);
     this._focusOutHandler = this._makeEventHandler(this._handleFocusOut);
 
     this._table.addEventListener("pointerdown", this._pointerDownHandler);
+    this._table.addEventListener("click", this._clickHandler);
     this._table.addEventListener("focusin", this._focusInHandler);
     this._table.addEventListener("focusout", this._focusOutHandler);
     this._table.addEventListener("keydown", this._keyDownHandler);
@@ -546,12 +549,13 @@ export class Board {
       case "awaiting-second-touch":
       case "moving-piece-kb":
         this._blurTabbableSquare();
-        if (square && this._isValidMove(this._boardState.startSquare, square)) {
-          this._finishMove(square, true);
-        } else if (square && this._boardState.startSquare !== square) {
-          // Not a valid move (e.g. not a move destination) but also not the same square
-          this._cancelMove(false);
-        } else if (this._boardState.startSquare === square) {
+        // Remove highlighted square from keyboard move, if it exists.
+        if (this._boardState.highlightedSquare) {
+          this._getBoardSquare(
+            this._boardState.highlightedSquare
+          ).highlightedTarget = false;
+        }
+        if (this._boardState.startSquare === square) {
           // Second pointerdown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
           // till corresponding pointerup event in order to cancel.
@@ -581,14 +585,9 @@ export class Board {
   private _handlePointerUp(this: Board, square: Square | undefined) {
     switch (this._boardState.id) {
       case "touching-first-square":
-        this._setBoardState({
-          id: "awaiting-second-touch",
-          startSquare: this._boardState.startSquare,
-        });
         this._getBoardSquare(this._boardState.startSquare).toggleSecondaryPiece(
           false
         );
-        this._focusTabbableSquare();
         break;
       case "dragging":
         this._getBoardSquare(this._boardState.startSquare).toggleSecondaryPiece(
@@ -602,16 +601,11 @@ export class Board {
           this._cancelMove(square !== this._boardState.startSquare);
         }
         break;
-      case "canceling-second-touch":
-        // User cancels by clicking on the same square.
-        this._cancelMove(false);
-        this._blurTabbableSquare();
-        break;
       case "awaiting-input":
-      case "awaiting-second-touch":
       case "moving-piece-kb":
-        // Noop: pointer up only matters when there is an active
-        // touch interaction
+      case "awaiting-second-touch":
+      case "canceling-second-touch":
+        // noop: Either we are in a non-mouse state or we are delegating to click
         break;
       case "default":
         break;
@@ -687,6 +681,48 @@ export class Board {
       case "awaiting-second-touch":
       case "default":
       case "moving-piece-kb":
+        break;
+      // istanbul ignore next
+      default:
+        assertUnreachable(this._boardState);
+    }
+  }
+
+  private _handleClick(this: Board, square: Square | undefined) {
+    switch (this._boardState.id) {
+      case "touching-first-square":
+        this._setBoardState({
+          id: "awaiting-second-touch",
+          startSquare: this._boardState.startSquare,
+        });
+        this._focusTabbableSquare();
+        break;
+      case "canceling-second-touch":
+        // User cancels by clicking on the same square.
+        this._cancelMove(false);
+        this._blurTabbableSquare();
+        break;
+      case "awaiting-input":
+        if (square && this._interactable(square)) {
+          this._setBoardState({
+            id: "awaiting-second-touch",
+            startSquare: square,
+          });
+          this._startInteraction(square);
+          this._focusTabbableSquare();
+        }
+        break;
+      case "awaiting-second-touch":
+      case "moving-piece-kb":
+        if (square && this._isValidMove(this._boardState.startSquare, square)) {
+          this._finishMove(square, true);
+        } else if (square && this._boardState.startSquare !== square) {
+          // Not a valid move (e.g. not a move destination) but also not the same square
+          this._cancelMove(false);
+        }
+        break;
+      case "dragging":
+      case "default":
         break;
       // istanbul ignore next
       default:
@@ -859,7 +895,7 @@ export class Board {
    * question, then passes square label and current event to `callback`.
    */
   private _makeEventHandler<
-    K extends PointerEvent | KeyboardEvent | FocusEvent
+    K extends PointerEvent | MouseEvent | KeyboardEvent | FocusEvent
   >(
     callback: (this: Board, square: Square | undefined, e: K) => void
   ): (e: K) => void {
@@ -867,8 +903,8 @@ export class Board {
     return (e: K) => {
       let target: EventTarget | undefined;
 
-      // For pointer events, use client X and Y location to find target reliably.
-      if (this._isPointerEvent(e)) {
+      // For non-click pointer events, use client X and Y location to find target reliably.
+      if (this._isPointerEvent(e) && e.type !== "click") {
         target = this._shadowRef
           .elementsFromPoint(e.clientX, e.clientY)
           .find((e) => hasDataset(e) && !!e.dataset.square);

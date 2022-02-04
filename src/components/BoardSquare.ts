@@ -281,6 +281,11 @@ export class BoardSquare {
       "role",
       this.interactive ? "gridcell" : "cell"
     );
+    if (this.interactive) {
+      this._contentElement.setAttribute("role", "button");
+    } else {
+      this._contentElement.removeAttribute("role");
+    }
   }
 
   private _updateTabIndex() {
