@@ -494,15 +494,19 @@ export class Board {
 
       this._table.classList.toggle(
         "moving",
-        ["awaiting-second-touch", "moving-piece-kb", "dragging"].includes(
-          this._boardState.id
-        )
+        [
+          "awaiting-second-touch",
+          "moving-piece-kb",
+          "dragging",
+          "touching-second-square",
+        ].includes(this._boardState.id)
       );
 
       this._table.classList.toggle(
         "pointer-down",
         [
           "touching-first-square",
+          "touching-second-square",
           "dragging",
           "canceling-second-touch",
         ].includes(this._boardState.id)
@@ -567,12 +571,18 @@ export class Board {
           });
           // Show secondary piece while pointer is down
           this._getBoardSquare(square).toggleSecondaryPiece(true);
+        } else if (square) {
+          this._setBoardState({
+            id: "touching-second-square",
+            startSquare: this._boardState.startSquare,
+          });
         }
         break;
       case "dragging":
       case "canceling-second-touch":
       case "touching-first-square":
-        // Noop: pointer is already down while dragging or touching first square
+      case "touching-second-square":
+        // Noop: pointer is already down while dragging or touching square
         break;
       case "default":
         break;
@@ -605,6 +615,7 @@ export class Board {
       case "moving-piece-kb":
       case "awaiting-second-touch":
       case "canceling-second-touch":
+      case "touching-second-square":
         // noop: Either we are in a non-mouse state or we are delegating to click
         break;
       case "default":
@@ -681,6 +692,7 @@ export class Board {
       case "awaiting-second-touch":
       case "default":
       case "moving-piece-kb":
+      case "touching-second-square":
         break;
       // istanbul ignore next
       default:
@@ -714,11 +726,22 @@ export class Board {
         break;
       case "awaiting-second-touch":
       case "moving-piece-kb":
-        if (square && this._isValidMove(this._boardState.startSquare, square)) {
-          this._finishMove(square, true);
-        } else if (square && this._boardState.startSquare !== square) {
-          // Not a valid move (e.g. not a move destination) but also not the same square
-          this._cancelMove(false);
+      case "touching-second-square":
+        {
+          const fromPointerInteraction =
+            this._boardState.id === "touching-second-square";
+          if (
+            square &&
+            this._isValidMove(this._boardState.startSquare, square)
+          ) {
+            this._finishMove(square, true);
+          } else if (square && this._boardState.startSquare !== square) {
+            // Not a valid move (e.g. not a move destination) but also not the same square
+            this._cancelMove(false);
+          }
+          if (!fromPointerInteraction) {
+            this._focusTabbableSquare();
+          }
         }
         break;
       case "dragging":
@@ -782,6 +805,7 @@ export class Board {
           break;
         case "dragging":
         case "touching-first-square":
+        case "touching-second-square":
         case "canceling-second-touch":
           // Noop: don't handle keypresses in active pointer states
           break;
@@ -870,6 +894,7 @@ export class Board {
             break;
           // istanbul ignore next
           case "touching-first-square": // istanbul ignore next
+          case "touching-second-square": // istanbul ignore next
           case "canceling-second-touch":
             // Similar to canceling move, but don't blur focused square
             // since we just gave it focus through keyboard navigation

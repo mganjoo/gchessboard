@@ -19,6 +19,11 @@ export type BoardState =
       highlightedSquare?: undefined;
     }
   | {
+      id: "touching-second-square";
+      startSquare: Square;
+      highlightedSquare?: undefined;
+    }
+  | {
       id: "dragging";
       startSquare: Square;
       highlightedSquare: Square | undefined;
