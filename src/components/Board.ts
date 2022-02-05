@@ -13,7 +13,7 @@ import {
 } from "../utils/chess";
 import { makeHTMLElement } from "../utils/dom";
 import { BoardState } from "./BoardState";
-import { assertUnreachable, hasDataset } from "../utils/typing";
+import { assertUnreachable } from "../utils/typing";
 import { BoardSquare } from "./BoardSquare";
 
 export class Board {
@@ -29,7 +29,6 @@ export class Board {
   private _boardState: BoardState;
   private _tabbableSquare?: Square;
   private _defaultTabbableSquare: Square;
-  private _focused = false;
   private _moveTargetSquares: Square[] = [];
 
   // Event handlers
@@ -38,7 +37,6 @@ export class Board {
   private _pointerMoveHandler: (e: PointerEvent) => void;
   private _clickHandler: (e: MouseEvent) => void;
   private _focusInHandler: (e: FocusEvent) => void;
-  private _focusOutHandler: (e: FocusEvent) => void;
   private _keyDownHandler: (e: KeyboardEvent) => void;
 
   /**
@@ -105,12 +103,10 @@ export class Board {
     this._clickHandler = this._makeEventHandler(this._handleClick);
     this._keyDownHandler = this._makeEventHandler(this._handleKeyDown);
     this._focusInHandler = this._makeEventHandler(this._handleFocusIn);
-    this._focusOutHandler = this._makeEventHandler(this._handleFocusOut);
 
     this._table.addEventListener("pointerdown", this._pointerDownHandler);
     this._table.addEventListener("click", this._clickHandler);
     this._table.addEventListener("focusin", this._focusInHandler);
-    this._table.addEventListener("focusout", this._focusOutHandler);
     this._table.addEventListener("keydown", this._keyDownHandler);
     this._table.addEventListener("slotchange", this._slotChangeHandler);
     this._table.addEventListener("transitionend", this._transitionHandler);
@@ -164,8 +160,8 @@ export class Board {
         this._boardSquares[i].clearPiece();
       }
     }
-    if (this._focused) {
-      // Refresh focused square on orientation change
+    // Switch focused square, if any, on orientation change
+    if (this._focusedSquare) {
       this._focusTabbableSquare();
     }
   }
@@ -286,6 +282,10 @@ export class Board {
    * Duration (in milliseconds) for all animations.
    */
   animationDurationMs: number;
+
+  private get _focusedSquare() {
+    return Board._extractSquareData(this._shadowRef.activeElement);
+  }
 
   private _startInteraction(square: Square) {
     const piece = this._position[square];
@@ -494,23 +494,25 @@ export class Board {
 
       this._table.classList.toggle(
         "moving",
-        [
-          "awaiting-second-touch",
-          "moving-piece-kb",
-          "dragging",
-          "touching-second-square",
-        ].includes(this._boardState.id)
+        !["default", "awaiting-input"].includes(this._boardState.id)
       );
 
       this._table.classList.toggle(
-        "pointer-down",
-        [
-          "touching-first-square",
-          "touching-second-square",
-          "dragging",
-          "canceling-second-touch",
-        ].includes(this._boardState.id)
+        "dragging",
+        ["dragging", "dragging-outside"].includes(this._boardState.id)
       );
+    }
+
+    if (this._boardState.highlightedSquare !== oldState.highlightedSquare) {
+      if (oldState.highlightedSquare) {
+        this._getBoardSquare(oldState.highlightedSquare).highlightedTarget =
+          false;
+      }
+      if (this._boardState.highlightedSquare) {
+        this._getBoardSquare(
+          this._boardState.highlightedSquare
+        ).highlightedTarget = true;
+      }
     }
   }
 
@@ -529,36 +531,19 @@ export class Board {
 
     switch (this._boardState.id) {
       case "awaiting-input":
-        if (square) {
-          if (this._interactable(square)) {
-            this._blurTabbableSquare();
-            this._setBoardState({
-              id: "touching-first-square",
-              startSquare: square,
-              touchStartX: e.clientX,
-              touchStartY: e.clientY,
-            });
-            this._startInteraction(square);
-            this._getBoardSquare(square).toggleSecondaryPiece(true);
-          } else if (this._focused) {
-            if (this.tabbableSquare === square) {
-              this._blurTabbableSquare();
-            } else {
-              this.tabbableSquare = square;
-              this._focusTabbableSquare();
-            }
-          }
+        if (square && this._interactable(square)) {
+          this._setBoardState({
+            id: "touching-first-square",
+            startSquare: square,
+            touchStartX: e.clientX,
+            touchStartY: e.clientY,
+          });
+          this._startInteraction(square);
+          this._getBoardSquare(square).toggleSecondaryPiece(true);
         }
         break;
       case "awaiting-second-touch":
       case "moving-piece-kb":
-        this._blurTabbableSquare();
-        // Remove highlighted square from keyboard move, if it exists.
-        if (this._boardState.highlightedSquare) {
-          this._getBoardSquare(
-            this._boardState.highlightedSquare
-          ).highlightedTarget = false;
-        }
         if (this._boardState.startSquare === square) {
           // Second pointerdown on the same square *may* be a cancel, but could
           // also be a misclick/readjustment in order to begin dragging. Wait
@@ -579,6 +564,7 @@ export class Board {
         }
         break;
       case "dragging":
+      case "dragging-outside":
       case "canceling-second-touch":
       case "touching-first-square":
       case "touching-second-square":
@@ -592,7 +578,7 @@ export class Board {
     }
   }
 
-  private _handlePointerUp(this: Board, square: Square | undefined) {
+  private _handlePointerUp(this: Board) {
     switch (this._boardState.id) {
       case "touching-first-square":
         this._getBoardSquare(this._boardState.startSquare).toggleSecondaryPiece(
@@ -600,15 +586,13 @@ export class Board {
         );
         break;
       case "dragging":
+      case "dragging-outside":
         this._getBoardSquare(this._boardState.startSquare).toggleSecondaryPiece(
           false
         );
         this._blurTabbableSquare();
-        if (square && this._isValidMove(this._boardState.startSquare, square)) {
-          this._finishMove(square, false);
-        } else {
-          // Animate the snap back only if the piece left the original square
-          this._cancelMove(square !== this._boardState.startSquare);
+        if (this._boardState.id === "dragging-outside") {
+          this._cancelMove(true);
         }
         break;
       case "awaiting-input":
@@ -639,53 +623,63 @@ export class Board {
             (e.clientX - this._boardState.touchStartX) ** 2 +
               (e.clientY - this._boardState.touchStartY) ** 2
           );
-          const squareWidth = this._getBoardSquare(this.tabbableSquare).width;
+          const squareWidth = this._getBoardSquare(
+            this._boardState.startSquare
+          ).width;
           const threshold = Math.max(
             Board.DRAG_THRESHOLD_MIN_PIXELS,
             Board.DRAG_THRESHOLD_SQUARE_WIDTH_FRACTION * squareWidth
           );
           // Consider a "dragging" action to be when we have moved the pointer a sufficient
           // threshold, or we are now in a different square from where we started.
-          if (
-            (squareWidth !== 0 && delta > threshold) ||
-            square !== this._boardState.startSquare
-          ) {
-            const validTarget =
-              square && this._isValidMove(this._boardState.startSquare, square);
-            this._setBoardState({
-              id: "dragging",
-              startSquare: this._boardState.startSquare,
-              highlightedSquare: validTarget ? square : undefined,
-            });
+          if (delta > threshold || square !== this._boardState.startSquare) {
+            this._blurTabbableSquare();
             this._getBoardSquare(this._boardState.startSquare).displacePiece(
               e.clientX,
               e.clientY
             );
-            if (validTarget) {
-              this._getBoardSquare(square).highlightedTarget = true;
+            if (square) {
+              this._setBoardState({
+                id: "dragging",
+                startSquare: this._boardState.startSquare,
+                highlightedSquare: this._isValidMove(
+                  this._boardState.startSquare,
+                  square
+                )
+                  ? square
+                  : undefined,
+              });
+            } else {
+              this._setBoardState({
+                id: "dragging-outside",
+                startSquare: this._boardState.startSquare,
+              });
             }
           }
         }
         break;
       case "dragging":
+      case "dragging-outside":
         this._getBoardSquare(this._boardState.startSquare).displacePiece(
           e.clientX,
           e.clientY
         );
-        if (square !== this._boardState.highlightedSquare) {
-          if (this._boardState.highlightedSquare) {
-            this._getBoardSquare(
-              this._boardState.highlightedSquare
-            ).highlightedTarget = false;
-            this._boardState.highlightedSquare = undefined;
-          }
-          if (
-            square &&
-            this._isValidMove(this._boardState.startSquare, square)
-          ) {
-            this._boardState.highlightedSquare = square;
-            this._getBoardSquare(square).highlightedTarget = true;
-          }
+        if (square && square !== this._boardState.highlightedSquare) {
+          this._setBoardState({
+            id: "dragging",
+            startSquare: this._boardState.startSquare,
+            highlightedSquare: this._isValidMove(
+              this._boardState.startSquare,
+              square
+            )
+              ? square
+              : undefined,
+          });
+        } else if (!square && this._boardState.id !== "dragging-outside") {
+          this._setBoardState({
+            id: "dragging-outside",
+            startSquare: this._boardState.startSquare,
+          });
         }
         break;
       case "awaiting-input":
@@ -707,12 +701,10 @@ export class Board {
           id: "awaiting-second-touch",
           startSquare: this._boardState.startSquare,
         });
-        this._focusTabbableSquare();
         break;
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
         this._cancelMove(false);
-        this._blurTabbableSquare();
         break;
       case "awaiting-input":
         if (square && this._interactable(square)) {
@@ -721,55 +713,53 @@ export class Board {
             startSquare: square,
           });
           this._startInteraction(square);
-          this._focusTabbableSquare();
         }
         break;
       case "awaiting-second-touch":
       case "moving-piece-kb":
       case "touching-second-square":
+      case "dragging":
+      case "dragging-outside":
         {
-          const fromPointerInteraction =
-            this._boardState.id === "touching-second-square";
           if (
             square &&
             this._isValidMove(this._boardState.startSquare, square)
           ) {
-            this._finishMove(square, true);
-          } else if (square && this._boardState.startSquare !== square) {
-            // Not a valid move (e.g. not a move destination) but also not the same square
-            this._cancelMove(false);
-          }
-          if (!fromPointerInteraction) {
-            this._focusTabbableSquare();
+            this._finishMove(
+              square,
+              !["dragging", "dragging-outside"].includes(this._boardState.id)
+            );
+          } else {
+            this._cancelMove(square !== this._boardState.startSquare);
           }
         }
         break;
-      case "dragging":
       case "default":
         break;
       // istanbul ignore next
       default:
         assertUnreachable(this._boardState);
     }
+
+    // If board currently has focus, move focus to newly clicked square.
+    if (this._focusedSquare && square) {
+      this.tabbableSquare = square;
+      this._focusTabbableSquare();
+    }
   }
 
   private _handleFocusIn(this: Board, square: Square | undefined) {
     if (square) {
-      this._focused = true;
       if (
         // Some browsers (Safari) focus on board squares that are not tabbable
         // (tabindex = -1). If that happens, update tabbable square manually.
         square !== this.tabbableSquare ||
-        // Assign tabbable square if none is assigned yet.
+        // Assign tabbable square if none is explicitly assigned yet.
         this._tabbableSquare === undefined
       ) {
         this.tabbableSquare = square;
       }
     }
-  }
-
-  private _handleFocusOut(this: Board) {
-    this._focused = false;
   }
 
   private _handleKeyDown(
@@ -804,6 +794,7 @@ export class Board {
           }
           break;
         case "dragging":
+        case "dragging-outside":
         case "touching-first-square":
         case "touching-second-square":
         case "canceling-second-touch":
@@ -876,32 +867,20 @@ export class Board {
           case "awaiting-input":
             break;
           case "moving-piece-kb":
-            if (this._boardState.highlightedSquare) {
-              this._getBoardSquare(
-                this._boardState.highlightedSquare
-              ).highlightedTarget = false;
-            }
-            this._getBoardSquare(this.tabbableSquare).highlightedTarget = true;
-            this._boardState.highlightedSquare = this.tabbableSquare;
-            break;
           case "awaiting-second-touch":
             this._setBoardState({
               id: "moving-piece-kb",
               startSquare: this._boardState.startSquare,
               highlightedSquare: this.tabbableSquare,
             });
-            this._getBoardSquare(this.tabbableSquare).highlightedTarget = true;
             break;
-          // istanbul ignore next
-          case "touching-first-square": // istanbul ignore next
-          case "touching-second-square": // istanbul ignore next
+          case "touching-first-square":
+          case "touching-second-square":
           case "canceling-second-touch":
-            // Similar to canceling move, but don't blur focused square
-            // since we just gave it focus through keyboard navigation
-            // istanbul ignore next
             this._cancelMove(false);
             break;
           case "dragging":
+          case "dragging-outside":
             // Noop: continue with drag operation even if focus was moved around
             break;
           case "default":
@@ -926,25 +905,15 @@ export class Board {
   ): (e: K) => void {
     const boundCallback = callback.bind(this);
     return (e: K) => {
-      let target: EventTarget | undefined;
-
-      // For non-click pointer events, use client X and Y location to find target reliably.
-      if (this._isPointerEvent(e) && e.type !== "click") {
-        target = this._shadowRef
-          .elementsFromPoint(e.clientX, e.clientY)
-          .find((e) => hasDataset(e) && !!e.dataset.square);
-      } else {
-        target = e.target ? (e.target as EventTarget) : undefined;
-      }
-      const square = hasDataset(target)
-        ? target.dataset.square
-        : /* istanbul ignore next */ undefined;
-      boundCallback(keyIsSquare(square) ? square : undefined, e);
+      // For mouse events, use client X and Y location to find target reliably.
+      const square = Board._isMouseEvent(e)
+        ? this._shadowRef
+            .elementsFromPoint(e.clientX, e.clientY)
+            .map((e) => Board._extractSquareData(e))
+            .find((e) => !!e)
+        : Board._extractSquareData(e.target);
+      boundCallback(square, e);
     };
-  }
-
-  private _isPointerEvent(e: Event): e is PointerEvent {
-    return (e as PointerEvent).clientX !== undefined;
   }
 
   private _slotChangeHandler: (e: Event) => void = (e) => {
@@ -961,6 +930,20 @@ export class Board {
       style.removeProperty("transition-property");
     }
   };
+
+  private static _extractSquareData(
+    target: EventTarget | null
+  ): Square | undefined {
+    if (!!target && !!(target as HTMLElement).dataset) {
+      const dataset = (target as HTMLElement).dataset;
+      return keyIsSquare(dataset.square) ? dataset.square : undefined;
+    }
+    return undefined;
+  }
+
+  private static _isMouseEvent(e: Event): e is MouseEvent {
+    return (e as MouseEvent).clientX !== undefined;
+  }
 
   private static _isSlotElement(e: EventTarget | null): e is HTMLSlotElement {
     return !!e && (e as HTMLSlotElement).assignedElements !== undefined;

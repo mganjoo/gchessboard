@@ -29,6 +29,11 @@ export type BoardState =
       highlightedSquare: Square | undefined;
     }
   | {
+      id: "dragging-outside";
+      startSquare: Square;
+      highlightedSquare?: undefined;
+    }
+  | {
       id: "moving-piece-kb";
       startSquare: Square;
       highlightedSquare: Square | undefined;

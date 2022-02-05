@@ -132,11 +132,11 @@
 }
 
 .ready [data-square].moveable,
-:not(.pointer-down) [data-square]:is(.active, .move-target) {
+table:not(.dragging) [data-square]:is(.active, .move-target) {
   cursor: pointer;
 }
 
-.pointer-down {
+.dragging {
   cursor: grab;
 }
 

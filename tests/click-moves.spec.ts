@@ -32,26 +32,6 @@ test("two-click moves work correctly", async ({ page }) => {
   await expectBoardState(page, "ready");
 });
 
-test("occupied first square is focused when clicking on it", async ({
-  page,
-}) => {
-  // click on first square
-  await squareLocator(page, "g1").click();
-
-  // body should now no longer be focused
-  await expect(page.locator("body")).not.toBeFocused();
-
-  // square should be focused, so we can use arrow keys
-  // keys: up -> up -> left -> <enter>
-  await page.keyboard.press("ArrowUp");
-  await page.keyboard.press("ArrowUp");
-  await page.keyboard.press("ArrowLeft");
-  await page.keyboard.press("Enter");
-
-  // second square should now have piece on it
-  await expectHasPiece(page, "f3", true);
-});
-
 test("unoccupied first square is not focused when clicking on it", async ({
   page,
 }) => {
