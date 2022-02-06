@@ -15,6 +15,7 @@
     "dev:host": "vite --host",
     "build": "tsc && vite build",
     "build:api": "wca analyze src/ChessBoardElement.ts --outFile API.md",
+    "build:watch": "vite build --watch",
     "test": "playwright test",
     "test:debug": "PWDEBUG=1 playwright test",
     "check:format": "prettier --check .",
