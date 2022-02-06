@@ -365,11 +365,30 @@ export class Board {
     this._resetBoardStateAndMoves();
   }
 
+  private _userCancelMove(animate: boolean) {
+    if (this._boardState.startSquare) {
+      const e = new CustomEvent("movecancel", {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          from: this._boardState.startSquare,
+          piece: this._position[this._boardState.startSquare],
+        },
+      });
+
+      this._dispatchEvent(e);
+      if (!e.defaultPrevented) {
+        this._cancelMove(animate);
+        return true;
+      }
+    }
+    return false;
+  }
+
   private _cancelMove(animate: boolean) {
     if (this._boardState.startSquare) {
       const square = this._getBoardSquare(this._boardState.startSquare);
       square.cancelInteraction(animate ? this.animationDurationMs : undefined);
-      square.toggleSecondaryPiece(false);
     }
     this._resetBoardStateAndMoves();
   }
@@ -580,7 +599,16 @@ export class Board {
         );
         this._blurTabbableSquare();
         if (this._boardState.id === "dragging-outside") {
-          this._cancelMove(true);
+          const canceled = this._userCancelMove(true);
+          if (!canceled) {
+            this._getBoardSquare(
+              this._boardState.startSquare
+            ).resetPiecePosition(this.animationDurationMs);
+            this._setBoardState({
+              id: "awaiting-second-touch",
+              startSquare: this._boardState.startSquare,
+            });
+          }
         }
         break;
       case "awaiting-input":
@@ -692,7 +720,12 @@ export class Board {
         break;
       case "canceling-second-touch":
         // User cancels by clicking on the same square.
-        this._cancelMove(false);
+        if (!this._userCancelMove(false)) {
+          this._setBoardState({
+            id: "awaiting-second-touch",
+            startSquare: this._boardState.startSquare,
+          });
+        }
         break;
       case "awaiting-input":
         if (square && this._interactable(square)) {
@@ -718,7 +751,17 @@ export class Board {
               !["dragging", "dragging-outside"].includes(this._boardState.id)
             );
           } else {
-            this._cancelMove(square !== this._boardState.startSquare);
+            if (
+              !this._userCancelMove(square !== this._boardState.startSquare)
+            ) {
+              this._setBoardState({
+                id: "awaiting-second-touch",
+                startSquare: this._boardState.startSquare,
+              });
+              this._getBoardSquare(
+                this._boardState.startSquare
+              ).resetPiecePosition(this.animationDurationMs);
+            }
           }
         }
         break;
@@ -778,7 +821,7 @@ export class Board {
           ) {
             this._finishMove(square, true);
           } else {
-            this._cancelMove(false);
+            this._userCancelMove(false);
           }
           break;
         case "dragging":
@@ -852,8 +895,6 @@ export class Board {
         // If we are currently in a non-keyboard friendly state, we should
         // still transition to one since we started keyboard navigation.
         switch (this._boardState.id) {
-          case "awaiting-input":
-            break;
           case "moving-piece-kb":
           case "awaiting-second-touch":
             this._setBoardState({
@@ -865,14 +906,12 @@ export class Board {
                   : undefined,
             });
             break;
+          case "awaiting-input":
           case "touching-first-square":
           case "touching-second-square":
           case "canceling-second-touch":
-            this._cancelMove(false);
-            break;
           case "dragging":
           case "dragging-outside":
-            // Noop: continue with drag operation even if focus was moved around
             break;
           case "default":
             break;

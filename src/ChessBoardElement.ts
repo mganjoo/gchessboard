@@ -36,6 +36,15 @@ import {
  *   The event has a `detail` object with `from` and `to` set to the square labels
  *   of the move, and `piece` containing information about the piece that was moved.
  *
+ * @fires movecancel - Fired as a move is being canceled by the user. The event
+ *   is *itself* cancelable, ie. a caller can call `preventDefault()` on the event
+ *   to prevent the move from being canceled. Any pieces being dragged will be returned
+ *   to the start square, but the move will remain in progress.
+ *
+ *   The event has a `detail` object` with `from` set to the square label where
+ *   the move was started, and `piece` containing information about the piece that was
+ *   moved.
+ *
  * @cssprop [--square-color-dark=hsl(145deg 32% 44%)] - Color for dark squares.
  * @cssprop [--square-color-light=hsl(51deg 24% 84%)] - Color for light squares.
  *
@@ -413,6 +422,10 @@ declare global {
     moveend: CustomEvent<{
       from: Square;
       to: Square;
+      piece: Piece;
+    }>;
+    movecancel: CustomEvent<{
+      from: Square;
       piece: Piece;
     }>;
   }

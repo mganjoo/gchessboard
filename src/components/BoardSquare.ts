@@ -280,13 +280,20 @@ export class BoardSquare {
   }
 
   /**
+   * Set piece back to original location. Ignore if square has no piece.
+   */
+  resetPiecePosition(animateDurationMs?: number) {
+    this._boardPiece?.resetPosition(animateDurationMs);
+  }
+
+  /**
    * Cancel ongoing interaction and reset position.
    */
   cancelInteraction(animateDurationMs?: number) {
     this._moveState = undefined;
     this._updateMoveStateVisuals();
     this._updateLabelVisuals();
-    this._boardPiece?.resetPosition(animateDurationMs);
+    this.resetPiecePosition(animateDurationMs);
   }
 
   private _updateLabelVisuals() {
