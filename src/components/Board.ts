@@ -398,11 +398,6 @@ export class Board {
       this._getBoardSquare(s).moveTarget = false;
     });
     this._moveTargetSquares = [];
-    if (this._boardState.highlightedSquare) {
-      this._getBoardSquare(
-        this._boardState.highlightedSquare
-      ).highlightedTarget = false;
-    }
     this._setBoardState({
       id: this.interactive ? "awaiting-input" : "default",
     });

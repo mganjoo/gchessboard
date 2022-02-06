@@ -77,7 +77,6 @@ export class BoardSquare {
     this._updateActiveClass();
     this._updateMoveableClass();
     this._updateMoveTargetClass();
-    this._updateHighlightedTargetClass();
   }
 
   /**
@@ -144,7 +143,7 @@ export class BoardSquare {
 
   set highlightedTarget(value: boolean) {
     this._highlightedTarget = value;
-    this._updateHighlightedTargetClass();
+    this._contentElement.classList.toggle("highlighted-target", value);
   }
 
   /**
@@ -306,13 +305,6 @@ export class BoardSquare {
 
   private _updateMoveableClass() {
     this._updateInteractiveCssClass("moveable", this.moveable);
-  }
-
-  private _updateHighlightedTargetClass() {
-    this._updateInteractiveCssClass(
-      "highlighted-target",
-      this.highlightedTarget
-    );
   }
 
   private _updateInteractiveCssClass(name: string, value: boolean) {
