@@ -4,6 +4,8 @@ import {
   expectIsActive,
   expectBoardState,
   squareLocator,
+  tabIntoBoard,
+  expectHasFocus,
 } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
@@ -41,7 +43,21 @@ test("unoccupied first square is not focused when clicking on it", async ({
   await expect(page.locator("body")).toBeFocused();
 });
 
-test("second square is focused after clicking on it", async ({ page }) => {
+test("first square becomes tabbable after clicking on it", async ({ page }) => {
+  // click on first square
+  await squareLocator(page, "e2").click();
+
+  // body should still have focus, as click move doesn't transfer focus
+  await expect(page.locator("body")).toBeFocused();
+
+  // first square should receive focus after we tab back into board
+  await tabIntoBoard(page);
+  await expectHasFocus(page, "e2");
+});
+
+test("second square becomes tabbable after clicking on it", async ({
+  page,
+}) => {
   // click on first square
   await squareLocator(page, "e2").click();
 
@@ -52,14 +68,6 @@ test("second square is focused after clicking on it", async ({ page }) => {
   await expect(page.locator("body")).toBeFocused();
 
   // second square should receive focus after we tab back into board
-  await page.focus("text=Flip");
-  await page.keyboard.press("Shift+Tab");
-
-  // move piece up a square
-  await page.keyboard.press("Enter");
-  await page.keyboard.press("ArrowUp");
-  await page.keyboard.press("Enter");
-
-  // destination should now have piece
-  await expectHasPiece(page, "e5", true);
+  await tabIntoBoard(page);
+  await expectHasFocus(page, "e4");
 });

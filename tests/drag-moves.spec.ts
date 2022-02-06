@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { expectHasPiece, expectBoardState, squareLocator } from "./helpers";
+import {
+  expectHasPiece,
+  expectBoardState,
+  squareLocator,
+  tabIntoBoard,
+  expectHasFocus,
+} from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -15,6 +21,20 @@ test("drag-based moves work correctly", async ({ page }) => {
 
   // no square should have focus
   await expect(page.locator("body")).toBeFocused();
+});
+
+test("drag-based moves should transfer existing focus to new square", async ({
+  page,
+}) => {
+  // tab into board; a1 should have focus
+  await tabIntoBoard(page);
+  await expectHasFocus(page, "a1");
+
+  // drag and drop from c1 to g4
+  await page.dragAndDrop(`[data-square="c1"]`, `[data-square="g4"]`);
+
+  // new square should now have focus
+  await expectHasFocus(page, "g4");
 });
 
 // If we click on a square, then mousedown (but not mouseup), then we should
@@ -48,5 +68,20 @@ test("drag is completed even after previous click on square", async ({
 
   // second square should be marked with a piece on it, and we should be back to awaiting input
   await expectHasPiece(page, "e6", true);
+  await expectBoardState(page, "ready");
+});
+
+test("drag-based move should cancel and preserve focus if moving off board", async ({
+  page,
+}) => {
+  // tab into board; a1 should have focus
+  await tabIntoBoard(page);
+  await expectHasFocus(page, "a1");
+
+  // drag and drop from c2 to somewhere outside
+  await page.dragAndDrop(`[data-square="c2"]`, `text=Flip`);
+
+  // original square should still have focus
+  await expectHasFocus(page, "a1");
   await expectBoardState(page, "ready");
 });

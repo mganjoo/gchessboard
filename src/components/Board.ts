@@ -620,7 +620,6 @@ export class Board {
         this._getBoardSquare(this._boardState.startSquare).toggleSecondaryPiece(
           false
         );
-        this._blurTabbableSquare();
         if (this._boardState.id === "dragging-outside") {
           const canceled = this._userCancelMove(true);
           if (!canceled) {
@@ -672,7 +671,6 @@ export class Board {
           // Consider a "dragging" action to be when we have moved the pointer a sufficient
           // threshold, or we are now in a different square from where we started.
           if (delta > threshold || square !== this._boardState.startSquare) {
-            this._blurTabbableSquare();
             this._getBoardSquare(this._boardState.startSquare).displacePiece(
               e.clientX,
               e.clientY

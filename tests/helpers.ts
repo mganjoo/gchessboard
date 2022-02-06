@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { Page } from "@playwright/test";
+import { Square } from "../src/utils/chess";
 
 /**
  * Returns a Locator object for a specific chessboard square.
@@ -33,7 +34,7 @@ export async function expectHasPiece(
     await squareLocator(page, square).evaluate((e) =>
       e.classList.contains("has-piece")
     )
-  ).toBe(value);
+  ).toEqual(value);
 }
 
 /**
@@ -48,5 +49,28 @@ export async function expectIsActive(
     await squareLocator(page, square).evaluate((e) =>
       e.classList.contains("move-start")
     )
-  ).toBe(value);
+  ).toEqual(value);
+}
+
+/**
+ * Shortcut combination to tab into board.
+ */
+export async function tabIntoBoard(page: Page) {
+  await page.focus("text=Flip");
+  await page.keyboard.press("Shift+Tab");
+}
+
+/**
+ * Return focused square element, if it exists, on board.
+ */
+export async function expectHasFocus(page: Page, square: Square) {
+  return expect(
+    await page
+      .locator("g-chess-board")
+      .evaluate(
+        (e) =>
+          (e.shadowRoot?.activeElement as HTMLElement | undefined)?.dataset
+            .square
+      )
+  ).toEqual(square);
 }
