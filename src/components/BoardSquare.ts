@@ -296,7 +296,7 @@ export class BoardSquare {
   }
 
   private _updateActiveClass() {
-    this._updateInteractiveCssClass("active", this._active);
+    this._updateInteractiveCssClass("move-start", this._active);
   }
 
   private _updateMoveTargetClass() {

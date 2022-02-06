@@ -121,18 +121,18 @@
   );
 }
 
-[data-square].active {
+[data-square].move-start {
   --p-square-color: var(--p-square-color-active);
 }
 
-.moving [data-square].active:not(:focus) {
+.moving [data-square].move-start:not(:focus) {
   /* Add additional outline to move start square when actively moving. */
   box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
     var(--p-outline-color-active);
 }
 
 .ready [data-square].moveable,
-table:not(.dragging) [data-square]:is(.active, .move-target) {
+table:not(.dragging) [data-square]:is(.move-start, .move-target) {
   cursor: pointer;
 }
 
@@ -308,7 +308,7 @@ table:not(.dragging) [data-square]:is(.active, .move-target) {
   opacity: var(--ghost-piece-opacity);
 }
 
-[data-square].active .piece:not(.secondary) {
+[data-square].move-start .piece:not(.secondary) {
   /* Ensure that the piece appears above most other elements in document. */
   z-index: var(--piece-drag-z-index);
 }
