@@ -46,7 +46,7 @@ export async function expectIsActive(
 ) {
   expect(
     await squareLocator(page, square).evaluate((e) =>
-      e.classList.contains("active")
+      e.classList.contains("move-start")
     )
   ).toBe(value);
 }
