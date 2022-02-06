@@ -20,6 +20,7 @@ click, drag and keyboard-based moves.
 | Method             | Type                                             | Description                                      |
 |--------------------|--------------------------------------------------|--------------------------------------------------|
 | `addEventListener` | `<K extends "movestart" \| "moveend" \| "movecancel">(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean \| AddEventListenerOptions \| undefined) => void` | Allows attaching listeners for custom events on this element. |
+| `startMove`        | `(square: "a8" \| "b8" \| "c8" \| "d8" \| "e8" \| "f8" \| "g8" \| "h8" \| "a7" \| "b7" \| "c7" \| "d7" \| "e7" \| "f7" \| "g7" \| "h7" \| "a6" \| "b6" \| "c6" \| "d6" \| "e6" \| "f6" \| "g6" \| "h6" \| "a5" \| "b5" \| "c5" \| ... 36 more ... \| "h1", targetSquares?: ("a8" \| ... 62 more ... \| "h1")[] \| undefined): void` | Start a move on the board at `square`, optionally with specified targets<br />at `targetSquares`. |
 
 ## Events
 

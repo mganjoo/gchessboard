@@ -281,32 +281,55 @@ export class Board {
    */
   animationDurationMs: number;
 
+  /**
+   * Start a move on the board at `square`, optionally with specified targets
+   * at `targetSquares`.
+   */
+  startMove(square: Square, targetSquares?: Square[]) {
+    if (this._interactable(square)) {
+      this._setBoardState({
+        id: "awaiting-second-touch",
+        startSquare: square,
+      });
+      this._startInteraction(square, targetSquares);
+    }
+  }
+
   private get _focusedSquare() {
     return Board._extractSquareData(this._shadowRef.activeElement);
   }
 
-  private _startInteraction(square: Square) {
+  private _startInteraction(square: Square, forceTargetSquares?: Square[]) {
     const piece = this._position[square];
     if (piece) {
       let targetsLimited = false;
       const targetSquares: Square[] = [];
-      this._dispatchEvent(
-        new CustomEvent("movestart", {
-          bubbles: true,
-          detail: {
-            square,
-            piece,
-            setTargets: (squares: Square[]) => {
-              targetsLimited = true;
-              for (const s of squares) {
-                if (keyIsSquare(s)) {
-                  targetSquares.push(s);
+      if (forceTargetSquares !== undefined) {
+        targetsLimited = true;
+        forceTargetSquares.forEach((s) => {
+          if (keyIsSquare(s)) {
+            targetSquares.push(s);
+          }
+        });
+      } else {
+        this._dispatchEvent(
+          new CustomEvent("movestart", {
+            bubbles: true,
+            detail: {
+              square,
+              piece,
+              setTargets: (squares: Square[]) => {
+                targetsLimited = true;
+                for (const s of squares) {
+                  if (keyIsSquare(s)) {
+                    targetSquares.push(s);
+                  }
                 }
-              }
+              },
             },
-          },
-        })
-      );
+          })
+        );
+      }
 
       this._getBoardSquare(square).startInteraction();
       this.tabbableSquare = square;

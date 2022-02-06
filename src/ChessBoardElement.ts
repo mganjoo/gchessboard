@@ -364,6 +364,14 @@ export class GChessBoardElement extends HTMLElement {
     super.addEventListener(type, listener, options);
   }
 
+  /**
+   * Start a move on the board at `square`, optionally with specified targets
+   * at `targetSquares`.
+   */
+  startMove(square: Square, targetSquares?: Square[]) {
+    this._board.startMove(square, targetSquares);
+  }
+
   private _hasBooleanAttribute(name: string): boolean {
     return (
       this.hasAttribute(name) &&
