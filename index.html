@@ -59,10 +59,13 @@
             let duration;
             switch (e.target.value) {
               case "normal":
-                duration = 200;
+                duration = 150;
                 break;
               case "slow":
                 duration = 3500;
+                break;
+              case "instant":
+                duration = 0;
                 break;
               default:
                 duration = 10;
@@ -205,6 +208,7 @@
         id="board"
         class="max-w-md"
         fen="start"
+        animation-duration="150"
         interactive
       ></g-chess-board>
       <div class="flex flex-wrap justify-center py-2 gap-x-3 gap-y-3">
@@ -236,6 +240,7 @@
           <select id="sel-slowdown" class="sel" autocomplete="off">
             <option>normal</option>
             <option>slow</option>
+            <option>instant</option>
           </select>
         </label>
         <label class="input-label">
