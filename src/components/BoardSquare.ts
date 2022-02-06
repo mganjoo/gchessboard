@@ -8,6 +8,15 @@ import {
 } from "./BoardPiece";
 
 /**
+ * Identifies how the square contributes to an ongoing move.
+ * - undefined = there is no current move in progress, here or at any other square.
+ * - "move-start" = square is currently the start square of an ongoing move.
+ * - "move-target" = square is an eligible target for an ongoing move.
+ * - "move-nontarget" = there is an ongoing move, but square is not an eligible target.
+ */
+type BoardSquareMoveState = "move-start" | "move-target" | "move-nontarget";
+
+/**
  * Visual representation of a chessboard square, along with attributes
  * that aid in interactivity (ARIA role, labels etc).
  */
@@ -18,15 +27,14 @@ export class BoardSquare {
   private readonly _slotElement: HTMLSlotElement;
 
   private _label: Square;
+  private _interactive = false;
   private _tabbable = false;
   private _moveable = false;
-  private _interactive = false;
   private _boardPiece?: BoardPiece;
   private _secondaryBoardPiece?: BoardPiece;
   private _hasContent?: boolean;
-  private _active = false;
-  private _moveTarget = false;
   private _highlightedTarget = false;
+  private _moveState?: BoardSquareMoveState;
 
   constructor(container: HTMLElement, label: Square) {
     this._tdElement = makeHTMLElement("td", { attributes: { role: "cell" } });
@@ -72,11 +80,18 @@ export class BoardSquare {
 
   set interactive(value: boolean) {
     this._interactive = value;
-    this._updateAriaRole();
+    this._moveState = undefined;
+
+    // Aria roles
+    this._tdElement.setAttribute("role", value ? "gridcell" : "cell");
+    if (value) {
+      this._contentElement.setAttribute("role", "button");
+    } else {
+      this._contentElement.removeAttribute("role");
+    }
+
     this._updateTabIndex();
-    this._updateActiveClass();
-    this._updateMoveableClass();
-    this._updateMoveTargetClass();
+    this._updateMoveStateClass();
   }
 
   /**
@@ -115,7 +130,7 @@ export class BoardSquare {
   set moveable(value: boolean) {
     if (!value || this._boardPiece) {
       this._moveable = value;
-      this._updateMoveableClass();
+      this._updateMoveStateClass();
     }
   }
 
@@ -124,12 +139,12 @@ export class BoardSquare {
    * when move is in progress, indicating squares that we can move to.
    */
   get moveTarget(): boolean {
-    return this._moveTarget;
+    return this._moveState === "move-target";
   }
 
   set moveTarget(value: boolean) {
-    this._moveTarget = value;
-    this._updateMoveTargetClass();
+    this._moveState = value ? "move-target" : "move-nontarget";
+    this._updateMoveStateClass();
   }
 
   /**
@@ -241,8 +256,8 @@ export class BoardSquare {
    */
   startInteraction() {
     if (this._boardPiece !== undefined && this.moveable) {
-      this._active = true;
-      this._updateActiveClass();
+      this._moveState = "move-start";
+      this._updateMoveStateClass();
       this._boardPiece.finishAnimations();
     }
   }
@@ -258,8 +273,8 @@ export class BoardSquare {
    * Cancel ongoing interaction and reset position.
    */
   cancelInteraction(animateDurationMs?: number) {
-    this._active = false;
-    this._updateActiveClass();
+    this._moveState = undefined;
+    this._updateMoveStateClass();
     this._boardPiece?.resetPosition(animateDurationMs);
   }
 
@@ -275,18 +290,6 @@ export class BoardSquare {
     this._slotElement.name = this.label;
   }
 
-  private _updateAriaRole() {
-    this._tdElement.setAttribute(
-      "role",
-      this.interactive ? "gridcell" : "cell"
-    );
-    if (this.interactive) {
-      this._contentElement.setAttribute("role", "button");
-    } else {
-      this._contentElement.removeAttribute("role");
-    }
-  }
-
   private _updateTabIndex() {
     if (this.interactive) {
       this._contentElement.tabIndex = this.tabbable ? 0 : -1;
@@ -295,32 +298,33 @@ export class BoardSquare {
     }
   }
 
-  private _updateActiveClass() {
-    this._updateInteractiveCssClass("move-start", this._active);
-  }
+  private _updateMoveStateClass() {
+    this._updateInteractiveCssClass(
+      "moveable",
+      this.moveable && !this._moveState
+    );
 
-  private _updateMoveTargetClass() {
-    this._updateInteractiveCssClass("move-target", this._moveTarget);
-  }
+    this._updateInteractiveCssClass(
+      "move-start",
+      this._moveState === "move-start"
+    );
 
-  private _updateMoveableClass() {
-    this._updateInteractiveCssClass("moveable", this.moveable);
+    this._updateInteractiveCssClass(
+      "move-target",
+      this._moveState === "move-target"
+    );
   }
 
   private _updateInteractiveCssClass(name: string, value: boolean) {
-    if (this.interactive) {
-      this._contentElement.classList.toggle(name, value);
-    } else {
-      this._contentElement.classList.remove(name);
-    }
+    this._contentElement.classList.toggle(name, this.interactive && value);
   }
 
   private _updateSquareAfterPieceChange() {
     this._contentElement.classList.toggle("has-piece", !!this._boardPiece);
 
     // Always cancel ongoing interactions when piece changes
-    this._active = false;
-    this._updateActiveClass();
+    this._moveState = undefined;
+    this._updateMoveStateClass();
 
     // Ensure secondary piece is toggled off if piece is changed
     this.toggleSecondaryPiece(false);

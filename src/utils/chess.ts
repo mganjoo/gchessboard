@@ -36,7 +36,7 @@ const SQUARES_MAP = {
   a2:  96, b2:  97, c2:  98, d2:  99, e2: 100, f2: 101, g2: 102, h2: 103,
   a1: 112, b1: 113, c1: 114, d1: 115, e1: 116, f1: 117, g1: 118, h1: 119
 }
-export const SQUARES = Object.keys(SQUARES_MAP) as Square[];
+const SQUARES = Object.keys(SQUARES_MAP) as Square[];
 export type Square = keyof typeof SQUARES_MAP;
 
 // prettier-ignore

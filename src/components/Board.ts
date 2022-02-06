@@ -9,7 +9,6 @@ import {
   Square,
   keyIsSquare,
   Piece,
-  SQUARES,
 } from "../utils/chess";
 import { makeHTMLElement } from "../utils/dom";
 import { BoardState } from "./BoardState";
@@ -29,7 +28,6 @@ export class Board {
   private _boardState: BoardState;
   private _tabbableSquare?: Square;
   private _defaultTabbableSquare: Square;
-  private _moveTargetSquares: Square[] = [];
 
   // Event handlers
   private _pointerDownHandler: (e: PointerEvent) => void;
@@ -313,19 +311,15 @@ export class Board {
       this._getBoardSquare(square).startInteraction();
       this.tabbableSquare = square;
 
-      if (targetsLimited) {
-        this._table.classList.add(Board.HAS_LIMITED_TARGETS_CLASS);
-        this._moveTargetSquares = [];
-        targetSquares.forEach((s) => {
-          this._moveTargetSquares.push(s);
-          this._getBoardSquare(s).moveTarget = true;
-        });
-      } else {
-        this._moveTargetSquares = SQUARES.filter((s) => s !== square);
-        this._moveTargetSquares.forEach((s) => {
-          this._getBoardSquare(s).moveTarget = true;
-        });
-      }
+      this._table.classList.toggle(
+        Board.HAS_LIMITED_TARGETS_CLASS,
+        targetsLimited
+      );
+      this._boardSquares.forEach((s) => {
+        if (s.label !== square) {
+          s.moveTarget = !targetsLimited || targetSquares.includes(s.label);
+        }
+      });
     }
   }
 
@@ -394,10 +388,6 @@ export class Board {
 
   private _resetBoardStateAndMoves() {
     this._table.classList.remove(Board.HAS_LIMITED_TARGETS_CLASS);
-    this._moveTargetSquares.forEach((s) => {
-      this._getBoardSquare(s).moveTarget = false;
-    });
-    this._moveTargetSquares = [];
     this._setBoardState({
       id: this.interactive ? "awaiting-input" : "default",
     });
@@ -413,7 +403,7 @@ export class Board {
   }
 
   private _isValidMove(from: Square, to: Square): boolean {
-    return from !== to && this._moveTargetSquares.includes(to);
+    return from !== to && this._getBoardSquare(to).moveTarget;
   }
 
   private _getBoardSquare(square: Square) {
