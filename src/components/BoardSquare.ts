@@ -33,7 +33,8 @@ export class BoardSquare {
   private _boardPiece?: BoardPiece;
   private _secondaryBoardPiece?: BoardPiece;
   private _hasContent?: boolean;
-  private _highlightedTarget = false;
+  private _hover = false;
+  private _markedTarget = false;
   private _moveState?: BoardSquareMoveState;
 
   constructor(container: HTMLElement, label: Square) {
@@ -157,17 +158,30 @@ export class BoardSquare {
   }
 
   /**
-   * Whether this square is currently a highlighted target (during a drag or
-   * keyboard move). This is meant to be equivalent to the :hover pseudoclass
-   * when mousing over a target square.
+   * Whether this square is currently a "hover" target: the equivalent of a
+   * :hover pseudoclass while mousing over a target square, but for drag
+   * and keyboard moves.
    */
-  get highlightedTarget(): boolean {
-    return this._highlightedTarget;
+  get hover(): boolean {
+    return this._hover;
   }
 
-  set highlightedTarget(value: boolean) {
-    this._highlightedTarget = value;
-    this._contentElement.classList.toggle("highlighted-target", value);
+  set hover(value: boolean) {
+    this._hover = value;
+    this._contentElement.classList.toggle("hover", value);
+  }
+
+  /**
+   * Whether this square is currently a marked destination of a move. This
+   * is usually shown with a marker or other indicator on the square.
+   */
+  get markedTarget(): boolean {
+    return this._markedTarget;
+  }
+
+  set markedTarget(value: boolean) {
+    this._markedTarget = value;
+    this._contentElement.classList.toggle("marked-target", value);
   }
 
   /**

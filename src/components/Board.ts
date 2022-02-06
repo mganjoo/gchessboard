@@ -49,11 +49,6 @@ export class Board {
   private static DRAG_THRESHOLD_MIN_PIXELS = 2;
 
   /**
-   * Class applied to board when only a few squares are eligible for a move.
-   */
-  private static HAS_LIMITED_TARGETS_CLASS = "has-limited-targets";
-
-  /**
    * Creates a set of elements representing chessboard squares, as well
    * as managing and displaying pieces rendered on the squares.
    */
@@ -334,13 +329,10 @@ export class Board {
       this._getBoardSquare(square).startInteraction();
       this.tabbableSquare = square;
 
-      this._table.classList.toggle(
-        Board.HAS_LIMITED_TARGETS_CLASS,
-        targetsLimited
-      );
       this._boardSquares.forEach((s) => {
         if (s.label !== square) {
           s.moveTarget = !targetsLimited || targetSquares.includes(s.label);
+          s.markedTarget = targetsLimited && s.moveTarget;
         }
       });
     }
@@ -442,9 +434,9 @@ export class Board {
   }
 
   private _resetBoardStateAndMoves() {
-    this._table.classList.remove(Board.HAS_LIMITED_TARGETS_CLASS);
     this._boardSquares.forEach((s) => {
       s.removeMoveState();
+      s.markedTarget = false;
     });
     this._setBoardState({
       id: this.interactive ? "awaiting-input" : "default",
@@ -530,28 +522,15 @@ export class Board {
     this._boardState = state;
 
     if (this._boardState.id !== oldState.id) {
-      this._table.classList.toggle(
-        "ready",
-        ["awaiting-input"].includes(this._boardState.id)
-      );
-
-      this._table.classList.toggle(
-        "moving",
-        !["default", "awaiting-input"].includes(this._boardState.id)
-      );
-
       this._table.classList.toggle("dragging", this._isDragState());
     }
 
     if (this._boardState.highlightedSquare !== oldState.highlightedSquare) {
       if (oldState.highlightedSquare) {
-        this._getBoardSquare(oldState.highlightedSquare).highlightedTarget =
-          false;
+        this._getBoardSquare(oldState.highlightedSquare).hover = false;
       }
       if (this._boardState.highlightedSquare) {
-        this._getBoardSquare(
-          this._boardState.highlightedSquare
-        ).highlightedTarget = true;
+        this._getBoardSquare(this._boardState.highlightedSquare).hover = true;
       }
     }
   }

@@ -54,10 +54,10 @@ import {
  * @cssprop [--square-color-dark=hsl(145deg 32% 44%)] - Color for dark squares.
  * @cssprop [--square-color-light=hsl(51deg 24% 84%)] - Color for light squares.
  *
- * @cssprop [--square-color-dark-highlight=hsl(144deg 75% 44%)] - Highlight color
+ * @cssprop [--square-color-dark-hover=hsl(144deg 75% 44%)] - Hover color
  *   for a dark square. Applied when mouse is hovering over an interactable square
  *   or a square has keyboard focus during a move.
- * @cssprop [--square-color-light-highlight=hsl(52deg 98% 70%)] - Highlight color
+ * @cssprop [--square-color-light-hover=hsl(52deg 98% 70%)] - Hover color
  *   for a dark square. Applied when mouse is hovering over an interactable square
  *   or a square has keyboard focus during a move.
  *
@@ -78,6 +78,12 @@ import {
  *   when the square does not have focus.
  * @cssprop [--outline-color-focus=hsl(30deg 94% 55% / 90%)] - Color of outline applied to square when it has focus.
  *
+ * @cssprop [--outer-gutter-width=4%] - When the `coordinates` property is `outside`,
+ *   this CSS property controls the width of the gutter outside the board where coords are shown.
+ * @cssprop [--inner-border-width=1px] - Width of the inside border drawn around the board.
+ * @cssprop [--inner-border-color=var(--square-color-dark)] - Color of the inside border drawn
+ *   around the board.
+ *
  * @cssprop [--move-target-marker-color-dark-square=hsl(144deg 64% 9% / 90%)] -
  *   Color of marker shown on dark square when it is an eligible move target.
  * @cssprop [--move-target-marker-color-light-square=hsl(144deg 64% 9% / 90%)] -
@@ -93,8 +99,6 @@ import {
  *
  * @cssprop [--coords-font-size=0.7rem] - Font size of coord labels shown on board.
  * @cssprop [--coords-font-family=sans-serif] - Font family of coord labels shown on board.
- * @cssprop [--coords-outside-gutter-width=4%] - When the `coordinates` property is `outside`,
- *   this CSS property controls the width of the gutter outside the board where coords are shown.
  * @cssprop [--coords-inside-coord-padding-left=0.5%] - Left padding applied to coordinates
  *   when shown inside the board. Percentage values are relative to the width of the board.
  * @cssprop [--coords-inside-coord-padding-right=0.5%] - Right padding applied to coordinates

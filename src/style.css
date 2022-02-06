@@ -4,8 +4,8 @@
   --square-color-light: hsl(51deg 24% 84%);
 
   /* Square colors when in :hover state. */
-  --square-color-dark-highlight: hsl(144deg 75% 44%);
-  --square-color-light-highlight: hsl(52deg 98% 70%);
+  --square-color-dark-hover: hsl(144deg 75% 44%);
+  --square-color-light-hover: hsl(52deg 98% 70%);
 
   /* Square colors when the square is actively being interacted with (moved). */
   --square-color-dark-active: hsl(142deg 77% 43%);
@@ -27,7 +27,10 @@
   --coords-font-family: sans-serif;
 
   /* Width of wrapping gutter when showing coordinates outside board. */
-  --coords-outside-gutter-width: 4%;
+  --outer-gutter-width: 4%;
+
+  /* Width of inner border surrounding board. */
+  --inner-border-width: 1px;
 
   /* Padding applied to coordinates when shown inside the board. */
   --coords-inside-coord-padding-left: 0.5%;
@@ -52,7 +55,7 @@
   /* padding applied around piece. */
   --piece-padding: 3%;
 
-  display: inline-block;
+  display: block;
 }
 
 /* Ensure that 'hidden' attribute is respected despite above display override. */
@@ -65,14 +68,12 @@
   box-sizing: border-box;
   table-layout: fixed;
   border-collapse: collapse;
+  border: var(--inner-border-width) solid
+    var(--inner-border-color, var(--square-color-dark));
 
   /* Prevent native dragging caused if any of the children are "selected". */
   user-select: none;
   touch-action: none;
-}
-
-.wrapper.outside > .board {
-  border: 1px solid var(--square-color-dark);
 }
 
 .board > tr > td {
@@ -103,7 +104,7 @@
     var(--outline-color-focus);
 }
 
-.has-limited-targets [data-square].move-target {
+[data-square].marked-target {
   /* Add pixel offset to boundary to reduce jaggedness. */
   background: radial-gradient(
     var(--p-move-target-marker-color) var(--move-target-marker-radius),
@@ -111,8 +112,8 @@
   );
 }
 
-.has-limited-targets [data-square].has-piece.move-target,
-.has-limited-targets [data-square].has-content.move-target {
+[data-square].has-piece.marked-target,
+[data-square].has-content.marked-target {
   /* Wide circle with transparent interior if square is occupied. */
   background: radial-gradient(
     var(--p-square-color) var(--move-target-marker-radius-occupied),
@@ -125,32 +126,31 @@
   --p-square-color: var(--p-square-color-active);
 }
 
-.moving [data-square].move-start:not(:focus) {
+[data-square].move-start:not(:focus) {
   /* Add additional outline to move start square when actively moving. */
   box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
     var(--p-outline-color-active);
 }
 
-.ready [data-square].moveable,
-table:not(.dragging) [data-square]:is(.move-start, .move-target) {
-  cursor: pointer;
-}
-
-.dragging {
-  cursor: grab;
-}
-
 @media (hover: hover) {
   /* Hover styles only shown on devices with mouse pointers.
      Prevent iOS Safari from persisting a hover style. */
-  .ready [data-square].moveable:hover,
-  .moving [data-square].move-target:hover {
-    --p-square-color: var(--p-square-color-highlight);
+  [data-square]:is(.moveable, .move-target):hover {
+    --p-square-color: var(--p-square-color-hover);
   }
 }
 
-.moving [data-square].highlighted-target {
-  --p-square-color: var(--p-square-color-highlight);
+/* Artificial .hover class is applied during drag and keyboard moves. */
+[data-square].hover {
+  --p-square-color: var(--p-square-color-hover);
+}
+
+table:not(.dragging) [data-square]:is(.moveable, .move-start, .move-target) {
+  cursor: pointer;
+}
+
+table.dragging {
+  cursor: grab;
 }
 
 /***************
@@ -188,7 +188,7 @@ table:not(.dragging) [data-square]:is(.move-start, .move-target) {
 }
 
 .wrapper.outside {
-  padding: var(--coords-outside-gutter-width);
+  padding: var(--outer-gutter-width);
   background-color: var(--square-color-light);
 }
 
@@ -203,19 +203,19 @@ table:not(.dragging) [data-square]:is(.move-start, .move-target) {
 }
 
 .wrapper.outside > .coords.file {
-  width: calc(100% - 2 * var(--coords-outside-gutter-width));
-  height: var(--coords-outside-gutter-width);
+  width: calc(100% - 2 * var(--outer-gutter-width));
+  height: var(--outer-gutter-width);
   bottom: 0;
-  left: var(--coords-outside-gutter-width);
-  right: var(--coords-outside-gutter-width);
+  left: var(--outer-gutter-width);
+  right: var(--outer-gutter-width);
 }
 
 .wrapper.outside > .coords.rank {
-  width: var(--coords-outside-gutter-width);
-  height: calc(100% - 2 * var(--coords-outside-gutter-width));
+  width: var(--outer-gutter-width);
+  height: calc(100% - 2 * var(--outer-gutter-width));
   left: 0;
-  top: var(--coords-outside-gutter-width);
-  bottom: var(--coords-outside-gutter-width);
+  top: var(--outer-gutter-width);
+  bottom: var(--outer-gutter-width);
 }
 
 .wrapper.inside > .coords {
@@ -255,7 +255,7 @@ table:not(.dragging) [data-square]:is(.move-start, .move-target) {
 
   /* Label colors for inline labels should be inverse of square color */
   --p-label-color: var(--square-color-light);
-  --p-square-color-highlight: var(--square-color-dark-highlight);
+  --p-square-color-hover: var(--square-color-dark-hover);
   --p-move-target-marker-color: var(--move-target-marker-color-dark-square);
   --p-square-color-active: var(--square-color-dark-active);
   --p-outline-color-active: var(--outline-color-dark-active);
@@ -264,7 +264,7 @@ table:not(.dragging) [data-square]:is(.move-start, .move-target) {
 [data-square-color="light"] {
   --p-square-color: var(--square-color-light);
   --p-label-color: var(--square-color-dark);
-  --p-square-color-highlight: var(--square-color-light-highlight);
+  --p-square-color-hover: var(--square-color-light-hover);
   --p-move-target-marker-color: var(--move-target-marker-color-light-square);
   --p-square-color-active: var(--square-color-light-active);
   --p-outline-color-active: var(--outline-color-light-active);

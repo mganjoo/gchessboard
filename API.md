@@ -51,12 +51,14 @@ click, drag and keyboard-based moves.
 | `--coords-font-size`                      | "0.7rem"                    | Font size of coord labels shown on board.        |
 | `--coords-inside-coord-padding-left`      | "0.5%"                      | Left padding applied to coordinates<br />when shown inside the board. Percentage values are relative to the width of the board. |
 | `--coords-inside-coord-padding-right`     | "0.5%"                      | Right padding applied to coordinates<br />when shown inside the board. Percentage values are relative to the width of the board. |
-| `--coords-outside-gutter-width`           | "4%"                        | When the `coordinates` property is `outside`,<br />this CSS property controls the width of the gutter outside the board where coords are shown. |
 | `--ghost-piece-opacity`                   | 0.35                        | Opacity of ghost piece shown while dragging.<br />Set to 0 to hide ghost piece altogether. |
+| `--inner-border-color`                    | "var(--square-color-dark)"  | Color of the inside border drawn<br />around the board. |
+| `--inner-border-width`                    | "1px"                       | Width of the inside border drawn around the board. |
 | `--move-target-marker-color-dark-square`  | "hsl(144deg 64% 9% / 90%)"  | Color of marker shown on dark square when it is an eligible move target. |
 | `--move-target-marker-color-light-square` | "hsl(144deg 64% 9% / 90%)"  | Color of marker shown on light square when it is an eligible move target. |
 | `--move-target-marker-radius`             | "24%"                       | Radius of marker on a move target<br />square.   |
 | `--move-target-marker-radius-occupied`    | "82%"                       | Radius of marker on<br />a move target square that is occupied (by a piece or custom content). |
+| `--outer-gutter-width`                    | "4%"                        | When the `coordinates` property is `outside`,<br />this CSS property controls the width of the gutter outside the board where coords are shown. |
 | `--outline-blur-radius`                   | "3px"                       | Blur radius of all outlines applied to square.   |
 | `--outline-color-dark-active`             | "hsl(138deg 85% 53% / 95%)" | Color of<br />outline applied to dark square when it is the starting point of a move.<br />It is applied in addition to `--square-color-dark-active`, and is visible<br />when the square does not have focus. |
 | `--outline-color-focus`                   | "hsl(30deg 94% 55% / 90%)"  | Color of outline applied to square when it has focus. |
@@ -66,7 +68,7 @@ click, drag and keyboard-based moves.
 | `--piece-padding`                         | "3%"                        | Padding applied to square when piece is placed in it. |
 | `--square-color-dark`                     | "hsl(145deg 32% 44%)"       | Color for dark squares.                          |
 | `--square-color-dark-active`              | "hsl(142deg 77% 43%)"       | Color applied to<br />dark square when it is involved in (the starting point) of a move. By default<br />this color is similar to, but slightly different from, `--square-color-dark-hover`. |
-| `--square-color-dark-highlight`           | "hsl(144deg 75% 44%)"       | Highlight color<br />for a dark square. Applied when mouse is hovering over an interactable square<br />or a square has keyboard focus during a move. |
+| `--square-color-dark-hover`               | "hsl(144deg 75% 44%)"       | Hover color<br />for a dark square. Applied when mouse is hovering over an interactable square<br />or a square has keyboard focus during a move. |
 | `--square-color-light`                    | "hsl(51deg 24% 84%)"        | Color for light squares.                         |
 | `--square-color-light-active`             | "hsl(50deg 95% 64%)"        | Color applied to<br />light square when it is involved in (the starting point) of a move. By default<br />this color is similar to, but slightly different from, `--square-color-light-hover`. |
-| `--square-color-light-highlight`          | "hsl(52deg 98% 70%)"        | Highlight color<br />for a dark square. Applied when mouse is hovering over an interactable square<br />or a square has keyboard focus during a move. |
+| `--square-color-light-hover`              | "hsl(52deg 98% 70%)"        | Hover color<br />for a dark square. Applied when mouse is hovering over an interactable square<br />or a square has keyboard focus during a move. |
