@@ -384,8 +384,10 @@ export class Board {
           this._dispatchEvent(e);
         }
       }
+      this._resetBoardStateAndMoves();
+      return true;
     }
-    this._resetBoardStateAndMoves();
+    return false;
   }
 
   private _userCancelMove(animate: boolean) {
@@ -527,10 +529,7 @@ export class Board {
         !["default", "awaiting-input"].includes(this._boardState.id)
       );
 
-      this._table.classList.toggle(
-        "dragging",
-        ["dragging", "dragging-outside"].includes(this._boardState.id)
-      );
+      this._table.classList.toggle("dragging", this._isDragState());
     }
 
     if (this._boardState.highlightedSquare !== oldState.highlightedSquare) {
@@ -630,6 +629,9 @@ export class Board {
               id: "awaiting-second-touch",
               startSquare: this._boardState.startSquare,
             });
+          }
+          if (this._focusedSquare) {
+            this._focusTabbableSquare();
           }
         }
         break;
@@ -732,6 +734,7 @@ export class Board {
   }
 
   private _handleClick(this: Board, square: Square | undefined) {
+    let newFocusedSquare = square;
     switch (this._boardState.id) {
       case "touching-first-square":
         this._setBoardState({
@@ -763,26 +766,29 @@ export class Board {
       case "dragging":
       case "dragging-outside":
         {
+          let done = false;
           if (
             square &&
             this._isValidMove(this._boardState.startSquare, square)
           ) {
-            this._finishMove(
-              square,
-              !["dragging", "dragging-outside"].includes(this._boardState.id)
-            );
-          } else {
-            if (
-              !this._userCancelMove(square !== this._boardState.startSquare)
-            ) {
-              this._setBoardState({
-                id: "awaiting-second-touch",
-                startSquare: this._boardState.startSquare,
-              });
-              this._getBoardSquare(
-                this._boardState.startSquare
-              ).resetPiecePosition(this.animationDurationMs);
+            done = this._finishMove(square, !this._isDragState());
+            if (!done) {
+              newFocusedSquare = this._boardState.startSquare;
             }
+          } else {
+            newFocusedSquare = this._boardState.startSquare;
+            done = this._userCancelMove(
+              square !== this._boardState.startSquare
+            );
+          }
+          if (!done) {
+            this._setBoardState({
+              id: "awaiting-second-touch",
+              startSquare: this._boardState.startSquare,
+            });
+            this._getBoardSquare(
+              this._boardState.startSquare
+            ).resetPiecePosition(this.animationDurationMs);
           }
         }
         break;
@@ -794,8 +800,8 @@ export class Board {
     }
 
     // If board currently has focus, move focus to newly clicked square.
-    if (this._focusedSquare && square) {
-      this.tabbableSquare = square;
+    if (this._focusedSquare && newFocusedSquare) {
+      this.tabbableSquare = newFocusedSquare;
       this._focusTabbableSquare();
     }
   }
@@ -981,6 +987,10 @@ export class Board {
       style.removeProperty("transition-property");
     }
   };
+
+  private _isDragState() {
+    return ["dragging", "dragging-outside"].includes(this._boardState.id);
+  }
 
   private static _extractSquareData(
     target: EventTarget | null

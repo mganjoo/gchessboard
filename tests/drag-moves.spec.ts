@@ -71,9 +71,7 @@ test("drag is completed even after previous click on square", async ({
   await expectBoardState(page, "ready");
 });
 
-test("drag-based move should cancel and preserve focus if moving off board", async ({
-  page,
-}) => {
+test("drag-based move should cancel if moving off board", async ({ page }) => {
   // tab into board; a1 should have focus
   await tabIntoBoard(page);
   await expectHasFocus(page, "a1");
@@ -81,7 +79,7 @@ test("drag-based move should cancel and preserve focus if moving off board", asy
   // drag and drop from c2 to somewhere outside
   await page.dragAndDrop(`[data-square="c2"]`, `text=Flip`);
 
-  // original square should still have focus
-  await expectHasFocus(page, "a1");
+  // start square should now have focus
+  await expectHasFocus(page, "c2");
   await expectBoardState(page, "ready");
 });
