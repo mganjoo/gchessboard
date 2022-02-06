@@ -19,14 +19,15 @@ click, drag and keyboard-based moves.
 
 | Method             | Type                                             | Description                                      |
 |--------------------|--------------------------------------------------|--------------------------------------------------|
-| `addEventListener` | `<K extends "movestart" \| "moveend">(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean \| AddEventListenerOptions \| undefined) => void` | Allows attaching listeners for custom events on this element. |
+| `addEventListener` | `<K extends "movestart" \| "moveend" \| "movecancel">(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean \| AddEventListenerOptions \| undefined) => void` | Allows attaching listeners for custom events on this element. |
 
 ## Events
 
-| Event       | Description                                      |
-|-------------|--------------------------------------------------|
-| `moveend`   | Fired after a move is completed and animations are resolved.<br />The event has a `detail` object with `from` and `to` set to the square labels<br />of the move, and `piece` containing information about the piece that was moved. |
-| `movestart` | Fired when the user initiates a move by clicking, dragging or<br />via the keyboard.<br /><br />The event has a `detail` object with the `square` and<br />`piece` values for the move. It also has a function, `setTargets(squares)`,<br />that the caller can invoke with an array of square labels. This limits the<br />set of targets that the piece can be moved to. Note that calling this<br />function with an empty list will still allow the piece to be dragged around,<br />but no square will accept the piece and thus it will always return to the<br />starting square. |
+| Event        | Description                                      |
+|--------------|--------------------------------------------------|
+| `movecancel` | Fired as a move is being canceled by the user. The event<br />is *itself* cancelable, ie. a caller can call `preventDefault()` on the event<br />to prevent the move from being canceled. Any pieces being dragged will be returned<br />to the start square, but the move will remain in progress.<br /><br />The event has a `detail` object` with `from` set to the square label where<br />the move was started, and `piece` containing information about the piece that was<br />moved. |
+| `moveend`    | Fired after a move is completed and animations are resolved.<br />The event has a `detail` object with `from` and `to` set to the square labels<br />of the move, and `piece` containing information about the piece that was moved. |
+| `movestart`  | Fired when the user initiates a move by clicking, dragging or<br />via the keyboard.<br /><br />The event has a `detail` object with the `square` and<br />`piece` values for the move. It also has a function, `setTargets(squares)`,<br />that the caller can invoke with an array of square labels. This limits the<br />set of targets that the piece can be moved to. Note that calling this<br />function with an empty list will still allow the piece to be dragged around,<br />but no square will accept the piece and thus it will always return to the<br />starting square. |
 
 ## Slots
 
@@ -46,7 +47,9 @@ click, drag and keyboard-based moves.
 |-------------------------------------------|-----------------------------|--------------------------------------------------|
 | `--coords-font-family`                    | "sans-serif"                | Font family of coord labels shown on board.      |
 | `--coords-font-size`                      | "0.7rem"                    | Font size of coord labels shown on board.        |
-| `--coords-outside-padding`                | "4%"                        | When the `coordinates` property is `outside`,<br />this CSS property controls how much padding is applied to the outside border where<br />coords are shown. |
+| `--coords-inside-coord-padding-left`      | "0.5%"                      | Left padding applied to coordinates<br />when shown inside the board. Percentage values are relative to the width of the board. |
+| `--coords-inside-coord-padding-right`     | "0.5%"                      | Right padding applied to coordinates<br />when shown inside the board. Percentage values are relative to the width of the board. |
+| `--coords-outside-gutter-width`           | "4%"                        | When the `coordinates` property is `outside`,<br />this CSS property controls the width of the gutter outside the board where coords are shown. |
 | `--ghost-piece-opacity`                   | 0.35                        | Opacity of ghost piece shown while dragging.<br />Set to 0 to hide ghost piece altogether. |
 | `--move-target-marker-color-dark-square`  | "hsl(144deg 64% 9% / 90%)"  | Color of marker shown on dark square when it is an eligible move target. |
 | `--move-target-marker-color-light-square` | "hsl(144deg 64% 9% / 90%)"  | Color of marker shown on light square when it is an eligible move target. |
