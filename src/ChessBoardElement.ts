@@ -24,7 +24,7 @@ import {
  * @fires movestart - Fired when the user initiates a move by clicking, dragging or
  *   via the keyboard.
  *
- *   The event has a `detail` object with the `square` and
+ *   The event has a `detail` object with the `from` and
  *   `piece` values for the move. It also has a function, `setTargets(squares)`,
  *   that the caller can invoke with an array of square labels. This limits the
  *   set of targets that the piece can be moved to. Note that calling this
@@ -32,7 +32,13 @@ import {
  *   but no square will accept the piece and thus it will always return to the
  *   starting square.
  *
- * @fires moveend - Fired after a move is completed and animations are resolved.
+ * @fires moveend - Fired when user is completing a move. This move can be prevented
+ *   from completing by calling `preventDefault()` on the event. If that is called,
+ *   the move itself remains in progress. The event has a `detail` object with `from`
+ *   and `to` set to the square labels of the move, and `piece` containing information
+ *   about the piece that was moved.
+ *
+ * @fires movefinished - Fired after a move is completed and animations are resolved.
  *   The event has a `detail` object with `from` and `to` set to the square labels
  *   of the move, and `piece` containing information about the piece that was moved.
  *
@@ -423,11 +429,16 @@ declare global {
 
   interface ChessBoardEventMap {
     movestart: CustomEvent<{
-      square: Square;
+      from: Square;
       piece: Piece;
       setTargets: (squares: Square[]) => void;
     }>;
     moveend: CustomEvent<{
+      from: Square;
+      to: Square;
+      piece: Piece;
+    }>;
+    movefinished: CustomEvent<{
       from: Square;
       to: Square;
       piece: Piece;

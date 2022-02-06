@@ -316,7 +316,7 @@ export class Board {
           new CustomEvent("movestart", {
             bubbles: true,
             detail: {
-              square,
+              from: square,
               piece,
               setTargets: (squares: Square[]) => {
                 targetsLimited = true;
@@ -351,6 +351,17 @@ export class Board {
       const from = this._boardState.startSquare;
       const piece = this._position[from];
       if (piece !== undefined) {
+        const endEvent = new CustomEvent("moveend", {
+          bubbles: true,
+          cancelable: true,
+          detail: { from, to, piece },
+        });
+
+        this._dispatchEvent(endEvent);
+        if (endEvent.defaultPrevented) {
+          return false;
+        }
+
         const startingPosition = this._getStartingPositionForMove(from, to);
         this._getBoardSquare(from).clearPiece();
         this._getBoardSquare(to).setPiece(
@@ -371,17 +382,17 @@ export class Board {
         this._position[to] = this._position[from];
         delete this._position[from];
 
-        const e = new CustomEvent("moveend", {
+        const finishedEvent = new CustomEvent("movefinished", {
           bubbles: true,
           detail: { from, to, piece },
         });
 
         if (animate) {
           this._getBoardSquare(to).boardPiece?.animationFinished?.then(() => {
-            this._dispatchEvent(e);
+            this._dispatchEvent(finishedEvent);
           });
         } else {
-          this._dispatchEvent(e);
+          this._dispatchEvent(finishedEvent);
         }
       }
       this._resetBoardStateAndMoves();

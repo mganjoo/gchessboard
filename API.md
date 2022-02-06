@@ -19,16 +19,17 @@ click, drag and keyboard-based moves.
 
 | Method             | Type                                             | Description                                      |
 |--------------------|--------------------------------------------------|--------------------------------------------------|
-| `addEventListener` | `<K extends "movestart" \| "moveend" \| "movecancel">(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean \| AddEventListenerOptions \| undefined) => void` | Allows attaching listeners for custom events on this element. |
+| `addEventListener` | `<K extends "movestart" \| "moveend" \| "movefinished" \| "movecancel">(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean \| ... 1 more ... \| undefined) => void` | Allows attaching listeners for custom events on this element. |
 | `startMove`        | `(square: "a8" \| "b8" \| "c8" \| "d8" \| "e8" \| "f8" \| "g8" \| "h8" \| "a7" \| "b7" \| "c7" \| "d7" \| "e7" \| "f7" \| "g7" \| "h7" \| "a6" \| "b6" \| "c6" \| "d6" \| "e6" \| "f6" \| "g6" \| "h6" \| "a5" \| "b5" \| "c5" \| ... 36 more ... \| "h1", targetSquares?: ("a8" \| ... 62 more ... \| "h1")[] \| undefined): void` | Start a move on the board at `square`, optionally with specified targets<br />at `targetSquares`. |
 
 ## Events
 
-| Event        | Description                                      |
-|--------------|--------------------------------------------------|
-| `movecancel` | Fired as a move is being canceled by the user. The event<br />is *itself* cancelable, ie. a caller can call `preventDefault()` on the event<br />to prevent the move from being canceled. Any pieces being dragged will be returned<br />to the start square, but the move will remain in progress.<br /><br />The event has a `detail` object` with `from` set to the square label where<br />the move was started, and `piece` containing information about the piece that was<br />moved. |
-| `moveend`    | Fired after a move is completed and animations are resolved.<br />The event has a `detail` object with `from` and `to` set to the square labels<br />of the move, and `piece` containing information about the piece that was moved. |
-| `movestart`  | Fired when the user initiates a move by clicking, dragging or<br />via the keyboard.<br /><br />The event has a `detail` object with the `square` and<br />`piece` values for the move. It also has a function, `setTargets(squares)`,<br />that the caller can invoke with an array of square labels. This limits the<br />set of targets that the piece can be moved to. Note that calling this<br />function with an empty list will still allow the piece to be dragged around,<br />but no square will accept the piece and thus it will always return to the<br />starting square. |
+| Event          | Description                                      |
+|----------------|--------------------------------------------------|
+| `movecancel`   | Fired as a move is being canceled by the user. The event<br />is *itself* cancelable, ie. a caller can call `preventDefault()` on the event<br />to prevent the move from being canceled. Any pieces being dragged will be returned<br />to the start square, but the move will remain in progress.<br /><br />The event has a `detail` object` with `from` set to the square label where<br />the move was started, and `piece` containing information about the piece that was<br />moved. |
+| `moveend`      | Fired when user is completing a move. This move can be prevented<br />from completing by calling `preventDefault()` on the event. If that is called,<br />the move itself remains in progress. The event has a `detail` object with `from`<br />and `to` set to the square labels of the move, and `piece` containing information<br />about the piece that was moved. |
+| `movefinished` | Fired after a move is completed and animations are resolved.<br />The event has a `detail` object with `from` and `to` set to the square labels<br />of the move, and `piece` containing information about the piece that was moved. |
+| `movestart`    | Fired when the user initiates a move by clicking, dragging or<br />via the keyboard.<br /><br />The event has a `detail` object with the `from` and<br />`piece` values for the move. It also has a function, `setTargets(squares)`,<br />that the caller can invoke with an array of square labels. This limits the<br />set of targets that the piece can be moved to. Note that calling this<br />function with an empty list will still allow the piece to be dragged around,<br />but no square will accept the piece and thus it will always return to the<br />starting square. |
 
 ## Slots
 

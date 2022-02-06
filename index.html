@@ -101,19 +101,19 @@
           });
         board.addEventListener("movestart", (e) => {
           console.log(
-            `movestart: ${e.detail.piece.color} ${e.detail.piece.pieceType} on ${e.detail.square}`
+            `movestart: ${e.detail.piece.color} ${e.detail.piece.pieceType} on ${e.detail.from}`
           );
           if (window.turn !== "either") {
             e.detail.setTargets(
               game
-                .moves({ square: e.detail.square, verbose: true })
+                .moves({ square: e.detail.from, verbose: true })
                 .map((m) => m.to)
             );
           }
         });
-        board.addEventListener("moveend", (e) => {
+        board.addEventListener("movefinished", (e) => {
           console.log(
-            `moveend: ${e.detail.piece.color} ${e.detail.piece.pieceType} from ${e.detail.from}-${e.detail.to}`
+            `movefinished: ${e.detail.piece.color} ${e.detail.piece.pieceType} from ${e.detail.from}-${e.detail.to}`
           );
           window.placement = board.fen;
           updateGame();
