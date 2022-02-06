@@ -388,6 +388,9 @@ export class Board {
 
   private _resetBoardStateAndMoves() {
     this._table.classList.remove(Board.HAS_LIMITED_TARGETS_CLASS);
+    this._boardSquares.forEach((s) => {
+      s.removeMoveState();
+    });
     this._setBoardState({
       id: this.interactive ? "awaiting-input" : "default",
     });
@@ -856,7 +859,10 @@ export class Board {
             this._setBoardState({
               id: "moving-piece-kb",
               startSquare: this._boardState.startSquare,
-              highlightedSquare: this.tabbableSquare,
+              highlightedSquare:
+                this._boardState.startSquare !== this.tabbableSquare
+                  ? this._tabbableSquare
+                  : undefined,
             });
             break;
           case "touching-first-square":

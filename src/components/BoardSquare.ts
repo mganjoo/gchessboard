@@ -91,7 +91,8 @@ export class BoardSquare {
     }
 
     this._updateTabIndex();
-    this._updateMoveStateClass();
+    this._updateMoveStateVisuals();
+    this._updateLabelVisuals();
   }
 
   /**
@@ -130,7 +131,8 @@ export class BoardSquare {
   set moveable(value: boolean) {
     if (!value || this._boardPiece) {
       this._moveable = value;
-      this._updateMoveStateClass();
+      this._updateMoveStateVisuals();
+      this._updateLabelVisuals();
     }
   }
 
@@ -144,7 +146,14 @@ export class BoardSquare {
 
   set moveTarget(value: boolean) {
     this._moveState = value ? "move-target" : "move-nontarget";
-    this._updateMoveStateClass();
+    this._updateMoveStateVisuals();
+    this._updateLabelVisuals();
+  }
+
+  removeMoveState() {
+    this._moveState = undefined;
+    this._updateMoveStateVisuals();
+    this._updateLabelVisuals();
   }
 
   /**
@@ -257,7 +266,8 @@ export class BoardSquare {
   startInteraction() {
     if (this._boardPiece !== undefined && this.moveable) {
       this._moveState = "move-start";
-      this._updateMoveStateClass();
+      this._updateMoveStateVisuals();
+      this._updateLabelVisuals();
       this._boardPiece.finishAnimations();
     }
   }
@@ -274,19 +284,26 @@ export class BoardSquare {
    */
   cancelInteraction(animateDurationMs?: number) {
     this._moveState = undefined;
-    this._updateMoveStateClass();
+    this._updateMoveStateVisuals();
+    this._updateLabelVisuals();
     this._boardPiece?.resetPosition(animateDurationMs);
   }
 
   private _updateLabelVisuals() {
     this._contentElement.dataset.square = this.label;
     this._contentElement.dataset.squareColor = getSquareColor(this.label);
-    this._contentElement.setAttribute(
-      "aria-label",
+    const labelParts = [
       this._boardPiece
         ? `${this.label}, ${this._boardPiece.piece.color} ${this._boardPiece.piece.pieceType}`
-        : `${this.label}`
-    );
+        : `${this.label}`,
+    ];
+    if (this._moveState === "move-start") {
+      labelParts.push("start of move");
+    }
+    if (this._moveState === "move-target") {
+      labelParts.push("target square");
+    }
+    this._contentElement.setAttribute("aria-label", labelParts.join(", "));
     this._slotElement.name = this.label;
   }
 
@@ -298,7 +315,7 @@ export class BoardSquare {
     }
   }
 
-  private _updateMoveStateClass() {
+  private _updateMoveStateVisuals() {
     this._updateInteractiveCssClass(
       "moveable",
       this.moveable && !this._moveState
@@ -313,6 +330,11 @@ export class BoardSquare {
       "move-target",
       this._moveState === "move-target"
     );
+
+    this._contentElement.setAttribute(
+      "aria-disabled",
+      (!this._moveState && !this.moveable).toString()
+    );
   }
 
   private _updateInteractiveCssClass(name: string, value: boolean) {
@@ -324,7 +346,7 @@ export class BoardSquare {
 
     // Always cancel ongoing interactions when piece changes
     this._moveState = undefined;
-    this._updateMoveStateClass();
+    this._updateMoveStateVisuals();
 
     // Ensure secondary piece is toggled off if piece is changed
     this.toggleSecondaryPiece(false);
