@@ -13,4 +13,5 @@ dist-ssr
 .DS_Store
 
 # testing
-test-results
+test-results/
+playwright-report/

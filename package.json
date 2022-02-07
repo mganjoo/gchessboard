@@ -29,7 +29,7 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@playwright/test": "^1.17.2",
+    "@playwright/test": "^1.18.1",
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.8.0",
     "autoprefixer": "^10.4.2",
