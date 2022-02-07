@@ -53,5 +53,9 @@
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "*.{js,jsx,ts,tsx,md,json,yml,yaml}": "prettier --write",
     "*.css": "stylelint --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mganjoo/gchessboard.git"
   }
 }
