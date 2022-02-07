@@ -2,7 +2,6 @@ import { test } from "@playwright/test";
 import {
   expectHasPiece,
   expectIsActive,
-  expectBoardState,
   squareLocator,
   tabIntoBoard,
 } from "./helpers";
@@ -22,7 +21,6 @@ test("keyboard-based moves work correctly", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   // move should have started at c2
-  await expectBoardState(page, "moving");
   await expectIsActive(page, "c2", true);
 
   // move piece c2 -> (right) -> d2 -> (up) -> d3 -> (up) -> d4 -> (left) -> c4
@@ -33,7 +31,6 @@ test("keyboard-based moves work correctly", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   // move should have finished and c4 should now have piece
-  await expectBoardState(page, "ready");
   await expectHasPiece(page, "c4", true);
 });
 
@@ -54,7 +51,6 @@ test("focus remains on destination square after move", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   // move should have started again, this time at a3
-  await expectBoardState(page, "moving");
   await expectIsActive(page, "a3", true);
 });
 
@@ -69,7 +65,7 @@ test("pressing enter on an unoccupied square does not start move", async ({
   await page.keyboard.press("Enter");
 
   // no move should have started
-  await expectBoardState(page, "ready");
+  await expectIsActive(page, "a3", false);
 });
 
 test("click move overrides keyboard-based move", async ({ page }) => {
@@ -92,5 +88,4 @@ test("click move overrides keyboard-based move", async ({ page }) => {
 
   // f4 should now have piece, and we should be back to awaiting input
   await expectHasPiece(page, "f4", true);
-  await expectBoardState(page, "ready");
 });

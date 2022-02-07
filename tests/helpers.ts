@@ -10,19 +10,6 @@ export function squareLocator(page: Page, square: string) {
 }
 
 /**
- * Assert that chessboard container has attributes corresponding to move state
- * `state`, which corresponds to the "id" field of InteractionState (e.g.
- * 'awaiting-input').
- */
-export async function expectBoardState(page: Page, state: string) {
-  expect(
-    await page.locator("table").evaluate((e, state: string) => {
-      return e.classList.contains(state);
-    }, state)
-  ).toBe(true);
-}
-
-/**
  * Assert that the board has a piece of square `square`.
  */
 export async function expectHasPiece(

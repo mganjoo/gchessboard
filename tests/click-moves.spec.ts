@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 import {
   expectHasPiece,
   expectIsActive,
-  expectBoardState,
   squareLocator,
   tabIntoBoard,
   expectHasFocus,
@@ -19,7 +18,6 @@ test("two-click moves work correctly", async ({ page }) => {
   // square should be marked as start square, and we should
   // now be waiting for second touch
   await expectIsActive(page, "e2", true);
-  await expectBoardState(page, "moving");
 
   // click on second square
   await squareLocator(page, "e4").click();
@@ -31,16 +29,10 @@ test("two-click moves work correctly", async ({ page }) => {
   // and we should be re-awaiting input
   await expectHasPiece(page, "e2", false);
   await expectIsActive(page, "e2", false);
-  await expectBoardState(page, "ready");
 });
 
-test("unoccupied first square is not focused when clicking on it", async ({
-  page,
-}) => {
-  await squareLocator(page, "e4").click();
-
-  // body should still have focus
-  await expect(page.locator("body")).toBeFocused();
+test("unoccupied first square is marked as disabled", async ({ page }) => {
+  await expect(squareLocator(page, "e4")).toBeDisabled();
 });
 
 test("first square becomes tabbable after clicking on it", async ({ page }) => {
