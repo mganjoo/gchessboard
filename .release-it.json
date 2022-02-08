@@ -3,16 +3,15 @@
     "commitMessage": "chore: release v${version}"
   },
   "github": {
-    "release": true
+    "release": true,
+    "releaseName": "v${version}"
   },
   "hooks": {
     "after:bump": "npm run build"
   },
   "plugins": {
     "@release-it/keep-a-changelog": {
-      "filename": "CHANGELOG.md",
-      "addUnreleased": true,
-      "keepUnreleased": true
+      "filename": "CHANGELOG.md"
     }
   }
 }
