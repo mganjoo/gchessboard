@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixes bug where drag was not completing on mobile correctly (#20)
+
 ## [0.0.2] - 2022-02-06
 
 ### Added
