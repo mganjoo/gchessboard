@@ -21,7 +21,7 @@ test("drag-based moves work correctly", async ({ page }) => {
   await expect(page.locator("body")).toBeFocused();
 });
 
-test("drag-based moves should transfer existing focus to new square", async ({
+test.only("drag-based moves should transfer existing focus to new square", async ({
   page,
 }) => {
   // tab into board; a1 should have focus
