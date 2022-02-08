@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Replace Vite with Rollup as bundler and build system. This is to better control output
+  of things like bundled types using `rollup-plugin-dts`. Also use `web-dev-server` to
+  replace Vite's server.
+
 ### Fixed
 
 ## [0.0.3] - 2022-02-07

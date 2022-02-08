@@ -1,0 +1,11 @@
+name: "Check pull request"
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Changelog enforcer
+        uses: dangoslen/changelog-enforcer@v3

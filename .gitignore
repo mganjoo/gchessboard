@@ -3,8 +3,6 @@ node_modules
 
 # output
 dist
-dist-ssr
-*.local
 
 # ESLint
 .eslintcache

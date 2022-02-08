@@ -8,7 +8,7 @@ import {
   Piece,
 } from "./utils/chess";
 import { Board } from "./components/Board";
-import importedStyles from "./style.css?inline";
+import importedStyles from "./style.css";
 import { assertUnreachable } from "./utils/typing";
 import { makeHTMLElement } from "./utils/dom";
 import {
@@ -356,7 +356,7 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   /**
-   * Allows attaching listeners for custom events on this element.
+   * Add listener for events on this element.
    */
   addEventListener<K extends keyof ChessBoardEventMap>(
     type: K,
@@ -370,8 +370,46 @@ export class GChessBoardElement extends HTMLElement {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
     options?: boolean | AddEventListenerOptions
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
   ): void {
     super.addEventListener(type, listener, options);
+  }
+
+  /**
+   * Remove listener for an event on this element.
+   */
+  removeEventListener<K extends keyof ChessBoardEventMap>(
+    type: K,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    listener: (this: HTMLElement, ev: ChessBoardEventMap[K]) => any,
+    options?: boolean | EventListenerOptions
+  ): void;
+  removeEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
+    options?: boolean | EventListenerOptions
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions
+  ): void {
+    super.removeEventListener(type, listener, options);
   }
 
   /**
@@ -426,30 +464,38 @@ export class GChessBoardElement extends HTMLElement {
   }
 }
 
+export interface MoveStartEvent {
+  from: Square;
+  piece: Piece;
+  setTargets: (squares: Square[]) => void;
+}
+
+export interface MoveEndEvent {
+  from: Square;
+  to: Square;
+  piece: Piece;
+}
+
+export interface MoveFinishedEvent {
+  from: Square;
+  to: Square;
+  piece: Piece;
+}
+
+export interface MoveCancelEvent {
+  from: Square;
+  piece: Piece;
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     "g-chess-board": GChessBoardElement;
   }
 
   interface ChessBoardEventMap {
-    movestart: CustomEvent<{
-      from: Square;
-      piece: Piece;
-      setTargets: (squares: Square[]) => void;
-    }>;
-    moveend: CustomEvent<{
-      from: Square;
-      to: Square;
-      piece: Piece;
-    }>;
-    movefinished: CustomEvent<{
-      from: Square;
-      to: Square;
-      piece: Piece;
-    }>;
-    movecancel: CustomEvent<{
-      from: Square;
-      piece: Piece;
-    }>;
+    movestart: CustomEvent<MoveStartEvent>;
+    moveend: CustomEvent<MoveEndEvent>;
+    movefinished: CustomEvent<MoveFinishedEvent>;
+    movecancel: CustomEvent<MoveCancelEvent>;
   }
 }
