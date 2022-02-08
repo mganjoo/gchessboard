@@ -29,6 +29,13 @@ export class Board {
   private _tabbableSquare?: Square;
   private _defaultTabbableSquare: Square;
 
+  /**
+   * Certain move "finishing" logic is included in `pointerup` (e.g. drags). To
+   * prevent re-handling this in the `click` handler, we prevent handling of click
+   * events for a certain period after pointerup.
+   */
+  private _preventClickHandling?: boolean;
+
   // Event handlers
   private _pointerDownHandler: (e: PointerEvent) => void;
   private _pointerUpHandler: (e: PointerEvent) => void;
@@ -47,6 +54,11 @@ export class Board {
    * Minimum number of pixels to enable dragging.
    */
   private static DRAG_THRESHOLD_MIN_PIXELS = 2;
+
+  /**
+   * Amount of time (in ms) to suppress click handling after a pointerup event.
+   */
+  private static POINTERUP_CLICK_PREVENT_DURATION_MS = 250;
 
   /**
    * Creates a set of elements representing chessboard squares, as well
@@ -597,39 +609,65 @@ export class Board {
     }
   }
 
-  private _handlePointerUp(this: Board) {
+  private _handlePointerUp(this: Board, square: Square | undefined) {
+    let newFocusedSquare = square;
     switch (this._boardState.id) {
       case "touching-first-square":
         this._getBoardSquare(this._boardState.startSquare).toggleSecondaryPiece(
           false
         );
+        this._setBoardState({
+          id: "awaiting-second-touch",
+          startSquare: this._boardState.startSquare,
+        });
+        newFocusedSquare = this._boardState.startSquare;
+        break;
+      case "canceling-second-touch":
+        // User cancels by clicking on the same square.
+        if (!this._userCancelMove(false)) {
+          this._setBoardState({
+            id: "awaiting-second-touch",
+            startSquare: this._boardState.startSquare,
+          });
+        }
+        newFocusedSquare = this._boardState.startSquare;
         break;
       case "dragging":
       case "dragging-outside":
-        this._getBoardSquare(this._boardState.startSquare).toggleSecondaryPiece(
-          false
-        );
-        if (this._boardState.id === "dragging-outside") {
-          const canceled = this._userCancelMove(true);
-          if (!canceled) {
-            this._getBoardSquare(
-              this._boardState.startSquare
-            ).resetPiecePosition(this.animationDurationMs);
+      case "touching-second-square":
+        {
+          this._getBoardSquare(
+            this._boardState.startSquare
+          ).toggleSecondaryPiece(false);
+          let done = false;
+          if (
+            square &&
+            this._isValidMove(this._boardState.startSquare, square)
+          ) {
+            done = this._finishMove(square, !this._isDragState());
+            if (!done) {
+              newFocusedSquare = this._boardState.startSquare;
+            }
+          } else {
+            newFocusedSquare = this._boardState.startSquare;
+            done = this._userCancelMove(
+              square !== this._boardState.startSquare
+            );
+          }
+          if (!done) {
             this._setBoardState({
               id: "awaiting-second-touch",
               startSquare: this._boardState.startSquare,
             });
-          }
-          if (this._focusedSquare) {
-            this._focusTabbableSquare();
+            this._getBoardSquare(
+              this._boardState.startSquare
+            ).resetPiecePosition(this.animationDurationMs);
           }
         }
         break;
       case "awaiting-input":
       case "moving-piece-kb":
       case "awaiting-second-touch":
-      case "canceling-second-touch":
-      case "touching-second-square":
         // noop: Either we are in a non-mouse state or we are delegating to click
         break;
       case "default":
@@ -638,6 +676,18 @@ export class Board {
       default:
         assertUnreachable(this._boardState);
     }
+
+    // If board currently has focus, move focus to newly clicked square.
+    if (this._focusedSquare && newFocusedSquare) {
+      this.tabbableSquare = newFocusedSquare;
+      this._focusTabbableSquare();
+    }
+
+    // Prevent click handling for a certain duration
+    this._preventClickHandling = true;
+    setTimeout(() => {
+      this._preventClickHandling = false;
+    }, Board.POINTERUP_CLICK_PREVENT_DURATION_MS);
   }
 
   private _handlePointerMove(
@@ -724,23 +774,11 @@ export class Board {
   }
 
   private _handleClick(this: Board, square: Square | undefined) {
-    let newFocusedSquare = square;
+    if (this._preventClickHandling) {
+      return;
+    }
+
     switch (this._boardState.id) {
-      case "touching-first-square":
-        this._setBoardState({
-          id: "awaiting-second-touch",
-          startSquare: this._boardState.startSquare,
-        });
-        break;
-      case "canceling-second-touch":
-        // User cancels by clicking on the same square.
-        if (!this._userCancelMove(false)) {
-          this._setBoardState({
-            id: "awaiting-second-touch",
-            startSquare: this._boardState.startSquare,
-          });
-        }
-        break;
       case "awaiting-input":
         if (square && this._interactable(square)) {
           this._setBoardState({
@@ -752,25 +790,11 @@ export class Board {
         break;
       case "awaiting-second-touch":
       case "moving-piece-kb":
-      case "touching-second-square":
-      case "dragging":
-      case "dragging-outside":
         {
-          let done = false;
-          if (
-            square &&
-            this._isValidMove(this._boardState.startSquare, square)
-          ) {
-            done = this._finishMove(square, !this._isDragState());
-            if (!done) {
-              newFocusedSquare = this._boardState.startSquare;
-            }
-          } else {
-            newFocusedSquare = this._boardState.startSquare;
-            done = this._userCancelMove(
-              square !== this._boardState.startSquare
-            );
-          }
+          const done =
+            square && this._isValidMove(this._boardState.startSquare, square)
+              ? this._finishMove(square, true)
+              : this._userCancelMove(square !== this._boardState.startSquare);
           if (!done) {
             this._setBoardState({
               id: "awaiting-second-touch",
@@ -782,6 +806,11 @@ export class Board {
           }
         }
         break;
+      case "touching-first-square":
+      case "touching-second-square":
+      case "canceling-second-touch":
+      case "dragging":
+      case "dragging-outside":
       case "default":
         break;
       // istanbul ignore next
@@ -790,8 +819,8 @@ export class Board {
     }
 
     // If board currently has focus, move focus to newly clicked square.
-    if (this._focusedSquare && newFocusedSquare) {
-      this.tabbableSquare = newFocusedSquare;
+    if (this._focusedSquare && square) {
+      this.tabbableSquare = square;
       this._focusTabbableSquare();
     }
   }
