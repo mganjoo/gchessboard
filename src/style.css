@@ -52,8 +52,12 @@
   /* z-index of piece while dragging. */
   --piece-drag-z-index: 9999;
 
-  /* padding applied around piece. */
+  /* Padding applied around piece. */
   --piece-padding: 3%;
+
+  /* Arrow colors. */
+  --arrow-color-primary: hsl(40deg 100% 50% / 80%);
+  --arrow-color-secondary: hsl(7deg 93% 61% / 80%);
 
   display: block;
 }
@@ -155,7 +159,7 @@ table.dragging {
 
 /***************
  * Coordinates *
- ****************/
+ ***************/
 
 .wrapper {
   position: relative;
@@ -165,6 +169,7 @@ table.dragging {
   display: none;
   position: absolute;
   pointer-events: none;
+  touch-action: none;
   user-select: none;
   font-family: var(--coords-font-family);
   font-size: var(--coords-font-size);
@@ -363,4 +368,35 @@ table.dragging {
 
 .wr {
   background-image: url("../pieces/wr.svg");
+}
+
+/**********
+ * Arrows *
+ **********/
+
+.arrows {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  touch-action: none;
+  z-index: 20;
+  border: var(--inner-border-width) solid transparent;
+  box-sizing: border-box;
+}
+
+.arrows :is(line, polygon) {
+  mix-blend-mode: overlay;
+}
+
+.arrow-primary {
+  color: var(--arrow-color-primary);
+}
+
+.arrow-secondary {
+  color: var(--arrow-color-secondary);
 }

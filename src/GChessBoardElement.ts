@@ -16,6 +16,7 @@ import {
   CoordinatesPlacement,
   isCoordinatesPlacement,
 } from "./components/Coordinates";
+import { Arrows, BoardArrow } from "./components/Arrows";
 
 /**
  * A component that displays a chess board, with optional interactivity. Allows
@@ -109,6 +110,11 @@ import {
  * @cssprop [--piece-drag-z-index=9999] - Z-index applied to piece while being dragged.
  * @cssprop [--piece-padding=3%] - Padding applied to square when piece is placed in it.
  *
+ * @cssprop [--arrow-color-primary=hsl(40deg 100% 50% / 80%)] - color applied to arrow
+ *   with brush `primary`.
+ * @cssprop [--arrow-color-secondary=hsl(7deg 93% 61% / 80%)] - color applied to arrow
+ *   with brush `secondary`.
+ *
  * @slot a1,a2,...,h8 - Slots that allow placement of custom content -- SVGs, text, or
  * any other annotation -- on the corresponding square.
  *
@@ -120,6 +126,9 @@ import {
  *
  *   The CSS parts can be used to set custom CSS for the pieces (such as changing the image
  *   for a piece by changing the `background-image` property).
+ *
+ * @csspart arrow-<brush_name> - CSS parts for any arrow brushes configured using the
+ *   `brush` property on an arrow specifcation (see the `arrows` property for more details).
  */
 export class GChessBoardElement extends HTMLElement {
   static get observedAttributes() {
@@ -139,6 +148,7 @@ export class GChessBoardElement extends HTMLElement {
   private _board: Board;
   private _fileCoords: Coordinates;
   private _rankCoords: Coordinates;
+  private _arrows: Arrows;
 
   private static _DEFAULT_SIDE: Side = "white";
   private static _DEFAULT_ANIMATION_DURATION_MS = 200;
@@ -179,6 +189,9 @@ export class GChessBoardElement extends HTMLElement {
     });
     this._wrapper.appendChild(this._fileCoords.element);
     this._wrapper.appendChild(this._rankCoords.element);
+
+    this._arrows = new Arrows(GChessBoardElement._DEFAULT_SIDE);
+    this._wrapper.appendChild(this._arrows.element);
   }
 
   connectedCallback() {
@@ -209,6 +222,7 @@ export class GChessBoardElement extends HTMLElement {
         this._board.orientation = this.orientation;
         this._fileCoords.orientation = this.orientation;
         this._rankCoords.orientation = this.orientation;
+        this._arrows.orientation = this.orientation;
         break;
       case "turn":
         this._board.turn = this.turn;
@@ -353,6 +367,32 @@ export class GChessBoardElement extends HTMLElement {
 
   set animationDuration(value: number) {
     this._setNumberAttribute("animation-duration", value);
+  }
+
+  /**
+   * Set of arrows to draw on the board. This is an array of objects specifying
+   * arrow properties, with the following properties: (1) `from` and `to`
+   * corresponding to the start and end squares for the arrow, (2) optional
+   * `weight` for the line (values: `"light"`, `"normal"`, `"bold"`), and
+   * (3) `brush`, which is a string that will be used to make a CSS part
+   * where one can customize the color, opacity, and other styles of the
+   * arrow. For example, a value for `brush` of `"foo"` will be apply a
+   * CSS part named `arrow-foo` to the arrow.
+   *
+   * Note: because the value of `brush` becomes part of a CSS part name, it
+   * should otherwise be usable in a CSS selector name.
+   *
+   * In addition to allowing arbitrary part names, arrows support a few
+   * out-of-the-box brush names, `primary` and `secondary`, which colors
+   * defined with CSS custom properties `--arrow-color-primary` and
+   * `--arrow-color-secondary`.
+   */
+  get arrows() {
+    return this._arrows.arrows;
+  }
+
+  set arrows(arrows: BoardArrow[] | undefined) {
+    this._arrows.arrows = arrows;
   }
 
   /**

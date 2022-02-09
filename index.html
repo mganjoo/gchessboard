@@ -10,6 +10,11 @@
     <script type="module">
       window.addEventListener("DOMContentLoaded", () => {
         const board = document.getElementById("board");
+        let arrows = [
+          { from: "c7", to: "f4" },
+          { from: "b3", to: "f4", brush: "foobar" },
+          { from: "g7", to: "e3", brush: "secondary" },
+        ];
         let game = new Chess();
         window.placement = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
         window.turn = "either";
@@ -31,7 +36,8 @@
           });
         document.getElementById("chk-svg").addEventListener("change", (e) => {
           const svgSquares = ["a3", "c5", "e4"];
-          if (e.target.checked) {
+          window.showSvg = e.target.checked;
+          if (window.showSvg) {
             svgSquares.forEach((s) => {
               const square = document
                 .getElementById(`svg-${s}`)
@@ -39,12 +45,14 @@
               square.slot = s;
               document.getElementById("board").appendChild(square);
             });
+            board.arrows = arrows;
           } else {
             svgSquares.forEach((s) => {
               document
                 .getElementById("board")
                 .removeChild(document.querySelector(`#board [slot="${s}"]`));
             });
+            board.arrows = undefined;
           }
           board.classList.toggle("custom-queen", e.target.checked);
         });
@@ -116,6 +124,17 @@
             `movefinished: ${e.detail.piece.color} ${e.detail.piece.pieceType} from ${e.detail.from}-${e.detail.to}`
           );
           window.placement = board.fen;
+          arrows = arrows
+            .filter(
+              (a) =>
+                !window.movingArrowStartSquare ||
+                a.from !== window.movingArrowStartSquare
+            )
+            .concat([{ from: e.detail.to, to: "e4" }]);
+          window.movingArrowStartSquare = e.detail.to;
+          if (window.showSvg) {
+            board.arrows = arrows;
+          }
           updateGame();
         });
       });
@@ -147,6 +166,10 @@
 
         /* Black queen unicode */
         content: "\2655";
+      }
+      g-chess-board.custom-queen::part(arrow-foobar) {
+        color: salmon;
+        opacity: 0.8;
       }
     </style>
   </head>
