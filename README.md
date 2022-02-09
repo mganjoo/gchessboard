@@ -18,7 +18,7 @@ Features:
 ### In HTML (using unpkg)
 
 ```html
-<script type="module" src="https://unpkg.com/gchessboard?module"></script>
+<script type="module" src="https://unpkg.com/gchessboard"></script>
 ```
 
 ### As a module import
