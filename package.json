@@ -7,6 +7,7 @@
   "main": "dist/gchessboard.es.js",
   "module": "dist/gchessboard.es.js",
   "files": [
+    "src",
     "dist"
   ],
   "customElements": "custom-elements.json",
