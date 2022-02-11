@@ -389,10 +389,6 @@ table.dragging {
   box-sizing: border-box;
 }
 
-.arrows :is(line, polygon) {
-  mix-blend-mode: overlay;
-}
-
 .arrow-primary {
   color: var(--arrow-color-primary);
 }

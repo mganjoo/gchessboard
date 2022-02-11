@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Name of package file is now `index.es.js` instead of `gchessboard.es.js` to be consistent
+  with naming for types file.
+
 ### Fixed
 
-- Ensure pre-release build always updates `custom-elements.json`, and includes
-  it in the bundle.
+- The use of `mix-blend-mode: overlay` was causing different behavior across
+  browsers, including missing arrowhead in Firefox and lighter than usual arrow colors
+  in Chrome. This has now been fixed by removing the blend move property altogether.
+- The SVG in demo `index.html` was not top-left aligned in Safari due to specification
+  of a fixed height. This has now been fixed by removing the height specifier for the SVG.
 
 ## [0.1.2] - 2022-02-11
 
