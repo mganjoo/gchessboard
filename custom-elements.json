@@ -84,6 +84,11 @@
           "description": "Duration, in milliseconds, of animation when adding/removing/moving pieces.",
           "type": "number",
           "default": "200"
+        },
+        {
+          "name": "arrows",
+          "description": "Set of arrows to draw on the board. This is an array of objects specifying\narrow properties, with the following properties: (1) `from` and `to`\ncorresponding to the start and end squares for the arrow, (2) optional\n`weight` for the line (values: `\"light\"`, `\"normal\"`, `\"bold\"`), and\n(3) `brush`, which is a string that will be used to make a CSS part\nwhere one can customize the color, opacity, and other styles of the\narrow. For example, a value for `brush` of `\"foo\"` will be apply a\nCSS part named `arrow-foo` to the arrow.\n\nNote: because the value of `brush` becomes part of a CSS part name, it\nshould otherwise be usable in a CSS selector name.\n\nIn addition to allowing arbitrary part names, arrows support a few\nout-of-the-box brush names, `primary` and `secondary`, which colors\ndefined with CSS custom properties `--arrow-color-primary` and\n`--arrow-color-secondary`.",
+          "type": "BoardArrow[] | undefined"
         }
       ],
       "events": [
@@ -235,12 +240,26 @@
           "name": "--piece-padding",
           "description": "Padding applied to square when piece is placed in it.",
           "default": "\"3%\""
+        },
+        {
+          "name": "--arrow-color-primary",
+          "description": "color applied to arrow\nwith brush `primary`.",
+          "default": "\"hsl(40deg 100% 50% / 80%)\""
+        },
+        {
+          "name": "--arrow-color-secondary",
+          "description": "color applied to arrow\nwith brush `secondary`.",
+          "default": "\"hsl(7deg 93% 61% / 80%)\""
         }
       ],
       "cssParts": [
         {
           "name": "piece-<b|w>-<b|r|p|n|k|q>",
           "description": "CSS parts for each of the piece classes. The part\nname is of the form `piece-xy`, where `x` corresponds to the color of the piece --\neither `w` for white or `b` for black, and `y` is the piece type -- one of `p` (pawn),\n`r` (rook), `n` (knight), `b` (bishop), `k` (king), `q` (queen). Thus, `piece-wr`\nwould be the CSS part corresponding to the white rook.\n\nThe CSS parts can be used to set custom CSS for the pieces (such as changing the image\nfor a piece by changing the `background-image` property)."
+        },
+        {
+          "name": "arrow-<brush_name>",
+          "description": "CSS parts for any arrow brushes configured using the\n`brush` property on an arrow specifcation (see the `arrows` property for more details)."
         }
       ]
     }
