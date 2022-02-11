@@ -22,12 +22,12 @@ export class Arrows {
   /**
    * Length of arrow from base to tip, in terms of line "stroke width" units.
    */
-  private static _ARROW_LENGTH = 2.8;
+  private static _ARROW_LENGTH = 3.2;
 
   /**
    * Width of arrow base, in terms of line "stroke width" units.
    */
-  private static _ARROW_WIDTH = 2.6;
+  private static _ARROW_WIDTH = 2.8;
 
   /**
    * Margin applied at start of line, along direction of arrow. In CSS viewport units.
