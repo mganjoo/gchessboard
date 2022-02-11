@@ -2,3 +2,4 @@ dist
 
 # Respect auto-generated formatting from `wca` tool
 api.md
+custom-elements.json
