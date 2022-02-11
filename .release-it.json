@@ -7,7 +7,7 @@
     "releaseName": "v${version}"
   },
   "hooks": {
-    "after:bump": "npm run build"
+    "after:bump": "npm run build:package"
   },
   "plugins": {
     "@release-it/keep-a-changelog": {

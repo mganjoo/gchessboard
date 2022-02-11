@@ -4,11 +4,12 @@
   "description": "An accessible, customizable and dependency-free chessboard web component.",
   "author": "Milind Ganjoo",
   "license": "MIT",
-  "main": "dist/gchessboard.es.js",
-  "module": "dist/gchessboard.es.js",
+  "main": "dist/index.es.js",
+  "module": "dist/index.es.js",
   "files": [
     "src",
-    "dist"
+    "dist",
+    "custom-elements.json"
   ],
   "customElements": "custom-elements.json",
   "scripts": {
@@ -16,6 +17,7 @@
     "build": "rollup -c --environment PRODUCTION",
     "build:dev": "rollup -c -w",
     "build:api": "wca analyze src/GChessBoardElement.ts --outFile API.md && wca analyze src/GChessBoardElement.ts --outFile custom-elements.json",
+    "build:package": "rm -rf dist && npm run build && npm run build",
     "serve": "wds --watch",
     "serve:ci": "npm run build && wds",
     "test": "playwright test",

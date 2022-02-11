@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Ensure pre-release build always updates `custom-elements.json`, and includes
+  it in the bundle.
+
 ## [0.1.2] - 2022-02-11
 
 ### Fixed
