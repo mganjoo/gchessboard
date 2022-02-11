@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support for displaying arrows on board, specified using a property called
+  `arrows`. (#24)
+
 ## [0.0.5] - 2022-02-08
 
 ### Fixed
