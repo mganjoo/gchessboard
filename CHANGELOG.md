@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Reduce lengths of arrowhead to ensure that short arrows render correctly.
+  May need further tweaking in the future, or some kind of "minimum" length
+  on an arrow to ensure that arrow length never goes negative.
+
 ## [0.1.1] - 2022-02-11
 
 ### Fixed

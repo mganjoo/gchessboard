@@ -22,17 +22,17 @@ export class Arrows {
   /**
    * Length of arrow from base to tip, in terms of line "stroke width" units.
    */
-  private static _ARROW_LENGTH = 3.2;
+  private static _ARROW_LENGTH = 2.4;
 
   /**
    * Width of arrow base, in terms of line "stroke width" units.
    */
-  private static _ARROW_WIDTH = 2.8;
+  private static _ARROW_WIDTH = 2;
 
   /**
    * Margin applied at start of line, along direction of arrow. In CSS viewport units.
    */
-  private static _ARROW_START_MARGIN = 4;
+  private static _ARROW_START_MARGIN = 2.7;
 
   /**
    * Default brush name when none is specified for an arrow.
@@ -208,12 +208,12 @@ export class Arrows {
   private static _getSvgStrokeWidth(weight: BoardArrowWeight): number {
     switch (weight) {
       case "bold":
-        return 3;
+        return 2.5;
       case "light":
         return 1;
       case "normal":
       default:
-        return 2;
+        return 1.8;
     }
   }
 
