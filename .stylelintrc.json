@@ -14,5 +14,5 @@
       }
     ]
   },
-  "ignorePath": "./.gitignore"
+  "ignoreFiles": ["docs/_site/**/*.css"]
 }
