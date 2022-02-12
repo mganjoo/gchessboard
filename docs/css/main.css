@@ -17,3 +17,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  g-chess-board {
+    @apply max-w-md;
+  }
+}
