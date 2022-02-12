@@ -22,6 +22,14 @@ module.exports = function (eleventyConfig) {
     return markdownIt.render(template);
   });
 
+  eleventyConfig.addPairedShortcode("chessboardjs", function (children) {
+    const template = outdent`
+      ${"```"}js ${children} ${"```"}
+      <script type="module">${children}</script>
+    `;
+    return markdownIt.render(template);
+  });
+
   eleventyConfig.addPassthroughCopy({
     "node_modules/@fontsource/nunito-sans": "css/fonts/nunito-sans",
   });
