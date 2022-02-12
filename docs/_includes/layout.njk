@@ -1,19 +1,28 @@
+---
+title: gchessboard
+---
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>gchessboard</title>
+    <title>{{ title }} - gchessboard</title>
     <meta
       name="description"
       content="An accessible, customizable and dependency-free chess board web component."
     />
     <link rel="stylesheet" href="css/main.css" />
+    <script type="module" src="{{ "/lib/gchessboard.js" | url }}"></script>
   </head>
   <body>
     <header class="px-3 py-2">
       <h1 class="text-3xl font-semibold">gchessboard</h1>
     </header>
-    <main></main>
+    <main>
+      <article class="prose">
+        {{ content | safe }}
+      </article>
+    </main>
   </body>
 </html>

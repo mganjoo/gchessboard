@@ -12,6 +12,7 @@
 @import url("fonts/nunito-sans/800.css");
 @import url("fonts/nunito-sans/900-italic.css");
 @import url("fonts/nunito-sans/900.css");
+@import url("prism.css");
 
 @tailwind base;
 @tailwind components;
