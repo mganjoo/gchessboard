@@ -14,8 +14,9 @@ the `<g-chess-board>` tag:
 
 <g-chess-board></g-chess-board>
 
-All this does is to render an empty chess board with default bundled colors and
-styles. For a more interesting board, we will have to override some attributes.
+This renders an chess board with default bundled colors and styles, but with
+no pieces on it. For a more interesting board, we will have to override some
+additional attributes.
 
 ## Setting a custom position
 
@@ -26,9 +27,10 @@ chess libraries, gchessboard accepts a [Forsyth-Edwards Notation (FEN)](https://
 ```html
 <g-chess-board
   fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
-></g-chess-board>
+>
+</g-chess-board>
+```
 
 <g-chess-board
-  fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
-></g-chess-board>
-```
+  fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2">
+</g-chess-board>
