@@ -5,19 +5,24 @@ title: gchessboard
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>{{ title }} - gchessboard</title>
-    <meta
-      name="description"
-      content="An accessible, customizable and dependency-free chess board web component."
-    />
-    <link rel="stylesheet" href="css/main.css" />
-    <script type="module" src="{{ "/lib/gchessboard.js" | url }}"></script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>{{ title }}
+      - gchessboard</title>
+    <meta name="description" content="an accessible, customizable and dependency-free chess board web component."/>
+    <link rel="stylesheet" href="css/main.css"/>
+    <script type="module" src="{{ " /lib/gchessboard.js" | url }}"></script>
   </head>
-  <body>
-    <header class="px-3 py-2">
-      <h1 class="text-3xl font-semibold">gchessboard</h1>
+  <body class="px-3">
+    <header class="pt-3 pb-4">
+      <h1 class="text-2xl font-semibold">gchessboard</h1>
+      <nav>
+        <ul class="flex py-2 text-sm gap-x-3">
+          <li class="underline">Docs</li>
+          <li class="underline">Examples</li>
+          <li class="underline">GitHub</li>
+        </ul>
+      </nav>
     </header>
     <main>
       <article class="prose">

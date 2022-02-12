@@ -1,5 +1,8 @@
 dist
 
+playwritght-report/
+docs/_site/
+
 # Respect auto-generated formatting from `wca` tool
 api.md
 custom-elements.json
