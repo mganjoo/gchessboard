@@ -13,3 +13,6 @@ dist
 # testing
 test-results/
 playwright-report/
+
+# docs output
+_site/
