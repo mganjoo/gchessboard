@@ -63,7 +63,7 @@
         {
           "name": "position",
           "description": "Map representing the board position, where keys are square labels, and\nvalues are `Piece` objects. Note that changes to position do not reflect\nonto the \"fen\" attribute of the element.",
-          "type": "Partial<Record<\"a8\" | \"b8\" | \"c8\" | \"d8\" | \"e8\" | \"f8\" | \"g8\" | \"h8\" | \"a7\" | \"b7\" | \"c7\" | \"d7\" | \"e7\" | \"f7\" | \"g7\" | \"h7\" | \"a6\" | \"b6\" | \"c6\" | \"d6\" | \"e6\" | \"f6\" | \"g6\" | \"h6\" | \"a5\" | \"b5\" | \"c5\" | ... 36 more ... | \"h1\", Piece>>"
+          "type": "{ a8?: Piece | undefined; b8?: Piece | undefined; c8?: Piece | undefined; d8?: Piece | undefined; e8?: Piece | undefined; f8?: Piece | undefined; ... 57 more ...; h1?: Piece | undefined; }"
         },
         {
           "name": "fen",
