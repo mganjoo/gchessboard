@@ -12,5 +12,8 @@
     "@11ty/eleventy": "^1.0.0",
     "concurrently": "^7.0.0",
     "tailwindcss": "^3.0.22"
+  },
+  "dependencies": {
+    "@fontsource/nunito-sans": "^4.5.2"
   }
 }

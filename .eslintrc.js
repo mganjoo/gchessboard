@@ -8,7 +8,7 @@ module.exports = {
     browser: true,
     node: true,
   },
-  ignorePatterns: ["dist", "docs/.eleventy.js"],
+  ignorePatterns: ["dist", "!docs/.eleventy.js"],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint"],
   rules: {},
