@@ -18,8 +18,16 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  g-chess-board {
-    @apply max-w-md;
+@layer components {
+  .box-tip {
+    @apply p-3 my-8 bg-slate-300;
+  }
+
+  .chessboard-wrapper {
+    @apply max-w-md py-5 mx-auto;
+  }
+
+  .keypress {
+    @apply p-1 text-xs border rounded-sm font-monospace border-slate-600;
   }
 }

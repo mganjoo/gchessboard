@@ -1,8 +1,9 @@
 module.exports = {
-  content: ["./**/*.html"],
+  content: ["src/**/*.njk", "src/**/*.md", ".eleventy.js"],
   theme: {
     fontFamily: {
       sans: ["Nunito Sans", "sans-serif"],
+      monospace: ["ui-monospace", "SFMono-Regular", "monospace"],
     },
     extend: {},
   },
