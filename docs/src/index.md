@@ -220,6 +220,6 @@ board.addEventListener("movefinished", (e) => {
 {% endchessboardjs %}
 <!-- prettier-ignore-end -->
 
-And that's it!
+And that's it! You can edit and run [the full example](https://codesandbox.io/s/gchessboard-tutorial-iyr7o?file=/src/index.js).
 
 More material around style, layout, and animation customization to come soon.
