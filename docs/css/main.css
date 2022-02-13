@@ -20,7 +20,7 @@
 
 @layer components {
   .box-tip {
-    @apply p-3 my-8 bg-slate-300;
+    @apply p-3 my-8 overflow-x-scroll bg-slate-300;
   }
 
   .chessboard-wrapper {
