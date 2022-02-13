@@ -59,7 +59,7 @@ More examples coming soon!
 
 ## Customizing
 
-More details on properties and attributes of the element, events fired, and various customizable CSS properties are available in [API.md](https://github.com/mganjoo/gchessboard/blob/main/API.md).
+More details on properties and attributes of the element, events fired, and various customizable CSS properties are available in [the API documentation](https://github.com/mganjoo/gchessboard/blob/main/docs/src/api.md).
 
 ## Acknowledgements
 

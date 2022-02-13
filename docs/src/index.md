@@ -1,6 +1,9 @@
 ---
 layout: layout.njk
 title: Home
+eleventyNavigation:
+  key: Tutorial
+  order: 1
 ---
 
 # Tutorial
@@ -218,3 +221,5 @@ board.addEventListener("movefinished", (e) => {
 <!-- prettier-ignore-end -->
 
 And that's it!
+
+More material around style, layout, and animation customization to come soon.

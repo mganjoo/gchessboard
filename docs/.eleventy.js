@@ -1,4 +1,5 @@
-const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
+const syntaxHighlightPlugin = require("@11ty/eleventy-plugin-syntaxhighlight");
+const eleventyNavigationPlugin = require("@11ty/eleventy-navigation");
 const markdownIt = require("markdown-it")({
   html: true,
   breaks: false,
@@ -11,8 +12,10 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addWatchTarget("css/");
   eleventyConfig.addWatchTarget("tailwind.config.js");
 
-  eleventyConfig.addPlugin(syntaxHighlight);
+  eleventyConfig.addPlugin(syntaxHighlightPlugin);
   eleventyConfig.setLibrary("md", markdownIt);
+
+  eleventyConfig.addPlugin(eleventyNavigationPlugin);
 
   eleventyConfig.addPairedShortcode("chessboard", function (children) {
     const template = outdent`

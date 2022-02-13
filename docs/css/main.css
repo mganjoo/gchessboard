@@ -24,7 +24,7 @@
   }
 
   .chessboard-wrapper {
-    @apply max-w-md py-5 mx-auto;
+    @apply max-w-md mx-auto my-6;
   }
 
   .keypress {
