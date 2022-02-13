@@ -16,7 +16,7 @@
     "start": "concurrently -k -r 'npm:build:dev' 'npm:serve'",
     "build": "rollup -c --environment PRODUCTION",
     "build:dev": "rollup -c -w",
-    "build:api": "wca analyze src/GChessBoardElement.ts --outFile API.md && wca analyze src/GChessBoardElement.ts --outFile custom-elements.json",
+    "build:api": "wca analyze src/GChessboardElement.ts --outFile docs/src/api.md --inlineTypes && wca analyze src/GChessBoardElement.ts --outFile custom-elements.json --inlineTypes",
     "build:package": "rm -rf dist && npm run build:api && npm run build",
     "serve": "wds --watch",
     "serve:ci": "npm run build && wds",

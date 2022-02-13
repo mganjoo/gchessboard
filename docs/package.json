@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "concurrently npm:dev:css npm:dev:11ty",
+    "dev:11ty": "eleventy --serve",
+    "dev:css": "tailwindcss -i ./css/main.css -o ./_site/css/main.css --watch",
+    "build": "npm run build:css && npm run build:11ty",
+    "build:11ty": "eleventy",
+    "build:css": "tailwindcss -i ./css/main.css -o ./_site/css/main.css --minify"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^1.0.0",
+    "@11ty/eleventy-navigation": "^0.3.2",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^4.0.0",
+    "@tailwindcss/typography": "^0.5.1",
+    "concurrently": "^7.0.0",
+    "markdown-it": "^12.3.2",
+    "outdent": "^0.8.0",
+    "tailwindcss": "^3.0.22"
+  },
+  "dependencies": {
+    "@fontsource/nunito-sans": "^4.5.2"
+  }
+}

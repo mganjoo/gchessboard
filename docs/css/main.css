@@ -1,0 +1,33 @@
+@import url("fonts/nunito-sans/200-italic.css");
+@import url("fonts/nunito-sans/200.css");
+@import url("fonts/nunito-sans/300-italic.css");
+@import url("fonts/nunito-sans/300.css");
+@import url("fonts/nunito-sans/400-italic.css");
+@import url("fonts/nunito-sans/400.css");
+@import url("fonts/nunito-sans/600-italic.css");
+@import url("fonts/nunito-sans/600.css");
+@import url("fonts/nunito-sans/700-italic.css");
+@import url("fonts/nunito-sans/700.css");
+@import url("fonts/nunito-sans/800-italic.css");
+@import url("fonts/nunito-sans/800.css");
+@import url("fonts/nunito-sans/900-italic.css");
+@import url("fonts/nunito-sans/900.css");
+@import url("prism.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .box-tip {
+    @apply p-3 my-8 bg-slate-300;
+  }
+
+  .chessboard-wrapper {
+    @apply max-w-md mx-auto my-6;
+  }
+
+  .keypress {
+    @apply p-1 text-xs border rounded-sm font-monospace border-slate-600;
+  }
+}

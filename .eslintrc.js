@@ -1,15 +1,28 @@
 module.exports = {
-  extends: [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier",
-  ],
+  extends: ["eslint:recommended", "prettier"],
   env: {
     browser: true,
     node: true,
+    es6: true,
   },
-  ignorePatterns: ["dist"],
-  parser: "@typescript-eslint/parser",
-  plugins: ["@typescript-eslint"],
+  overrides: [
+    {
+      files: ["**/*.{ts,tsx}"],
+      plugins: ["@typescript-eslint"],
+      parser: "@typescript-eslint/parser",
+      extends: [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier",
+      ],
+    },
+  ],
+  ignorePatterns: [
+    "dist",
+    "rollup.config.js",
+    "!docs/.eleventy.js",
+    "playwright-report",
+    "_site",
+  ],
   rules: {},
 };
