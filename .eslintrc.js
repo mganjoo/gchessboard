@@ -17,6 +17,12 @@ module.exports = {
       ],
     },
   ],
-  ignorePatterns: ["dist", "!docs/.eleventy.js"],
+  ignorePatterns: [
+    "dist",
+    "rollup.config.js",
+    "!docs/.eleventy.js",
+    "playwright-report",
+    "_site",
+  ],
   rules: {},
 };

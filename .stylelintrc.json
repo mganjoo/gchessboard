@@ -14,5 +14,5 @@
       }
     ]
   },
-  "ignoreFiles": ["docs/_site/**/*.css"]
+  "ignoreFiles": ["docs/_site/**/*.css", "docs/css/prism.css"]
 }
