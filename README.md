@@ -11,7 +11,7 @@ Features:
 <img src="https://raw.githubusercontent.com/mganjoo/gchessboard/main/screenshots/example-basic.png" alt="Preview of basic board UI using the gchessboard library" width="350" />
 <img src="https://raw.githubusercontent.com/mganjoo/gchessboard/main/screenshots/example-svg.png" alt="Preview of board UI using the gchessboard library, with custom SVGs shown on squares" width="350" />
 
-## Getting started
+## Installing
 
 `gchessboard` is packaged as a [Web Component](https://developer.mozilla.org/en-US/docs/Web/Web_Components) and should be usable directly in most modern browsers. It bundles its own (configurable) styles, inline assets (for chess pieces), and code.
 
@@ -35,7 +35,7 @@ Then, in application JS:
 import "gchessboard";
 ```
 
-### Hello world
+## Basic usage
 
 ```html
 <g-chess-board></g-chess-board>
