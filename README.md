@@ -50,7 +50,10 @@ The above example will simply render an empty board. Realistically, though, you 
 The above example sets up a board with the standard chess game start position, and enables interaction
 using click, drag, and keyboard (by tabbing into the board).
 
-- For a fully working example, with a computer playing random moves in response to yours, see [this Pen](https://codepen.io/mganjoo/full/PoObVbx).
+## Tutorial and Advanced Examples
+
+- View the [tutorial](https://mganjoo.github.io/gchessboard/) to learn how to use the library and integrate it with chess logic.
+- View an example of a computer playing random moves in response to player input, see [this Pen](https://codepen.io/mganjoo/full/PoObVbx).
 - The development page ([index.html](index.html)) for this library
   also includes some advanced setup, including the use of custom slots, event handling, and changing
   various properties and attributes of the board.
