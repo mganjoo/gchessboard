@@ -10,4 +10,4 @@ jobs:
       - name: Changelog enforcer
         uses: dangoslen/changelog-enforcer@v3
         with:
-          skipLabels: [Skip-Changelog, dependencies]
+          skipLabels: [skip-changelog, dependencies]
