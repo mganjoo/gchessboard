@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "concurrently npm:dev:css npm:dev:11ty",
+    "dev": "concurrently -k npm:dev:css npm:dev:11ty",
     "dev:11ty": "eleventy --serve",
     "dev:css": "tailwindcss -i ./css/main.css -o ./_site/css/main.css --watch",
     "build": "npm run build:css && npm run build:11ty",

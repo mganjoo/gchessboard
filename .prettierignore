@@ -1,8 +1,11 @@
 dist
 
-playwritght-report/
+playwright-report/
 docs/_site/
 
 # Respect auto-generated formatting from `wca` tool
 api.md
 custom-elements.json
+
+# Auto-downloaded files
+docs/css/prism.css
