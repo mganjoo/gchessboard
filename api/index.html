@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>API Documentation
+      - gchessboard</title>
+    <meta name="description" content="an accessible, customizable and dependency-free chess board web component."/>
+    <link rel="stylesheet" href="/gchessboard/css/main.css"/>
+    <script type="module" src="/gchessboard/lib/gchessboard.js"></script>
+  </head>
+  <body class="grid grid-cols-1 px-4 py-3">
+    <header class="flex flex-col pb-4 mb-6 border-b border-slate-400 sm:justify-center sm:flex-row sm:items-center sm:gap-x-10 sm:mb-10">
+      <h1 class="text-3xl font-semibold sm:text-4xl">gchessboard</h1>
+      <nav>
+        
+        <ul class="flex items-stretch py-2 text-base gap-x-6">
+            <li class="py-2">
+              <a class="underline underline-offset-4 decoration-blue-600" href="/gchessboard/">Tutorial</a>
+            </li>
+            <li class="py-2">
+              <a class="underline underline-offset-4 decoration-blue-600" href="/gchessboard/api/">API</a>
+            </li>
+            <li class="py-2">
+              <a class="underline underline-offset-4 decoration-blue-600" href="https://github.com/mganjoo/gchessboard">GitHub</a>
+            </li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <article class="mx-auto prose">
+        <h1>g-chess-board</h1>
+<p>A component that displays a chess board, with optional interactivity. Allows
+click, drag and keyboard-based moves.</p>
+<h2>Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Attribute</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>animationDuration</code></td>
+<td><code>animation-duration</code></td>
+<td><code>number</code></td>
+<td>200</td>
+<td>Duration, in milliseconds, of animation when adding/removing/moving pieces.</td>
+</tr>
+<tr>
+<td><code>arrows</code></td>
+<td></td>
+<td><code>BoardArrow[] | undefined</code></td>
+<td></td>
+<td>Set of arrows to draw on the board. This is an array of objects specifying<br />arrow properties, with the following properties: (1) <code>from</code> and <code>to</code><br />corresponding to the start and end squares for the arrow, (2) optional<br /><code>weight</code> for the line (values: <code>&quot;light&quot;</code>, <code>&quot;normal&quot;</code>, <code>&quot;bold&quot;</code>), and<br />(3) <code>brush</code>, which is a string that will be used to make a CSS part<br />where one can customize the color, opacity, and other styles of the<br />arrow. For example, a value for <code>brush</code> of <code>&quot;foo&quot;</code> will be apply a<br />CSS part named <code>arrow-foo</code> to the arrow.<br /><br />Note: because the value of <code>brush</code> becomes part of a CSS part name, it<br />should otherwise be usable in a CSS selector name.<br /><br />In addition to allowing arbitrary part names, arrows support a few<br />out-of-the-box brush names, <code>primary</code> and <code>secondary</code>, which colors<br />defined with CSS custom properties <code>--arrow-color-primary</code> and<br /><code>--arrow-color-secondary</code>.</td>
+</tr>
+<tr>
+<td><code>coordinates</code></td>
+<td><code>coordinates</code></td>
+<td><code>&quot;inside&quot; | &quot;outside&quot; | &quot;hidden&quot;</code></td>
+<td>&quot;inside&quot;</td>
+<td>How to display coordinates for squares. Could be <code>inside</code> the board (default),<br /><code>outside</code>, or <code>hidden</code>.</td>
+</tr>
+<tr>
+<td><code>fen</code></td>
+<td><code>fen</code></td>
+<td><code>string</code></td>
+<td></td>
+<td>FEN string representing the board position. Note that changes to the <code>fen</code> property<br />change the board <code>position</code> property, but do <strong>not</strong> reflect onto the &quot;fen&quot; <em>attribute</em><br />of the element. In other words, to get the latest FEN string for the board position,<br />use the <code>fen</code> property on the element.<br /><br />This property accepts the special string <code>&quot;start&quot;</code> as shorthand for the starting position<br />of a chess game. An empty string represents an empty board. Invalid FEN values are ignored<br />with an error.<br /><br />Note that a FEN string contains 6 components, separated by slashes, but only the first<br />component (the &quot;piece placement&quot; component) is used.</td>
+</tr>
+<tr>
+<td><code>interactive</code></td>
+<td><code>interactive</code></td>
+<td><code>boolean</code></td>
+<td></td>
+<td>Whether the squares are interactive, i.e. user can interact with squares,<br />move pieces etc. By default, this is false; i.e a board is only for display.</td>
+</tr>
+<tr>
+<td><code>orientation</code></td>
+<td><code>orientation</code></td>
+<td><code>&quot;white&quot; | &quot;black&quot;</code></td>
+<td>&quot;white&quot;</td>
+<td>What side's perspective to render squares from (what color appears on<br />the bottom as viewed on the screen).</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td></td>
+<td><code>{ a8?: Piece | undefined; b8?: Piece | undefined; c8?: Piece | undefined; d8?: Piece | undefined; e8?: Piece | undefined; f8?: Piece | undefined; ... 57 more ...; h1?: Piece | undefined; }</code></td>
+<td></td>
+<td>Map representing the board position, where keys are square labels, and<br />values are <code>Piece</code> objects. Note that changes to position do not reflect<br />onto the &quot;fen&quot; attribute of the element.</td>
+</tr>
+<tr>
+<td><code>turn</code></td>
+<td><code>turn</code></td>
+<td><code>&quot;white&quot; | &quot;black&quot; | undefined</code></td>
+<td></td>
+<td>What side is allowed to move pieces. This may be <code>undefined</code> (or unset,<br />in the case of the equivalent element attribute), in which case pieces<br />from either side can be moved around.</td>
+</tr>
+</tbody>
+</table>
+<h2>Methods</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>addEventListener</code></td>
+<td><code>{ &lt;K extends &quot;movestart&quot; | &quot;moveend&quot; | &quot;movefinished&quot; | &quot;movecancel&quot;&gt;(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean | ... 1 more ... | undefined): void; &lt;K extends &quot;fullscreenchange&quot; | ... 90 more ... | &quot;paste&quot;&gt;(type: K, listener: (this: HTMLElement, ev: HTMLEleme...</code></td>
+<td>Add listener for events on this element.</td>
+</tr>
+<tr>
+<td><code>removeEventListener</code></td>
+<td><code>{ &lt;K extends &quot;movestart&quot; | &quot;moveend&quot; | &quot;movefinished&quot; | &quot;movecancel&quot;&gt;(type: K, listener: (this: HTMLElement, ev: ChessBoardEventMap[K]): any, options?: boolean | ... 1 more ... | undefined): void; &lt;K extends &quot;fullscreenchange&quot; | ... 90 more ... | &quot;paste&quot;&gt;(type: K, listener: (this: HTMLElement, ev: HTMLElementEvent...</code></td>
+<td>Remove listener for an event on this element.</td>
+</tr>
+<tr>
+<td><code>startMove</code></td>
+<td><code>(square: &quot;a8&quot; | &quot;b8&quot; | &quot;c8&quot; | &quot;d8&quot; | &quot;e8&quot; | &quot;f8&quot; | &quot;g8&quot; | &quot;h8&quot; | &quot;a7&quot; | &quot;b7&quot; | &quot;c7&quot; | &quot;d7&quot; | &quot;e7&quot; | &quot;f7&quot; | &quot;g7&quot; | &quot;h7&quot; | &quot;a6&quot; | &quot;b6&quot; | &quot;c6&quot; | &quot;d6&quot; | &quot;e6&quot; | &quot;f6&quot; | &quot;g6&quot; | &quot;h6&quot; | &quot;a5&quot; | &quot;b5&quot; | &quot;c5&quot; | ... 36 more ... | &quot;h1&quot;, targetSquares?: (&quot;a8&quot; | ... 62 more ... | &quot;h1&quot;)[] | undefined): void</code></td>
+<td>Start a move on the board at <code>square</code>, optionally with specified targets<br />at <code>targetSquares</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2>Events</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>movecancel</code></td>
+<td>Fired as a move is being canceled by the user. The event<br />is <em>itself</em> cancelable, ie. a caller can call <code>preventDefault()</code> on the event<br />to prevent the move from being canceled. Any pieces being dragged will be returned<br />to the start square, but the move will remain in progress.<br /><br />The event has a <code>detail</code> object<code>with</code>from<code>set to the square label where&lt;br /&gt;the move was started, and</code>piece` containing information about the piece that was<br />moved.</td>
+</tr>
+<tr>
+<td><code>moveend</code></td>
+<td>Fired when user is completing a move. This move can be prevented<br />from completing by calling <code>preventDefault()</code> on the event. If that is called,<br />the move itself remains in progress. The event has a <code>detail</code> object with <code>from</code><br />and <code>to</code> set to the square labels of the move, and <code>piece</code> containing information<br />about the piece that was moved.</td>
+</tr>
+<tr>
+<td><code>movefinished</code></td>
+<td>Fired after a move is completed and animations are resolved.<br />The event has a <code>detail</code> object with <code>from</code> and <code>to</code> set to the square labels<br />of the move, and <code>piece</code> containing information about the piece that was moved.</td>
+</tr>
+<tr>
+<td><code>movestart</code></td>
+<td>Fired when the user initiates a move by clicking, dragging or<br />via the keyboard.<br /><br />The event has a <code>detail</code> object with the <code>from</code> and<br /><code>piece</code> values for the move. It also has a function, <code>setTargets(squares)</code>,<br />that the caller can invoke with an array of square labels. This limits the<br />set of targets that the piece can be moved to. Note that calling this<br />function with an empty list will still allow the piece to be dragged around,<br />but no square will accept the piece and thus it will always return to the<br />starting square.</td>
+</tr>
+</tbody>
+</table>
+<h2>Slots</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a1,a2,...,h8</code></td>
+<td>Slots that allow placement of custom content -- SVGs, text, or<br />any other annotation -- on the corresponding square.</td>
+</tr>
+</tbody>
+</table>
+<h2>CSS Shadow Parts</h2>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>arrow-&lt;brush_name&gt;</code></td>
+<td>CSS parts for any arrow brushes configured using the<br /><code>brush</code> property on an arrow specifcation (see the <code>arrows</code> property for more details).</td>
+</tr>
+<tr>
+<td><code>piece-&lt;b|w&gt;-&lt;b|r|p|n|k|q&gt;</code></td>
+<td>CSS parts for each of the piece classes. The part<br />name is of the form <code>piece-xy</code>, where <code>x</code> corresponds to the color of the piece --<br />either <code>w</code> for white or <code>b</code> for black, and <code>y</code> is the piece type -- one of <code>p</code> (pawn),<br /><code>r</code> (rook), <code>n</code> (knight), <code>b</code> (bishop), <code>k</code> (king), <code>q</code> (queen). Thus, <code>piece-wr</code><br />would be the CSS part corresponding to the white rook.<br /><br />The CSS parts can be used to set custom CSS for the pieces (such as changing the image<br />for a piece by changing the <code>background-image</code> property).</td>
+</tr>
+</tbody>
+</table>
+<h2>CSS Custom Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--arrow-color-primary</code></td>
+<td>&quot;hsl(40deg 100% 50% / 80%)&quot;</td>
+<td>color applied to arrow<br />with brush <code>primary</code>.</td>
+</tr>
+<tr>
+<td><code>--arrow-color-secondary</code></td>
+<td>&quot;hsl(7deg 93% 61% / 80%)&quot;</td>
+<td>color applied to arrow<br />with brush <code>secondary</code>.</td>
+</tr>
+<tr>
+<td><code>--coords-font-family</code></td>
+<td>&quot;sans-serif&quot;</td>
+<td>Font family of coord labels shown on board.</td>
+</tr>
+<tr>
+<td><code>--coords-font-size</code></td>
+<td>&quot;0.7rem&quot;</td>
+<td>Font size of coord labels shown on board.</td>
+</tr>
+<tr>
+<td><code>--coords-inside-coord-padding-left</code></td>
+<td>&quot;0.5%&quot;</td>
+<td>Left padding applied to coordinates<br />when shown inside the board. Percentage values are relative to the width of the board.</td>
+</tr>
+<tr>
+<td><code>--coords-inside-coord-padding-right</code></td>
+<td>&quot;0.5%&quot;</td>
+<td>Right padding applied to coordinates<br />when shown inside the board. Percentage values are relative to the width of the board.</td>
+</tr>
+<tr>
+<td><code>--ghost-piece-opacity</code></td>
+<td>0.35</td>
+<td>Opacity of ghost piece shown while dragging.<br />Set to 0 to hide ghost piece altogether.</td>
+</tr>
+<tr>
+<td><code>--inner-border-color</code></td>
+<td>&quot;var(--square-color-dark)&quot;</td>
+<td>Color of the inside border drawn<br />around the board.</td>
+</tr>
+<tr>
+<td><code>--inner-border-width</code></td>
+<td>&quot;1px&quot;</td>
+<td>Width of the inside border drawn around the board.</td>
+</tr>
+<tr>
+<td><code>--move-target-marker-color-dark-square</code></td>
+<td>&quot;hsl(144deg 64% 9% / 90%)&quot;</td>
+<td>Color of marker shown on dark square when it is an eligible move target.</td>
+</tr>
+<tr>
+<td><code>--move-target-marker-color-light-square</code></td>
+<td>&quot;hsl(144deg 64% 9% / 90%)&quot;</td>
+<td>Color of marker shown on light square when it is an eligible move target.</td>
+</tr>
+<tr>
+<td><code>--move-target-marker-radius</code></td>
+<td>&quot;24%&quot;</td>
+<td>Radius of marker on a move target<br />square.</td>
+</tr>
+<tr>
+<td><code>--move-target-marker-radius-occupied</code></td>
+<td>&quot;82%&quot;</td>
+<td>Radius of marker on<br />a move target square that is occupied (by a piece or custom content).</td>
+</tr>
+<tr>
+<td><code>--outer-gutter-width</code></td>
+<td>&quot;4%&quot;</td>
+<td>When the <code>coordinates</code> property is <code>outside</code>,<br />this CSS property controls the width of the gutter outside the board where coords are shown.</td>
+</tr>
+<tr>
+<td><code>--outline-blur-radius</code></td>
+<td>&quot;3px&quot;</td>
+<td>Blur radius of all outlines applied to square.</td>
+</tr>
+<tr>
+<td><code>--outline-color-dark-active</code></td>
+<td>&quot;hsl(138deg 85% 53% / 95%)&quot;</td>
+<td>Color of<br />outline applied to dark square when it is the starting point of a move.<br />It is applied in addition to <code>--square-color-dark-active</code>, and is visible<br />when the square does not have focus.</td>
+</tr>
+<tr>
+<td><code>--outline-color-focus</code></td>
+<td>&quot;hsl(30deg 94% 55% / 90%)&quot;</td>
+<td>Color of outline applied to square when it has focus.</td>
+</tr>
+<tr>
+<td><code>--outline-color-light-active</code></td>
+<td>&quot;hsl(66deg 97% 72% / 95%)&quot;</td>
+<td>Color of<br />outline applied to light square when it is the starting point of a move.<br />It is applied in addition to <code>--square-color-light-active</code>, and is visible<br />when the square does not have focus.</td>
+</tr>
+<tr>
+<td><code>--outline-spread-radius</code></td>
+<td>&quot;4px&quot;</td>
+<td>Spread radius of all outlines applied to square.</td>
+</tr>
+<tr>
+<td><code>--piece-drag-z-index</code></td>
+<td>9999</td>
+<td>Z-index applied to piece while being dragged.</td>
+</tr>
+<tr>
+<td><code>--piece-padding</code></td>
+<td>&quot;3%&quot;</td>
+<td>Padding applied to square when piece is placed in it.</td>
+</tr>
+<tr>
+<td><code>--square-color-dark</code></td>
+<td>&quot;hsl(145deg 32% 44%)&quot;</td>
+<td>Color for dark squares.</td>
+</tr>
+<tr>
+<td><code>--square-color-dark-active</code></td>
+<td>&quot;hsl(142deg 77% 43%)&quot;</td>
+<td>Color applied to<br />dark square when it is involved in (the starting point) of a move. By default<br />this color is similar to, but slightly different from, <code>--square-color-dark-hover</code>.</td>
+</tr>
+<tr>
+<td><code>--square-color-dark-hover</code></td>
+<td>&quot;hsl(144deg 75% 44%)&quot;</td>
+<td>Hover color<br />for a dark square. Applied when mouse is hovering over an interactable square<br />or a square has keyboard focus during a move.</td>
+</tr>
+<tr>
+<td><code>--square-color-light</code></td>
+<td>&quot;hsl(51deg 24% 84%)&quot;</td>
+<td>Color for light squares.</td>
+</tr>
+<tr>
+<td><code>--square-color-light-active</code></td>
+<td>&quot;hsl(50deg 95% 64%)&quot;</td>
+<td>Color applied to<br />light square when it is involved in (the starting point) of a move. By default<br />this color is similar to, but slightly different from, <code>--square-color-light-hover</code>.</td>
+</tr>
+<tr>
+<td><code>--square-color-light-hover</code></td>
+<td>&quot;hsl(52deg 98% 70%)&quot;</td>
+<td>Hover color<br />for a dark square. Applied when mouse is hovering over an interactable square<br />or a square has keyboard focus during a move.</td>
+</tr>
+</tbody>
+</table>
+
+      </article>
+    </main>
+  </body>
+</html>
