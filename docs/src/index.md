@@ -185,7 +185,7 @@ chess game, with each side taking turns to move!
 
 <!-- prettier-ignore-start -->
 {% chessboardjs %}
-import { Chess } from "https://unpkg.com/chess.js";
+import { Chess } from "https://cdn.skypack.dev/chess.js";
 
 const board = document.getElementById("chessful-board");
 const game = new Chess();
