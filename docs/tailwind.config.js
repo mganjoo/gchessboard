@@ -1,5 +1,5 @@
 module.exports = {
-  content: ["src/**/*.njk", "src/**/*.md", ".eleventy.js"],
+  content: ["src/**/*.njk", "src/**/*.html", "src/**/*.md", ".eleventy.js"],
   theme: {
     fontFamily: {
       sans: ["Nunito Sans", "sans-serif"],

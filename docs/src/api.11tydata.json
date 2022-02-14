@@ -1,5 +1,5 @@
 {
-  "layout": "layout.njk",
+  "layout": "markdown.njk",
   "title": "API Documentation",
   "eleventyNavigation": {
     "key": "API",
