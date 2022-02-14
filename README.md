@@ -68,7 +68,12 @@ More details on properties and attributes of the element, events fired, and vari
 
 ## Attribution
 
-Chess pieces included in this library were adapted from [Category:SVG chess pieces](https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces) on Wikmedia, with slight optimizations using [SVGO](https://www.npmjs.com/package/svgo). Original images created by [User:Cburnett](https://commons.wikimedia.org/wiki/User:Cburnett), licensed under the [Creative Commons Attribution-Share Alike 3.0 Unported](https://creativecommons.org/licenses/by-sa/3.0/deed.en).
+Chess piece SVG images included in this library were adapted from
+[Category:SVG chess pieces](https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces)
+on Wikmedia, with slight optimizations using [SVGO](https://www.npmjs.com/package/svgo).
+
+Original images created by [User:Cburnett](https://commons.wikimedia.org/wiki/User:Cburnett) -
+Own work, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en).
 
 ## Acknowledgements
 
