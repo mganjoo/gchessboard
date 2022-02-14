@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "ESNext",
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
     "useDefineForClassFields": true,
 
     /* Modules */
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
+    "module": "ES2020",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
