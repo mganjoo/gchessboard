@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- SVG chess pieces have been updated to correspond to the latest set from [Category:SVG chess pieces](https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces) on Wikimedia (#30).
+
 ## [0.2.1] - 2022-02-12
 
 ### Added
