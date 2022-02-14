@@ -1,0 +1,39 @@
+---
+layout: base.njk
+title: Home
+---
+
+<div class="max-w-2xl mx-auto lg:max-w-4xl">
+  <h1 class="mb-3 text-2xl font-extrabold tracking-tight text-center sm:text-3xl md:text-4xl">
+    An accessible chess board web component.
+  </h1>
+  <p class="my-3 text-lg text-center sm:text-xl">
+    A simple, but feature-rich chess board that allows moves via mouse <em>and</em> keyboard.
+  </p>
+  <section class="grid max-w-xl mx-auto my-10 gap-x-4 lg:max-w-full lg:grid-cols-2">
+    <div class="overflow-auto">
+      <h1 class="mb-2 text-xl font-bold sm:text-2xl md:text-3xl">Easy to integrate.</h1>
+      <p class="text-lg">
+        Add a chess board to your page is as simple as adding an HTML tag
+        to your document. And it has out-of-the-box support for mouse and
+        keyboard moves.
+      </p>
+      {% highlight "html" %}
+<g-chess-board
+  interactive
+  fen="8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8">
+</g-chess-board>
+      {% endhighlight %}
+    </div>
+    <div class="max-w-md mx-auto lg:mx-0 lg:max-w-full">
+      <g-chess-board
+        interactive
+        fen="8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8">
+      </g-chess-board>
+      <p class="mt-2 text-center">
+        Tip: press <span class="keypress">Tab</span> to focus the board and
+        use the keyboard to move around!
+      </p>
+    </div>
+  </section>
+</div>

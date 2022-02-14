@@ -1,6 +1,6 @@
 ---
-layout: layout.njk
-title: Home
+layout: markdown.njk
+title: Tutorial
 eleventyNavigation:
   key: Tutorial
   order: 1
@@ -27,7 +27,7 @@ import "gchessboard";
 ### Via a `<script>` tag
 
 ```html
-<script type="module" src="https://unpkg.com/gchessboard">
+<script type="module" src="https://unpkg.com/gchessboard"></script>
 ```
 
 ## Empty chessboard
