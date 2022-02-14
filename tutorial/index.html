@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Tutorial - gchessboard</title>
+    <meta name="description" content="an accessible, customizable and dependency-free chess board web component."/>
+    <link rel="stylesheet" href="/gchessboard/css/main.css"/>
+    <script type="module" src="/gchessboard/lib/gchessboard.js"></script>
+  </head>
+  <body class="grid grid-cols-1 px-4 py-3">
+    <header class="grid justify-center pb-4 mb-6 border-b border-slate-400 sm:grid-cols-2 sm:flex-row sm:items-center sm:gap-x-10 sm:mb-10">
+      <h1 class="text-3xl font-semibold sm:text-4xl sm:text-right">
+        <a href="/gchessboard/">gchessboard</a>
+      </h1>
+      <nav>
+        
+        <ul class="flex items-stretch py-2 text-base gap-x-6">
+            <li class="py-2">
+              <a class="underline underline-offset-4 decoration-blue-600 decoration-2" href="/gchessboard/tutorial/">Tutorial</a>
+            </li>
+            <li class="py-2">
+              <a class="underline underline-offset-4 decoration-blue-600 decoration-2" href="/gchessboard/api/">API</a>
+            </li>
+            <li class="py-2">
+              <a class="underline underline-offset-4 decoration-blue-600 decoration-2" href="https://github.com/mganjoo/gchessboard">GitHub</a>
+            </li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <article class="mx-auto prose">
+  <h1>Tutorial</h1>
+<p>In this tutorial, we will render a chess board component on the page that can
+be used to play a two-player game of chess, with each side taking turns.</p>
+<p>First, we will install the library and import it into a page. There are two
+ways to do this.</p>
+<h3>As an NPM package</h3>
+<pre class="language-bash"><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> gchessboard</code></pre>
+<pre class="language-js"><code class="language-js"><span class="token keyword">import</span> <span class="token string">"gchessboard"</span><span class="token punctuation">;</span></code></pre>
+<h3>Via a <code>&lt;script&gt;</code> tag</h3>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>module<span class="token punctuation">"</span></span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>https://unpkg.com/gchessboard<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></code></pre>
+<h2>Empty chessboard</h2>
+<p>Once the element is imported, we can render it in a page simply by using the
+<code>&lt;g-chess-board&gt;</code> tag:</p>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
+<div class="chessboard-wrapper">
+<g-chess-board></g-chess-board>
+</div>
+<p>This renders an chess board with default bundled colors and styles, but with no
+pieces on it. For a more interesting board, we will have to override some
+additional attributes.</p>
+<h2>Adding pieces</h2>
+<p>We can place pieces onto the board by specifying a position. Like most online
+chess libraries, gchessboard accepts a
+<a href="https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation">Forsyth-Edwards Notation (FEN)</a>
+string to specify a board position, using the <code>fen</code> attribute.</p>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span><br>  <span class="token attr-name">fen</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
+<div class="chessboard-wrapper">
+<g-chess-board
+  fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR">
+</g-chess-board>
+</div>
+<p>This renders a board with the standard chess game start position. Because of how
+common this position is, gchessboard accepts a value of <code>&quot;start&quot;</code> as an alias
+for the starting position. Thus, the above board could also be produced with the
+following code:</p>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span> <span class="token attr-name">fen</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>start<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
+<div class="box-tip">
+  A FEN string usually has six space-separated components, but only the first
+  (the "placement" attribute) is relevant for determining piece positions. gchessboard
+  will ignore any other components if a full FEN string is passed in. Thus, we could
+  have also passed in a full string of "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+  and the position would have been rendered correctly.
+</div>
+<h2>Adding interactivity</h2>
+<p>The above boards are static and do not allow any pieces to be moved by the user.
+They are useful if we would like to simply display a chess position on a web
+page, such as in a blog post describing a game or strategy.</p>
+<p>To allow pieces to be moved, we can include the <code>interactive</code> attribute.</p>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span> <span class="token attr-name">fen</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>start<span class="token punctuation">"</span></span> <span class="token attr-name">interactive</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
+<div class="chessboard-wrapper">
+<g-chess-board fen="start" interactive></g-chess-board>
+</div>
+<p>This attribute makes the entire board interactive – <em>any</em> piece can be moved
+around. gchessboard supports three ways to move pieces:</p>
+<ul>
+<li><strong>dragging</strong> pieces from one square to another;</li>
+<li><strong>clicking</strong> or <strong>touching</strong> a piece, and then clicking on another square to
+move the piece to that square; and</li>
+<li>using the <strong>keyboard</strong> to move after using <span class="keypress">Tab</span>
+to navigate into the board.</li>
+</ul>
+<h3>Using the keyboard to move</h3>
+<p>Keyboard-based moves are a unique feature of gchessboard. The library has been
+designed to fit the
+<a href="https://www.w3.org/TR/wai-aria-practices/examples/grid/LayoutGrids.html">ARIA grid design pattern</a>,
+which specifies how to handle directional navigation in a two-dimensional container.</p>
+<p>Keyboard navigation is enabled when the board has focus. The board is placed
+in the natural <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex">tab order</a>
+of the page; thus you can navigate to it by using <span class="keypress">Tab</span>
+and <span class="keypress">Shift</span> + <span class="keypress">Tab</span>. Once
+the board has focus, you can press <span class="keypress">Up</span>,
+<span class="keypress">Down</span>, <span class="keypress">Left</span>, and
+<span class="keypress">Right</span> to move between squares. Pressing
+<span class="keypress">Enter</span> or <span class="keypress">Space</span> is
+equivalent to clicking on the square.</p>
+<p>You can also use <span class="keypress">Home</span> and
+<span class="keypress">End</span> to move to the start and end of a rank (row),
+<span class="keypress">PgUp</span> and <span class="keypress">PgDown</span>
+to move to the start and end of a file (column), and
+<span class="keypress">Ctrl</span> + <span class="keypress">Home</span> and
+<span class="keypress">Ctrl</span> + <span class="keypress">End</span> to move
+to the top-left and bottom-right of the board, respectively.</p>
+<h2>Adding chess logic</h2>
+<p>gchessboard is <em>just</em> a board; it has no notion of the rules of chess or how
+the pieces are allowed to move between squares. To make the component behave
+more like a chess board, gchessboard provides additional attributes, as well
+as custom DOM events, that allow you to restrict the set of pieces that can
+be moved and the squares they can be moved to.</p>
+<p>You will usually need to combine the board component with chess logic and state
+management provided by your own code or an external library. While gchessboard
+maintains its own representation of the position of the board – especially after
+a piece is moved – this state should be considered &quot;temporary&quot;. Instead, the
+position of the board should be updated using the <code>fen</code> attribute or the <code>position</code>
+property after every move. We will make use of <strong>events</strong> to react to user moves
+and update state.</p>
+<p>For this section of the tutorial, we will use the excellent
+<a href="https://github.com/jhlywa/chess.js/">chess.js</a> library to keep update and keep
+track of the state of the game.</p>
+<h3>Restricting which side can move with the <code>turn</code> attribute</h3>
+<p>We can use the <code>turn</code> attribute to restrict which side is allowed to move.</p>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span> <span class="token attr-name">fen</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>start<span class="token punctuation">"</span></span> <span class="token attr-name">interactive</span> <span class="token attr-name">turn</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>white<span class="token punctuation">"</span></span><span class="token punctuation">></span></span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
+<p>With this change, only the white pieces can be moved. Internally, this also
+removes hover and pointer styles from the black pieces, and sets <code>aria-disabled</code>
+attribute on them so that screen readers do not treat them as clickable.</p>
+<h3>Update game state with move lifecycle events</h3>
+<p>Next, we will restrict where a piece is allowed to move to once a move is
+started, and update the game state after the move has ended. For this, we can
+leverage three events:</p>
+<ul>
+<li>
+<p><code>movestart</code>: This event is fired as a move is being started by the user.
+The event has a <code>detail</code> object containing information about the move. It
+also provides a function <code>setTargets(squares)</code>, which accepts an array of
+square labels. When called, this function sets the set of target squares
+that a piece is allowed to move to.</p>
+</li>
+<li>
+<p><code>moveend</code>: this is fired just as a piece is being moved to a new square. The
+event is <strong>cancelable</strong>, which means the move can be prevented from finishing
+by calling <code>preventDefault()</code> on the event. When this happens, the piece moves
+back to the starting square of the move, continuing to await input. This is the
+best place to update the external game state.</p>
+</li>
+<li>
+<p><code>movefinished</code>: this is fired after a move is complete and all animations have
+resolved. This is the best place to update the position of the board (in case
+additional pieces need to be moved, such as with castling). We can also use
+this event to change the value of the <code>turn</code> attribute.</p>
+</li>
+</ul>
+<p>We can use a combination of these three events to create a fully working
+chess game, with each side taking turns to move!</p>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span><br>  <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>chessful-board<span class="token punctuation">"</span></span> <span class="token attr-name">fen</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>start<span class="token punctuation">"</span></span> <span class="token attr-name">interactive</span> <span class="token attr-name">turn</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>white<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
+<div class="chessboard-wrapper">
+<g-chess-board
+  id="chessful-board" fen="start" interactive turn="white">
+</g-chess-board>
+</div>
+<!-- prettier-ignore-start -->
+<pre class="language-js"><code class="language-js"><span class="token keyword">import</span> <span class="token punctuation">{</span> Chess <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"https://cdn.skypack.dev/chess.js"</span><span class="token punctuation">;</span><br><br><span class="token keyword">const</span> board <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"chessful-board"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br><span class="token keyword">const</span> game <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Chess</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br><br>board<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">"movestart"</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">e</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span><br>  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Move started: </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>from<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">, </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>piece<span class="token punctuation">.</span>color<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string"> </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>piece<span class="token punctuation">.</span>pieceType<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><br>  e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span><span class="token function">setTargets</span><span class="token punctuation">(</span><br>    <span class="token comment">// This produces a list like ["e3", "e5"]</span><br>    game<span class="token punctuation">.</span><span class="token function">moves</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">square</span><span class="token operator">:</span> e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>from<span class="token punctuation">,</span> <span class="token literal-property property">verbose</span><span class="token operator">:</span> <span class="token boolean">true</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">m</span><span class="token punctuation">)</span> <span class="token operator">=></span> m<span class="token punctuation">.</span>to<span class="token punctuation">)</span><br>  <span class="token punctuation">)</span><span class="token punctuation">;</span><br><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br><br>board<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">"moveend"</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">e</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span><br>  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Move ending: </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>from<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string"> -> </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>to<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">, </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><br>    e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>piece<span class="token punctuation">.</span>color<br>  <span class="token interpolation-punctuation punctuation">}</span></span><span class="token string"> </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>piece<span class="token punctuation">.</span>pieceType<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><br>  <span class="token keyword">const</span> move <span class="token operator">=</span> game<span class="token punctuation">.</span><span class="token function">move</span><span class="token punctuation">(</span><span class="token punctuation">{</span><br>    <span class="token literal-property property">from</span><span class="token operator">:</span> e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>from<span class="token punctuation">,</span><br>    <span class="token literal-property property">to</span><span class="token operator">:</span> e<span class="token punctuation">.</span>detail<span class="token punctuation">.</span>to<span class="token punctuation">,</span><br>    <span class="token comment">// Promote to queen for convenience (normally you would prompt user)</span><br>    <span class="token literal-property property">promotion</span><span class="token operator">:</span> <span class="token string">"q"</span><br>  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br>  <span class="token keyword">if</span> <span class="token punctuation">(</span>move <span class="token operator">===</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><br>    e<span class="token punctuation">.</span><span class="token function">preventDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br>  <span class="token punctuation">}</span><br><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br><br>board<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">"movefinished"</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">e</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span><br>  board<span class="token punctuation">.</span>fen <span class="token operator">=</span> game<span class="token punctuation">.</span><span class="token function">fen</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br>  board<span class="token punctuation">.</span>turn <span class="token operator">=</span> game<span class="token punctuation">.</span><span class="token function">turn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token string">"w"</span> <span class="token operator">?</span> <span class="token string">"white"</span> <span class="token operator">:</span> <span class="token string">"black"</span><span class="token punctuation">;</span><br><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<script type="module">
+import { Chess } from "https://cdn.skypack.dev/chess.js";
+
+const board = document.getElementById("chessful-board");
+const game = new Chess();
+
+board.addEventListener("movestart", (e) => {
+  console.log(`Move started: ${e.detail.from}, ${e.detail.piece.color} ${e.detail.piece.pieceType}`);
+  e.detail.setTargets(
+    // This produces a list like ["e3", "e5"]
+    game.moves({ square: e.detail.from, verbose: true }).map((m) => m.to)
+  );
+});
+
+board.addEventListener("moveend", (e) => {
+  console.log(`Move ending: ${e.detail.from} -> ${e.detail.to}, ${
+    e.detail.piece.color
+  } ${e.detail.piece.pieceType}`);
+  const move = game.move({
+    from: e.detail.from,
+    to: e.detail.to,
+    // Promote to queen for convenience (normally you would prompt user)
+    promotion: "q"
+  });
+  if (move === null) {
+    e.preventDefault();
+  }
+});
+
+board.addEventListener("movefinished", (e) => {
+  board.fen = game.fen();
+  board.turn = game.turn() === "w" ? "white" : "black";
+});
+</script>
+<!-- prettier-ignore-end -->
+<p>And that's it! You can edit and run <a href="https://codesandbox.io/s/gchessboard-tutorial-iyr7o?file=/src/index.js">the full example</a>.</p>
+<p>More material around style, layout, and animation customization to come soon.</p>
+
+</article>
+
+    </main>
+  </body>
+</html>
