@@ -3,9 +3,15 @@
   "version": "0.2.2",
   "description": "An accessible, customizable and dependency-free chessboard web component.",
   "author": "Milind Ganjoo",
+  "homepage": "https://mganjoo.github.io/gchessboard",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mganjoo/gchessboard.git"
+  },
   "main": "dist/index.es.js",
   "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
   "files": [
     "src",
     "dist",
@@ -34,7 +40,6 @@
     "prepare": "husky install",
     "release": "release-it"
   },
-  "types": "dist/index.d.ts",
   "devDependencies": {
     "@playwright/test": "^1.18.1",
     "@release-it/keep-a-changelog": "^2.3.0",
@@ -68,9 +73,5 @@
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "*.{js,jsx,ts,tsx,md,json,yml,yaml}": "prettier --write",
     "*.css": "stylelint --fix"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mganjoo/gchessboard.git"
   }
 }
