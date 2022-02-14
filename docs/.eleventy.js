@@ -48,5 +48,7 @@ module.exports = function (eleventyConfig) {
       input: "src",
     },
     pathPrefix: "/gchessboard/",
+    htmlTemplateEngine: "njk",
+    markdownTemplateEngine: "njk",
   };
 };
