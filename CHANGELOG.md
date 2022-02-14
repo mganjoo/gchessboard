@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Target for compiled JavaScript has been changed to ES2020 to balance the use of
+  new features with widespread compatibility, since some build environments
+  (unpkg, codesandbox default parcel build) do not seem to support new features like
+  class properties.
+
 - SVG chess pieces have been updated to correspond to the latest set from [Category:SVG chess pieces](https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces) on Wikimedia (#30).
 
 ## [0.2.1] - 2022-02-12
