@@ -10,7 +10,7 @@
     <script type="module" src="/gchessboard/lib/gchessboard.js"></script>
   </head>
   <body class="grid px-5 py-3 gap-y-6 justify-items-center bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 lg:gap-y-10 lg:px-8">
-    <header class="grid items-center justify-center pt-2 pb-4 border-b gap-x-9 gap-y-1 border-zinc-400 dark:border-zinc-600 justify-self-stretch sm:grid-cols-2">
+    <header class="flex flex-col items-center justify-center pt-2 pb-4 border-b gap-x-9 gap-y-1 border-zinc-400 dark:border-zinc-600 justify-self-stretch sm:flex-row">
       <h1 class="text-3xl font-semibold text-zinc-900 dark:text-white sm:text-4xl sm:text-right sm:mb-0">
         <a href="/gchessboard/">gchessboard</a>
       </h1>
@@ -30,7 +30,7 @@
       </nav>
     </header>
     <main>
-      <article class="mx-auto prose prose-zinc dark:prose-invert">
+      <article class="grid prose prose-zinc dark:prose-invert">
   <h1>g-chess-board</h1>
 <p>A component that displays a chess board, with optional interactivity. Allows
 click, drag and keyboard-based moves.</p>
