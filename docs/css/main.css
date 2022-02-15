@@ -20,7 +20,7 @@
 
 @layer components {
   .box-tip {
-    @apply p-3 my-8 overflow-x-scroll bg-slate-300;
+    @apply p-3 my-8 overflow-x-scroll bg-zinc-300 text-zinc-800 dark:bg-zinc-600 dark:text-zinc-100;
   }
 
   .chessboard-wrapper {
@@ -28,6 +28,6 @@
   }
 
   .keypress {
-    @apply p-1 text-xs border rounded-sm font-monospace border-slate-600;
+    @apply p-1 text-xs border rounded-sm font-monospace border-zinc-600;
   }
 }
