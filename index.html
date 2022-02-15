@@ -9,38 +9,45 @@
     <link rel="stylesheet" href="/gchessboard/css/main.css"/>
     <script type="module" src="/gchessboard/lib/gchessboard.js"></script>
   </head>
-  <body class="grid grid-cols-1 px-4 py-3">
-    <header class="grid justify-center pb-4 mb-6 border-b border-slate-400 sm:grid-cols-2 sm:flex-row sm:items-center sm:gap-x-10 sm:mb-10">
-      <h1 class="text-3xl font-semibold sm:text-4xl sm:text-right">
+  <body class="grid px-5 py-3 gap-y-6 justify-items-center bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 lg:gap-y-10 lg:px-8">
+    <header class="grid items-center justify-center pt-2 pb-4 border-b gap-x-9 gap-y-1 border-zinc-400 dark:border-zinc-600 justify-self-stretch sm:grid-cols-2">
+      <h1 class="text-3xl font-semibold text-zinc-900 dark:text-white sm:text-4xl sm:text-right sm:mb-0">
         <a href="/gchessboard/">gchessboard</a>
       </h1>
       <nav>
         
-        <ul class="flex items-stretch py-2 text-base gap-x-6">
+        <ul class="flex items-stretch text-base gap-x-6">
             <li class="py-2">
-              <a class="underline underline-offset-4 decoration-blue-600 decoration-2" href="/gchessboard/tutorial/">Tutorial</a>
+              <a class="underline text-zinc-800 dark:text-zinc-100 underline-offset-4 decoration-green-600 dark:decoration-green-500 decoration-2" href="/gchessboard/tutorial/">Tutorial</a>
             </li>
             <li class="py-2">
-              <a class="underline underline-offset-4 decoration-blue-600 decoration-2" href="/gchessboard/api/">API</a>
+              <a class="underline text-zinc-800 dark:text-zinc-100 underline-offset-4 decoration-green-600 dark:decoration-green-500 decoration-2" href="/gchessboard/api/">API</a>
             </li>
             <li class="py-2">
-              <a class="underline underline-offset-4 decoration-blue-600 decoration-2" href="https://github.com/mganjoo/gchessboard">GitHub</a>
+              <a class="underline text-zinc-800 dark:text-zinc-100 underline-offset-4 decoration-green-600 dark:decoration-green-500 decoration-2" href="https://github.com/mganjoo/gchessboard">GitHub</a>
             </li>
         </ul>
       </nav>
     </header>
     <main>
       
-<div class="max-w-2xl mx-auto lg:max-w-4xl">
-  <h1 class="mb-3 text-2xl font-extrabold tracking-tight text-center sm:text-3xl md:text-4xl">
+<div class="max-w-4xl">
+  <h1 class="mb-3 text-2xl font-extrabold tracking-tight text-center text-zinc-900 dark:text-white sm:text-3xl md:text-4xl">
     An accessible chess board web component.
   </h1>
-  <p class="my-3 text-lg text-center sm:text-xl">
+  <p class="mt-3 mb-6 text-lg text-center sm:text-xl">
     A customizable, feature-rich chess board that allows moves via mouse <em>and</em> keyboard.
   </p>
-  <section class="grid max-w-xl mx-auto my-12 gap-x-6 lg:max-w-full lg:grid-cols-2">
+  <div class="mb-12 text-center">
+  <a
+    href="/gchessboard/tutorial"
+    class="px-4 py-2 text-white rounded-md bg-zinc-800 dark:bg-green-600 hover:bg-zinc-700 dark:hover:bg-green-500 dark:border-b dark:border-zinc-100/10">
+    Get started
+  </a>
+  </div>
+  <div class="grid max-w-xl mx-auto gap-x-8 gap-y-12 lg:max-w-full lg:grid-cols-2">
     <div class="overflow-auto">
-      <h1 class="mb-2 text-xl font-bold sm:text-2xl md:text-3xl">Easy to integrate.</h1>
+      <h2 class="mb-2 text-xl font-bold text-zinc-900 dark:text-white sm:text-2xl md:text-3xl">Easy to integrate.</h2>
       <p class="mb-6 text-lg">
         Adding a chess board to your page is as simple as adding an HTML tag
         to your document. And it has out-of-the-box support for mouse and
@@ -58,10 +65,8 @@
         use the keyboard to move around!
       </p>
     </div>
-  </section>
-  <section class="grid max-w-xl mx-auto my-12 gap-x-6 lg:max-w-full lg:grid-cols-2">
     <div class="overflow-auto">
-      <h1 class="mb-2 text-xl font-bold sm:text-2xl md:text-3xl">Add annotations.</h1>
+      <h2 class="mb-2 text-xl font-bold text-zinc-900 dark:text-white sm:text-2xl md:text-3xl">Add annotations.</h2>
       <p class="mb-6 text-lg">
         Use named slots to show SVGs, images or any other HTML on any square. Draw
         arrows on squares using customizable brush styles.
@@ -69,7 +74,7 @@
       <pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>drawable-board<span class="token punctuation">"</span></span> <span class="token attr-name">fen</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>start<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>span</span> <span class="token attr-name">slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>e5<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br>    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>svg</span><span class="token punctuation">></span></span><span class="token comment">&lt;!-- svg content --></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>svg</span><span class="token punctuation">></span></span><br>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>span</span><span class="token punctuation">></span></span><br><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
       <pre class="language-js"><code class="language-js"><span class="token keyword">const</span> board <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"drawable-board"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br>board<span class="token punctuation">.</span>arrows <span class="token operator">=</span> <span class="token punctuation">[</span><br>  <span class="token punctuation">{</span> <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"e2"</span><span class="token punctuation">,</span> <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"e4"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span><br>  <span class="token punctuation">{</span> <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"c7"</span><span class="token punctuation">,</span> <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"c5"</span><span class="token punctuation">,</span> <span class="token literal-property property">brush</span><span class="token operator">:</span> <span class="token string">"secondary"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span><br><span class="token punctuation">]</span><span class="token punctuation">;</span></code></pre>
     </div>
-    <div class="max-w-md mx-auto lg:mx-0 lg:max-w-full lg:col-start-1 lg:row-start-1">
+    <div class="max-w-md mx-auto lg:mx-0 lg:max-w-full lg:col-start-1 lg:row-start-2">
       <g-chess-board id="drawable-board" fen="start">
         <span slot="e5">
           <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
@@ -90,10 +95,8 @@
         ];
       </script>
     </div>
-  </section>
-  <section class="grid max-w-xl mx-auto my-12 gap-x-6 lg:max-w-full lg:grid-cols-2">
     <div class="overflow-auto">
-      <h1 class="mb-2 text-xl font-bold sm:text-2xl md:text-3xl">Customize everything.</h1>
+      <h2 class="mb-2 text-xl font-bold text-zinc-900 dark:text-white sm:text-2xl md:text-3xl">Customize everything.</h2>
       <p class="mb-6 text-lg">
         Customize styles, colors and even piece images using attributes and CSS
         to fit the theme of your application.
@@ -112,9 +115,19 @@
         }
       </style>
     </div>
-  </section>
+  </div>
 </div>
 
     </main>
+    <footer class="pt-4 pb-8 space-y-2 text-center border-t border-zinc-400 dark:border-zinc-600 justify-self-stretch text-zinc-600 dark:text-zinc-200">
+      <p>
+        By <a href="https://twitter.com/mganjoo" class="font-semibold underline-offset-1 text-zinc-800 dark:text-white hover:underline">Milind Ganjoo</a> &middot;
+        Source code on <a href="https://github.com/mganjoo/gchessboard" class="font-semibold underline-offset-1 text-zinc-800 dark:text-white hover:underline">GitHub</a>
+      </p>
+      <p>
+        SVG chess pieces originally created on <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces" class="font-semibold underline-offset-1 text-zinc-800 dark:text-white hover:underline">Wikimedia</a> by
+        <a href="https://commons.wikimedia.org/wiki/User:Cburnett" class="font-semibold underline-offset-1 text-zinc-800 dark:text-white hover:underline">cburnett</a>.
+      </p>
+    </footer>
   </body>
 </html>
