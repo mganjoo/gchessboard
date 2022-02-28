@@ -1,11 +1,11 @@
-function elementValues(data) {
+function element(data) {
   return data.apiSpec.modules[0].exports.find(
     (i) => i.name === "GChessBoardElement"
   );
 }
 
-function cssProperties(data) {
-  return elementValues(data).cssProperties.map((p) => ({
+function renderedProperties(data) {
+  return data.map((p) => ({
     ...p,
     description: markdownIt.render(p.description),
   }));
@@ -19,6 +19,8 @@ const markdownIt = require("markdown-it")({
 
 module.exports = {
   eleventyComputed: {
-    cssProperties: (data) => cssProperties(data),
+    attributes: (data) => renderedProperties(element(data).attributes),
+    cssProperties: (data) => renderedProperties(element(data).cssProperties),
+    cssParts: (data) => renderedProperties(element(data).cssParts),
   },
 };

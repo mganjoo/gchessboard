@@ -357,12 +357,12 @@
           ],
           "cssParts": [
             {
-              "name": "piece-<b|w>-<b|r|p|n|k|q>",
+              "name": "piece-<b|w><b|r|p|n|k|q>",
               "description": "CSS parts for each of the piece classes. The part\nname is of the form `piece-xy`, where `x` corresponds to the color of the piece --\neither `w` for white or `b` for black, and `y` is the piece type -- one of `p` (pawn),\n`r` (rook), `n` (knight), `b` (bishop), `k` (king), `q` (queen). Thus, `piece-wr`\nwould be the CSS part corresponding to the white rook.\n\nThe CSS parts can be used to set custom CSS for the pieces (such as changing the image\nfor a piece by changing the `background-image` property)."
             },
             {
               "name": "arrow-<brush_name>",
-              "description": "CSS parts for any arrow brushes configured using the\n`brush` property on an arrow specifcation (see the `arrows` property for more details)."
+              "description": "CSS parts for any arrow brushes configured using the\n`brush` field on an arrow specification (see the `arrows` property for more details)."
             }
           ]
         }

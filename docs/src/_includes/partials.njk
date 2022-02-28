@@ -1,14 +1,18 @@
-{% macro cssprop(property) %}
-  <dt>
-    <code class="font-mono text-sm font-semibold text-zinc-900 dark:text-white">{{ property.name }}</code>
+{% macro apiprop(property) %}
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>{{ property.name }}</code>
   </dt>
-  <dd>
-    <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
-      <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
-        default:
-      </span>
-      <code class="px-2 py-1 font-mono">{{ property.default }}</code>
-    </span>
-  </dd>
-  <dd class="mt-1 mb-8 prose prose-zinc dark:prose-invert">{{ property.description | safe }}</dd>
+  {% for propkey in["type", "default"] %}
+    {% if property[propkey] %}
+      <dd class="not-prose">
+        <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+          <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+            {{ propkey }}
+          </span>
+          <code class="px-2 py-1 font-mono">{{ property[propkey] }}</code>
+        </span>
+      </dd>
+    {% endif %}
+  {% endfor %}
+  <dd {% if property.type or property.default %}class="-mt-3"{% endif %}>{{ property.description | safe }}</dd>
 {% endmacro %}

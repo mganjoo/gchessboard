@@ -1,22 +1,58 @@
 ---
-layout: base.njk
+layout: markdown.njk
 eleventyNavigation:
   key: API
   order: 2
 title: API
 ---
 
-{%- from "partials.njk" import cssprop -%}
-<section class="max-w-[65ch]">
-  <h2 class="mb-2 text-xl font-bold">CSS properties</h2>
-  <p class="mb-8">
-    Use these properties to customize visual properties of the chessboard,
-    such as square background, outline colors, and markers for move target
-    squares.
-  </p>
-  <dl>
+{%- from "partials.njk" import apiprop -%}
+
+<h1>API reference</h1>
+<h2>CSS properties</h2>
+<p>
+  Use these properties to customize visual properties of the chessboard,
+  such as square background, outline colors, and markers for move target
+  squares.
+</p>
+<dl>
   {%- for property in cssProperties %}
-    {{ cssprop(property) }}
+    {{ apiprop(property) }}
   {%- endfor %}
-  </dl>
-</section>
+</dl>
+<h2>CSS parts</h2>
+<p>
+  gchessboard provides a collection of CSS parts to customize the images
+  used for chess pieces on the board, as well as brush color, opacity, and
+  other styles associated with arrows drawn on the board.
+</p>
+<dl>
+  {%- for part in cssParts %}
+    {{ apiprop(part) }}
+  {%- endfor %}
+</dl>
+<h2>Slots</h2>
+<p>
+  gchessboard provides the ability to place arbitrary content on squares using
+  <a
+    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Slot"
+  >named slots</a>. Each square has a slot corresponding to its algebraic
+  label (such as <strong>a1</strong> or <strong>g3</strong>). Any nested
+  element within <code>&lt;g-chess-board&gt;</code> with a <code>slot</code>
+  attribute set to a square label will have its content placed on the correct
+  square.
+</p>
+{% chessboard %}
+<g-chess-board>
+  <span slot="e5">
+    <svg viewBox="0 0 10 10" stroke="black" fill="none">
+      <ellipse cx="5" cy="5" rx="4" ry="3" />
+    </svg>
+  </span>
+  <span slot="c3">
+    <svg viewBox="0 0 10 10" stroke="goldenrod" fill="none">
+      <polygon points="1,5 4,2 8,7" />
+    </svg>
+  </span>
+</g-chess-board>
+{% endchessboard %}

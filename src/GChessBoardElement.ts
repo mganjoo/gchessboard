@@ -118,7 +118,7 @@ import { Arrows, BoardArrow } from "./components/Arrows";
  * @slot a1,a2,...,h8 - Slots that allow placement of custom content -- SVGs, text, or
  * any other annotation -- on the corresponding square.
  *
- * @csspart piece-<b|w>-<b|r|p|n|k|q> - CSS parts for each of the piece classes. The part
+ * @csspart piece-<b|w><b|r|p|n|k|q> - CSS parts for each of the piece classes. The part
  *   name is of the form `piece-xy`, where `x` corresponds to the color of the piece --
  *   either `w` for white or `b` for black, and `y` is the piece type -- one of `p` (pawn),
  *   `r` (rook), `n` (knight), `b` (bishop), `k` (king), `q` (queen). Thus, `piece-wr`
@@ -128,7 +128,7 @@ import { Arrows, BoardArrow } from "./components/Arrows";
  *   for a piece by changing the `background-image` property).
  *
  * @csspart arrow-<brush_name> - CSS parts for any arrow brushes configured using the
- *   `brush` property on an arrow specifcation (see the `arrows` property for more details).
+ *   `brush` field on an arrow specification (see the `arrows` property for more details).
  */
 export class GChessBoardElement extends HTMLElement {
   static get observedAttributes() {
