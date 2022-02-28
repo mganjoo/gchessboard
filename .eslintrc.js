@@ -1,5 +1,8 @@
 module.exports = {
   extends: ["eslint:recommended", "prettier"],
+  parserOptions: {
+    ecmaVersion: "2018",
+  },
   env: {
     browser: true,
     node: true,

@@ -2,7 +2,7 @@
   "layout": "markdown.njk",
   "title": "API Documentation",
   "eleventyNavigation": {
-    "key": "API",
-    "order": 2
+    "key": "API Old",
+    "order": 3
   }
 }

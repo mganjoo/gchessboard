@@ -110,9 +110,9 @@ import { Arrows, BoardArrow } from "./components/Arrows";
  * @cssprop [--piece-drag-z-index=9999] - Z-index applied to piece while being dragged.
  * @cssprop [--piece-padding=3%] - Padding applied to square when piece is placed in it.
  *
- * @cssprop [--arrow-color-primary=hsl(40deg 100% 50% / 80%)] - color applied to arrow
+ * @cssprop [--arrow-color-primary=hsl(40deg 100% 50% / 80%)] - Color applied to arrow
  *   with brush `primary`.
- * @cssprop [--arrow-color-secondary=hsl(7deg 93% 61% / 80%)] - color applied to arrow
+ * @cssprop [--arrow-color-secondary=hsl(7deg 93% 61% / 80%)] - Color applied to arrow
  *   with brush `secondary`.
  *
  * @slot a1,a2,...,h8 - Slots that allow placement of custom content -- SVGs, text, or

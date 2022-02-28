@@ -1,7 +1,7 @@
 ---
 eleventyNavigation:
   key: GitHub
-  order: 3
+  order: 4
   url: https://github.com/mganjoo/gchessboard
 permalink: false
 ---

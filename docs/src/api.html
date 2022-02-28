@@ -1,0 +1,22 @@
+---
+layout: base.njk
+eleventyNavigation:
+  key: API
+  order: 2
+title: API
+---
+
+{%- from "partials.njk" import cssprop -%}
+<section class="max-w-[65ch]">
+  <h2 class="mb-2 text-xl font-semibold">CSS properties</h2>
+  <p class="mb-8">
+    Use these properties to customize visual properties of the chessboard,
+    such as square background, outline colors, and markers for move target
+    squares.
+  </p>
+  <dl>
+  {%- for property in cssProperties %}
+    {{ cssprop(property) }}
+  {%- endfor %}
+  </dl>
+</section>
