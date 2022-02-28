@@ -1,14 +1,43 @@
 ---
 layout: markdown.njk
 eleventyNavigation:
-  key: API
+  key: API Reference
   order: 2
-title: API
+title: API Reference
 ---
 
 {%- from "partials.njk" import apiprop -%}
 
-<h1>API reference</h1>
+<h1>API Reference</h1>
+<p>
+  This page describes most attributes, fields, events, and CSS-related artifacts
+  that can be used to customize gchessboard.
+</p>
+<h2>Attributes</h2>
+<p>
+  Many properties of the chessboard can be customized by simply setting HTML
+  attributes.
+</p>
+{% highlight "html" %}
+<g-chess-board
+  animation-duration="300">
+</g-chess-board>
+{% endhighlight %}
+
+<p>
+  Each of the attributes described here also has a corresponding property
+  (with a camel-cased name) that is accessible and modifiable via JavaScript.
+</p>
+{% highlight "js" %}
+const board = document.getElementById("id-of-board");
+board.animationDuration = 300;
+{% endhighlight %}
+
+<dl class="mt-6">
+  {%- for attribute in attributes %}
+    {{ apiprop(attribute) }}
+  {%- endfor %}
+</dl>
 <h2>CSS properties</h2>
 <p>
   Use these properties to customize visual properties of the chessboard,

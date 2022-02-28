@@ -7,6 +7,7 @@ function element(data) {
 function renderedProperties(data) {
   return data.map((p) => ({
     ...p,
+    default: p.defaultValue || p.default,
     description: markdownIt.render(p.description),
   }));
 }

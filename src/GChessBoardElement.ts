@@ -244,7 +244,7 @@ export class GChessBoardElement extends HTMLElement {
 
   /**
    * What side's perspective to render squares from (what color appears on
-   * the bottom as viewed on the screen).
+   * the bottom as viewed on the screen). Either `"white"` or `"black"`.
    *
    * @attr [orientation=white]
    */
@@ -261,9 +261,8 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   /**
-   * What side is allowed to move pieces. This may be `undefined` (or unset,
-   * in the case of the equivalent element attribute), in which case pieces
-   * from either side can be moved around.
+   * What side is allowed to move pieces. Either `"white`, `"black"`, or
+   * unset. When unset, pieces from either side can be moved around.
    *
    * @attr
    */
@@ -283,7 +282,7 @@ export class GChessBoardElement extends HTMLElement {
    * Whether the squares are interactive, i.e. user can interact with squares,
    * move pieces etc. By default, this is false; i.e a board is only for display.
    *
-   * @attr
+   * @attr [interactive=false]
    */
   get interactive() {
     return this._hasBooleanAttribute("interactive");
@@ -336,8 +335,8 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   /**
-   * How to display coordinates for squares. Could be `inside` the board (default),
-   * `outside`, or `hidden`.
+   * How to display coordinates for squares. Could be `"inside"` the board (default),
+   * `"outside"`, or `"hidden"`.
    *
    * @attr [coordinates=inside]
    */

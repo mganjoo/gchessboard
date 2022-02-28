@@ -2,17 +2,15 @@
   <dt class="prose-code:before:content-none prose-code:after:content-none">
     <code>{{ property.name }}</code>
   </dt>
-  {% for propkey in["type", "default"] %}
-    {% if property[propkey] %}
-      <dd class="not-prose">
-        <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
-          <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
-            {{ propkey }}
-          </span>
-          <code class="px-2 py-1 font-mono">{{ property[propkey] }}</code>
+  {% if property.default %}
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
         </span>
-      </dd>
-    {% endif %}
-  {% endfor %}
-  <dd {% if property.type or property.default %}class="-mt-3"{% endif %}>{{ property.description | safe }}</dd>
+        <code class="px-2 py-1 font-mono">{{ property.default }}</code>
+      </span>
+    </dd>
+  {% endif %}
+  <dd class="-mt-3">{{ property.description | safe }}</dd>
 {% endmacro %}

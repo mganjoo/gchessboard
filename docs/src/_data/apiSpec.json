@@ -24,7 +24,7 @@
               "kind": "field",
               "name": "orientation",
               "privacy": "public",
-              "description": "What side's perspective to render squares from (what color appears on\nthe bottom as viewed on the screen).",
+              "description": "What side's perspective to render squares from (what color appears on\nthe bottom as viewed on the screen). Either `\"white\"` or `\"black\"`.",
               "type": "\"white\" | \"black\"",
               "default": "\"white\""
             },
@@ -32,7 +32,7 @@
               "kind": "field",
               "name": "turn",
               "privacy": "public",
-              "description": "What side is allowed to move pieces. This may be `undefined` (or unset,\nin the case of the equivalent element attribute), in which case pieces\nfrom either side can be moved around.",
+              "description": "What side is allowed to move pieces. Either `\"white`, `\"black\"`, or\nunset. When unset, pieces from either side can be moved around.",
               "type": "\"white\" | \"black\" | undefined"
             },
             {
@@ -40,7 +40,8 @@
               "name": "interactive",
               "privacy": "public",
               "description": "Whether the squares are interactive, i.e. user can interact with squares,\nmove pieces etc. By default, this is false; i.e a board is only for display.",
-              "type": "boolean"
+              "type": "boolean",
+              "default": "false"
             },
             {
               "kind": "field",
@@ -60,7 +61,7 @@
               "kind": "field",
               "name": "coordinates",
               "privacy": "public",
-              "description": "How to display coordinates for squares. Could be `inside` the board (default),\n`outside`, or `hidden`.",
+              "description": "How to display coordinates for squares. Could be `\"inside\"` the board (default),\n`\"outside\"`, or `\"hidden\"`.",
               "type": "\"inside\" | \"outside\" | \"hidden\"",
               "default": "\"inside\""
             },
@@ -182,18 +183,19 @@
               "name": "orientation",
               "fieldName": "orientation",
               "defaultValue": "\"white\"",
-              "description": "What side's perspective to render squares from (what color appears on\nthe bottom as viewed on the screen).",
+              "description": "What side's perspective to render squares from (what color appears on\nthe bottom as viewed on the screen). Either `\"white\"` or `\"black\"`.",
               "type": "\"white\" | \"black\""
             },
             {
               "name": "turn",
               "fieldName": "turn",
-              "description": "What side is allowed to move pieces. This may be `undefined` (or unset,\nin the case of the equivalent element attribute), in which case pieces\nfrom either side can be moved around.",
+              "description": "What side is allowed to move pieces. Either `\"white`, `\"black\"`, or\nunset. When unset, pieces from either side can be moved around.",
               "type": "\"white\" | \"black\" | undefined"
             },
             {
               "name": "interactive",
               "fieldName": "interactive",
+              "defaultValue": "false",
               "description": "Whether the squares are interactive, i.e. user can interact with squares,\nmove pieces etc. By default, this is false; i.e a board is only for display.",
               "type": "boolean"
             },
@@ -207,7 +209,7 @@
               "name": "coordinates",
               "fieldName": "coordinates",
               "defaultValue": "\"inside\"",
-              "description": "How to display coordinates for squares. Could be `inside` the board (default),\n`outside`, or `hidden`.",
+              "description": "How to display coordinates for squares. Could be `\"inside\"` the board (default),\n`\"outside\"`, or `\"hidden\"`.",
               "type": "\"inside\" | \"outside\" | \"hidden\""
             },
             {
