@@ -10,4 +10,4 @@ custom-elements.json
 # Auto-downloaded files
 docs/css/prism.css
 
-docs/src/index.html
+docs/src/*.html
