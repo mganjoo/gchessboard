@@ -33,5 +33,10 @@ module.exports = {
       ),
     cssProperties: (data) => renderedProperties(element(data).cssProperties),
     cssParts: (data) => renderedProperties(element(data).cssParts),
+    events: (data) => renderedProperties(element(data).events),
+    methods: (data) =>
+      renderedProperties(
+        element(data).members.filter((m) => m.kind === "method")
+      ),
   },
 };

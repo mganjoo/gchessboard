@@ -13,6 +13,7 @@ title: API Reference
   This page describes most attributes, fields, events, and CSS-related artifacts
   that can be used to customize gchessboard.
 </p>
+
 <h2>Attributes</h2>
 <p>
   Many aspects of the chessboard can be customized by simply setting HTML
@@ -50,6 +51,27 @@ board.animationDuration = 300;
   {%- endfor %}
 </dl>
 
+<h2>Methods</h2>
+<dl>
+  {%- for method in methods %}
+    {{ apiprop(method) }}
+  {%- endfor %}
+</dl>
+
+<h2>Events</h2>
+<p>
+  gchessboard fires a variety of events in response to user input. You can
+  attach a listener to the <code>&lt;g-chess-board&gt;</code> object using
+  <code>addEventListener()</code>. Events fired are of type
+  <code>CustomEvent</code>, and contain a <code>detail</code> object with
+  additional information about the user interaction.
+</p>
+<dl>
+  {%- for event in events %}
+    {{ apiprop(event) }}
+  {%- endfor %}
+</dl>
+
 <h2>CSS properties</h2>
 <p>
   Use these properties to customize visual properties of the chessboard,
@@ -61,6 +83,7 @@ board.animationDuration = 300;
     {{ apiprop(property) }}
   {%- endfor %}
 </dl>
+
 <h2>CSS parts</h2>
 <p>
   gchessboard provides a collection of CSS parts to customize the images
@@ -72,6 +95,7 @@ board.animationDuration = 300;
     {{ apiprop(part) }}
   {%- endfor %}
 </dl>
+
 <h2>Slots</h2>
 <p>
   gchessboard provides the ability to place arbitrary content on squares using

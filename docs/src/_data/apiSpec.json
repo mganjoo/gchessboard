@@ -47,7 +47,7 @@
               "kind": "field",
               "name": "position",
               "privacy": "public",
-              "description": "A map-like object representing the board position, where object keys are square\nlabels, and values are `Piece` objects. Note that changes to this property are\nmirrored in the value of the `fen` property of the element, but **not** the\ncorresponding attribute.\n\nExample:\n\n```js\nboard.position = {\n   a2: {\n     pieceType: \"king\",\n     color: \"white\"\n   },\n   g4: {\n     pieceType: \"knight\",\n     color: \"black\"\n   },\n};\n```",
+              "description": "A map-like object representing the board position, where object keys are square\nlabels, and values are `Piece` objects. Note that changes to this property are\nmirrored in the value of the `fen` property of the element, but **not** the\ncorresponding attribute. All changes to position are animated, using the duration\nspecified by the `animationDuration` property.\n\nExample:\n\n```js\nboard.position = {\n   a2: {\n     pieceType: \"king\",\n     color: \"white\"\n   },\n   g4: {\n     pieceType: \"knight\",\n     color: \"black\"\n   },\n};\n```",
               "type": "{ a8?: Piece | undefined; b8?: Piece | undefined; c8?: Piece | undefined; d8?: Piece | undefined; e8?: Piece | undefined; f8?: Piece | undefined; ... 57 more ...; h1?: Piece | undefined; }"
             },
             {
@@ -162,12 +162,12 @@
               "type": "Event"
             },
             {
-              "description": "Fired after a move is completed and animations are resolved.\nThe event has a `detail` object with `from` and `to` set to the square labels\nof the move, and `piece` containing information about the piece that was moved.",
+              "description": "Fired after a move is completed _and_ animations are resolved.\nThe event has a `detail` object with `from` and `to` set to the square labels\nof the move, and `piece` containing information about the piece that was moved.\n\nThe `movefinished` event is the best time to update board position in response to\na move. For example, after a king is moved for castling, the rook can be subsequently\nmoved by updating the board position in `movefinished` by setting the `position`\nproperty.",
               "name": "movefinished",
               "type": "Event"
             },
             {
-              "description": "Fired as a move is being canceled by the user. The event\nis *itself* cancelable, ie. a caller can call `preventDefault()` on the event\nto prevent the move from being canceled. Any pieces being dragged will be returned\nto the start square, but the move will remain in progress.\n\nThe event has a `detail` object` with `from` set to the square label where\nthe move was started, and `piece` containing information about the piece that was\nmoved.",
+              "description": "Fired as a move is being canceled by the user. The event\nis *itself* cancelable, ie. a caller can call `preventDefault()` on the event\nto prevent the move from being canceled. Any pieces being dragged will be returned\nto the start square, but the move will remain in progress.\n\nThe event has a `detail` object with `from` set to the square label where\nthe move was started, and `piece` containing information about the piece that was\nmoved.",
               "name": "movecancel",
               "type": "Event"
             }

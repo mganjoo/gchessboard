@@ -39,16 +39,21 @@ import { Arrows, BoardArrow } from "./components/Arrows";
  *   and `to` set to the square labels of the move, and `piece` containing information
  *   about the piece that was moved.
  *
- * @fires movefinished - Fired after a move is completed and animations are resolved.
+ * @fires movefinished - Fired after a move is completed _and_ animations are resolved.
  *   The event has a `detail` object with `from` and `to` set to the square labels
  *   of the move, and `piece` containing information about the piece that was moved.
+ *
+ *   The `movefinished` event is the best time to update board position in response to
+ *   a move. For example, after a king is moved for castling, the rook can be subsequently
+ *   moved by updating the board position in `movefinished` by setting the `position`
+ *   property.
  *
  * @fires movecancel - Fired as a move is being canceled by the user. The event
  *   is *itself* cancelable, ie. a caller can call `preventDefault()` on the event
  *   to prevent the move from being canceled. Any pieces being dragged will be returned
  *   to the start square, but the move will remain in progress.
  *
- *   The event has a `detail` object` with `from` set to the square label where
+ *   The event has a `detail` object with `from` set to the square label where
  *   the move was started, and `piece` containing information about the piece that was
  *   moved.
  *
@@ -297,7 +302,8 @@ export class GChessBoardElement extends HTMLElement {
    * A map-like object representing the board position, where object keys are square
    * labels, and values are `Piece` objects. Note that changes to this property are
    * mirrored in the value of the `fen` property of the element, but **not** the
-   * corresponding attribute.
+   * corresponding attribute. All changes to position are animated, using the duration
+   * specified by the `animationDuration` property.
    *
    * Example:
    *
