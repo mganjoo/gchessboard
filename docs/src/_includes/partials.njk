@@ -1,0 +1,16 @@
+{% macro apiprop(property) %}
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>{{ property.name }}</code>
+  </dt>
+  {% if property.default %}
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">{{ property.default }}</code>
+      </span>
+    </dd>
+  {% endif %}
+  <dd class="grid -mt-3 prose-pre:mb-6">{{ property.description | safe }}</dd>
+{% endmacro %}

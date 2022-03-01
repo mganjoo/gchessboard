@@ -1,0 +1,374 @@
+{
+  "version": "experimental",
+  "modules": [
+    {
+      "path": "./../../../src/GChessBoardElement.ts",
+      "exports": [
+        {
+          "kind": "definition",
+          "name": "g-chess-board",
+          "declaration": {
+            "name": "GChessBoardElement",
+            "module": "./../../../src/GChessBoardElement.ts"
+          }
+        },
+        {
+          "kind": "class",
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "description": "A component that displays a chess board, with optional interactivity. Allows\nclick, drag and keyboard-based moves.",
+          "name": "GChessBoardElement",
+          "members": [
+            {
+              "kind": "field",
+              "name": "orientation",
+              "privacy": "public",
+              "description": "What side's perspective to render squares from (what color appears on\nthe bottom as viewed on the screen). Either `\"white\"` or `\"black\"`.",
+              "type": "\"white\" | \"black\"",
+              "default": "\"white\""
+            },
+            {
+              "kind": "field",
+              "name": "turn",
+              "privacy": "public",
+              "description": "What side is allowed to move pieces. Either `\"white`, `\"black\"`, or\nunset. When unset, pieces from either side can be moved around.",
+              "type": "\"white\" | \"black\" | undefined"
+            },
+            {
+              "kind": "field",
+              "name": "interactive",
+              "privacy": "public",
+              "description": "Whether the squares are interactive, i.e. user can interact with squares,\nmove pieces etc. By default, this is false; i.e a board is only for displaying\na position.",
+              "type": "boolean",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "position",
+              "privacy": "public",
+              "description": "A map-like object representing the board position, where object keys are square\nlabels, and values are `Piece` objects. Note that changes to this property are\nmirrored in the value of the `fen` property of the element, but **not** the\ncorresponding attribute. All changes to position are animated, using the duration\nspecified by the `animationDuration` property.\n\nExample:\n\n```js\nboard.position = {\n   a2: {\n     pieceType: \"king\",\n     color: \"white\"\n   },\n   g4: {\n     pieceType: \"knight\",\n     color: \"black\"\n   },\n};\n```",
+              "type": "{ a8?: Piece | undefined; b8?: Piece | undefined; c8?: Piece | undefined; d8?: Piece | undefined; e8?: Piece | undefined; f8?: Piece | undefined; ... 57 more ...; h1?: Piece | undefined; }"
+            },
+            {
+              "kind": "field",
+              "name": "fen",
+              "privacy": "public",
+              "description": "FEN string representing the board position. Note that changes to the corresponding\n`fen` _property_ will **not** reflect onto the \"fen\" _attribute_ of the element.\nIn other words, to get the latest FEN string for the board position, use the `fen`\n_property_.\n\nAccepts the special string `\"start\"` as shorthand for the starting position\nof a chess game. An empty string represents an empty board. Invalid FEN values\nare ignored with an error.\n\nNote that a FEN string normally contains 6 components, separated by slashes,\nbut only the first component (the \"piece placement\" component) is used by this\nattribute.",
+              "type": "string"
+            },
+            {
+              "kind": "field",
+              "name": "coordinates",
+              "privacy": "public",
+              "description": "How to display coordinates for squares. Could be `\"inside\"` the board (default),\n`\"outside\"`, or `\"hidden\"`.",
+              "type": "\"inside\" | \"outside\" | \"hidden\"",
+              "default": "\"inside\""
+            },
+            {
+              "kind": "field",
+              "name": "animationDuration",
+              "privacy": "public",
+              "description": "Duration, in milliseconds, of animation when adding/removing/moving pieces.",
+              "type": "number",
+              "default": "200"
+            },
+            {
+              "kind": "field",
+              "name": "arrows",
+              "privacy": "public",
+              "description": "Set of arrows to draw on the board. This is an array of objects specifying\narrow characteristics, with the following properties: (1) `from` and `to`\ncorresponding to the start and end squares for the arrow, (2) optional\n`weight` for the line (values: `\"light\"`, `\"normal\"`, `\"bold\"`), and\n(3) `brush`, which is a string that will be used to make a CSS part\nwhere one can customize the color, opacity, and other styles of the\narrow. For example, a value for `brush` of `\"foo\"` will apply a\nCSS part named `arrow-foo` to the arrow.\n\nNote: because the value of `brush` becomes part of a CSS part name, it\nshould be usable as a valid CSS identifier.\n\nIn addition to allowing arbitrary part names, arrows support a few\nout-of-the-box brush names, `primary` and `secondary`, which colors\ndefined with CSS custom properties `--arrow-color-primary` and\n`--arrow-color-secondary`.\n\nExample:\n\n```js\nboard.arrows = [\n   { from: \"e2\", to: \"e4\" },\n   {\n     from: \"g1\",\n     to: \"f3\",\n     brush: \"foo\"\n   },\n   {\n     from: \"c7\",\n     to: \"c5\",\n     brush: \"secondary\"\n   },\n];",
+              "type": "BoardArrow[] | undefined"
+            },
+            {
+              "kind": "method",
+              "name": "addEventListener",
+              "privacy": "public",
+              "type": "{ <K extends \"movestart\" | \"moveend\" | \"movefinished\" | \"movecancel\">(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean | ... 1 more ... | undefined): void; <K extends \"fullscreenchange\" | ... 90 more ... | \"paste\">(type: K, listener: (this: HTMLElement, ev: HTMLEleme...",
+              "description": "Add listener for events on this element.",
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": "K"
+                },
+                {
+                  "name": "listener",
+                  "type": "(this: GChessBoardElement, ev: ChessBoardEventMap[K]) => any"
+                },
+                {
+                  "name": "options",
+                  "type": "boolean | AddEventListenerOptions"
+                }
+              ],
+              "return": {
+                "type": "void"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "removeEventListener",
+              "privacy": "public",
+              "type": "{ <K extends \"movestart\" | \"moveend\" | \"movefinished\" | \"movecancel\">(type: K, listener: (this: HTMLElement, ev: ChessBoardEventMap[K]): any, options?: boolean | ... 1 more ... | undefined): void; <K extends \"fullscreenchange\" | ... 90 more ... | \"paste\">(type: K, listener: (this: HTMLElement, ev: HTMLElementEvent...",
+              "description": "Remove listener for an event on this element.",
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": "K"
+                },
+                {
+                  "name": "listener",
+                  "type": "(this: HTMLElement, ev: ChessBoardEventMap[K]) => any"
+                },
+                {
+                  "name": "options",
+                  "type": "boolean | EventListenerOptions"
+                }
+              ],
+              "return": {
+                "type": "void"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "startMove",
+              "privacy": "public",
+              "type": "(square: \"a8\" | \"b8\" | \"c8\" | \"d8\" | \"e8\" | \"f8\" | \"g8\" | \"h8\" | \"a7\" | \"b7\" | \"c7\" | \"d7\" | \"e7\" | \"f7\" | \"g7\" | \"h7\" | \"a6\" | \"b6\" | \"c6\" | \"d6\" | \"e6\" | \"f6\" | \"g6\" | \"h6\" | \"a5\" | \"b5\" | \"c5\" | ... 36 more ... | \"h1\", targetSquares?: (\"a8\" | ... 62 more ... | \"h1\")[] | undefined): void",
+              "description": "Start a move on the board at `square`, optionally with specified targets\nat `targetSquares`.",
+              "parameters": [
+                {
+                  "name": "square",
+                  "type": "\"a8\" | \"b8\" | \"c8\" | \"d8\" | \"e8\" | \"f8\" | \"g8\" | \"h8\" | \"a7\" | \"b7\" | \"c7\" | \"d7\" | \"e7\" | \"f7\" | \"g7\" | \"h7\" | \"a6\" | \"b6\" | \"c6\" | \"d6\" | \"e6\" | \"f6\" | \"g6\" | \"h6\" | \"a5\" | \"b5\" | \"c5\" | ... 36 more ... | \"h1\""
+                },
+                {
+                  "name": "targetSquares",
+                  "type": "(\"a8\" | \"b8\" | \"c8\" | \"d8\" | \"e8\" | \"f8\" | \"g8\" | \"h8\" | \"a7\" | \"b7\" | \"c7\" | \"d7\" | \"e7\" | \"f7\" | \"g7\" | \"h7\" | \"a6\" | \"b6\" | \"c6\" | \"d6\" | \"e6\" | \"f6\" | \"g6\" | \"h6\" | \"a5\" | \"b5\" | \"c5\" | ... 36 more ... | \"h1\")[]"
+                }
+              ],
+              "return": {
+                "type": "void"
+              }
+            }
+          ],
+          "tagName": "g-chess-board",
+          "events": [
+            {
+              "description": "Fired when the user initiates a move by clicking, dragging or\nvia the keyboard.\n\nThe event has a `detail` object with the `from` and\n`piece` values for the move. It also has a function, `setTargets(squares)`,\nthat the caller can invoke with an array of square labels. This limits the\nset of targets that the piece can be moved to. Note that calling this\nfunction with an empty list will still allow the piece to be dragged around,\nbut no square will accept the piece and thus it will always return to the\nstarting square.",
+              "name": "movestart",
+              "type": "Event"
+            },
+            {
+              "description": "Fired when user is completing a move. This move can be prevented\nfrom completing by calling `preventDefault()` on the event. If that is called,\nthe move itself remains in progress. The event has a `detail` object with `from`\nand `to` set to the square labels of the move, and `piece` containing information\nabout the piece that was moved.",
+              "name": "moveend",
+              "type": "Event"
+            },
+            {
+              "description": "Fired after a move is completed _and_ animations are resolved.\nThe event has a `detail` object with `from` and `to` set to the square labels\nof the move, and `piece` containing information about the piece that was moved.\n\nThe `movefinished` event is the best time to update board position in response to\na move. For example, after a king is moved for castling, the rook can be subsequently\nmoved by updating the board position in `movefinished` by setting the `position`\nproperty.",
+              "name": "movefinished",
+              "type": "Event"
+            },
+            {
+              "description": "Fired as a move is being canceled by the user. The event\nis *itself* cancelable, ie. a caller can call `preventDefault()` on the event\nto prevent the move from being canceled. Any pieces being dragged will be returned\nto the start square, but the move will remain in progress.\n\nThe event has a `detail` object with `from` set to the square label where\nthe move was started, and `piece` containing information about the piece that was\nmoved.",
+              "name": "movecancel",
+              "type": "Event"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Slots that allow placement of custom content -- SVGs, text, or\nany other annotation -- on the corresponding square.",
+              "name": "a1,a2,...,h8"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "orientation",
+              "fieldName": "orientation",
+              "defaultValue": "\"white\"",
+              "description": "What side's perspective to render squares from (what color appears on\nthe bottom as viewed on the screen). Either `\"white\"` or `\"black\"`.",
+              "type": "\"white\" | \"black\""
+            },
+            {
+              "name": "turn",
+              "fieldName": "turn",
+              "description": "What side is allowed to move pieces. Either `\"white`, `\"black\"`, or\nunset. When unset, pieces from either side can be moved around.",
+              "type": "\"white\" | \"black\" | undefined"
+            },
+            {
+              "name": "interactive",
+              "fieldName": "interactive",
+              "defaultValue": "false",
+              "description": "Whether the squares are interactive, i.e. user can interact with squares,\nmove pieces etc. By default, this is false; i.e a board is only for displaying\na position.",
+              "type": "boolean"
+            },
+            {
+              "name": "fen",
+              "fieldName": "fen",
+              "description": "FEN string representing the board position. Note that changes to the corresponding\n`fen` _property_ will **not** reflect onto the \"fen\" _attribute_ of the element.\nIn other words, to get the latest FEN string for the board position, use the `fen`\n_property_.\n\nAccepts the special string `\"start\"` as shorthand for the starting position\nof a chess game. An empty string represents an empty board. Invalid FEN values\nare ignored with an error.\n\nNote that a FEN string normally contains 6 components, separated by slashes,\nbut only the first component (the \"piece placement\" component) is used by this\nattribute.",
+              "type": "string"
+            },
+            {
+              "name": "coordinates",
+              "fieldName": "coordinates",
+              "defaultValue": "\"inside\"",
+              "description": "How to display coordinates for squares. Could be `\"inside\"` the board (default),\n`\"outside\"`, or `\"hidden\"`.",
+              "type": "\"inside\" | \"outside\" | \"hidden\""
+            },
+            {
+              "name": "animation-duration",
+              "fieldName": "animationDuration",
+              "defaultValue": "200",
+              "description": "Duration, in milliseconds, of animation when adding/removing/moving pieces.",
+              "type": "number"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--square-color-dark",
+              "description": "Color for dark squares.",
+              "default": "\"hsl(145deg 32% 44%)\""
+            },
+            {
+              "name": "--square-color-light",
+              "description": "Color for light squares.",
+              "default": "\"hsl(51deg 24% 84%)\""
+            },
+            {
+              "name": "--square-color-dark-hover",
+              "description": "Hover color\nfor a dark square. Applied when mouse is hovering over an interactable square\nor a square has keyboard focus during a move.",
+              "default": "\"hsl(144deg 75% 44%)\""
+            },
+            {
+              "name": "--square-color-light-hover",
+              "description": "Hover color\nfor a dark square. Applied when mouse is hovering over an interactable square\nor a square has keyboard focus during a move.",
+              "default": "\"hsl(52deg 98% 70%)\""
+            },
+            {
+              "name": "--square-color-dark-active",
+              "description": "Color applied to\ndark square when it is involved in (the starting point) of a move. By default\nthis color is similar to, but slightly different from, `--square-color-dark-hover`.",
+              "default": "\"hsl(142deg 77% 43%)\""
+            },
+            {
+              "name": "--square-color-light-active",
+              "description": "Color applied to\nlight square when it is involved in (the starting point) of a move. By default\nthis color is similar to, but slightly different from, `--square-color-light-hover`.",
+              "default": "\"hsl(50deg 95% 64%)\""
+            },
+            {
+              "name": "--outline-color-dark-active",
+              "description": "Color of\noutline applied to dark square when it is the starting point of a move.\nIt is applied in addition to `--square-color-dark-active`, and is visible\nwhen the square does not have focus.",
+              "default": "\"hsl(138deg 85% 53% / 95%)\""
+            },
+            {
+              "name": "--outline-color-light-active",
+              "description": "Color of\noutline applied to light square when it is the starting point of a move.\nIt is applied in addition to `--square-color-light-active`, and is visible\nwhen the square does not have focus.",
+              "default": "\"hsl(66deg 97% 72% / 95%)\""
+            },
+            {
+              "name": "--outline-color-focus",
+              "description": "Color of outline applied to square when it has focus.",
+              "default": "\"hsl(30deg 94% 55% / 90%)\""
+            },
+            {
+              "name": "--outer-gutter-width",
+              "description": "When the `coordinates` property is `outside`,\nthis CSS property controls the width of the gutter outside the board where coords are shown.",
+              "default": "\"4%\""
+            },
+            {
+              "name": "--inner-border-width",
+              "description": "Width of the inside border drawn around the board.",
+              "default": "\"1px\""
+            },
+            {
+              "name": "--inner-border-color",
+              "description": "Color of the inside border drawn\naround the board.",
+              "default": "\"var(--square-color-dark)\""
+            },
+            {
+              "name": "--move-target-marker-color-dark-square",
+              "description": "Color of marker shown on dark square when it is an eligible move target.",
+              "default": "\"hsl(144deg 64% 9% / 90%)\""
+            },
+            {
+              "name": "--move-target-marker-color-light-square",
+              "description": "Color of marker shown on light square when it is an eligible move target.",
+              "default": "\"hsl(144deg 64% 9% / 90%)\""
+            },
+            {
+              "name": "--move-target-marker-radius",
+              "description": "Radius of marker on a move target\nsquare.",
+              "default": "\"24%\""
+            },
+            {
+              "name": "--move-target-marker-radius-occupied",
+              "description": "Radius of marker on\na move target square that is occupied (by a piece or custom content).",
+              "default": "\"82%\""
+            },
+            {
+              "name": "--outline-blur-radius",
+              "description": "Blur radius of all outlines applied to square.",
+              "default": "\"3px\""
+            },
+            {
+              "name": "--outline-spread-radius",
+              "description": "Spread radius of all outlines applied to square.",
+              "default": "\"4px\""
+            },
+            {
+              "name": "--coords-font-size",
+              "description": "Font size of coord labels shown on board.",
+              "default": "\"0.7rem\""
+            },
+            {
+              "name": "--coords-font-family",
+              "description": "Font family of coord labels shown on board.",
+              "default": "\"sans-serif\""
+            },
+            {
+              "name": "--coords-inside-coord-padding-left",
+              "description": "Left padding applied to coordinates\nwhen shown inside the board. Percentage values are relative to the width of the board.",
+              "default": "\"0.5%\""
+            },
+            {
+              "name": "--coords-inside-coord-padding-right",
+              "description": "Right padding applied to coordinates\nwhen shown inside the board. Percentage values are relative to the width of the board.",
+              "default": "\"0.5%\""
+            },
+            {
+              "name": "--ghost-piece-opacity",
+              "description": "Opacity of ghost piece shown while dragging.\nSet to 0 to hide ghost piece altogether.",
+              "default": "0.35"
+            },
+            {
+              "name": "--piece-drag-z-index",
+              "description": "Z-index applied to piece while being dragged.",
+              "default": "9999"
+            },
+            {
+              "name": "--piece-padding",
+              "description": "Padding applied to square when piece is placed in it.",
+              "default": "\"3%\""
+            },
+            {
+              "name": "--arrow-color-primary",
+              "description": "Color applied to arrow\nwith brush `primary`.",
+              "default": "\"hsl(40deg 100% 50% / 80%)\""
+            },
+            {
+              "name": "--arrow-color-secondary",
+              "description": "Color applied to arrow\nwith brush `secondary`.",
+              "default": "\"hsl(7deg 93% 61% / 80%)\""
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "piece-<b|w><b|r|p|n|k|q>",
+              "description": "CSS parts for each of the piece classes. The part\nname is of the form `piece-xy`, where `x` corresponds to the color of the piece --\neither `w` for white or `b` for black, and `y` is the piece type -- one of `p` (pawn),\n`r` (rook), `n` (knight), `b` (bishop), `k` (king), `q` (queen). Thus, `piece-wr`\nwould be the CSS part corresponding to the white rook.\n\nThe CSS parts can be used to set custom CSS for the pieces (such as changing the image\nfor a piece by changing the `background-image` property)."
+            },
+            {
+              "name": "arrow-<brush_name>",
+              "description": "CSS parts for any arrow brushes configured using the\n`brush` field on an arrow specification (see the `arrows` property for more details)."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

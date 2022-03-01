@@ -4,10 +4,10 @@ playwright-report/
 docs/_site/
 
 # Respect auto-generated formatting from `wca` tool
-api.md
+apiSpec.json
 custom-elements.json
 
 # Auto-downloaded files
 docs/css/prism.css
 
-docs/src/index.html
+docs/src/*.html

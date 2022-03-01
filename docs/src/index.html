@@ -59,6 +59,7 @@ title: Home
 const board = document.getElementById("drawable-board");
 board.arrows = [
   { from: "e2", to: "e4" },
+  { from: "g1", to: "f3" },
   { from: "c7", to: "c5", brush: "secondary" },
 ];
       {% endhighlight %}
@@ -71,7 +72,7 @@ board.arrows = [
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              d="M5 13l4 4L19 7"
             />
           </svg>
         </span>
@@ -80,6 +81,7 @@ board.arrows = [
         const board = document.getElementById("drawable-board");
         board.arrows = [
           { from: "e2", to: "e4" },
+          { from: "g1", to: "f3" },
           { from: "c7", to: "c5", brush: "secondary" },
         ];
       </script>
@@ -98,8 +100,6 @@ board.arrows = [
 #styled {
   --square-color-dark: hsl(27deg, 36%, 55%);
   --square-color-light: hsl(37deg, 66%, 83%);
-  --square-color-dark-hover: hsl(27deg, 64%, 47%);
-  --square-color-light-hover: hsl(47deg, 94%, 70%);
 }
       {% endhighlight %}
     </div>
@@ -109,8 +109,6 @@ board.arrows = [
         #styled {
           --square-color-dark: hsl(27deg, 36%, 55%);
           --square-color-light: hsl(37deg, 66%, 83%);
-          --square-color-dark-hover: hsl(27deg, 64%, 47%);
-          --square-color-light-hover: hsl(47deg, 94%, 70%);
         }
       </style>
     </div>
