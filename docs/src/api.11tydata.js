@@ -18,9 +18,18 @@ const markdownIt = require("markdown-it")({
   linkify: true,
 });
 
+const mappedAttributes = (data) =>
+  element(data).attributes.map((a) => a.fieldName);
+
 module.exports = {
   eleventyComputed: {
     attributes: (data) => renderedProperties(element(data).attributes),
+    additionalProperties: (data) =>
+      renderedProperties(
+        element(data).members.filter(
+          (m) => m.kind === "field" && !mappedAttributes(data).includes(m.name)
+        )
+      ),
     cssProperties: (data) => renderedProperties(element(data).cssProperties),
     cssParts: (data) => renderedProperties(element(data).cssParts),
   },

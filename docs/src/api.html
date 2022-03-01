@@ -1,7 +1,7 @@
 ---
 layout: markdown.njk
 eleventyNavigation:
-  key: API Reference
+  key: API
   order: 2
 title: API Reference
 ---
@@ -15,7 +15,7 @@ title: API Reference
 </p>
 <h2>Attributes</h2>
 <p>
-  Many properties of the chessboard can be customized by simply setting HTML
+  Many aspects of the chessboard can be customized by simply setting HTML
   attributes.
 </p>
 {% highlight "html" %}
@@ -25,7 +25,7 @@ title: API Reference
 {% endhighlight %}
 
 <p>
-  Each of the attributes described here also has a corresponding property
+  Each of the attributes described here also has a corresponding <strong>property</strong>
   (with a camel-cased name) that is accessible and modifiable via JavaScript.
 </p>
 {% highlight "js" %}
@@ -38,6 +38,18 @@ board.animationDuration = 300;
     {{ apiprop(attribute) }}
   {%- endfor %}
 </dl>
+
+<h2>Other properties</h2>
+<p>
+  The following properties accept non-primitive values (objects), and do not
+  have a corresponding attribute.
+</p>
+<dl>
+  {%- for property in additionalProperties %}
+    {{ apiprop(property) }}
+  {%- endfor %}
+</dl>
+
 <h2>CSS properties</h2>
 <p>
   Use these properties to customize visual properties of the chessboard,

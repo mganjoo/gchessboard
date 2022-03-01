@@ -280,7 +280,8 @@ export class GChessBoardElement extends HTMLElement {
 
   /**
    * Whether the squares are interactive, i.e. user can interact with squares,
-   * move pieces etc. By default, this is false; i.e a board is only for display.
+   * move pieces etc. By default, this is false; i.e a board is only for displaying
+   * a position.
    *
    * @attr [interactive=false]
    */
@@ -293,9 +294,10 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   /**
-   * Map representing the board position, where keys are square labels, and
-   * values are `Piece` objects. Note that changes to position do not reflect
-   * onto the "fen" attribute of the element.
+   * A map-like object representing the board position, where object keys are square
+   * labels, and values are `Piece` objects. Note that changes to this property are
+   * mirrored in the value of the `fen` property of the element, but **not** the
+   * corresponding attribute.
    */
   get position() {
     return this._board.position;
@@ -306,17 +308,18 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   /**
-   * FEN string representing the board position. Note that changes to the `fen` property
-   * change the board `position` property, but do **not** reflect onto the "fen" _attribute_
-   * of the element. In other words, to get the latest FEN string for the board position,
-   * use the `fen` property on the element.
+   * FEN string representing the board position. Note that changes to the corresponding
+   * `fen` _property_ will **not** reflect onto the "fen" _attribute_ of the element.
+   * In other words, to get the latest FEN string for the board position, use the `fen`
+   * _property_.
    *
-   * This property accepts the special string `"start"` as shorthand for the starting position
-   * of a chess game. An empty string represents an empty board. Invalid FEN values are ignored
-   * with an error.
+   * Accepts the special string `"start"` as shorthand for the starting position
+   * of a chess game. An empty string represents an empty board. Invalid FEN values
+   * are ignored with an error.
    *
-   * Note that a FEN string contains 6 components, separated by slashes, but only the first
-   * component (the "piece placement" component) is used.
+   * Note that a FEN string normally contains 6 components, separated by slashes,
+   * but only the first component (the "piece placement" component) is used by this
+   * attribute.
    *
    * @attr
    */
@@ -329,7 +332,6 @@ export class GChessBoardElement extends HTMLElement {
     if (position !== undefined) {
       this.position = position;
     } else {
-      // TODO: dispatch an ErrorEvent instead
       throw new Error(`Invalid FEN position: ${value}`);
     }
   }
@@ -370,16 +372,16 @@ export class GChessBoardElement extends HTMLElement {
 
   /**
    * Set of arrows to draw on the board. This is an array of objects specifying
-   * arrow properties, with the following properties: (1) `from` and `to`
+   * arrow characteristics, with the following properties: (1) `from` and `to`
    * corresponding to the start and end squares for the arrow, (2) optional
    * `weight` for the line (values: `"light"`, `"normal"`, `"bold"`), and
    * (3) `brush`, which is a string that will be used to make a CSS part
    * where one can customize the color, opacity, and other styles of the
-   * arrow. For example, a value for `brush` of `"foo"` will be apply a
+   * arrow. For example, a value for `brush` of `"foo"` will apply a
    * CSS part named `arrow-foo` to the arrow.
    *
    * Note: because the value of `brush` becomes part of a CSS part name, it
-   * should otherwise be usable in a CSS selector name.
+   * should be usable as a valid CSS identifier.
    *
    * In addition to allowing arbitrary part names, arrows support a few
    * out-of-the-box brush names, `primary` and `secondary`, which colors
