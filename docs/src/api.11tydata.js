@@ -12,11 +12,12 @@ function renderedProperties(data) {
   }));
 }
 
+const prism = require("markdown-it-prism");
 const markdownIt = require("markdown-it")({
   html: true,
   breaks: false,
   linkify: true,
-});
+}).use(prism);
 
 const mappedAttributes = (data) =>
   element(data).attributes.map((a) => a.fieldName);

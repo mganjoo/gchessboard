@@ -298,6 +298,21 @@ export class GChessBoardElement extends HTMLElement {
    * labels, and values are `Piece` objects. Note that changes to this property are
    * mirrored in the value of the `fen` property of the element, but **not** the
    * corresponding attribute.
+   *
+   * Example:
+   *
+   * ```js
+   * board.position = {
+   *   a2: {
+   *     pieceType: "king",
+   *     color: "white"
+   *   },
+   *   g4: {
+   *     pieceType: "knight",
+   *     color: "black"
+   *   },
+   * };
+   * ```
    */
   get position() {
     return this._board.position;
@@ -387,6 +402,23 @@ export class GChessBoardElement extends HTMLElement {
    * out-of-the-box brush names, `primary` and `secondary`, which colors
    * defined with CSS custom properties `--arrow-color-primary` and
    * `--arrow-color-secondary`.
+   *
+   * Example:
+   *
+   * ```js
+   * board.arrows = [
+   *   { from: "e2", to: "e4" },
+   *   {
+   *     from: "g1",
+   *     to: "f3",
+   *     brush: "foo"
+   *   },
+   *   {
+   *     from: "c7",
+   *     to: "c5",
+   *     brush: "secondary"
+   *   },
+   * ];
    */
   get arrows() {
     return this._arrows.arrows;
