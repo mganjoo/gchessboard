@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>API Documentation - gchessboard</title>
+    <title>API Reference - gchessboard</title>
     <meta name="description" content="an accessible, customizable and dependency-free chess board web component."/>
     <link rel="stylesheet" href="/gchessboard/css/main.css"/>
     <script type="module" src="/gchessboard/lib/gchessboard.js"></script>
@@ -16,7 +16,7 @@
       </h1>
       <nav>
         
-        <ul class="flex items-stretch text-base gap-x-6">
+        <ul class="flex flex-wrap items-stretch justify-center text-base gap-x-6">
             <li class="py-2">
               <a class="underline text-zinc-800 dark:text-zinc-100 underline-offset-4 decoration-green-600 dark:decoration-green-500 decoration-2" href="/gchessboard/tutorial/">Tutorial</a>
             </li>
@@ -31,314 +31,791 @@
     </header>
     <main>
       <article class="grid prose prose-zinc dark:prose-invert">
-  <h1>g-chess-board</h1>
-<p>A component that displays a chess board, with optional interactivity. Allows
-click, drag and keyboard-based moves.</p>
-<h2>Properties</h2>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Attribute</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>animationDuration</code></td>
-<td><code>animation-duration</code></td>
-<td><code>number</code></td>
-<td>200</td>
-<td>Duration, in milliseconds, of animation when adding/removing/moving pieces.</td>
-</tr>
-<tr>
-<td><code>arrows</code></td>
-<td></td>
-<td><code>BoardArrow[] | undefined</code></td>
-<td></td>
-<td>Set of arrows to draw on the board. This is an array of objects specifying<br />arrow properties, with the following properties: (1) <code>from</code> and <code>to</code><br />corresponding to the start and end squares for the arrow, (2) optional<br /><code>weight</code> for the line (values: <code>&quot;light&quot;</code>, <code>&quot;normal&quot;</code>, <code>&quot;bold&quot;</code>), and<br />(3) <code>brush</code>, which is a string that will be used to make a CSS part<br />where one can customize the color, opacity, and other styles of the<br />arrow. For example, a value for <code>brush</code> of <code>&quot;foo&quot;</code> will be apply a<br />CSS part named <code>arrow-foo</code> to the arrow.<br /><br />Note: because the value of <code>brush</code> becomes part of a CSS part name, it<br />should otherwise be usable in a CSS selector name.<br /><br />In addition to allowing arbitrary part names, arrows support a few<br />out-of-the-box brush names, <code>primary</code> and <code>secondary</code>, which colors<br />defined with CSS custom properties <code>--arrow-color-primary</code> and<br /><code>--arrow-color-secondary</code>.</td>
-</tr>
-<tr>
-<td><code>coordinates</code></td>
-<td><code>coordinates</code></td>
-<td><code>&quot;inside&quot; | &quot;outside&quot; | &quot;hidden&quot;</code></td>
-<td>&quot;inside&quot;</td>
-<td>How to display coordinates for squares. Could be <code>inside</code> the board (default),<br /><code>outside</code>, or <code>hidden</code>.</td>
-</tr>
-<tr>
-<td><code>fen</code></td>
-<td><code>fen</code></td>
-<td><code>string</code></td>
-<td></td>
-<td>FEN string representing the board position. Note that changes to the <code>fen</code> property<br />change the board <code>position</code> property, but do <strong>not</strong> reflect onto the &quot;fen&quot; <em>attribute</em><br />of the element. In other words, to get the latest FEN string for the board position,<br />use the <code>fen</code> property on the element.<br /><br />This property accepts the special string <code>&quot;start&quot;</code> as shorthand for the starting position<br />of a chess game. An empty string represents an empty board. Invalid FEN values are ignored<br />with an error.<br /><br />Note that a FEN string contains 6 components, separated by slashes, but only the first<br />component (the &quot;piece placement&quot; component) is used.</td>
-</tr>
-<tr>
-<td><code>interactive</code></td>
-<td><code>interactive</code></td>
-<td><code>boolean</code></td>
-<td></td>
-<td>Whether the squares are interactive, i.e. user can interact with squares,<br />move pieces etc. By default, this is false; i.e a board is only for display.</td>
-</tr>
-<tr>
-<td><code>orientation</code></td>
-<td><code>orientation</code></td>
-<td><code>&quot;white&quot; | &quot;black&quot;</code></td>
-<td>&quot;white&quot;</td>
-<td>What side's perspective to render squares from (what color appears on<br />the bottom as viewed on the screen).</td>
-</tr>
-<tr>
-<td><code>position</code></td>
-<td></td>
-<td><code>{ a8?: Piece | undefined; b8?: Piece | undefined; c8?: Piece | undefined; d8?: Piece | undefined; e8?: Piece | undefined; f8?: Piece | undefined; ... 57 more ...; h1?: Piece | undefined; }</code></td>
-<td></td>
-<td>Map representing the board position, where keys are square labels, and<br />values are <code>Piece</code> objects. Note that changes to position do not reflect<br />onto the &quot;fen&quot; attribute of the element.</td>
-</tr>
-<tr>
-<td><code>turn</code></td>
-<td><code>turn</code></td>
-<td><code>&quot;white&quot; | &quot;black&quot; | undefined</code></td>
-<td></td>
-<td>What side is allowed to move pieces. This may be <code>undefined</code> (or unset,<br />in the case of the equivalent element attribute), in which case pieces<br />from either side can be moved around.</td>
-</tr>
-</tbody>
-</table>
+  <h1>API Reference</h1>
+<p>
+  This page describes most attributes, fields, events, and CSS-related artifacts
+  that can be used to customize gchessboard.
+</p>
+
+<h2>Attributes</h2>
+<p>
+  Many aspects of the chessboard can be customized by simply setting HTML
+  attributes.
+</p>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span><br>  <span class="token attr-name">animation-duration</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>300<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
+
+<p>
+  Each of the attributes described here also has a corresponding
+  <strong>property</strong>
+  (with a camel-cased name) that is accessible and modifiable via JavaScript.
+</p>
+<pre class="language-js"><code class="language-js"><span class="token keyword">const</span> board <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"id-of-board"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br>board<span class="token punctuation">.</span>animationDuration <span class="token operator">=</span> <span class="token number">300</span><span class="token punctuation">;</span></code></pre>
+
+<dl> 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>orientation</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;white&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>What side's perspective to render squares from (what color appears on
+the bottom as viewed on the screen). Either <code>&quot;white&quot;</code> or <code>&quot;black&quot;</code>.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>turn</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>What side is allowed to move pieces. Either <code>&quot;white</code>, <code>&quot;black&quot;</code>, or
+unset. When unset, pieces from either side can be moved around.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>interactive</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">false</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Whether the squares are interactive, i.e. user can interact with squares,
+move pieces etc. By default, this is false; i.e a board is only for displaying
+a position.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>fen</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>FEN string representing the board position. Note that changes to the corresponding
+<code>fen</code> <em>property</em> will <strong>not</strong> reflect onto the &quot;fen&quot; <em>attribute</em> of the element.
+In other words, to get the latest FEN string for the board position, use the <code>fen</code>
+<em>property</em>.</p>
+<p>Accepts the special string <code>&quot;start&quot;</code> as shorthand for the starting position
+of a chess game. An empty string represents an empty board. Invalid FEN values
+are ignored with an error.</p>
+<p>Note that a FEN string normally contains 6 components, separated by slashes,
+but only the first component (the &quot;piece placement&quot; component) is used by this
+attribute.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>coordinates</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;inside&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>How to display coordinates for squares. Could be <code>&quot;inside&quot;</code> the board (default),
+<code>&quot;outside&quot;</code>, or <code>&quot;hidden&quot;</code>.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>animation-duration</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">200</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Duration, in milliseconds, of animation when adding/removing/moving pieces.</p>
+</dd>
+
+</dl>
+
+<h2>Other properties</h2>
+<p>
+  The following properties accept non-primitive values (objects), and do not
+  have a corresponding attribute.
+</p>
+<dl> 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>position</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>A map-like object representing the board position, where object keys are square
+labels, and values are <code>Piece</code> objects. Note that changes to this property are
+mirrored in the value of the <code>fen</code> property of the element, but <strong>not</strong> the
+corresponding attribute. All changes to position are animated, using the duration
+specified by the <code>animationDuration</code> property.</p>
+<p>Example:</p>
+<pre class="language-js"><code class="language-js">board<span class="token punctuation">.</span>position <span class="token operator">=</span> <span class="token punctuation">{</span>
+   <span class="token literal-property property">a2</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+     <span class="token literal-property property">pieceType</span><span class="token operator">:</span> <span class="token string">"king"</span><span class="token punctuation">,</span>
+     <span class="token literal-property property">color</span><span class="token operator">:</span> <span class="token string">"white"</span>
+   <span class="token punctuation">}</span><span class="token punctuation">,</span>
+   <span class="token literal-property property">g4</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+     <span class="token literal-property property">pieceType</span><span class="token operator">:</span> <span class="token string">"knight"</span><span class="token punctuation">,</span>
+     <span class="token literal-property property">color</span><span class="token operator">:</span> <span class="token string">"black"</span>
+   <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>arrows</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Set of arrows to draw on the board. This is an array of objects specifying
+arrow characteristics, with the following properties: (1) <code>from</code> and <code>to</code>
+corresponding to the start and end squares for the arrow, (2) optional
+<code>weight</code> for the line (values: <code>&quot;light&quot;</code>, <code>&quot;normal&quot;</code>, <code>&quot;bold&quot;</code>), and
+(3) <code>brush</code>, which is a string that will be used to make a CSS part
+where one can customize the color, opacity, and other styles of the
+arrow. For example, a value for <code>brush</code> of <code>&quot;foo&quot;</code> will apply a
+CSS part named <code>arrow-foo</code> to the arrow.</p>
+<p>Note: because the value of <code>brush</code> becomes part of a CSS part name, it
+should be usable as a valid CSS identifier.</p>
+<p>In addition to allowing arbitrary part names, arrows support a few
+out-of-the-box brush names, <code>primary</code> and <code>secondary</code>, which colors
+defined with CSS custom properties <code>--arrow-color-primary</code> and
+<code>--arrow-color-secondary</code>.</p>
+<p>Example:</p>
+<pre class="language-js"><code class="language-js">board<span class="token punctuation">.</span>arrows <span class="token operator">=</span> <span class="token punctuation">[</span>
+   <span class="token punctuation">{</span> <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"e2"</span><span class="token punctuation">,</span> <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"e4"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+   <span class="token punctuation">{</span>
+     <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"g1"</span><span class="token punctuation">,</span>
+     <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"f3"</span><span class="token punctuation">,</span>
+     <span class="token literal-property property">brush</span><span class="token operator">:</span> <span class="token string">"foo"</span>
+   <span class="token punctuation">}</span><span class="token punctuation">,</span>
+   <span class="token punctuation">{</span>
+     <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"c7"</span><span class="token punctuation">,</span>
+     <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"c5"</span><span class="token punctuation">,</span>
+     <span class="token literal-property property">brush</span><span class="token operator">:</span> <span class="token string">"secondary"</span>
+   <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span></code></pre>
+</dd>
+
+</dl>
+
 <h2>Methods</h2>
-<table>
-<thead>
-<tr>
-<th>Method</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>addEventListener</code></td>
-<td><code>{ &lt;K extends &quot;movestart&quot; | &quot;moveend&quot; | &quot;movefinished&quot; | &quot;movecancel&quot;&gt;(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean | ... 1 more ... | undefined): void; &lt;K extends &quot;fullscreenchange&quot; | ... 90 more ... | &quot;paste&quot;&gt;(type: K, listener: (this: HTMLElement, ev: HTMLEleme...</code></td>
-<td>Add listener for events on this element.</td>
-</tr>
-<tr>
-<td><code>removeEventListener</code></td>
-<td><code>{ &lt;K extends &quot;movestart&quot; | &quot;moveend&quot; | &quot;movefinished&quot; | &quot;movecancel&quot;&gt;(type: K, listener: (this: HTMLElement, ev: ChessBoardEventMap[K]): any, options?: boolean | ... 1 more ... | undefined): void; &lt;K extends &quot;fullscreenchange&quot; | ... 90 more ... | &quot;paste&quot;&gt;(type: K, listener: (this: HTMLElement, ev: HTMLElementEvent...</code></td>
-<td>Remove listener for an event on this element.</td>
-</tr>
-<tr>
-<td><code>startMove</code></td>
-<td><code>(square: &quot;a8&quot; | &quot;b8&quot; | &quot;c8&quot; | &quot;d8&quot; | &quot;e8&quot; | &quot;f8&quot; | &quot;g8&quot; | &quot;h8&quot; | &quot;a7&quot; | &quot;b7&quot; | &quot;c7&quot; | &quot;d7&quot; | &quot;e7&quot; | &quot;f7&quot; | &quot;g7&quot; | &quot;h7&quot; | &quot;a6&quot; | &quot;b6&quot; | &quot;c6&quot; | &quot;d6&quot; | &quot;e6&quot; | &quot;f6&quot; | &quot;g6&quot; | &quot;h6&quot; | &quot;a5&quot; | &quot;b5&quot; | &quot;c5&quot; | ... 36 more ... | &quot;h1&quot;, targetSquares?: (&quot;a8&quot; | ... 62 more ... | &quot;h1&quot;)[] | undefined): void</code></td>
-<td>Start a move on the board at <code>square</code>, optionally with specified targets<br />at <code>targetSquares</code>.</td>
-</tr>
-</tbody>
-</table>
+<dl> 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>addEventListener</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Add listener for events on this element.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>removeEventListener</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Remove listener for an event on this element.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>startMove</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Start a move on the board at <code>square</code>, optionally with specified targets
+at <code>targetSquares</code>.</p>
+</dd>
+</dl>
+
 <h2>Events</h2>
-<table>
-<thead>
-<tr>
-<th>Event</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>movecancel</code></td>
-<td>Fired as a move is being canceled by the user. The event<br />is <em>itself</em> cancelable, ie. a caller can call <code>preventDefault()</code> on the event<br />to prevent the move from being canceled. Any pieces being dragged will be returned<br />to the start square, but the move will remain in progress.<br /><br />The event has a <code>detail</code> object<code>with</code>from<code>set to the square label where&lt;br /&gt;the move was started, and</code>piece` containing information about the piece that was<br />moved.</td>
-</tr>
-<tr>
-<td><code>moveend</code></td>
-<td>Fired when user is completing a move. This move can be prevented<br />from completing by calling <code>preventDefault()</code> on the event. If that is called,<br />the move itself remains in progress. The event has a <code>detail</code> object with <code>from</code><br />and <code>to</code> set to the square labels of the move, and <code>piece</code> containing information<br />about the piece that was moved.</td>
-</tr>
-<tr>
-<td><code>movefinished</code></td>
-<td>Fired after a move is completed and animations are resolved.<br />The event has a <code>detail</code> object with <code>from</code> and <code>to</code> set to the square labels<br />of the move, and <code>piece</code> containing information about the piece that was moved.</td>
-</tr>
-<tr>
-<td><code>movestart</code></td>
-<td>Fired when the user initiates a move by clicking, dragging or<br />via the keyboard.<br /><br />The event has a <code>detail</code> object with the <code>from</code> and<br /><code>piece</code> values for the move. It also has a function, <code>setTargets(squares)</code>,<br />that the caller can invoke with an array of square labels. This limits the<br />set of targets that the piece can be moved to. Note that calling this<br />function with an empty list will still allow the piece to be dragged around,<br />but no square will accept the piece and thus it will always return to the<br />starting square.</td>
-</tr>
-</tbody>
-</table>
+<p>
+  gchessboard fires a variety of events in response to user input. You can
+  attach a listener to the <code>&lt;g-chess-board&gt;</code> object using
+  <code>addEventListener()</code>. Events fired are of type
+  <code>CustomEvent</code>, and contain a <code>detail</code> object with
+  additional information about the user interaction.
+</p>
+<dl> 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>movestart</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Fired when the user initiates a move by clicking, dragging or
+via the keyboard.</p>
+<p>The event has a <code>detail</code> object with the <code>from</code> and
+<code>piece</code> values for the move. It also has a function, <code>setTargets(squares)</code>,
+that the caller can invoke with an array of square labels. This limits the
+set of targets that the piece can be moved to. Note that calling this
+function with an empty list will still allow the piece to be dragged around,
+but no square will accept the piece and thus it will always return to the
+starting square.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>moveend</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Fired when user is completing a move. This move can be prevented
+from completing by calling <code>preventDefault()</code> on the event. If that is called,
+the move itself remains in progress. The event has a <code>detail</code> object with <code>from</code>
+and <code>to</code> set to the square labels of the move, and <code>piece</code> containing information
+about the piece that was moved.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>movefinished</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Fired after a move is completed <em>and</em> animations are resolved.
+The event has a <code>detail</code> object with <code>from</code> and <code>to</code> set to the square labels
+of the move, and <code>piece</code> containing information about the piece that was moved.</p>
+<p>The <code>movefinished</code> event is the best time to update board position in response to
+a move. For example, after a king is moved for castling, the rook can be subsequently
+moved by updating the board position in <code>movefinished</code> by setting the <code>position</code>
+property.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>movecancel</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Fired as a move is being canceled by the user. The event
+is <em>itself</em> cancelable, ie. a caller can call <code>preventDefault()</code> on the event
+to prevent the move from being canceled. Any pieces being dragged will be returned
+to the start square, but the move will remain in progress.</p>
+<p>The event has a <code>detail</code> object with <code>from</code> set to the square label where
+the move was started, and <code>piece</code> containing information about the piece that was
+moved.</p>
+</dd>
+</dl>
+
+<h2>CSS properties</h2>
+<p>
+  Use these properties to customize visual properties of the chessboard, such as
+  square background, outline colors, and markers for move target squares.
+</p>
+<dl> 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--square-color-dark</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(145deg 32% 44%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color for dark squares.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--square-color-light</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(51deg 24% 84%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color for light squares.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--square-color-dark-hover</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(144deg 75% 44%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Hover color
+for a dark square. Applied when mouse is hovering over an interactable square
+or a square has keyboard focus during a move.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--square-color-light-hover</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(52deg 98% 70%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Hover color
+for a dark square. Applied when mouse is hovering over an interactable square
+or a square has keyboard focus during a move.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--square-color-dark-active</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(142deg 77% 43%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color applied to
+dark square when it is involved in (the starting point) of a move. By default
+this color is similar to, but slightly different from, <code>--square-color-dark-hover</code>.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--square-color-light-active</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(50deg 95% 64%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color applied to
+light square when it is involved in (the starting point) of a move. By default
+this color is similar to, but slightly different from, <code>--square-color-light-hover</code>.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--outline-color-dark-active</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(138deg 85% 53% / 95%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color of
+outline applied to dark square when it is the starting point of a move.
+It is applied in addition to <code>--square-color-dark-active</code>, and is visible
+when the square does not have focus.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--outline-color-light-active</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(66deg 97% 72% / 95%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color of
+outline applied to light square when it is the starting point of a move.
+It is applied in addition to <code>--square-color-light-active</code>, and is visible
+when the square does not have focus.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--outline-color-focus</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(30deg 94% 55% / 90%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color of outline applied to square when it has focus.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--outer-gutter-width</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;4%&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>When the <code>coordinates</code> property is <code>outside</code>,
+this CSS property controls the width of the gutter outside the board where coords are shown.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--inner-border-width</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;1px&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Width of the inside border drawn around the board.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--inner-border-color</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;var(--square-color-dark)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color of the inside border drawn
+around the board.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--move-target-marker-color-dark-square</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(144deg 64% 9% / 90%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color of marker shown on dark square when it is an eligible move target.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--move-target-marker-color-light-square</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(144deg 64% 9% / 90%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color of marker shown on light square when it is an eligible move target.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--move-target-marker-radius</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;24%&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Radius of marker on a move target
+square.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--move-target-marker-radius-occupied</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;82%&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Radius of marker on
+a move target square that is occupied (by a piece or custom content).</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--outline-blur-radius</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;3px&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Blur radius of all outlines applied to square.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--outline-spread-radius</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;4px&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Spread radius of all outlines applied to square.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--coords-font-size</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;0.7rem&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Font size of coord labels shown on board.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--coords-font-family</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;sans-serif&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Font family of coord labels shown on board.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--coords-inside-coord-padding-left</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;0.5%&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Left padding applied to coordinates
+when shown inside the board. Percentage values are relative to the width of the board.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--coords-inside-coord-padding-right</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;0.5%&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Right padding applied to coordinates
+when shown inside the board. Percentage values are relative to the width of the board.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--ghost-piece-opacity</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">0.35</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Opacity of ghost piece shown while dragging.
+Set to 0 to hide ghost piece altogether.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--piece-drag-z-index</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">9999</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Z-index applied to piece while being dragged.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--piece-padding</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;3%&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Padding applied to square when piece is placed in it.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--arrow-color-primary</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(40deg 100% 50% / 80%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color applied to arrow
+with brush <code>primary</code>.</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>--arrow-color-secondary</code>
+  </dt>
+  
+    <dd class="not-prose">
+      <span class="inline-flex my-2 text-sm border rounded border-zinc-400 dark:border-zinc-600">
+        <span class="flex items-center px-3 py-1 border-r border-zinc-400 dark:border-zinc-600 bg-zinc-200 dark:bg-zinc-600 text-zinc-900 dark:text-zinc-100">
+          default
+        </span>
+        <code class="px-2 py-1 font-mono">&quot;hsl(7deg 93% 61% / 80%)&quot;</code>
+      </span>
+    </dd>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>Color applied to arrow
+with brush <code>secondary</code>.</p>
+</dd>
+
+</dl>
+
+<h2>CSS parts</h2>
+<p>
+  gchessboard provides a collection of CSS parts to customize the images used
+  for chess pieces on the board, as well as brush color, opacity, and other
+  styles associated with arrows drawn on the board.
+</p>
+<dl> 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>piece-&lt;b|w&gt;&lt;b|r|p|n|k|q&gt;</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>CSS parts for each of the piece classes. The part
+name is of the form <code>piece-xy</code>, where <code>x</code> corresponds to the color of the piece --
+either <code>w</code> for white or <code>b</code> for black, and <code>y</code> is the piece type -- one of <code>p</code> (pawn),
+<code>r</code> (rook), <code>n</code> (knight), <code>b</code> (bishop), <code>k</code> (king), <code>q</code> (queen). Thus, <code>piece-wr</code>
+would be the CSS part corresponding to the white rook.</p>
+<p>The CSS parts can be used to set custom CSS for the pieces (such as changing the image
+for a piece by changing the <code>background-image</code> property).</p>
+</dd>
+ 
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>arrow-&lt;brush_name&gt;</code>
+  </dt>
+  
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>CSS parts for any arrow brushes configured using the
+<code>brush</code> field on an arrow specification (see the <code>arrows</code> property for more details).</p>
+</dd>
+</dl>
+
 <h2>Slots</h2>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>a1,a2,...,h8</code></td>
-<td>Slots that allow placement of custom content -- SVGs, text, or<br />any other annotation -- on the corresponding square.</td>
-</tr>
-</tbody>
-</table>
-<h2>CSS Shadow Parts</h2>
-<table>
-<thead>
-<tr>
-<th>Part</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>arrow-&lt;brush_name&gt;</code></td>
-<td>CSS parts for any arrow brushes configured using the<br /><code>brush</code> property on an arrow specifcation (see the <code>arrows</code> property for more details).</td>
-</tr>
-<tr>
-<td><code>piece-&lt;b|w&gt;-&lt;b|r|p|n|k|q&gt;</code></td>
-<td>CSS parts for each of the piece classes. The part<br />name is of the form <code>piece-xy</code>, where <code>x</code> corresponds to the color of the piece --<br />either <code>w</code> for white or <code>b</code> for black, and <code>y</code> is the piece type -- one of <code>p</code> (pawn),<br /><code>r</code> (rook), <code>n</code> (knight), <code>b</code> (bishop), <code>k</code> (king), <code>q</code> (queen). Thus, <code>piece-wr</code><br />would be the CSS part corresponding to the white rook.<br /><br />The CSS parts can be used to set custom CSS for the pieces (such as changing the image<br />for a piece by changing the <code>background-image</code> property).</td>
-</tr>
-</tbody>
-</table>
-<h2>CSS Custom Properties</h2>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--arrow-color-primary</code></td>
-<td>&quot;hsl(40deg 100% 50% / 80%)&quot;</td>
-<td>color applied to arrow<br />with brush <code>primary</code>.</td>
-</tr>
-<tr>
-<td><code>--arrow-color-secondary</code></td>
-<td>&quot;hsl(7deg 93% 61% / 80%)&quot;</td>
-<td>color applied to arrow<br />with brush <code>secondary</code>.</td>
-</tr>
-<tr>
-<td><code>--coords-font-family</code></td>
-<td>&quot;sans-serif&quot;</td>
-<td>Font family of coord labels shown on board.</td>
-</tr>
-<tr>
-<td><code>--coords-font-size</code></td>
-<td>&quot;0.7rem&quot;</td>
-<td>Font size of coord labels shown on board.</td>
-</tr>
-<tr>
-<td><code>--coords-inside-coord-padding-left</code></td>
-<td>&quot;0.5%&quot;</td>
-<td>Left padding applied to coordinates<br />when shown inside the board. Percentage values are relative to the width of the board.</td>
-</tr>
-<tr>
-<td><code>--coords-inside-coord-padding-right</code></td>
-<td>&quot;0.5%&quot;</td>
-<td>Right padding applied to coordinates<br />when shown inside the board. Percentage values are relative to the width of the board.</td>
-</tr>
-<tr>
-<td><code>--ghost-piece-opacity</code></td>
-<td>0.35</td>
-<td>Opacity of ghost piece shown while dragging.<br />Set to 0 to hide ghost piece altogether.</td>
-</tr>
-<tr>
-<td><code>--inner-border-color</code></td>
-<td>&quot;var(--square-color-dark)&quot;</td>
-<td>Color of the inside border drawn<br />around the board.</td>
-</tr>
-<tr>
-<td><code>--inner-border-width</code></td>
-<td>&quot;1px&quot;</td>
-<td>Width of the inside border drawn around the board.</td>
-</tr>
-<tr>
-<td><code>--move-target-marker-color-dark-square</code></td>
-<td>&quot;hsl(144deg 64% 9% / 90%)&quot;</td>
-<td>Color of marker shown on dark square when it is an eligible move target.</td>
-</tr>
-<tr>
-<td><code>--move-target-marker-color-light-square</code></td>
-<td>&quot;hsl(144deg 64% 9% / 90%)&quot;</td>
-<td>Color of marker shown on light square when it is an eligible move target.</td>
-</tr>
-<tr>
-<td><code>--move-target-marker-radius</code></td>
-<td>&quot;24%&quot;</td>
-<td>Radius of marker on a move target<br />square.</td>
-</tr>
-<tr>
-<td><code>--move-target-marker-radius-occupied</code></td>
-<td>&quot;82%&quot;</td>
-<td>Radius of marker on<br />a move target square that is occupied (by a piece or custom content).</td>
-</tr>
-<tr>
-<td><code>--outer-gutter-width</code></td>
-<td>&quot;4%&quot;</td>
-<td>When the <code>coordinates</code> property is <code>outside</code>,<br />this CSS property controls the width of the gutter outside the board where coords are shown.</td>
-</tr>
-<tr>
-<td><code>--outline-blur-radius</code></td>
-<td>&quot;3px&quot;</td>
-<td>Blur radius of all outlines applied to square.</td>
-</tr>
-<tr>
-<td><code>--outline-color-dark-active</code></td>
-<td>&quot;hsl(138deg 85% 53% / 95%)&quot;</td>
-<td>Color of<br />outline applied to dark square when it is the starting point of a move.<br />It is applied in addition to <code>--square-color-dark-active</code>, and is visible<br />when the square does not have focus.</td>
-</tr>
-<tr>
-<td><code>--outline-color-focus</code></td>
-<td>&quot;hsl(30deg 94% 55% / 90%)&quot;</td>
-<td>Color of outline applied to square when it has focus.</td>
-</tr>
-<tr>
-<td><code>--outline-color-light-active</code></td>
-<td>&quot;hsl(66deg 97% 72% / 95%)&quot;</td>
-<td>Color of<br />outline applied to light square when it is the starting point of a move.<br />It is applied in addition to <code>--square-color-light-active</code>, and is visible<br />when the square does not have focus.</td>
-</tr>
-<tr>
-<td><code>--outline-spread-radius</code></td>
-<td>&quot;4px&quot;</td>
-<td>Spread radius of all outlines applied to square.</td>
-</tr>
-<tr>
-<td><code>--piece-drag-z-index</code></td>
-<td>9999</td>
-<td>Z-index applied to piece while being dragged.</td>
-</tr>
-<tr>
-<td><code>--piece-padding</code></td>
-<td>&quot;3%&quot;</td>
-<td>Padding applied to square when piece is placed in it.</td>
-</tr>
-<tr>
-<td><code>--square-color-dark</code></td>
-<td>&quot;hsl(145deg 32% 44%)&quot;</td>
-<td>Color for dark squares.</td>
-</tr>
-<tr>
-<td><code>--square-color-dark-active</code></td>
-<td>&quot;hsl(142deg 77% 43%)&quot;</td>
-<td>Color applied to<br />dark square when it is involved in (the starting point) of a move. By default<br />this color is similar to, but slightly different from, <code>--square-color-dark-hover</code>.</td>
-</tr>
-<tr>
-<td><code>--square-color-dark-hover</code></td>
-<td>&quot;hsl(144deg 75% 44%)&quot;</td>
-<td>Hover color<br />for a dark square. Applied when mouse is hovering over an interactable square<br />or a square has keyboard focus during a move.</td>
-</tr>
-<tr>
-<td><code>--square-color-light</code></td>
-<td>&quot;hsl(51deg 24% 84%)&quot;</td>
-<td>Color for light squares.</td>
-</tr>
-<tr>
-<td><code>--square-color-light-active</code></td>
-<td>&quot;hsl(50deg 95% 64%)&quot;</td>
-<td>Color applied to<br />light square when it is involved in (the starting point) of a move. By default<br />this color is similar to, but slightly different from, <code>--square-color-light-hover</code>.</td>
-</tr>
-<tr>
-<td><code>--square-color-light-hover</code></td>
-<td>&quot;hsl(52deg 98% 70%)&quot;</td>
-<td>Hover color<br />for a dark square. Applied when mouse is hovering over an interactable square<br />or a square has keyboard focus during a move.</td>
-</tr>
-</tbody>
-</table>
+<p>
+  gchessboard provides the ability to place arbitrary content on squares using
+  <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Slot"
+    >named slots</a
+  >. Each square has a slot corresponding to its algebraic label (such as
+  <strong>a1</strong> or <strong>g3</strong>). Any nested element within
+  <code>&lt;g-chess-board&gt;</code> with a <code>slot</code>
+  attribute set to a square label will have its content placed on the correct
+  square.
+</p>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span><span class="token punctuation">></span></span><br>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>span</span> <span class="token attr-name">slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>e5<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br>    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>svg</span> <span class="token attr-name">viewBox</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>0 0 10 10<span class="token punctuation">"</span></span> <span class="token attr-name">stroke</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>black<span class="token punctuation">"</span></span> <span class="token attr-name">fill</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>none<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br>      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ellipse</span> <span class="token attr-name">cx</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>5<span class="token punctuation">"</span></span> <span class="token attr-name">cy</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>5<span class="token punctuation">"</span></span> <span class="token attr-name">rx</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>4<span class="token punctuation">"</span></span> <span class="token attr-name">ry</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>3<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span><br>    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>svg</span><span class="token punctuation">></span></span><br>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>span</span><span class="token punctuation">></span></span><br>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>span</span> <span class="token attr-name">slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>c3<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br>    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>svg</span> <span class="token attr-name">viewBox</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>0 0 10 10<span class="token punctuation">"</span></span> <span class="token attr-name">stroke</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>goldenrod<span class="token punctuation">"</span></span> <span class="token attr-name">fill</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>none<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br>      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>polygon</span> <span class="token attr-name">points</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>1,5 4,2 8,7<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span><br>    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>svg</span><span class="token punctuation">></span></span><br>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>span</span><span class="token punctuation">></span></span><br><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
+<div class="chessboard-wrapper">
+<g-chess-board>
+  <span slot="e5">
+    <svg viewBox="0 0 10 10" stroke="black" fill="none">
+      <ellipse cx="5" cy="5" rx="4" ry="3" />
+    </svg>
+  </span>
+  <span slot="c3">
+    <svg viewBox="0 0 10 10" stroke="goldenrod" fill="none">
+      <polygon points="1,5 4,2 8,7" />
+    </svg>
+  </span>
+</g-chess-board>
+</div>
 
 </article>
 
