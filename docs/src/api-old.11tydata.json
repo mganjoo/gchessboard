@@ -1,8 +1,0 @@
-{
-  "layout": "markdown.njk",
-  "title": "API Documentation",
-  "eleventyNavigation": {
-    "key": "API Old",
-    "order": 3
-  }
-}
