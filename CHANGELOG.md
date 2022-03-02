@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add a new `cancelMove()` method to imperatively cancel moves (#33).
+
 ## [0.2.2] - 2022-02-14
 
 ### Added

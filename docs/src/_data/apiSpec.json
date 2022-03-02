@@ -147,6 +147,17 @@
               "return": {
                 "type": "void"
               }
+            },
+            {
+              "kind": "method",
+              "name": "cancelMove",
+              "privacy": "public",
+              "type": "(): void",
+              "description": "Imperatively cancel any in-progress moves.",
+              "parameters": [],
+              "return": {
+                "type": "void"
+              }
             }
           ],
           "tagName": "g-chess-board",
