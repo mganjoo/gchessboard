@@ -5,7 +5,7 @@
     "dev:11ty": "npx eleventy --serve",
     "dev:css": "tailwindcss -i ./css/main.css -o ./_site/css/main.css --watch",
     "build": "npm run clean && npm run build:css && npm run build:11ty",
-    "build:11ty": "ELEVENTY_ENV=production npx eleventy",
+    "build:11ty": "npx eleventy",
     "build:css": "tailwindcss -i ./css/main.css -o ./_site/css/main.css --minify",
     "clean": "rm -rf _site"
   },
