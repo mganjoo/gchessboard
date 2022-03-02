@@ -2,24 +2,26 @@
   "private": true,
   "scripts": {
     "dev": "concurrently -k npm:dev:css npm:dev:11ty",
-    "dev:11ty": "eleventy --serve",
+    "dev:11ty": "npx eleventy --serve",
     "dev:css": "tailwindcss -i ./css/main.css -o ./_site/css/main.css --watch",
-    "build": "npm run build:css && npm run build:11ty",
-    "build:11ty": "eleventy",
-    "build:css": "tailwindcss -i ./css/main.css -o ./_site/css/main.css --minify"
+    "build": "npm run clean && npm run build:css && npm run build:11ty",
+    "build:11ty": "npx eleventy",
+    "build:css": "tailwindcss -i ./css/main.css -o ./_site/css/main.css --minify",
+    "clean": "rm -rf _site"
   },
   "devDependencies": {
     "@11ty/eleventy": "^1.0.0",
     "@11ty/eleventy-navigation": "^0.3.2",
     "@11ty/eleventy-plugin-syntaxhighlight": "^4.0.0",
+    "@fontsource/nunito-sans": "^4.5.2",
     "@tailwindcss/typography": "^0.5.1",
+    "@toycode/markdown-it-class": "^1.2.4",
     "concurrently": "^7.0.0",
+    "eleventy-plugin-toc": "^1.1.5",
     "markdown-it": "^12.3.2",
+    "markdown-it-anchor": "^8.4.1",
     "markdown-it-prism": "^2.2.3",
     "outdent": "^0.8.0",
     "tailwindcss": "^3.0.22"
-  },
-  "dependencies": {
-    "@fontsource/nunito-sans": "^4.5.2"
   }
 }

@@ -1,10 +1,29 @@
 const syntaxHighlightPlugin = require("@11ty/eleventy-plugin-syntaxhighlight");
 const eleventyNavigationPlugin = require("@11ty/eleventy-navigation");
+const tocPlugin = require("eleventy-plugin-toc");
+
+const markdownItAnchor = require("markdown-it-anchor");
+const markdownItClass = require("@toycode/markdown-it-class");
 const markdownIt = require("markdown-it")({
   html: true,
   breaks: false,
   linkify: true,
-});
+})
+  .disable("code")
+  .use(markdownItAnchor, {
+    permalink: true,
+    permalinkClass: "page-heading-anchor",
+    permalinkSymbol: "#",
+    level: [1, 2, 3, 4],
+  })
+  .use(markdownItClass, {
+    h1: "page-heading",
+    h2: "page-heading",
+    h3: "page-heading",
+    h4: "page-heading",
+    h5: "page-heading",
+    h6: "page-heading",
+  });
 const outdent = require("outdent");
 
 module.exports = function (eleventyConfig) {
@@ -16,6 +35,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.setLibrary("md", markdownIt);
 
   eleventyConfig.addPlugin(eleventyNavigationPlugin);
+  eleventyConfig.addPlugin(tocPlugin, { ul: true });
 
   eleventyConfig.addPairedShortcode("chessboard", function (children) {
     const template = outdent`
