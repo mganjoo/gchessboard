@@ -302,6 +302,13 @@ export class Board {
     }
   }
 
+  /**
+   * Cancels in-progress moves, if any.
+   */
+  cancelMove() {
+    this._cancelMove(false);
+  }
+
   private get _focusedSquare() {
     return Board._extractSquareData(this._shadowRef.activeElement);
   }

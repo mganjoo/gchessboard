@@ -499,6 +499,13 @@ export class GChessBoardElement extends HTMLElement {
     this._board.startMove(square, targetSquares);
   }
 
+  /**
+   * Imperatively cancel any in-progress moves.
+   */
+  cancelMove() {
+    this._board.cancelMove();
+  }
+
   private _hasBooleanAttribute(name: string): boolean {
     return (
       this.hasAttribute(name) &&
