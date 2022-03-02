@@ -6,10 +6,10 @@ eleventyNavigation:
   order: 1
 ---
 
-# Tutorial
-
 In this tutorial, we will render a chess board component on the page that can
 be used to play a two-player game of chess, with each side taking turns.
+
+## Installing
 
 First, we will install the library and import it into a page. There are two
 ways to do this.

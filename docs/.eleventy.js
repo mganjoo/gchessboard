@@ -1,5 +1,7 @@
 const syntaxHighlightPlugin = require("@11ty/eleventy-plugin-syntaxhighlight");
 const eleventyNavigationPlugin = require("@11ty/eleventy-navigation");
+const tocPlugin = require("eleventy-plugin-toc");
+
 const markdownItAnchor = require("markdown-it-anchor");
 const markdownItClass = require("@toycode/markdown-it-class");
 const markdownIt = require("markdown-it")({
@@ -33,6 +35,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.setLibrary("md", markdownIt);
 
   eleventyConfig.addPlugin(eleventyNavigationPlugin);
+  eleventyConfig.addPlugin(tocPlugin, { ul: true });
 
   eleventyConfig.addPairedShortcode("chessboard", function (children) {
     const template = outdent`

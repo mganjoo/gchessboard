@@ -8,8 +8,6 @@ title: API Reference
 
 {%- from "partials.njk" import apiprop -%}
 
-# API Reference
-
 This page describes most attributes, fields, events, and CSS-related artifacts
 that can be used to customize gchessboard.
 
