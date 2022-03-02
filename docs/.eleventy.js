@@ -7,6 +7,7 @@ const markdownIt = require("markdown-it")({
   breaks: false,
   linkify: true,
 })
+  .disable("code")
   .use(markdownItAnchor, {
     permalink: true,
     permalinkClass: "page-heading-anchor",
