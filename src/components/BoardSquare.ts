@@ -289,8 +289,11 @@ export class BoardSquare {
   /**
    * Set piece to explicit pixel location. Ignore if square has no piece.
    */
-  displacePiece(x: number, y: number) {
-    this._boardPiece?.setExplicitPosition({ type: "coordinates", x, y });
+  displacePiece(x: number, y: number, isTouch: boolean) {
+    this._boardPiece?.setExplicitPosition(
+      { type: "coordinates", x, y },
+      isTouch
+    );
   }
 
   /**

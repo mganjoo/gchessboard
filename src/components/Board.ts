@@ -722,7 +722,8 @@ export class Board {
           if (delta > threshold || square !== this._boardState.startSquare) {
             this._getBoardSquare(this._boardState.startSquare).displacePiece(
               e.clientX,
-              e.clientY
+              e.clientY,
+              e.pointerType === "touch"
             );
             if (square) {
               this._setBoardState({
@@ -748,7 +749,8 @@ export class Board {
       case "dragging-outside":
         this._getBoardSquare(this._boardState.startSquare).displacePiece(
           e.clientX,
-          e.clientY
+          e.clientY,
+          e.pointerType === "touch"
         );
         if (square && square !== this._boardState.highlightedSquare) {
           this._setBoardState({

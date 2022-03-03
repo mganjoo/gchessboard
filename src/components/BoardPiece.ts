@@ -139,11 +139,17 @@ export class BoardPiece {
   /**
    * Set explicit offset for piece relative to default location in square.
    */
-  setExplicitPosition(explicitPosition: ExplicitPiecePosition) {
+  setExplicitPosition(
+    explicitPosition: ExplicitPiecePosition,
+    magnify: boolean
+  ) {
     this._explicitPosition = explicitPosition;
     const coords = this._getTranslateValues(explicitPosition);
     if (coords) {
       this._element.style.transform = `translate(${coords.x}, ${coords.y})`;
+      if (magnify) {
+        this._element.style.transform += ` scale(1.5)`;
+      }
     }
   }
 
