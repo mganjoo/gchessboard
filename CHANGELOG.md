@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Explicitly export some types for use in libraries (e.g. `BoardArrow`, `MoveStartEvent`, etc)
+
 ## [0.3.0] - 2022-03-02
 
 ### Added
