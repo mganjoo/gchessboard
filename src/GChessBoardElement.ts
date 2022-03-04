@@ -113,6 +113,9 @@ import { Arrows, BoardArrow } from "./components/Arrows";
  * @cssprop [--ghost-piece-opacity=0.35] - Opacity of ghost piece shown while dragging.
  *   Set to 0 to hide ghost piece altogether.
  * @cssprop [--piece-drag-z-index=9999] - Z-index applied to piece while being dragged.
+ * @cssprop [--piece-drag-coarse-scale=1.5] - Amount to scale up a piece when doing a
+ *   coarse (touch) drag. On mobile devices, pieces will be scaled up in size to
+ *   make them easier to see.
  * @cssprop [--piece-padding=3%] - Padding applied to square when piece is placed in it.
  *
  * @cssprop [--arrow-color-primary=hsl(40deg 100% 50% / 80%)] - Color applied to arrow

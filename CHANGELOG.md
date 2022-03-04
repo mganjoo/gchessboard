@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Magnify piece when dragging by touch (#35).
+
 ## [0.3.1] - 2022-03-03
 
 - Explicitly export some types for use in libraries (e.g. `BoardArrow`, `MoveStartEvent`, etc)

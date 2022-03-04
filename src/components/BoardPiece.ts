@@ -96,6 +96,12 @@ export class BoardPiece {
     },
   };
 
+  /**
+   * CSS custom property for scale applied to piece while draggging.
+   * This is overridden per input method within CSS styles.
+   */
+  private static PIECE_DRAG_SCALE_PROP = "--p-piece-drag-scale";
+
   constructor(container: HTMLElement, config: BoardPieceConfig) {
     this.piece = config.piece;
     this._parentElement = container;
@@ -144,6 +150,12 @@ export class BoardPiece {
     const coords = this._getTranslateValues(explicitPosition);
     if (coords) {
       this._element.style.transform = `translate(${coords.x}, ${coords.y})`;
+    }
+    const scaleValue = getComputedStyle(this._element).getPropertyValue(
+      BoardPiece.PIECE_DRAG_SCALE_PROP
+    );
+    if (scaleValue) {
+      this._element.style.transform += ` scale(${scaleValue})`;
     }
   }
 
