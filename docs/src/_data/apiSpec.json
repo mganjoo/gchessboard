@@ -353,6 +353,11 @@
               "default": "9999"
             },
             {
+              "name": "--piece-drag-coarse-scale",
+              "description": "Amount to scale up a piece when doing a\ncoarse (touch) drag. On mobile devices, pieces will be scaled up in size to\nmake them easier to see.",
+              "default": "1.5"
+            },
+            {
               "name": "--piece-padding",
               "description": "Padding applied to square when piece is placed in it.",
               "default": "\"3%\""

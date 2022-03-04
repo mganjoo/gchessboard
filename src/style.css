@@ -52,6 +52,9 @@
   /* z-index of piece while dragging. */
   --piece-drag-z-index: 9999;
 
+  /* Amount to scale up a piece when doing a coarse (touch) drag. */
+  --piece-drag-coarse-scale: 1.5;
+
   /* Padding applied around piece. */
   --piece-padding: 3%;
 
@@ -316,6 +319,13 @@ table.dragging {
 [data-square].move-start .piece:not(.secondary) {
   /* Ensure that the piece appears above most other elements in document. */
   z-index: var(--piece-drag-z-index);
+}
+
+@media (pointer: coarse) {
+  /* Override scale value for piece when dragging on a  device. */
+  [data-square] .piece {
+    --p-piece-drag-scale: var(--piece-drag-coarse-scale);
+  }
 }
 
 /**********
