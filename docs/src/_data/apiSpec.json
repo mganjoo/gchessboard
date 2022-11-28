@@ -355,7 +355,7 @@
             {
               "name": "--piece-drag-coarse-scale",
               "description": "Amount to scale up a piece when doing a\ncoarse (touch) drag. On mobile devices, pieces will be scaled up in size to\nmake them easier to see.",
-              "default": "1.5"
+              "default": "2.4"
             },
             {
               "name": "--piece-padding",
