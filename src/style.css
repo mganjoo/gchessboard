@@ -53,7 +53,7 @@
   --piece-drag-z-index: 9999;
 
   /* Amount to scale up a piece when doing a coarse (touch) drag. */
-  --piece-drag-coarse-scale: 1.5;
+  --piece-drag-coarse-scale: 2.4;
 
   /* Padding applied around piece. */
   --piece-padding: 3%;

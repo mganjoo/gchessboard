@@ -198,7 +198,7 @@ export class BoardPiece {
       const deltaX =
         explicitPosition.x - squareDims.left - squareDims.width / 2;
       const deltaY =
-        explicitPosition.y - squareDims.top - squareDims.height / 2;
+        explicitPosition.y - squareDims.top - (3 * squareDims.height) / 4;
       if (deltaX !== 0 || deltaY !== 0) {
         return { x: `${deltaX}px`, y: `${deltaY}px` };
       }
