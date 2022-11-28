@@ -204,9 +204,7 @@ board.addEventListener("moveend", (e) => {
   } ${e.detail.piece.pieceType}`);
   const move = game.move({
     from: e.detail.from,
-    to: e.detail.to,
-    // Promote to queen for convenience (normally you would prompt user)
-    promotion: "q"
+    to: e.detail.to
   });
   if (move === null) {
     e.preventDefault();

@@ -59,8 +59,10 @@ using click, drag, and keyboard (by tabbing into the board).
 - The development page ([index.html](index.html)) for this library
   also includes some advanced setup, including the use of custom slots, event handling, and changing
   various properties and attributes of the board.
-
-More examples coming soon!
+- The library can be easily wrapped with React. A demo using [@lit-labs/react](https://www.npmjs.com/package/@lit-labs/react) for wrapping is in the
+  [mganjoo/react-gchessboard-chessjs-demo](https://github.com/mganjoo/react-gchessboard-chessjs-demo)
+  repository.
+- Another example of an advanced React app leveraging this library is https://knights-tour-game.vercel.app/ (this one uses [@microsoft/fast-react-wrapper](https://www.npmjs.com/package/@microsoft/fast-react-wrapper) to wrap the component).
 
 ## Customizing
 
