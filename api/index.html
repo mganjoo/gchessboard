@@ -41,7 +41,7 @@
   
   <p>This page describes most attributes, fields, events, and CSS-related artifacts
 that can be used to customize gchessboard.</p>
-<h2 id="attributes" tabindex="-1" class="page-heading">Attributes <a class="page-heading-anchor" href="#attributes">#</a></h2>
+<h2 id="attributes" tabindex="-1" class="page-heading"><a class="header-anchor" href="#attributes">Attributes</a></h2>
 <p>Many aspects of the chessboard can be customized by simply setting HTML
 attributes.</p>
 <pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span> <span class="token attr-name">animation-duration</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>300<span class="token punctuation">"</span></span><span class="token punctuation">></span></span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
@@ -127,7 +127,7 @@ default
   <dd class="grid -mt-3 prose-pre:mb-6"><p>Duration, in milliseconds, of animation when adding/removing/moving pieces.</p>
 </dd>
 </dl>
-<h2 id="other-properties" tabindex="-1" class="page-heading">Other properties <a class="page-heading-anchor" href="#other-properties">#</a></h2>
+<h2 id="other-properties" tabindex="-1" class="page-heading"><a class="header-anchor" href="#other-properties">Other properties</a></h2>
 <p>The following properties accept non-primitive values (objects), and do not
 have a corresponding attribute.</p>
 <dl> 
@@ -141,14 +141,14 @@ corresponding attribute. All changes to position are animated, using the duratio
 specified by the <code>animationDuration</code> property.</p>
 <p>Example:</p>
 <pre class="language-js"><code class="language-js">board<span class="token punctuation">.</span>position <span class="token operator">=</span> <span class="token punctuation">{</span>
-   <span class="token literal-property property">a2</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-     <span class="token literal-property property">pieceType</span><span class="token operator">:</span> <span class="token string">"king"</span><span class="token punctuation">,</span>
-     <span class="token literal-property property">color</span><span class="token operator">:</span> <span class="token string">"white"</span>
-   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-   <span class="token literal-property property">g4</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-     <span class="token literal-property property">pieceType</span><span class="token operator">:</span> <span class="token string">"knight"</span><span class="token punctuation">,</span>
-     <span class="token literal-property property">color</span><span class="token operator">:</span> <span class="token string">"black"</span>
-   <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">a2</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">pieceType</span><span class="token operator">:</span> <span class="token string">"king"</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">color</span><span class="token operator">:</span> <span class="token string">"white"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">g4</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">pieceType</span><span class="token operator">:</span> <span class="token string">"knight"</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">color</span><span class="token operator">:</span> <span class="token string">"black"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 </dd>
@@ -171,21 +171,21 @@ defined with CSS custom properties <code>--arrow-color-primary</code> and
 <code>--arrow-color-secondary</code>.</p>
 <p>Example:</p>
 <pre class="language-js"><code class="language-js">board<span class="token punctuation">.</span>arrows <span class="token operator">=</span> <span class="token punctuation">[</span>
-   <span class="token punctuation">{</span> <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"e2"</span><span class="token punctuation">,</span> <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"e4"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
-   <span class="token punctuation">{</span>
-     <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"g1"</span><span class="token punctuation">,</span>
-     <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"f3"</span><span class="token punctuation">,</span>
-     <span class="token literal-property property">brush</span><span class="token operator">:</span> <span class="token string">"foo"</span>
-   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-   <span class="token punctuation">{</span>
-     <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"c7"</span><span class="token punctuation">,</span>
-     <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"c5"</span><span class="token punctuation">,</span>
-     <span class="token literal-property property">brush</span><span class="token operator">:</span> <span class="token string">"secondary"</span>
-   <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"e2"</span><span class="token punctuation">,</span> <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"e4"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"g1"</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"f3"</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">brush</span><span class="token operator">:</span> <span class="token string">"foo"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"c7"</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"c5"</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">brush</span><span class="token operator">:</span> <span class="token string">"secondary"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">]</span><span class="token punctuation">;</span></code></pre>
 </dd>
 </dl>
-<h2 id="methods" tabindex="-1" class="page-heading">Methods <a class="page-heading-anchor" href="#methods">#</a></h2>
+<h2 id="methods" tabindex="-1" class="page-heading"><a class="header-anchor" href="#methods">Methods</a></h2>
 <dl> 
   <dt class="prose-code:before:content-none prose-code:after:content-none">
     <code>addEventListener</code>
@@ -209,7 +209,7 @@ at <code>targetSquares</code>.</p>
   <dd class="grid -mt-3 prose-pre:mb-6"><p>Imperatively cancel any in-progress moves.</p>
 </dd>
 </dl>
-<h2 id="events" tabindex="-1" class="page-heading">Events <a class="page-heading-anchor" href="#events">#</a></h2>
+<h2 id="events" tabindex="-1" class="page-heading"><a class="header-anchor" href="#events">Events</a></h2>
 <p>gchessboard fires a variety of events in response to user input. You can
 attach a listener to the <code>&lt;g-chess-board&gt;</code> object using
 <code>addEventListener()</code>. Events fired are of type <code>CustomEvent</code>, and contain a
@@ -260,7 +260,7 @@ the move was started, and <code>piece</code> containing information about the pi
 moved.</p>
 </dd>
 </dl>
-<h2 id="css-properties" tabindex="-1" class="page-heading">CSS properties <a class="page-heading-anchor" href="#css-properties">#</a></h2>
+<h2 id="css-properties" tabindex="-1" class="page-heading"><a class="header-anchor" href="#css-properties">CSS properties</a></h2>
 <p>Use these properties to customize visual properties of the chessboard, such as
 square background, outline colors, and markers for move target squares.</p>
 <dl> 
@@ -654,7 +654,7 @@ default
 with brush <code>secondary</code>.</p>
 </dd>
 </dl>
-<h2 id="css-parts" tabindex="-1" class="page-heading">CSS parts <a class="page-heading-anchor" href="#css-parts">#</a></h2>
+<h2 id="css-parts" tabindex="-1" class="page-heading"><a class="header-anchor" href="#css-parts">CSS parts</a></h2>
 <p>gchessboard provides a collection of CSS parts to customize the images used
 for chess pieces on the board, as well as brush color, opacity, and other
 styles associated with arrows drawn on the board.</p>
@@ -677,7 +677,7 @@ for a piece by changing the <code>background-image</code> property).</p>
 <code>brush</code> field on an arrow specification (see the <code>arrows</code> property for more details).</p>
 </dd>
 </dl>
-<h2 id="slots" tabindex="-1" class="page-heading">Slots <a class="page-heading-anchor" href="#slots">#</a></h2>
+<h2 id="slots" tabindex="-1" class="page-heading"><a class="header-anchor" href="#slots">Slots</a></h2>
 <p>gchessboard provides the ability to place arbitrary content on squares using
 <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Slot">named slots</a>.
 Each square has a slot corresponding to its algebraic label (such as

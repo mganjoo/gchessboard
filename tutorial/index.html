@@ -41,15 +41,15 @@
   
   <p>In this tutorial, we will render a chess board component on the page that can
 be used to play a two-player game of chess, with each side taking turns.</p>
-<h2 id="installing" tabindex="-1" class="page-heading">Installing <a class="page-heading-anchor" href="#installing">#</a></h2>
+<h2 id="installing" tabindex="-1" class="page-heading"><a class="header-anchor" href="#installing">Installing</a></h2>
 <p>First, we will install the library and import it into a page. There are two
 ways to do this.</p>
-<h3 id="as-an-npm-package" tabindex="-1" class="page-heading">As an NPM package <a class="page-heading-anchor" href="#as-an-npm-package">#</a></h3>
+<h3 id="as-an-npm-package" tabindex="-1" class="page-heading"><a class="header-anchor" href="#as-an-npm-package">As an NPM package</a></h3>
 <pre class="language-bash"><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> gchessboard</code></pre>
 <pre class="language-js"><code class="language-js"><span class="token keyword">import</span> <span class="token string">"gchessboard"</span><span class="token punctuation">;</span></code></pre>
-<h3 id="via-a-%3Cscript%3E-tag" tabindex="-1" class="page-heading">Via a <code>&lt;script&gt;</code> tag <a class="page-heading-anchor" href="#via-a-%3Cscript%3E-tag">#</a></h3>
+<h3 id="via-a-%3Cscript%3E-tag" tabindex="-1" class="page-heading"><a class="header-anchor" href="#via-a-%3Cscript%3E-tag">Via a <code>&lt;script&gt;</code> tag</a></h3>
 <pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>module<span class="token punctuation">"</span></span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>https://unpkg.com/gchessboard<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></code></pre>
-<h2 id="empty-chessboard" tabindex="-1" class="page-heading">Empty chessboard <a class="page-heading-anchor" href="#empty-chessboard">#</a></h2>
+<h2 id="empty-chessboard" tabindex="-1" class="page-heading"><a class="header-anchor" href="#empty-chessboard">Empty chessboard</a></h2>
 <p>Once the element is imported, we can render it in a page simply by using the
 <code>&lt;g-chess-board&gt;</code> tag:</p>
 <pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
@@ -59,7 +59,7 @@ ways to do this.</p>
 <p>This renders an chess board with default bundled colors and styles, but with no
 pieces on it. For a more interesting board, we will have to override some
 additional attributes.</p>
-<h2 id="adding-pieces" tabindex="-1" class="page-heading">Adding pieces <a class="page-heading-anchor" href="#adding-pieces">#</a></h2>
+<h2 id="adding-pieces" tabindex="-1" class="page-heading"><a class="header-anchor" href="#adding-pieces">Adding pieces</a></h2>
 <p>We can place pieces onto the board by specifying a position. Like most online
 chess libraries, gchessboard accepts a
 <a href="https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation">Forsyth-Edwards Notation (FEN)</a>
@@ -82,7 +82,7 @@ following code:</p>
   have also passed in a full string of "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   and the position would have been rendered correctly.
 </div>
-<h2 id="adding-interactivity" tabindex="-1" class="page-heading">Adding interactivity <a class="page-heading-anchor" href="#adding-interactivity">#</a></h2>
+<h2 id="adding-interactivity" tabindex="-1" class="page-heading"><a class="header-anchor" href="#adding-interactivity">Adding interactivity</a></h2>
 <p>The above boards are static and do not allow any pieces to be moved by the user.
 They are useful if we would like to simply display a chess position on a web
 page, such as in a blog post describing a game or strategy.</p>
@@ -100,7 +100,7 @@ move the piece to that square; and</li>
 <li>using the <strong>keyboard</strong> to move after using <span class="keypress">Tab</span>
 to navigate into the board.</li>
 </ul>
-<h3 id="using-the-keyboard-to-move" tabindex="-1" class="page-heading">Using the keyboard to move <a class="page-heading-anchor" href="#using-the-keyboard-to-move">#</a></h3>
+<h3 id="using-the-keyboard-to-move" tabindex="-1" class="page-heading"><a class="header-anchor" href="#using-the-keyboard-to-move">Using the keyboard to move</a></h3>
 <p>Keyboard-based moves are a unique feature of gchessboard. The library has been
 designed to fit the
 <a href="https://www.w3.org/TR/wai-aria-practices/examples/grid/LayoutGrids.html">ARIA grid design pattern</a>,
@@ -121,7 +121,7 @@ to move to the start and end of a file (column), and
 <span class="keypress">Ctrl</span> + <span class="keypress">Home</span> and
 <span class="keypress">Ctrl</span> + <span class="keypress">End</span> to move
 to the top-left and bottom-right of the board, respectively.</p>
-<h2 id="adding-chess-logic" tabindex="-1" class="page-heading">Adding chess logic <a class="page-heading-anchor" href="#adding-chess-logic">#</a></h2>
+<h2 id="adding-chess-logic" tabindex="-1" class="page-heading"><a class="header-anchor" href="#adding-chess-logic">Adding chess logic</a></h2>
 <p>gchessboard is <em>just</em> a board; it has no notion of the rules of chess or how
 the pieces are allowed to move between squares. To make the component behave
 more like a chess board, gchessboard provides additional attributes, as well
@@ -137,13 +137,13 @@ and update state.</p>
 <p>For this section of the tutorial, we will use the excellent
 <a href="https://github.com/jhlywa/chess.js/">chess.js</a> library to keep update and keep
 track of the state of the game.</p>
-<h3 id="restricting-which-side-can-move-with-the-turn-attribute" tabindex="-1" class="page-heading">Restricting which side can move with the <code>turn</code> attribute <a class="page-heading-anchor" href="#restricting-which-side-can-move-with-the-turn-attribute">#</a></h3>
+<h3 id="restricting-which-side-can-move-with-the-turn-attribute" tabindex="-1" class="page-heading"><a class="header-anchor" href="#restricting-which-side-can-move-with-the-turn-attribute">Restricting which side can move with the <code>turn</code> attribute</a></h3>
 <p>We can use the <code>turn</code> attribute to restrict which side is allowed to move.</p>
 <pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span> <span class="token attr-name">fen</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>start<span class="token punctuation">"</span></span> <span class="token attr-name">interactive</span> <span class="token attr-name">turn</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>white<span class="token punctuation">"</span></span><span class="token punctuation">></span></span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span></code></pre>
 <p>With this change, only the white pieces can be moved. Internally, this also
 removes hover and pointer styles from the black pieces, and sets <code>aria-disabled</code>
 attribute on them so that screen readers do not treat them as clickable.</p>
-<h3 id="update-game-state-with-move-lifecycle-events" tabindex="-1" class="page-heading">Update game state with move lifecycle events <a class="page-heading-anchor" href="#update-game-state-with-move-lifecycle-events">#</a></h3>
+<h3 id="update-game-state-with-move-lifecycle-events" tabindex="-1" class="page-heading"><a class="header-anchor" href="#update-game-state-with-move-lifecycle-events">Update game state with move lifecycle events</a></h3>
 <p>Next, we will restrict where a piece is allowed to move to once a move is
 started, and update the game state after the move has ended. For this, we can
 leverage three events:</p>
