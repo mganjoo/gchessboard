@@ -6,7 +6,7 @@ jobs:
   changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Changelog enforcer
         uses: dangoslen/changelog-enforcer@v3
         with:
