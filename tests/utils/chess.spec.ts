@@ -8,7 +8,7 @@ import {
   getSquareColor,
   getVisualIndex,
   PositionDiff,
-} from "../../src/utils/chess";
+} from "../../src/utils/chess.js";
 
 test.describe("chess utilities", () => {
   test("getSquare()", () => {

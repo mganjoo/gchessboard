@@ -4,7 +4,7 @@ import {
   squareLocator,
   tabIntoBoard,
   expectHasFocus,
-} from "./helpers";
+} from "./helpers.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");

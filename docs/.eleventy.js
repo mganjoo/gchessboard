@@ -11,9 +11,7 @@ const markdownIt = require("markdown-it")({
 })
   .disable("code")
   .use(markdownItAnchor, {
-    permalink: true,
-    permalinkClass: "page-heading-anchor",
-    permalinkSymbol: "#",
+    permalink: markdownItAnchor.permalink.headerLink(),
     level: [1, 2, 3, 4],
   })
   .use(markdownItClass, {
@@ -54,13 +52,7 @@ module.exports = function (eleventyConfig) {
   });
 
   eleventyConfig.addPassthroughCopy({
-    "node_modules/@fontsource/nunito-sans": "css/fonts/nunito-sans",
-  });
-  eleventyConfig.addPassthroughCopy({
     "../dist/index.es.js": "lib/gchessboard.js",
-  });
-  eleventyConfig.addPassthroughCopy({
-    "css/prism.css": "css/prism.css",
   });
 
   return {

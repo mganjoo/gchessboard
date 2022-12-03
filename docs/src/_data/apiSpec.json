@@ -47,7 +47,7 @@
               "kind": "field",
               "name": "position",
               "privacy": "public",
-              "description": "A map-like object representing the board position, where object keys are square\nlabels, and values are `Piece` objects. Note that changes to this property are\nmirrored in the value of the `fen` property of the element, but **not** the\ncorresponding attribute. All changes to position are animated, using the duration\nspecified by the `animationDuration` property.\n\nExample:\n\n```js\nboard.position = {\n   a2: {\n     pieceType: \"king\",\n     color: \"white\"\n   },\n   g4: {\n     pieceType: \"knight\",\n     color: \"black\"\n   },\n};\n```",
+              "description": "A map-like object representing the board position, where object keys are square\nlabels, and values are `Piece` objects. Note that changes to this property are\nmirrored in the value of the `fen` property of the element, but **not** the\ncorresponding attribute. All changes to position are animated, using the duration\nspecified by the `animationDuration` property.\n\nExample:\n\n```js\nboard.position = {\n  a2: {\n    pieceType: \"king\",\n    color: \"white\"\n  },\n  g4: {\n    pieceType: \"knight\",\n    color: \"black\"\n  },\n};\n```",
               "type": "{ a8?: Piece | undefined; b8?: Piece | undefined; c8?: Piece | undefined; d8?: Piece | undefined; e8?: Piece | undefined; f8?: Piece | undefined; ... 57 more ...; h1?: Piece | undefined; }"
             },
             {
@@ -77,14 +77,14 @@
               "kind": "field",
               "name": "arrows",
               "privacy": "public",
-              "description": "Set of arrows to draw on the board. This is an array of objects specifying\narrow characteristics, with the following properties: (1) `from` and `to`\ncorresponding to the start and end squares for the arrow, (2) optional\n`weight` for the line (values: `\"light\"`, `\"normal\"`, `\"bold\"`), and\n(3) `brush`, which is a string that will be used to make a CSS part\nwhere one can customize the color, opacity, and other styles of the\narrow. For example, a value for `brush` of `\"foo\"` will apply a\nCSS part named `arrow-foo` to the arrow.\n\nNote: because the value of `brush` becomes part of a CSS part name, it\nshould be usable as a valid CSS identifier.\n\nIn addition to allowing arbitrary part names, arrows support a few\nout-of-the-box brush names, `primary` and `secondary`, which colors\ndefined with CSS custom properties `--arrow-color-primary` and\n`--arrow-color-secondary`.\n\nExample:\n\n```js\nboard.arrows = [\n   { from: \"e2\", to: \"e4\" },\n   {\n     from: \"g1\",\n     to: \"f3\",\n     brush: \"foo\"\n   },\n   {\n     from: \"c7\",\n     to: \"c5\",\n     brush: \"secondary\"\n   },\n];",
+              "description": "Set of arrows to draw on the board. This is an array of objects specifying\narrow characteristics, with the following properties: (1) `from` and `to`\ncorresponding to the start and end squares for the arrow, (2) optional\n`weight` for the line (values: `\"light\"`, `\"normal\"`, `\"bold\"`), and\n(3) `brush`, which is a string that will be used to make a CSS part\nwhere one can customize the color, opacity, and other styles of the\narrow. For example, a value for `brush` of `\"foo\"` will apply a\nCSS part named `arrow-foo` to the arrow.\n\nNote: because the value of `brush` becomes part of a CSS part name, it\nshould be usable as a valid CSS identifier.\n\nIn addition to allowing arbitrary part names, arrows support a few\nout-of-the-box brush names, `primary` and `secondary`, which colors\ndefined with CSS custom properties `--arrow-color-primary` and\n`--arrow-color-secondary`.\n\nExample:\n\n```js\nboard.arrows = [\n  { from: \"e2\", to: \"e4\" },\n  {\n    from: \"g1\",\n    to: \"f3\",\n    brush: \"foo\"\n  },\n  {\n    from: \"c7\",\n    to: \"c5\",\n    brush: \"secondary\"\n  },\n];",
               "type": "BoardArrow[] | undefined"
             },
             {
               "kind": "method",
               "name": "addEventListener",
               "privacy": "public",
-              "type": "{ <K extends \"movestart\" | \"moveend\" | \"movefinished\" | \"movecancel\">(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean | ... 1 more ... | undefined): void; <K extends \"fullscreenchange\" | ... 90 more ... | \"paste\">(type: K, listener: (this: HTMLElement, ev: HTMLEleme...",
+              "type": "{ <K extends keyof ChessBoardEventMap>(type: K, listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]): any, options?: boolean | ... 1 more ... | undefined): void; <K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | ... 1 mor...",
               "description": "Add listener for events on this element.",
               "parameters": [
                 {
@@ -108,7 +108,7 @@
               "kind": "method",
               "name": "removeEventListener",
               "privacy": "public",
-              "type": "{ <K extends \"movestart\" | \"moveend\" | \"movefinished\" | \"movecancel\">(type: K, listener: (this: HTMLElement, ev: ChessBoardEventMap[K]): any, options?: boolean | ... 1 more ... | undefined): void; <K extends \"fullscreenchange\" | ... 90 more ... | \"paste\">(type: K, listener: (this: HTMLElement, ev: HTMLElementEvent...",
+              "type": "{ <K extends keyof ChessBoardEventMap>(type: K, listener: (this: HTMLElement, ev: ChessBoardEventMap[K]): any, options?: boolean | EventListenerOptions | undefined): void; <K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | ... 1 more...",
               "description": "Remove listener for an event on this element.",
               "parameters": [
                 {

@@ -3,7 +3,7 @@ import postcss from "rollup-plugin-postcss";
 import filesize from "rollup-plugin-filesize";
 import dts from "rollup-plugin-dts";
 import { defineConfig } from "rollup";
-import pkg from "./package.json";
+import pkg from "./package.json" assert { type: "json" };
 
 const inputFile = "src/index.ts";
 const production = process.env.PRODUCTION === "true";
