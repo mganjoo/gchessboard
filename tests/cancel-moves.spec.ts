@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectIsActive, squareLocator, tabIntoBoard } from "./helpers";
+import { expectIsActive, squareLocator, tabIntoBoard } from "./helpers.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");

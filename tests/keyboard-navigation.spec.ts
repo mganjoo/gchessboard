@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { expectHasPiece, tabIntoBoard } from "./helpers";
+import { expectHasPiece, tabIntoBoard } from "./helpers.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");

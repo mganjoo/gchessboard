@@ -4,7 +4,7 @@ import {
   expectIsActive,
   squareLocator,
   tabIntoBoard,
-} from "./helpers";
+} from "./helpers.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");

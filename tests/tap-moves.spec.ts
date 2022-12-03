@@ -1,5 +1,5 @@
 import { test, devices } from "@playwright/test";
-import { expectHasPiece, expectIsActive, squareLocator } from "./helpers";
+import { expectHasPiece, expectIsActive, squareLocator } from "./helpers.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
