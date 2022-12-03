@@ -17,12 +17,4 @@
   .keypress {
     @apply p-1 text-xs border rounded-sm font-monospace border-zinc-600;
   }
-
-  .page-heading-anchor {
-    @apply ml-3 no-underline opacity-0 text-zinc-600 dark:text-zinc-100;
-  }
-
-  .page-heading:hover .page-heading-anchor {
-    @apply opacity-100;
-  }
 }

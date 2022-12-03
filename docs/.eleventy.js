@@ -12,8 +12,6 @@ const markdownIt = require("markdown-it")({
   .disable("code")
   .use(markdownItAnchor, {
     permalink: markdownItAnchor.permalink.headerLink(),
-    class: "page-heading-anchor",
-    symbol: "🔗",
     level: [1, 2, 3, 4],
   })
   .use(markdownItClass, {
