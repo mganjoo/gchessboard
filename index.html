@@ -124,11 +124,11 @@
             `movefinished: ${e.detail.piece.color} ${e.detail.piece.pieceType} from ${e.detail.from}-${e.detail.to}`
           );
           window.placement = board.fen;
-          const movingArrow = { from: e.detail.to, to: "e4" }
+          const movingArrow = { from: e.detail.to, to: "e4" };
           if (!window.movingArrowStartSquare) {
-            arrows = arrows.concat([movingArrow])
+            arrows = arrows.concat([movingArrow]);
           } else {
-            arrows[arrows.length - 1] = movingArrow
+            arrows[arrows.length - 1] = movingArrow;
           }
           window.movingArrowStartSquare = e.detail.to;
           if (window.showSvg) {
