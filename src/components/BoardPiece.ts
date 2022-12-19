@@ -1,6 +1,6 @@
-import { Piece, PieceType, Side } from "../utils/chess";
-import { makeHTMLElement } from "../utils/dom";
-import { assertUnreachable } from "../utils/typing";
+import { Piece, PieceType, Side } from "../utils/chess.js";
+import { makeHTMLElement } from "../utils/dom.js";
+import { assertUnreachable } from "../utils/typing.js";
 
 export type BoardPieceConfig = {
   /**

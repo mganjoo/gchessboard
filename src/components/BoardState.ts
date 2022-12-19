@@ -1,4 +1,4 @@
-import { Square } from "../utils/chess";
+import { Square } from "../utils/chess.js";
 
 export type BoardState =
   | {

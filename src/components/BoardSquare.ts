@@ -1,5 +1,5 @@
-import { getSquareColor, Piece, pieceEqual, Square } from "../utils/chess";
-import { makeHTMLElement } from "../utils/dom";
+import { getSquareColor, Piece, pieceEqual, Square } from "../utils/chess.js";
+import { makeHTMLElement } from "../utils/dom.js";
 import {
   BoardPiece,
   ExplicitPiecePosition,
