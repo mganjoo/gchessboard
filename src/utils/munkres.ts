@@ -32,15 +32,15 @@ const PRIME = 2;
 type Marking = 0 | typeof STAR | typeof PRIME;
 
 class Munkres {
-  C: number[][];
-  n: number;
-  originalRows: number;
-  originalCols: number;
-  marked: Marking[][];
-  rowCovered: boolean[];
-  colCovered: boolean[];
-  Z0Row = 0;
-  Z0Col = 0;
+  private C: number[][];
+  private n: number;
+  private originalRows: number;
+  private originalCols: number;
+  private marked: Marking[][];
+  private rowCovered: boolean[];
+  private colCovered: boolean[];
+  private Z0Row = 0;
+  private Z0Col = 0;
 
   constructor(costMatrix: number[][], padValue?: number) {
     const maxNumColumns = costMatrix.reduce(
@@ -85,21 +85,19 @@ class Munkres {
       6: this._step6,
     };
 
-    for (;;) {
+    while (step < 7) {
       const func = steps[step];
-      if (!func)
-        // done
-        break;
-
       step = func.apply(this);
     }
 
     const results = [];
-    for (let i = 0; i < this.originalRows; ++i)
-      for (let j = 0; j < this.originalCols; ++j)
+    for (let i = 0; i < this.originalRows; i++) {
+      for (let j = 0; j < this.originalCols; j++) {
         if (this.marked[i][j] == STAR) {
           results.push([i, j]);
         }
+      }
+    }
 
     return results;
   }
@@ -109,9 +107,9 @@ class Munkres {
    */
   private _makeMatrix<T>(n: number, val: T) {
     const matrix: T[][] = [];
-    for (let i = 0; i < n; ++i) {
+    for (let i = 0; i < n; i++) {
       const row: T[] = [];
-      for (let j = 0; j < n; ++j) {
+      for (let j = 0; j < n; j++) {
         row.push(val);
       }
       matrix.push(row);
@@ -120,15 +118,13 @@ class Munkres {
   }
 
   /**
-   * For each row of the matrix, find the smallest element and
-   * subtract it from every element in its row. Go to Step 2.
+   * Produce at least one zero in each row by subtracting the smallest
+   * element of each row from every element in a row. Go to Step 2.
    */
   private _step1() {
-    for (let i = 0; i < this.n; ++i) {
-      // Find the minimum value for this row and subtract that minimum
-      // from every element in the row.
+    for (let i = 0; i < this.n; i++) {
       const minval = Math.min(...this.C[i]);
-      for (let j = 0; j < this.n; ++j) {
+      for (let j = 0; j < this.n; j++) {
         this.C[i][j] -= minval;
       }
     }
@@ -136,13 +132,15 @@ class Munkres {
   }
 
   /**
-   * Find a zero (Z) in the resulting matrix. If there is no starred
-   * zero in its row or column, star Z. Repeat for each element in the
-   * matrix. Go to Step 3.
+   * Assign as many tasks as possible:
+   * 1. Find a zero in the matrix, and star it. Temporarily mark row and column.
+   * 2. Find the next zero that is not in an already marked row and column.
+   * 3. Repeat 1.
+   * Go to Step 3.
    */
   private _step2() {
-    for (let i = 0; i < this.n; ++i) {
-      for (let j = 0; j < this.n; ++j) {
+    for (let i = 0; i < this.n; i++) {
+      for (let j = 0; j < this.n; j++) {
         if (this.C[i][j] === 0 && !this.rowCovered[i] && !this.colCovered[j]) {
           this.marked[i][j] = STAR;
           this.rowCovered[i] = true;
@@ -156,15 +154,15 @@ class Munkres {
   }
 
   /**
-   * Cover each column containing a starred zero. If K columns are
-   * covered, the starred zeros describe a complete set of unique
-   * assignments. In this case, Go to DONE, otherwise, Go to Step 4.
+   * Cover each column containing an assignment (starred zero). If K columns
+   * are covered, the starred zeros describe a complete set of unique
+   * assignments. In this case, go to DONE, otherwise, go to Step 4.
    */
   private _step3() {
     let count = 0;
 
-    for (let i = 0; i < this.n; ++i) {
-      for (let j = 0; j < this.n; ++j) {
+    for (let i = 0; i < this.n; i++) {
+      for (let j = 0; j < this.n; j++) {
         if (this.marked[i][j] === STAR && !this.colCovered[j]) {
           this.colCovered[j] = true;
           count++;
@@ -177,13 +175,13 @@ class Munkres {
 
   /**
    * Find an uncovered zero and prime it. If there is no starred zero
-   * in the row containing this primed zero, go to Step 5. Otherwise,
-   * cover this row and uncover the column containing the starred
-   * zero. Continue in this manner until there are no uncovered zeros
-   * left. Go to Step 6.
+   * on that row, go to Step 6. If there is a starred zero on that row,
+   * cover the row, and uncover the column containing the starred
+   * zero. Continue doing this, until we find an uncovered zero with no
+   * starred zero on the same row. Go to Step 5.
    */
   private _step4() {
-    let star_col = -1;
+    let colWithStar = -1;
 
     for (;;) {
       const [row, col] = this._findFirstUncoveredZero();
@@ -192,10 +190,10 @@ class Munkres {
       }
 
       this.marked[row][col] = PRIME;
-      star_col = this._findStarInRow(row);
-      if (star_col >= 0) {
+      colWithStar = this._findStarInRow(row);
+      if (colWithStar >= 0) {
         this.rowCovered[row] = true;
-        this.colCovered[star_col] = false;
+        this.colCovered[colWithStar] = false;
       } else {
         this.Z0Row = row;
         this.Z0Col = col;
@@ -223,7 +221,6 @@ class Munkres {
       if (row < 0) {
         break;
       }
-
       path.push([row, path[count][1]]);
       count++;
 
@@ -246,10 +243,10 @@ class Munkres {
   }
 
   /**
-   * Add the value found in Step 4 to every element of each covered
-   * row, and subtract it from every element of each uncovered column.
-   * Return to Step 4 without altering any stars, primes, or covered
-   * lines.
+   * From the uncovered elements, find the smallest element.
+   * Add that value to every element of each covered row, and subtract it
+   * from every element of each uncovered column. Return to Step 4 without
+   * altering any stars, primes, or covered lines.
    */
   private _step6() {
     const minval = this._findSmallestUncovered();

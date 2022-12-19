@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Small cleanup of Munkres algorithm code and comments
+
 ## [1.1.0] - 2022-12-18
 
 - Add full ".js" extension to all imports, per https://justinfagnani.com/2019/11/01/how-to-publish-web-components-to-npm/
