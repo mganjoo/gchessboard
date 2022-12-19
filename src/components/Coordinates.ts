@@ -1,5 +1,5 @@
-import { Side } from "../utils/chess";
-import { makeHTMLElement } from "../utils/dom";
+import { Side } from "../utils/chess.js";
+import { makeHTMLElement } from "../utils/dom.js";
 
 const COORDINATES_PLACEMENTS = ["inside", "outside", "hidden"] as const;
 export type CoordinatesPlacement = typeof COORDINATES_PLACEMENTS[number];

@@ -9,11 +9,11 @@ import {
   Square,
   keyIsSquare,
   Piece,
-} from "../utils/chess";
-import { makeHTMLElement } from "../utils/dom";
-import { BoardState } from "./BoardState";
-import { assertUnreachable } from "../utils/typing";
-import { BoardSquare } from "./BoardSquare";
+} from "../utils/chess.js";
+import { makeHTMLElement } from "../utils/dom.js";
+import { BoardState } from "./BoardState.js";
+import { assertUnreachable } from "../utils/typing.js";
+import { BoardSquare } from "./BoardSquare.js";
 
 export class Board {
   private readonly _table: HTMLElement;

@@ -6,17 +6,17 @@ import {
   Side,
   Square,
   Piece,
-} from "./utils/chess";
-import { Board } from "./components/Board";
+} from "./utils/chess.js";
+import { Board } from "./components/Board.js";
 import importedStyles from "./style.css";
-import { assertUnreachable } from "./utils/typing";
-import { makeHTMLElement } from "./utils/dom";
+import { assertUnreachable } from "./utils/typing.js";
+import { makeHTMLElement } from "./utils/dom.js";
 import {
   Coordinates,
   CoordinatesPlacement,
   isCoordinatesPlacement,
-} from "./components/Coordinates";
-import { Arrows, BoardArrow } from "./components/Arrows";
+} from "./components/Coordinates.js";
+import { Arrows, BoardArrow } from "./components/Arrows.js";
 
 /**
  * A component that displays a chess board, with optional interactivity. Allows

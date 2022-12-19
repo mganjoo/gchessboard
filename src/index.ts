@@ -4,10 +4,10 @@ import {
   MoveEndEvent,
   MoveFinishedEvent,
   MoveCancelEvent,
-} from "./GChessBoardElement";
-import { Piece, PieceType, Position, Side, Square } from "./utils/chess";
-import { BoardArrow } from "./components/Arrows";
-import { CoordinatesPlacement } from "./components/Coordinates";
+} from "./GChessBoardElement.js";
+import { Piece, PieceType, Position, Side, Square } from "./utils/chess.js";
+import { BoardArrow } from "./components/Arrows.js";
+import { CoordinatesPlacement } from "./components/Coordinates.js";
 
 export { GChessBoardElement };
 export type {

@@ -1,5 +1,5 @@
-import { getVisualRowColumn, Side, Square } from "../utils/chess";
-import { makeSVGElement } from "../utils/dom";
+import { getVisualRowColumn, Side, Square } from "../utils/chess.js";
+import { makeSVGElement } from "../utils/dom.js";
 
 type BoardArrowWeight = "normal" | "light" | "bold";
 
