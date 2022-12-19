@@ -4,6 +4,8 @@
  * https://www.chessprogramming.org/0x88
  */
 
+import { munkres } from "./munkres.js";
+
 export const SQUARE_COLORS = ["light", "dark"] as const;
 export const SIDE_COLORS = ["white", "black"] as const;
 export const PIECE_TYPES = [
@@ -295,33 +297,95 @@ export function calcPositionDiff(
   const moved: Array<{ piece: Piece; oldSquare: Square; newSquare: Square }> =
     [];
 
-  Object.entries(newPositionLimited).forEach(([k, newPiece]) => {
-    const newSquare = k as Square;
-    let minDistance = 15;
-    let closestSquare: Square | undefined;
-    Object.entries(oldPositionLimited).forEach(([l, oldPiece]) => {
-      const oldSquare = l as Square;
-      if (pieceEqual(newPiece, oldPiece)) {
-        const distance = squareDistance(newSquare, oldSquare);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestSquare = oldSquare;
-        }
+  function groupByPiece(position: Position) {
+    return Object.entries(position).reduce((groups, [square, piece]) => {
+      const key = `${piece.color}_${piece.pieceType}`;
+      if (!(key in groups)) {
+        groups[key] = { squares: [], piece };
       }
-    });
-    if (closestSquare !== undefined) {
-      moved.push({ piece: newPiece, oldSquare: closestSquare, newSquare });
-      delete oldPositionLimited[closestSquare];
-      delete newPositionLimited[newSquare];
+      groups[key].squares.push(square as Square);
+      return groups;
+    }, {} as Record<string, { squares: Square[]; piece: Piece }>);
+  }
+
+  function matchSquares(
+    oldSquares: Square[],
+    newSquares: Square[]
+  ): {
+    moved: { oldSquare: Square; newSquare: Square }[];
+    added: Square[];
+    removed: Square[];
+  } {
+    const costMatrix = [];
+    for (let i = 0; i < oldSquares.length; i++) {
+      const row = [];
+      for (let j = 0; j < newSquares.length; j++) {
+        row.push(squareDistance(oldSquares[i], newSquares[j]));
+      }
+      costMatrix.push(row);
+    }
+
+    const matches = munkres(costMatrix, 15);
+    const moved: { oldSquare: Square; newSquare: Square }[] = [];
+    const added: Square[] = [];
+    const removed: Square[] = [];
+    const oldSquaresCopy = oldSquares.slice();
+    const newSquaresCopy = newSquares.slice();
+
+    for (const [i, j] of matches || []) {
+      moved.push({
+        oldSquare: oldSquaresCopy[i],
+        newSquare: newSquaresCopy[j],
+      });
+      delete oldSquaresCopy[i];
+      delete newSquaresCopy[j];
+    }
+    oldSquaresCopy
+      .filter((s) => s !== undefined)
+      .forEach((s) => {
+        removed.push(s);
+      });
+    newSquaresCopy
+      .filter((s) => s !== undefined)
+      .forEach((s) => {
+        added.push(s);
+      });
+
+    return { moved, added, removed };
+  }
+
+  const oldPositionGrouped = groupByPiece(oldPositionLimited);
+  const newPositionGrouped = groupByPiece(newPositionLimited);
+
+  Object.entries(newPositionGrouped).forEach(([k, pieceSquares]) => {
+    if (k in oldPositionGrouped) {
+      const matches = matchSquares(
+        oldPositionGrouped[k].squares,
+        pieceSquares.squares
+      );
+      matches.moved.forEach(({ oldSquare, newSquare }) => {
+        moved.push({ piece: pieceSquares.piece, oldSquare, newSquare });
+      });
+      matches.added.forEach((square) => {
+        added.push({ piece: pieceSquares.piece, square });
+      });
+      matches.removed.forEach((square) => {
+        removed.push({ piece: pieceSquares.piece, square });
+      });
+      delete oldPositionGrouped[k];
+    } else {
+      // Piece only in new position - it is added
+      pieceSquares.squares.forEach((square) => {
+        added.push({ piece: pieceSquares.piece, square });
+      });
     }
   });
 
-  Object.entries(newPositionLimited).forEach(([k, piece]) => {
-    added.push({ piece, square: k as Square });
-  });
-
-  Object.entries(oldPositionLimited).forEach(([k, piece]) => {
-    removed.push({ piece, square: k as Square });
+  // All pieces in old position now are removed
+  Object.entries(oldPositionGrouped).forEach(([, pieceSquares]) => {
+    pieceSquares.squares.forEach((square) => {
+      removed.push({ piece: pieceSquares.piece, square });
+    });
   });
 
   return { added, removed, moved };

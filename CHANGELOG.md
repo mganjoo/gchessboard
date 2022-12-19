@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Add full ".js" extension to all imports, per https://justinfagnani.com/2019/11/01/how-to-publish-web-components-to-npm/
+- Use Hungarian algorithm to find piece "moves" between two positions (#12)
 
 ## [1.0.0] - 2022-12-03
 
