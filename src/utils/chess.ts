@@ -298,95 +298,67 @@ export function calcPositionDiff(
     [];
 
   function groupByPiece(position: Position) {
-    return Object.entries(position).reduce((groups, [square, piece]) => {
-      const key = `${piece.color}_${piece.pieceType}`;
-      if (!(key in groups)) {
-        groups[key] = { squares: [], piece };
+    const groups = {} as Record<
+      Side,
+      Record<PieceType, { squares: Square[]; piece: Piece }>
+    >;
+    for (const color of SIDE_COLORS) {
+      groups[color] = {} as Record<
+        PieceType,
+        { squares: Square[]; piece: Piece }
+      >;
+      for (const pieceType of PIECE_TYPES) {
+        groups[color][pieceType] = { squares: [], piece: { color, pieceType } };
       }
-      groups[key].squares.push(square as Square);
-      return groups;
-    }, {} as Record<string, { squares: Square[]; piece: Piece }>);
-  }
-
-  function matchSquares(
-    oldSquares: Square[],
-    newSquares: Square[]
-  ): {
-    moved: { oldSquare: Square; newSquare: Square }[];
-    added: Square[];
-    removed: Square[];
-  } {
-    const costMatrix = [];
-    for (let i = 0; i < oldSquares.length; i++) {
-      const row = [];
-      for (let j = 0; j < newSquares.length; j++) {
-        row.push(squareDistance(oldSquares[i], newSquares[j]));
-      }
-      costMatrix.push(row);
     }
-
-    const matches = munkres(costMatrix, 15);
-    const moved: { oldSquare: Square; newSquare: Square }[] = [];
-    const added: Square[] = [];
-    const removed: Square[] = [];
-    const oldSquaresCopy = oldSquares.slice();
-    const newSquaresCopy = newSquares.slice();
-
-    for (const [i, j] of matches || []) {
-      moved.push({
-        oldSquare: oldSquaresCopy[i],
-        newSquare: newSquaresCopy[j],
-      });
-      delete oldSquaresCopy[i];
-      delete newSquaresCopy[j];
-    }
-    oldSquaresCopy
-      .filter((s) => s !== undefined)
-      .forEach((s) => {
-        removed.push(s);
-      });
-    newSquaresCopy
-      .filter((s) => s !== undefined)
-      .forEach((s) => {
-        added.push(s);
-      });
-
-    return { moved, added, removed };
+    Object.entries(position).forEach(([square, piece]) => {
+      groups[piece.color][piece.pieceType].squares.push(square as Square);
+    });
+    return groups;
   }
 
   const oldPositionGrouped = groupByPiece(oldPositionLimited);
   const newPositionGrouped = groupByPiece(newPositionLimited);
 
-  Object.entries(newPositionGrouped).forEach(([k, pieceSquares]) => {
-    if (k in oldPositionGrouped) {
-      const matches = matchSquares(
-        oldPositionGrouped[k].squares,
-        pieceSquares.squares
-      );
-      matches.moved.forEach(({ oldSquare, newSquare }) => {
-        moved.push({ piece: pieceSquares.piece, oldSquare, newSquare });
-      });
-      matches.added.forEach((square) => {
-        added.push({ piece: pieceSquares.piece, square });
-      });
-      matches.removed.forEach((square) => {
-        removed.push({ piece: pieceSquares.piece, square });
-      });
-      delete oldPositionGrouped[k];
-    } else {
-      // Piece only in new position - it is added
-      pieceSquares.squares.forEach((square) => {
-        added.push({ piece: pieceSquares.piece, square });
-      });
-    }
-  });
+  for (const pieceType of PIECE_TYPES) {
+    for (const color of SIDE_COLORS) {
+      const piece = { pieceType, color };
+      const oldSquares = [...oldPositionGrouped[color][pieceType].squares];
+      const newSquares = [...newPositionGrouped[color][pieceType].squares];
 
-  // All pieces in old position now are removed
-  Object.entries(oldPositionGrouped).forEach(([, pieceSquares]) => {
-    pieceSquares.squares.forEach((square) => {
-      removed.push({ piece: pieceSquares.piece, square });
-    });
-  });
+      const costMatrix = [];
+      for (let i = 0; i < oldSquares.length; i++) {
+        const row = [];
+        for (let j = 0; j < newSquares.length; j++) {
+          row.push(squareDistance(oldSquares[i], newSquares[j]));
+        }
+        costMatrix.push(row);
+      }
+
+      // Maximum distance between any two squares is 15, so use that as fill
+      const matches = munkres(costMatrix, 15);
+
+      for (const [i, j] of matches || []) {
+        moved.push({
+          piece,
+          oldSquare: oldSquares[i],
+          newSquare: newSquares[j],
+        });
+        delete oldSquares[i];
+        delete newSquares[j];
+      }
+      oldSquares
+        .filter((square) => square !== undefined)
+        .forEach((square) => {
+          removed.push({ piece, square });
+        });
+      newSquares
+        .filter((square) => square !== undefined)
+        .forEach((square) => {
+          added.push({ piece, square });
+        });
+    }
+  }
 
   return { added, removed, moved };
 }
