@@ -94,18 +94,28 @@
             updateGame();
           });
         document
-          .getElementById("btn-position-puzzle")
+          .getElementById("btn-position-puzzle-1")
           .addEventListener("click", () => {
-            window.placement = "8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8";
-            board.fen = "8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8";
+            const fen = "8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8";
+            window.placement = fen;
+            board.fen = fen;
             updateGame();
           });
         document
-          .getElementById("btn-position-empty")
+          .getElementById("btn-position-puzzle-2")
           .addEventListener("click", () => {
-            window.placement = "8/8/8/8/8/8/8/8";
-            board.position = {};
-            game.clear();
+            const fen = "r3kb1r/ppp2ppp/8/8/1PPp2bq/P3PP2/1B2K2P/RN1Q1B1R";
+            window.placement = fen;
+            board.fen = fen;
+            updateGame();
+          });
+        document
+          .getElementById("btn-position-puzzle-3")
+          .addEventListener("click", () => {
+            const fen = "3r1r1k/pp5P/2p2p2/5q2/2P2P2/2Q1P3/PP2K1P1/3R3R";
+            window.placement = fen;
+            board.fen = fen;
+            updateGame();
           });
         board.addEventListener("movestart", (e) => {
           console.log(
@@ -276,8 +286,9 @@
       </div>
       <div class="flex flex-wrap justify-center py-2 gap-x-3 gap-y-2">
         <button id="btn-position-start" class="btn">Start position</button>
-        <button id="btn-position-puzzle" class="btn">Puzzle position</button>
-        <button id="btn-position-empty" class="btn">Empty</button>
+        <button id="btn-position-puzzle-1" class="btn">Puzzle 1</button>
+        <button id="btn-position-puzzle-2" class="btn">Puzzle 2</button>
+        <button id="btn-position-puzzle-3" class="btn">Puzzle 3</button>
       </div>
     </main>
   </body>
