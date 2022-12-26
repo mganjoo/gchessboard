@@ -3,15 +3,15 @@ import { expectHasPiece, tabIntoBoard } from "./helpers.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
+
+  // set to puzzle position
+  await page.click("text=Puzzle 1");
 });
 
 test.describe.parallel("keyboard navigation", () => {
   test("tabbing into board focuses on the first occupied square from the bottom, orientation = white", async ({
     page,
   }) => {
-    // set to puzzle position
-    await page.click("text=Puzzle position");
-
     // tab into chessboard
     await tabIntoBoard(page);
 
@@ -27,9 +27,6 @@ test.describe.parallel("keyboard navigation", () => {
   test("tabbing into board focuses on the first occupied square from the bottom, orientation = black", async ({
     page,
   }) => {
-    // set to puzzle position
-    await page.click("text=Puzzle position");
-
     // flip board and tab into chessboard
     await page.focus("text=Flip");
     await page.keyboard.press("Enter");
@@ -45,9 +42,6 @@ test.describe.parallel("keyboard navigation", () => {
   });
 
   test("navigation with PageUp works correctly", async ({ page }) => {
-    // set to puzzle position
-    await page.click("text=Puzzle position");
-
     // tab into chessboard
     await tabIntoBoard(page);
 
@@ -64,9 +58,6 @@ test.describe.parallel("keyboard navigation", () => {
   });
 
   test("navigation with End works correctly", async ({ page }) => {
-    // set to puzzle position
-    await page.click("text=Puzzle position");
-
     // tab into chessboard
     await tabIntoBoard(page);
 
@@ -80,9 +71,6 @@ test.describe.parallel("keyboard navigation", () => {
   });
 
   test("navigation with Control+End works correctly", async ({ page }) => {
-    // set to puzzle position
-    await page.click("text=Puzzle position");
-
     // tab into chessboard
     await tabIntoBoard(page);
 
@@ -96,9 +84,6 @@ test.describe.parallel("keyboard navigation", () => {
   });
 
   test("navigation with PageDown works correctly", async ({ page }) => {
-    // set to puzzle position
-    await page.click("text=Puzzle position");
-
     // tab into chessboard
     await tabIntoBoard(page);
 
@@ -117,9 +102,6 @@ test.describe.parallel("keyboard navigation", () => {
   });
 
   test("navigation with Home works correctly", async ({ page }) => {
-    // set to puzzle position
-    await page.click("text=Puzzle position");
-
     // tab into chessboard
     await tabIntoBoard(page);
 
@@ -138,9 +120,6 @@ test.describe.parallel("keyboard navigation", () => {
   });
 
   test("navigation with Control+Home works correctly", async ({ page }) => {
-    // set to puzzle position
-    await page.click("text=Puzzle position");
-
     // tab into chessboard
     await tabIntoBoard(page);
 
