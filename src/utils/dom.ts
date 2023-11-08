@@ -38,7 +38,7 @@ export function makeSVGElement<K extends keyof SVGElementTagNameMap>(
 function addOptionsToElement<
   K extends
     | HTMLElementTagNameMap[keyof HTMLElementTagNameMap]
-    | SVGElementTagNameMap[keyof SVGElementTagNameMap]
+    | SVGElementTagNameMap[keyof SVGElementTagNameMap],
 >(
   e: K,
   options?: {

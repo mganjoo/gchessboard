@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Small style fixes
+
 ## [1.1.1] - 2022-12-18
 
 - Small cleanup of Munkres algorithm code and comments

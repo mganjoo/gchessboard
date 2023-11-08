@@ -95,10 +95,7 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   font-family: var(--coords-font-family);
   font-size: var(--coords-font-size);
   background-color: var(--p-square-color);
@@ -230,10 +227,7 @@ table.dragging {
   display: flex;
   width: 100%;
   height: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
 }
 
 .wrapper.inside > .coords > .coord.light {
@@ -289,10 +283,7 @@ table.dragging {
   position: absolute;
   width: 100%;
   height: 100%;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
+  inset: 0;
   pointer-events: none;
 }
 
@@ -386,10 +377,7 @@ table.dragging {
 
 .arrows {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;

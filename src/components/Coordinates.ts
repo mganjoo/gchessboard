@@ -2,7 +2,7 @@ import { Side } from "../utils/chess.js";
 import { makeHTMLElement } from "../utils/dom.js";
 
 const COORDINATES_PLACEMENTS = ["inside", "outside", "hidden"] as const;
-export type CoordinatesPlacement = typeof COORDINATES_PLACEMENTS[number];
+export type CoordinatesPlacement = (typeof COORDINATES_PLACEMENTS)[number];
 type CoordinatesDirection = "file" | "rank";
 
 export class Coordinates {
