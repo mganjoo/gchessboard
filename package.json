@@ -28,7 +28,7 @@
     "serve": "wds --watch",
     "serve:ci": "npm run build && wds",
     "test": "playwright test",
-    "test:ci": "server-test serve:ci 8000",
+    "test:ci": "server-test serve:ci http://localhost:8000",
     "test:debug": "PWDEBUG=1 playwright test",
     "check": "npm run check:types && npm run check:format && npm run check:lint && npm run check:stylelint",
     "check:format": "prettier --check .",
@@ -74,5 +74,8 @@
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "*.{js,jsx,ts,tsx,md,json,yml,yaml}": "prettier --write",
     "*.css": "stylelint --fix"
+  },
+  "prettier": {
+    "trailingComma": "es5"
   }
 }
