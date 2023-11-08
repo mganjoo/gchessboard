@@ -17,9 +17,9 @@ export const PIECE_TYPES = [
   "pawn",
 ] as const;
 
-export type SquareColor = typeof SQUARE_COLORS[number];
-export type Side = typeof SIDE_COLORS[number];
-export type PieceType = typeof PIECE_TYPES[number];
+export type SquareColor = (typeof SQUARE_COLORS)[number];
+export type Side = (typeof SIDE_COLORS)[number];
+export type PieceType = (typeof PIECE_TYPES)[number];
 export type Position = Partial<Record<Square, Piece>>;
 
 export interface Piece {
@@ -60,10 +60,13 @@ const SQUARE_DISTANCE_TABLE = [
   14, 13, 12, 11, 10, 9, 8, 7, 8, 9, 10, 11, 12, 13, 14, 0,
 ]
 
-const REVERSE_SQUARES_MAP = SQUARES.reduce((acc, key) => {
-  acc[SQUARES_MAP[key]] = key;
-  return acc;
-}, {} as Record<number, Square>);
+const REVERSE_SQUARES_MAP = SQUARES.reduce(
+  (acc, key) => {
+    acc[SQUARES_MAP[key]] = key;
+    return acc;
+  },
+  {} as Record<number, Square>
+);
 
 const FEN_PIECE_TYPE_MAP: { [key: string]: PieceType } = {
   p: "pawn",
@@ -75,10 +78,13 @@ const FEN_PIECE_TYPE_MAP: { [key: string]: PieceType } = {
 };
 const REVERSE_FEN_PIECE_TYPE_MAP: Record<PieceType, string> = Object.keys(
   FEN_PIECE_TYPE_MAP
-).reduce((acc, key) => {
-  acc[FEN_PIECE_TYPE_MAP[key]] = key;
-  return acc;
-}, {} as Record<PieceType, string>);
+).reduce(
+  (acc, key) => {
+    acc[FEN_PIECE_TYPE_MAP[key]] = key;
+    return acc;
+  },
+  {} as Record<PieceType, string>
+);
 
 export type PositionDiff = {
   added: Array<{ piece: Piece; square: Square }>;

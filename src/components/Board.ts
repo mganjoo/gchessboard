@@ -982,7 +982,7 @@ export class Board {
    * question, then passes square label and current event to `callback`.
    */
   private _makeEventHandler<
-    K extends PointerEvent | MouseEvent | KeyboardEvent | FocusEvent
+    K extends PointerEvent | MouseEvent | KeyboardEvent | FocusEvent,
   >(
     callback: (this: Board, square: Square | undefined, e: K) => void
   ): (e: K) => void {

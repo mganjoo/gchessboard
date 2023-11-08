@@ -211,7 +211,7 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   attributeChangedCallback(
-    name: typeof GChessBoardElement.observedAttributes[number],
+    name: (typeof GChessBoardElement.observedAttributes)[number],
     _: string | null,
     newValue: string | null
   ) {
