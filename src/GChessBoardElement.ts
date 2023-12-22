@@ -153,6 +153,7 @@ export class GChessBoardElement extends HTMLElement {
   private _shadow: ShadowRoot;
   private _style: HTMLStyleElement;
   private _wrapper: HTMLDivElement;
+  private _boardArrowsWrapper: HTMLDivElement;
   private _board: Board;
   private _fileCoords: Coordinates;
   private _rankCoords: Coordinates;
@@ -175,6 +176,11 @@ export class GChessBoardElement extends HTMLElement {
     });
     this._shadow.appendChild(this._wrapper);
 
+    this._boardArrowsWrapper = makeHTMLElement("div", {
+      classes: ["board-arrows-wrapper"],
+    });
+    this._wrapper.appendChild(this._boardArrowsWrapper);
+
     this._board = new Board(
       {
         orientation: GChessBoardElement._DEFAULT_SIDE,
@@ -183,7 +189,7 @@ export class GChessBoardElement extends HTMLElement {
       (e) => this.dispatchEvent(e),
       this._shadow
     );
-    this._wrapper.appendChild(this._board.element);
+    this._boardArrowsWrapper.appendChild(this._board.element);
 
     this._fileCoords = new Coordinates({
       direction: "file",
@@ -199,7 +205,7 @@ export class GChessBoardElement extends HTMLElement {
     this._wrapper.appendChild(this._rankCoords.element);
 
     this._arrows = new Arrows(GChessBoardElement._DEFAULT_SIDE);
-    this._wrapper.appendChild(this._arrows.element);
+    this._boardArrowsWrapper.appendChild(this._arrows.element);
   }
 
   connectedCallback() {
