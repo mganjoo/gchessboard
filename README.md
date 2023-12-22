@@ -63,6 +63,7 @@ using click, drag, and keyboard (by tabbing into the board).
 ### Integrating with React
 
 The library can be easily integrated with React, using a wrapper class:
+
 - Demo using [@lit/react](https://www.npmjs.com/package/@lit/react) for wrapping: [mganjoo/react-gchessboard-chessjs-demo](https://github.com/mganjoo/react-gchessboard-chessjs-demo) ([wrapper source](https://github.com/mganjoo/react-gchessboard-chessjs-demo/blob/main/src/GChessBoard.tsx)).
 - Advanced React app using [@microsoft/fast-react-wrapper](https://www.npmjs.com/package/@microsoft/fast-react-wrapper) for wrapping: https://knights-tour-game.vercel.app/ ([wrapper source](https://github.com/mganjoo/knights-tour-game/blob/main/src/util/GChessBoard.ts)).
 
