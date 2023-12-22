@@ -58,11 +58,13 @@ using click, drag, and keyboard (by tabbing into the board).
 - View an example of a computer playing random moves in response to player input, see [this Pen](https://codepen.io/mganjoo/full/PoObVbx).
 - The development page ([index.html](index.html)) for this library
   also includes some advanced setup, including the use of custom slots, event handling, and changing
-  various properties and attributes of the board. See the [Developing](#developing) section for more details.
-- The library can be easily wrapped with React. A demo using [@lit-labs/react](https://www.npmjs.com/package/@lit-labs/react) for wrapping is in the
-  [mganjoo/react-gchessboard-chessjs-demo](https://github.com/mganjoo/react-gchessboard-chessjs-demo)
-  repository.
-- Another example of an advanced React app leveraging this library is https://knights-tour-game.vercel.app/ (this one uses [@microsoft/fast-react-wrapper](https://www.npmjs.com/package/@microsoft/fast-react-wrapper) to wrap the component).
+  various properties and attributes of the board. See the [Developing](#developing) section for more details on how to run the demo.
+
+### Integrating with React
+
+The library can be easily integrated with React, using a wrapper class:
+- Demo using [@lit/react](https://www.npmjs.com/package/@lit/react) for wrapping: [mganjoo/react-gchessboard-chessjs-demo](https://github.com/mganjoo/react-gchessboard-chessjs-demo) ([wrapper source](https://github.com/mganjoo/react-gchessboard-chessjs-demo/blob/main/src/GChessBoard.tsx)).
+- Advanced React app using [@microsoft/fast-react-wrapper](https://www.npmjs.com/package/@microsoft/fast-react-wrapper) for wrapping: https://knights-tour-game.vercel.app/ ([wrapper source](https://github.com/mganjoo/knights-tour-game/blob/main/src/util/GChessBoard.ts)).
 
 ## Customizing
 
