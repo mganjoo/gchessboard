@@ -58,7 +58,7 @@ using click, drag, and keyboard (by tabbing into the board).
 - View an example of a computer playing random moves in response to player input, see [this Pen](https://codepen.io/mganjoo/full/PoObVbx).
 - The development page ([index.html](index.html)) for this library
   also includes some advanced setup, including the use of custom slots, event handling, and changing
-  various properties and attributes of the board.
+  various properties and attributes of the board. See the [Developing](#developing) section for more details.
 - The library can be easily wrapped with React. A demo using [@lit-labs/react](https://www.npmjs.com/package/@lit-labs/react) for wrapping is in the
   [mganjoo/react-gchessboard-chessjs-demo](https://github.com/mganjoo/react-gchessboard-chessjs-demo)
   repository.
@@ -67,6 +67,17 @@ using click, drag, and keyboard (by tabbing into the board).
 ## Customizing
 
 More details on properties and attributes of the element, events fired, and various customizable CSS properties are available in [the API documentation](https://mganjoo.github.io/gchessboard/api/).
+
+## Developing
+
+To start a server that builds the library and serves the demo page `index.html`
+and watches for any changes to the filesystem:
+
+```
+npm start
+```
+
+This will create a server and serve on http://localhost:8000/.
 
 ## Attribution
 

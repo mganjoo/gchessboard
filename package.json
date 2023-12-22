@@ -25,7 +25,7 @@
     "build:dev": "rollup -c -w",
     "build:api": "wca analyze src/GChessBoardElement.ts --format json2 --outFile docs/src/_data/apiSpec.json --inlineTypes",
     "build:package": "rm -rf dist && npm run build:api && npm run build",
-    "serve": "wds --watch",
+    "serve": "wds --node-resolve --open --watch",
     "serve:ci": "npm run build && wds",
     "test": "playwright test",
     "test:ci": "server-test serve:ci http://localhost:8000",
