@@ -157,13 +157,18 @@ table.dragging {
   cursor: grab;
 }
 
+/***********
+ * Wrappes *
+ ***********/
+
+.wrapper,
+.board-arrows-wrapper {
+  position: relative;
+}
+
 /***************
  * Coordinates *
  ***************/
-
-.wrapper {
-  position: relative;
-}
 
 .coords {
   display: none;
