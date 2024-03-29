@@ -81,19 +81,26 @@ Each square has a slot corresponding to its algebraic label (such as
 attribute set to a square label will have its content placed on the correct
 square.
 
+Slotted elements appear behind pieces by default, so they provide a simple
+way to set a square background color using an empty `<div>` element with
+full height.
+
 <!-- prettier-ignore-start -->
+
 {% chessboard %}
-<g-chess-board>
-  <span slot="e5">
+<g-chess-board fen="8/8/8/8/2R5/8/8/8" interactive>
+
+  <div slot="e5">
     <svg viewBox="0 0 10 10" stroke="black" fill="none">
       <ellipse cx="5" cy="5" rx="4" ry="3" />
     </svg>
-  </span>
-  <span slot="c3">
+  </div>
+  <div slot="c3">
     <svg viewBox="0 0 10 10" stroke="goldenrod" fill="none">
       <polygon points="1,5 4,2 8,7" />
     </svg>
-  </span>
+  </div>
+  <div slot="c4" style="background-color: firebrick; height: 100%;"></div>
 </g-chess-board>
 {% endchessboard %}
 <!-- prettier-ignore-end -->
