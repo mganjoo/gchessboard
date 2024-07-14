@@ -11,11 +11,7 @@ export class Coordinates {
   private _orientation: Side;
   private readonly _direction: CoordinatesDirection;
 
-  constructor(props: {
-    direction: CoordinatesDirection;
-    placement: CoordinatesPlacement;
-    orientation: Side;
-  }) {
+  constructor(props: { direction: CoordinatesDirection; orientation: Side }) {
     this.element = makeHTMLElement("div", {
       attributes: {
         role: "presentation",

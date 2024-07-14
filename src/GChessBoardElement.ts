@@ -193,12 +193,10 @@ export class GChessBoardElement extends HTMLElement {
 
     this._fileCoords = new Coordinates({
       direction: "file",
-      placement: GChessBoardElement._DEFAULT_COORDS_PLACEMENT,
       orientation: GChessBoardElement._DEFAULT_SIDE,
     });
     this._rankCoords = new Coordinates({
       direction: "rank",
-      placement: GChessBoardElement._DEFAULT_COORDS_PLACEMENT,
       orientation: GChessBoardElement._DEFAULT_SIDE,
     });
     this._wrapper.appendChild(this._fileCoords.element);
