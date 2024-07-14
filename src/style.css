@@ -80,7 +80,6 @@
 
   /* Prevent native dragging caused if any of the children are "selected". */
   user-select: none;
-  touch-action: none;
 }
 
 .board > tr > td {
@@ -114,6 +113,11 @@
     var(--p-move-target-marker-color) var(--move-target-marker-radius),
     var(--p-square-color) calc(var(--move-target-marker-radius) + 1px)
   );
+}
+
+[data-square]:is(.moveable) {
+  /* Disable default touch actions like drag if square has a moveable piece. */
+  touch-action: none;
 }
 
 [data-square].has-piece.marked-target,
