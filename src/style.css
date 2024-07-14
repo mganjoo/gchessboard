@@ -62,49 +62,51 @@
   --arrow-color-primary: hsl(40deg 100% 50% / 80%);
   --arrow-color-secondary: hsl(7deg 93% 61% / 80%);
 
+  /* Change from default `display` attribute, which is inline. */
   display: block;
 }
 
-/* Ensure that 'hidden' attribute is respected despite above display override. */
 :host([hidden]) {
+  /* Ensure that 'hidden' attribute is respected despite display override. */
   display: none;
 }
 
 .board {
   width: 100%;
   box-sizing: border-box;
-  table-layout: fixed;
-  border-collapse: collapse;
   border: var(--inner-border-width) solid
     var(--inner-border-color, var(--square-color-dark));
+  border-collapse: collapse;
+  table-layout: fixed;
 
-  /* Prevent native dragging caused if any of the children are "selected". */
+  /* Prevent native selection action on any of the children. */
   user-select: none;
 }
 
 .board > tr > td {
+  position: relative;
+
   /* Width of table cell is implicitly 12.5% because row will have
      exactly 8 columns and `table-layout` is fixed. Padding of 12.5% * width
      ensures square aspect ratio. */
   padding: 12.5% 0 0;
-  position: relative;
 }
 
 [data-square] {
   position: absolute;
   width: 100%;
   height: 100%;
-  inset: 0;
-  font-family: var(--coords-font-family);
-  font-size: var(--coords-font-size);
   background-color: var(--p-square-color);
   color: var(--p-label-color);
+  font-family: var(--coords-font-family);
+  font-size: var(--coords-font-size);
+  inset: 0;
 }
 
 [data-square]:focus {
-  outline: none;
   box-shadow: inset 0 0 var(--outline-blur-radius) var(--outline-spread-radius)
     var(--outline-color-focus);
+  outline: none;
 }
 
 [data-square].marked-target {
@@ -115,7 +117,7 @@
   );
 }
 
-[data-square]:is(.moveable) {
+[data-square].moveable {
   /* Disable default touch actions like drag if square has a moveable piece. */
   touch-action: none;
 }
@@ -175,18 +177,18 @@ table.dragging {
  ***************/
 
 .coords {
-  display: none;
   position: absolute;
+  display: none;
+  font-family: var(--coords-font-family);
+  font-size: var(--coords-font-size);
   pointer-events: none;
   touch-action: none;
   user-select: none;
-  font-family: var(--coords-font-family);
-  font-size: var(--coords-font-size);
 }
 
 .coord {
-  box-sizing: border-box;
   display: flex;
+  box-sizing: border-box;
 }
 
 .coords.file > .coord {
@@ -212,24 +214,24 @@ table.dragging {
 }
 
 .wrapper.outside > .coords > .coord {
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
 .wrapper.outside > .coords.file {
-  width: calc(100% - 2 * var(--outer-gutter-width));
-  height: var(--outer-gutter-width);
+  right: var(--outer-gutter-width);
   bottom: 0;
   left: var(--outer-gutter-width);
-  right: var(--outer-gutter-width);
+  width: calc(100% - 2 * var(--outer-gutter-width));
+  height: var(--outer-gutter-width);
 }
 
 .wrapper.outside > .coords.rank {
-  width: var(--outer-gutter-width);
-  height: calc(100% - 2 * var(--outer-gutter-width));
-  left: 0;
   top: var(--outer-gutter-width);
   bottom: var(--outer-gutter-width);
+  left: 0;
+  width: var(--outer-gutter-width);
+  height: calc(100% - 2 * var(--outer-gutter-width));
 }
 
 .wrapper.inside > .coords {
@@ -248,8 +250,8 @@ table.dragging {
 }
 
 .wrapper.inside > .coords.file > .coord {
-  justify-content: flex-end;
   align-items: flex-end;
+  justify-content: flex-end;
   padding-right: var(--coords-inside-coord-padding-right);
 }
 
@@ -285,10 +287,10 @@ table.dragging {
  * Piece styles *
  ****************/
 
-/* Always use absolute positioning for pieces and slotted
-   content (custom SVGs, custom content etc) */
 [data-square] .piece,
 [data-square] .slot {
+  /* Always use absolute positioning for pieces and slotted
+    content (custom SVGs, custom content etc) */
   position: absolute;
   width: 100%;
   height: 100%;
@@ -298,13 +300,13 @@ table.dragging {
 
 [data-square] .piece {
   z-index: 10;
-  background-size: cover;
-  background-repeat: no-repeat;
   box-sizing: border-box;
   padding: var(--piece-padding);
 
   /* Make background placement respect padding. */
   background-origin: content-box;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 [data-square] .piece.moving {
@@ -386,14 +388,14 @@ table.dragging {
 
 .arrows {
   position: absolute;
-  inset: 0;
+  z-index: 20;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
+  border: var(--inner-border-width) solid transparent;
+  inset: 0;
   pointer-events: none;
   touch-action: none;
-  z-index: 20;
-  border: var(--inner-border-width) solid transparent;
-  box-sizing: border-box;
 }
 
 .arrow-primary {
