@@ -13,15 +13,15 @@
     "@11ty/eleventy": "^2.0.1",
     "@11ty/eleventy-navigation": "^0.3.5",
     "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
-    "@fontsource/nunito-sans": "^5.0.8",
-    "@tailwindcss/typography": "^0.5.10",
+    "@fontsource/nunito-sans": "^5.0.13",
+    "@tailwindcss/typography": "^0.5.13",
     "@toycode/markdown-it-class": "^1.2.4",
     "concurrently": "^8.2.2",
     "eleventy-plugin-toc": "^1.1.5",
-    "markdown-it": "^13.0.2",
-    "markdown-it-anchor": "^8.6.7",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.0.1",
     "markdown-it-prism": "^2.3.0",
     "outdent": "^0.8.0",
-    "tailwindcss": "^3.3.5"
+    "tailwindcss": "^3.4.4"
   }
 }
