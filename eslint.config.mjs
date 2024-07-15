@@ -11,7 +11,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   eslintConfigPrettier,
   {
-    files: ["docs/.eleventy.js", "*.11tydata.js"],
+    files: ["**/*.{cjs,11tydata.js}", "docs/.eleventy.js"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },
