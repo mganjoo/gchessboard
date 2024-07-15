@@ -450,7 +450,6 @@ export class GChessBoardElement extends HTMLElement {
     listener: (this: GChessBoardElement, ev: ChessBoardEventMap[K]) => any,
     options?: boolean | AddEventListenerOptions
   ): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addEventListener<K extends keyof HTMLElementEventMap>(
     type: K,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
