@@ -24,6 +24,7 @@ module.exports = {
     "dist",
     "rollup.config.js",
     "!docs/.eleventy.js",
+    "!.release-it.ts",
     "playwright-report",
     "_site",
   ],

@@ -1,6 +1,6 @@
 import { PlaywrightTestConfig, devices } from "@playwright/test";
 
-const config: PlaywrightTestConfig = {
+export default {
   projects: [
     {
       name: "chromium",
@@ -24,5 +24,4 @@ const config: PlaywrightTestConfig = {
     baseURL: "http://localhost:8000",
     trace: "on-first-retry",
   },
-};
-export default config;
+} satisfies PlaywrightTestConfig;

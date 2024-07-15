@@ -1,4 +1,5 @@
-module.exports = {
+/** @type {import('postcss-load-config').Config} */
+const config = {
   plugins: {
     autoprefixer: {},
     "postcss-url": {
@@ -8,3 +9,5 @@ module.exports = {
     },
   },
 };
+
+module.exports = config;
