@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { test, expect } from "@playwright/test";
 import {
   calcPositionDiff,

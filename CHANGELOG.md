@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Small style cleanups.
+- Small style cleanups and update to ESLint version.
 
 ## [1.3.0] - 2024-07-13
 
