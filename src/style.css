@@ -64,6 +64,19 @@
 
   /* Change from default `display` attribute, which is inline. */
   display: block;
+
+  --piece-img-bb: url("../pieces/bb.svg");
+  --piece-img-bk: url("../pieces/bk.svg");
+  --piece-img-bn: url("../pieces/bn.svg");
+  --piece-img-bp: url("../pieces/bp.svg");
+  --piece-img-bq: url("../pieces/bq.svg");
+  --piece-img-br: url("../pieces/br.svg");
+  --piece-img-wb: url("../pieces/wb.svg");
+  --piece-img-wk: url("../pieces/wk.svg");
+  --piece-img-wn: url("../pieces/wn.svg");
+  --piece-img-wp: url("../pieces/wp.svg");
+  --piece-img-wq: url("../pieces/wq.svg");
+  --piece-img-wr: url("../pieces/wr.svg");
 }
 
 :host([hidden]) {
@@ -335,51 +348,51 @@ table.dragging {
  **********/
 
 .bb {
-  background-image: url("../pieces/bb.svg");
+  background-image: var(--piece-img-bb);
 }
 
 .bk {
-  background-image: url("../pieces/bk.svg");
+  background-image: var(--piece-img-bk);
 }
 
 .bn {
-  background-image: url("../pieces/bn.svg");
+  background-image: var(--piece-img-bn);
 }
 
 .bp {
-  background-image: url("../pieces/bp.svg");
+  background-image: var(--piece-img-bp);
 }
 
 .bq {
-  background-image: url("../pieces/bq.svg");
+  background-image: var(--piece-img-bq);
 }
 
 .br {
-  background-image: url("../pieces/br.svg");
+  background-image: var(--piece-img-br);
 }
 
 .wb {
-  background-image: url("../pieces/wb.svg");
+  background-image: var(--piece-img-wb);
 }
 
 .wk {
-  background-image: url("../pieces/wk.svg");
+  background-image: var(--piece-img-wk);
 }
 
 .wn {
-  background-image: url("../pieces/wn.svg");
+  background-image: var(--piece-img-wn);
 }
 
 .wp {
-  background-image: url("../pieces/wp.svg");
+  background-image: var(--piece-img-wp);
 }
 
 .wq {
-  background-image: url("../pieces/wq.svg");
+  background-image: var(--piece-img-wq);
 }
 
 .wr {
-  background-image: url("../pieces/wr.svg");
+  background-image: var(--piece-img-wr);
 }
 
 /**********
