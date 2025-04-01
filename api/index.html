@@ -681,7 +681,7 @@ for a piece by changing the <code>background-image</code> property).</p>
 <!-- prettier-ignore-start -->
 <pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span> <span class="token attr-name">fen</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>start<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>custom-board<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript">
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>module<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript">
 document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"custom-board"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>arrows <span class="token operator">=</span> <span class="token punctuation">[</span>
   <span class="token comment">// The brush name can later be referenced in styles</span>
   <span class="token punctuation">{</span> <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"d2"</span><span class="token punctuation">,</span> <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"d4"</span><span class="token punctuation">,</span> <span class="token literal-property property">brush</span><span class="token operator">:</span> <span class="token string">"custom-arrow"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
@@ -700,7 +700,7 @@ document<span class="token punctuation">.</span><span class="token function">get
 <div class="chessboard-wrapper">
 <g-chess-board fen="start" id="custom-board">
 </g-chess-board>
-<script>
+<script type="module">
 document.getElementById("custom-board").arrows = [
   // The brush name can later be referenced in styles
   { from: "d2", to: "d4", brush: "custom-arrow" },
