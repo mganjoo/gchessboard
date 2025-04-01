@@ -72,6 +72,30 @@ styles associated with arrows drawn on the board.
 
 <dl>{%- for part in cssParts %} {{ apiprop(part) }} {%- endfor %}</dl>
 
+<!-- prettier-ignore-start -->
+
+{% chessboard %}
+<g-chess-board fen="start" id="custom-board">
+</g-chess-board>
+<script>
+document.getElementById("custom-board").arrows = [
+  // The brush name can later be referenced in styles
+  { from: "d2", to: "d4", brush: "custom-arrow" },
+];
+</script>
+<style>
+  /* Style for (b)lack (q)ueen */
+  #custom-board::part(piece-bq) {
+    background-image: url("../images/crown.jpg");
+  }
+  /* Style for arrow with brush name "custom-arrow" */
+  #custom-board::part(arrow-custom-arrow) {
+    color: fuchsia;
+  }
+</style>
+{% endchessboard %}
+<!-- prettier-ignore-end -->
+
 ## Slots
 
 gchessboard provides the ability to place arbitrary content on squares using

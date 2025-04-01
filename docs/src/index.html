@@ -101,6 +101,9 @@ board.arrows = [
   --square-color-dark: hsl(27deg, 36%, 55%);
   --square-color-light: hsl(37deg, 66%, 83%);
 }
+#styled::part(piece-bq) {
+  background-image: url("images/crown.jpg")
+}
       {% endhighlight %}
     </div>
     <div class="max-w-md mx-auto lg:mx-0 lg:max-w-full">
@@ -109,6 +112,9 @@ board.arrows = [
         #styled {
           --square-color-dark: hsl(27deg, 36%, 55%);
           --square-color-light: hsl(37deg, 66%, 83%);
+        }
+        #styled::part(piece-bq) {
+          background-image: url("images/crown.jpg")
         }
       </style>
     </div>

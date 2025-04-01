@@ -54,6 +54,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({
     "../dist/index.es.js": "lib/gchessboard.js",
   });
+  eleventyConfig.addPassthroughCopy("images");
 
   return {
     dir: {
