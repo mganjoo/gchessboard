@@ -678,6 +678,46 @@ for a piece by changing the <code>background-image</code> property).</p>
 <code>brush</code> field on an arrow specification (see the <code>arrows</code> property for more details).</p>
 </dd>
 </dl>
+<!-- prettier-ignore-start -->
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span> <span class="token attr-name">fen</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>start<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>custom-board<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript">
+document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"custom-board"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>arrows <span class="token operator">=</span> <span class="token punctuation">[</span>
+  <span class="token comment">// The brush name can later be referenced in styles</span>
+  <span class="token punctuation">{</span> <span class="token literal-property property">from</span><span class="token operator">:</span> <span class="token string">"d2"</span><span class="token punctuation">,</span> <span class="token literal-property property">to</span><span class="token operator">:</span> <span class="token string">"d4"</span><span class="token punctuation">,</span> <span class="token literal-property property">brush</span><span class="token operator">:</span> <span class="token string">"custom-arrow"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>style</span><span class="token punctuation">></span></span><span class="token style"><span class="token language-css">
+  <span class="token comment">/* Style for (b)lack (q)ueen */</span>
+  <span class="token selector">#custom-board::part(piece-bq)</span> <span class="token punctuation">{</span>
+    <span class="token property">background-image</span><span class="token punctuation">:</span> <span class="token url"><span class="token function">url</span><span class="token punctuation">(</span><span class="token string url">"../images/crown.jpg"</span><span class="token punctuation">)</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">/* Style for arrow with brush name "custom-arrow" */</span>
+  <span class="token selector">#custom-board::part(arrow-custom-arrow)</span> <span class="token punctuation">{</span>
+    <span class="token property">color</span><span class="token punctuation">:</span> fuchsia<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>style</span><span class="token punctuation">></span></span></code></pre>
+<div class="chessboard-wrapper">
+<g-chess-board fen="start" id="custom-board">
+</g-chess-board>
+<script>
+document.getElementById("custom-board").arrows = [
+  // The brush name can later be referenced in styles
+  { from: "d2", to: "d4", brush: "custom-arrow" },
+];
+</script>
+<style>
+  /* Style for (b)lack (q)ueen */
+  #custom-board::part(piece-bq) {
+    background-image: url("../images/crown.jpg");
+  }
+  /* Style for arrow with brush name "custom-arrow" */
+  #custom-board::part(arrow-custom-arrow) {
+    color: fuchsia;
+  }
+</style>
+</div>
+<!-- prettier-ignore-end -->
 <h2 id="slots" tabindex="-1" class="page-heading"><a class="header-anchor" href="#slots">Slots</a></h2>
 <p>gchessboard provides the ability to place arbitrary content on squares using
 <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Slot">named slots</a>.

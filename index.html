@@ -119,6 +119,9 @@ board<span class="token punctuation">.</span>arrows <span class="token operator"
       <pre class="language-css"><code class="language-css"><span class="token selector">#styled</span> <span class="token punctuation">{</span>
   <span class="token property">--square-color-dark</span><span class="token punctuation">:</span> <span class="token function">hsl</span><span class="token punctuation">(</span>27deg<span class="token punctuation">,</span> 36%<span class="token punctuation">,</span> 55%<span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token property">--square-color-light</span><span class="token punctuation">:</span> <span class="token function">hsl</span><span class="token punctuation">(</span>37deg<span class="token punctuation">,</span> 66%<span class="token punctuation">,</span> 83%<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token selector">#styled::part(piece-bq)</span> <span class="token punctuation">{</span>
+  <span class="token property">background-image</span><span class="token punctuation">:</span> <span class="token url"><span class="token function">url</span><span class="token punctuation">(</span><span class="token string url">"images/crown.jpg"</span><span class="token punctuation">)</span></span>
 <span class="token punctuation">}</span></code></pre>
     </div>
     <div class="max-w-md mx-auto lg:mx-0 lg:max-w-full">
@@ -127,6 +130,9 @@ board<span class="token punctuation">.</span>arrows <span class="token operator"
         #styled {
           --square-color-dark: hsl(27deg, 36%, 55%);
           --square-color-light: hsl(37deg, 66%, 83%);
+        }
+        #styled::part(piece-bq) {
+          background-image: url("images/crown.jpg")
         }
       </style>
     </div>
