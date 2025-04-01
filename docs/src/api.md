@@ -77,7 +77,7 @@ styles associated with arrows drawn on the board.
 {% chessboard %}
 <g-chess-board fen="start" id="custom-board">
 </g-chess-board>
-<script>
+<script type="module">
 document.getElementById("custom-board").arrows = [
   // The brush name can later be referenced in styles
   { from: "d2", to: "d4", brush: "custom-arrow" },
