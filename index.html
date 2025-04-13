@@ -10,6 +10,7 @@
     <script type="module">
       window.addEventListener("DOMContentLoaded", () => {
         const board = document.getElementById("board");
+        const highlightsMap = {};
         let arrows = [
           { from: "c7", to: "f4" },
           { from: "b3", to: "f4", brush: "foobar", weight: "light" },
@@ -146,6 +147,30 @@
           }
           updateGame();
         });
+        board.addEventListener("secondaryclick", (e) => {
+          if (highlightsMap[e.detail.square]) {
+            document.getElementById("board").removeChild(highlightsMap[e.detail.square]);
+            delete highlightsMap[e.detail.square];
+          } else {
+            console.log(
+              `secondaryclick: ${e.detail.square}`
+            );
+            highlightsMap[e.detail.square] = document.createElement("div");
+            highlightsMap[e.detail.square].className = "highlighted-square";
+            highlightsMap[e.detail.square].slot = e.detail.square;
+            document.getElementById("board").appendChild(
+              highlightsMap[e.detail.square]
+            );
+          }
+        });
+        board.addEventListener("secondarydragged", (e) => {
+          const customArrow = {
+            from: e.detail.from,
+            to: e.detail.to,
+            brush: "manual",
+          }
+          board.arrows = [...(board.arrows || []), customArrow];
+        });
       });
     </script>
     <style type="text/tailwindcss">
@@ -160,6 +185,9 @@
       }
       .sel {
         @apply rounded-md px-2 py-1 w-24 text-gray-900 text-sm border-gray-300 focus:border-green-300 focus:ring focus:ring-green-400 focus:ring-offset-1 focus:ring-offset-gray-100 dark:border-transparent dark:focus:border-transparent dark:focus:ring-offset-gray-900 dark:focus:ring-green-300/75;
+      }
+      .highlighted-square {
+        @apply bg-red-400/50 w-full h-full;
       }
     </style>
     <style>
@@ -176,9 +204,12 @@
         /* Black queen unicode */
         content: "\2655";
       }
-      g-chess-board.custom-queen::part(arrow-foobar) {
+      g-chess-board::part(arrow-foobar) {
         color: salmon;
         opacity: 0.8;
+      }
+      g-chess-board::part(arrow-manual) {
+        color: goldenrod;
       }
     </style>
   </head>
