@@ -57,6 +57,14 @@ import { Arrows, BoardArrow } from "./components/Arrows.js";
  *   the move was started, and `piece` containing information about the piece that was
  *   moved.
  *
+ * @fires secondaryclick - Fired when the user right clicks within the board.
+ *   The event has a `detail` object with `square` set to the square that was
+ *   clicked.
+ *
+ * @fires secondarydragged - Fired when the user drags the mouse on the board
+ *  after a right (secondary) click. The event has a `detail` object with `from` set to the square where the
+ *  drag started, `to` set to the square where the drag ended.
+ *
  * @cssprop [--square-color-dark=hsl(145deg 32% 44%)] - Color for dark squares.
  * @cssprop [--square-color-light=hsl(51deg 24% 84%)] - Color for light squares.
  *
@@ -579,6 +587,15 @@ export interface MoveCancelEvent {
   piece: Piece;
 }
 
+export interface SecondaryClickEvent {
+  square: Square;
+}
+
+export interface SecondaryDraggedEvent {
+  from: Square;
+  to: Square;
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     "g-chess-board": GChessBoardElement;
@@ -589,5 +606,7 @@ declare global {
     moveend: CustomEvent<MoveEndEvent>;
     movefinished: CustomEvent<MoveFinishedEvent>;
     movecancel: CustomEvent<MoveCancelEvent>;
+    secondaryclick: CustomEvent<SecondaryClickEvent>;
+    secondarydragged: CustomEvent<SecondaryDraggedEvent>;
   }
 }

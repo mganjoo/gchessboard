@@ -34,6 +34,26 @@ export type BoardState =
       highlightedSquare?: undefined;
     }
   | {
+      id: "right-touching-square";
+      startSquare: Square;
+      // Must be defined and equal to previously highlighted square
+      // since the right touch is a secondary state that should not
+      // interfere with the primary state
+      highlightedSquare: Square | undefined;
+      currentSquare: Square;
+      returnState: BoardState;
+    }
+  | {
+      id: "right-dragging";
+      startSquare: Square;
+      // Must be defined and equal to previously highlighted square
+      // since the right touch is a secondary state that should not
+      // interfere with the primary state
+      highlightedSquare: Square | undefined;
+      currentSquare: Square;
+      returnState: BoardState;
+    }
+  | {
       id: "moving-piece-kb";
       startSquare: Square;
       highlightedSquare: Square | undefined;

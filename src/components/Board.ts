@@ -43,6 +43,7 @@ export class Board {
   private _clickHandler: (e: MouseEvent) => void;
   private _focusInHandler: (e: FocusEvent) => void;
   private _keyDownHandler: (e: KeyboardEvent) => void;
+  private _contextMenuHandler: (e: MouseEvent) => void;
 
   /**
    * Fraction of square width that pointer must be moved to be
@@ -108,11 +109,13 @@ export class Board {
     this._clickHandler = this._makeEventHandler(this._handleClick);
     this._keyDownHandler = this._makeEventHandler(this._handleKeyDown);
     this._focusInHandler = this._makeEventHandler(this._handleFocusIn);
+    this._contextMenuHandler = this._makeEventHandler(this._handleContextMenu);
 
     this._table.addEventListener("pointerdown", this._pointerDownHandler);
     this._table.addEventListener("click", this._clickHandler);
     this._table.addEventListener("focusin", this._focusInHandler);
     this._table.addEventListener("keydown", this._keyDownHandler);
+    this._table.addEventListener("contextmenu", this._contextMenuHandler);
     this._table.addEventListener("slotchange", this._slotChangeHandler);
     this._table.addEventListener("transitionend", this._transitionHandler);
     this._table.addEventListener("transitioncancel", this._transitionHandler);
@@ -562,14 +565,14 @@ export class Board {
     // We will control focus entirely ourselves
     e.preventDefault();
 
-    // Primary clicks only
-    if (e.button !== 0) {
+    // Left and right clicks only
+    if (e.button !== 0 && e.button !== 2) {
       return;
     }
 
     switch (this._boardState.id) {
       case "awaiting-input":
-        if (square && this._interactable(square)) {
+        if (e.button === 0 && square && this._interactable(square)) {
           this._setBoardState({
             id: "touching-first-square",
             startSquare: square,
@@ -578,31 +581,51 @@ export class Board {
           });
           this._startInteraction(square);
           this._getBoardSquare(square).toggleSecondaryPiece(true);
+        } else if (e.button === 2 && square) {
+          this._setBoardState({
+            id: "right-touching-square",
+            startSquare: square,
+            currentSquare: square,
+            highlightedSquare: this._boardState.highlightedSquare,
+            returnState: { id: "awaiting-input" },
+          });
         }
         break;
       case "awaiting-second-touch":
       case "moving-piece-kb":
-        if (this._boardState.startSquare === square) {
-          // Second pointerdown on the same square *may* be a cancel, but could
-          // also be a misclick/readjustment in order to begin dragging. Wait
-          // till corresponding pointerup event in order to cancel.
+        if (e.button === 0) {
+          if (this._boardState.startSquare === square) {
+            // Second pointerdown on the same square *may* be a cancel, but could
+            // also be a misclick/readjustment in order to begin dragging. Wait
+            // till corresponding pointerup event in order to cancel.
+            this._setBoardState({
+              id: "canceling-second-touch",
+              startSquare: square,
+              touchStartX: e.clientX,
+              touchStartY: e.clientY,
+            });
+            // Show secondary piece while pointer is down
+            this._getBoardSquare(square).toggleSecondaryPiece(true);
+          } else if (square) {
+            this._setBoardState({
+              id: "touching-second-square",
+              startSquare: this._boardState.startSquare,
+            });
+          }
+        } else if (e.button === 2 && square) {
           this._setBoardState({
-            id: "canceling-second-touch",
+            id: "right-touching-square",
             startSquare: square,
-            touchStartX: e.clientX,
-            touchStartY: e.clientY,
-          });
-          // Show secondary piece while pointer is down
-          this._getBoardSquare(square).toggleSecondaryPiece(true);
-        } else if (square) {
-          this._setBoardState({
-            id: "touching-second-square",
-            startSquare: this._boardState.startSquare,
+            currentSquare: square,
+            highlightedSquare: this._boardState.highlightedSquare,
+            returnState: this._boardState,
           });
         }
         break;
       case "dragging":
       case "dragging-outside":
+      case "right-dragging":
+      case "right-touching-square":
       case "canceling-second-touch":
       case "touching-first-square":
       case "touching-second-square":
@@ -671,6 +694,31 @@ export class Board {
             ).resetPiecePosition(this.animationDurationMs);
           }
         }
+        break;
+      case "right-touching-square":
+      case "right-dragging":
+        if (this._boardState.id == "right-touching-square") {
+          this._dispatchEvent(
+            new CustomEvent("secondaryclick", {
+              bubbles: true,
+              detail: {
+                square: this._boardState.startSquare,
+              },
+            })
+          );
+        } else {
+          this._dispatchEvent(
+            new CustomEvent("secondarydragged", {
+              bubbles: true,
+              detail: {
+                from: this._boardState.startSquare,
+                to: this._boardState.currentSquare,
+              },
+            })
+          );
+        }
+        newFocusedSquare = this._boardState.returnState.highlightedSquare;
+        this._setBoardState(this._boardState.returnState);
         break;
       case "awaiting-input":
       case "moving-piece-kb":
@@ -744,6 +792,18 @@ export class Board {
           }
         }
         break;
+      case "right-touching-square":
+      case "right-dragging":
+        if (square && square !== this._boardState.currentSquare) {
+          this._setBoardState({
+            id: "right-dragging",
+            startSquare: this._boardState.startSquare,
+            currentSquare: square,
+            highlightedSquare: this._boardState.highlightedSquare,
+            returnState: this._boardState.returnState,
+          });
+        }
+        break;
       case "dragging":
       case "dragging-outside":
         this._getBoardSquare(this._boardState.startSquare).displacePiece(
@@ -780,19 +840,28 @@ export class Board {
     }
   }
 
-  private _handleClick(this: Board, square: Square | undefined) {
+  private _handleClick(this: Board, square: Square | undefined, e: MouseEvent) {
     if (this._preventClickHandling) {
       return;
     }
 
     switch (this._boardState.id) {
       case "awaiting-input":
-        if (square && this._interactable(square)) {
+        if (e.button === 0 && square && this._interactable(square)) {
           this._setBoardState({
             id: "awaiting-second-touch",
             startSquare: square,
           });
           this._startInteraction(square);
+        } else if (e.button === 2 && square) {
+          this._dispatchEvent(
+            new CustomEvent("secondaryclick", {
+              bubbles: true,
+              detail: {
+                square,
+              },
+            })
+          );
         }
         break;
       case "awaiting-second-touch":
@@ -818,6 +887,8 @@ export class Board {
       case "canceling-second-touch":
       case "dragging":
       case "dragging-outside":
+      case "right-touching-square":
+      case "right-dragging":
       case "default":
         break;
       // istanbul ignore next
@@ -879,6 +950,8 @@ export class Board {
           break;
         case "dragging":
         case "dragging-outside":
+        case "right-touching-square":
+        case "right-dragging":
         case "touching-first-square":
         case "touching-second-square":
         case "canceling-second-touch":
@@ -965,6 +1038,8 @@ export class Board {
           case "canceling-second-touch":
           case "dragging":
           case "dragging-outside":
+          case "right-dragging":
+          case "right-touching-square":
             break;
           case "default":
             break;
@@ -973,6 +1048,18 @@ export class Board {
             assertUnreachable(this._boardState);
         }
       }
+    }
+  }
+
+  private _handleContextMenu(
+    this: Board,
+    square: Square | undefined,
+    e: MouseEvent
+  ) {
+    // Prevent default context menu when right clicking the board
+    // (we use right clicks for arrow drawing)
+    if (square && this.interactive) {
+      e.preventDefault();
     }
   }
 
