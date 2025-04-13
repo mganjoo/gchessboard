@@ -11,11 +11,13 @@
       window.addEventListener("DOMContentLoaded", () => {
         const board = document.getElementById("board");
         const highlightsMap = {};
-        let arrows = [
+        const svgSquaresMap = {};
+        let defaultArrows = [
           { from: "c7", to: "f4" },
           { from: "b3", to: "f4", brush: "foobar", weight: "light" },
           { from: "g7", to: "e3", brush: "secondary" },
         ];
+        let userDrawnArrows = [];
         let game = new Chess();
         window.placement = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
         window.turn = "either";
@@ -35,6 +37,22 @@
           .addEventListener("change", (e) => {
             board.interactive = e.target.checked;
           });
+        function updateArrows() {
+          board.arrows = [
+            ...(window.showSvg ? defaultArrows : []),
+            ...userDrawnArrows
+          ];
+        }
+        function resetDrawings() {
+          Object.keys(highlightsMap).forEach((square) => {
+            document.getElementById("board").removeChild(
+              highlightsMap[square]
+            );
+            delete highlightsMap[square];
+          });
+          userDrawnArrows = [];
+          updateArrows();
+        }
         document.getElementById("chk-svg").addEventListener("change", (e) => {
           const svgSquares = ["a3", "c5", "e4"];
           window.showSvg = e.target.checked;
@@ -44,18 +62,18 @@
                 .getElementById(`svg-${s}`)
                 .content.firstElementChild.cloneNode(true);
               square.slot = s;
+              svgSquaresMap[s] = square;
               document.getElementById("board").appendChild(square);
             });
-            board.arrows = arrows;
           } else {
             svgSquares.forEach((s) => {
               document
                 .getElementById("board")
-                .removeChild(document.querySelector(`#board [slot="${s}"]`));
+                .removeChild(svgSquaresMap[s]);
             });
-            board.arrows = undefined;
           }
-          board.classList.toggle("custom-queen", e.target.checked);
+          updateArrows();
+          board.classList.toggle("custom-queen", !!window.showSvg);
         });
         document
           .getElementById("sel-coords")
@@ -118,6 +136,11 @@
             board.fen = fen;
             updateGame();
           });
+        document
+          .getElementById("btn-reset-drawings")
+          .addEventListener("click", () => {
+            resetDrawings();
+          });
         board.addEventListener("movestart", (e) => {
           console.log(
             `movestart: ${e.detail.piece.color} ${e.detail.piece.pieceType} on ${e.detail.from}`
@@ -137,13 +160,13 @@
           window.placement = board.fen;
           const movingArrow = { from: e.detail.to, to: "e4" };
           if (!window.movingArrowStartSquare) {
-            arrows = arrows.concat([movingArrow]);
+            defaultArrows = defaultArrows.concat([movingArrow]);
           } else {
-            arrows[arrows.length - 1] = movingArrow;
+            defaultArrows[defaultArrows.length - 1] = movingArrow;
           }
           window.movingArrowStartSquare = e.detail.to;
           if (window.showSvg) {
-            board.arrows = arrows;
+            updateArrows();
           }
           updateGame();
         });
@@ -152,9 +175,6 @@
             document.getElementById("board").removeChild(highlightsMap[e.detail.square]);
             delete highlightsMap[e.detail.square];
           } else {
-            console.log(
-              `secondaryclick: ${e.detail.square}`
-            );
             highlightsMap[e.detail.square] = document.createElement("div");
             highlightsMap[e.detail.square].className = "highlighted-square";
             highlightsMap[e.detail.square].slot = e.detail.square;
@@ -169,7 +189,8 @@
             to: e.detail.to,
             brush: "manual",
           }
-          board.arrows = [...(board.arrows || []), customArrow];
+          userDrawnArrows.push(customArrow);
+          updateArrows();
         });
       });
     </script>
@@ -320,6 +341,7 @@
         <button id="btn-position-puzzle-1" class="btn">Puzzle 1</button>
         <button id="btn-position-puzzle-2" class="btn">Puzzle 2</button>
         <button id="btn-position-puzzle-3" class="btn">Puzzle 3</button>
+        <button id="btn-reset-drawings" class="btn">Reset drawings</button>
       </div>
     </main>
   </body>
