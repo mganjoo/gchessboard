@@ -8,7 +8,7 @@ import {
   Piece,
 } from "./utils/chess.js";
 import { Board } from "./components/Board.js";
-import importedStyles from "./style.css";
+import importedStyles from "./style.css?inline";
 import { assertUnreachable } from "./utils/typing.js";
 import { makeHTMLElement } from "./utils/dom.js";
 import {

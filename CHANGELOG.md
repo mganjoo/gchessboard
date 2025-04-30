@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Move back to using Vite, as the reason to move to Rollup was to use things like
+  `rollup-plugin-dts`. Now we have `vite-plugin-dts` which achieves the same thing.
+
 ## [1.3.1] - 2024-07-14
 
 - Small style cleanups and update to ESLint version.
