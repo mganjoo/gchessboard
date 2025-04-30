@@ -10,9 +10,9 @@
     "url": "https://github.com/mganjoo/gchessboard.git"
   },
   "type": "module",
-  "main": "dist/index.es.js",
-  "module": "dist/index.es.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.es.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "src",
     "dist",
@@ -20,13 +20,12 @@
   ],
   "customElements": "custom-elements.json",
   "scripts": {
-    "start": "concurrently -k -r 'npm:build:dev' 'npm:serve'",
-    "build": "rollup -c --environment PRODUCTION",
-    "build:dev": "rollup -c -w",
+    "start": "vite dev --port 8000",
+    "build": "tsc --noEmit && vite build",
     "build:api": "wca analyze src/GChessBoardElement.ts --format json2 --outFile docs/src/_data/apiSpec.json --inlineTypes",
     "build:package": "rm -rf dist && npm run build:api && npm run build",
-    "serve": "wds --node-resolve --open --watch",
-    "serve:ci": "npm run build && wds",
+    "serve": "vite preview",
+    "serve:ci": "npm run build && vite preview --port 8000",
     "test": "playwright test",
     "test:ci": "server-test serve:ci http://localhost:8000",
     "test:debug": "PWDEBUG=1 playwright test",
@@ -45,9 +44,7 @@
     "@eslint/js": "^9.7.0",
     "@playwright/test": "^1.45.1",
     "@release-it/keep-a-changelog": "^5.0.0",
-    "@rollup/plugin-typescript": "^11.1.6",
     "@types/eslint__js": "^8.42.3",
-    "@web/dev-server": "^0.4.0",
     "autoprefixer": "^10.4.19",
     "concurrently": "^8.2.2",
     "eslint": "^9.7.0",
@@ -58,10 +55,6 @@
     "postcss-url": "^10.1.3",
     "prettier": "^3.3.3",
     "release-it": "^17.5.0",
-    "rollup": "^4.3.0",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-filesize": "^10.0.0",
-    "rollup-plugin-postcss": "^4.0.2",
     "start-server-and-test": "^2.0.2",
     "stylelint": "^16.7.0",
     "stylelint-config-idiomatic-order": "^10.0.0",
@@ -70,6 +63,9 @@
     "tslib": "^2.6.3",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.0-alpha.44",
+    "vite": "^6.3.3",
+    "vite-plugin-checker": "^0.9.1",
+    "vite-plugin-dts": "^4.5.3",
     "web-component-analyzer": "^2.0.0"
   },
   "lint-staged": {
@@ -79,5 +75,8 @@
   },
   "prettier": {
     "trailingComma": "es5"
+  },
+  "dependencies": {
+    "vite-plugin-bundlesize": "^0.2.0"
   }
 }

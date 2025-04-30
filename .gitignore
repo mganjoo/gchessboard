@@ -16,3 +16,6 @@ playwright-report/
 
 # docs output
 _site/
+
+# vite-plugin-bundlesize
+bundlemeta.json
