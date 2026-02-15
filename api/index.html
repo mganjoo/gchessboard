@@ -35,7 +35,7 @@
   
     <div>
       <nav class="toc" >
-        <ul><li><a href="#attributes">Attributes</a></li><li><a href="#other-properties">Other properties</a></li><li><a href="#methods">Methods</a></li><li><a href="#events">Events</a></li><li><a href="#css-properties">CSS properties</a></li><li><a href="#css-parts">CSS parts</a></li><li><a href="#slots">Slots</a></li></ul>
+        <ul><li><a href="#attributes">Attributes</a></li><li><a href="#other-properties">Other properties</a></li><li><a href="#methods">Methods</a></li><li><a href="#events">Events</a></li><li><a href="#css-properties">CSS properties</a></li><li><a href="#css-parts">CSS parts</a><ul><li><a href="#custom-pieces">Custom pieces</a></li></ul></li><li><a href="#slots">Slots</a></li></ul>
       </nav>
     </div>
   
@@ -715,6 +715,49 @@ document.getElementById("custom-board").arrows = [
   #custom-board::part(arrow-custom-arrow) {
     color: fuchsia;
   }
+</style>
+</div>
+<!-- prettier-ignore-end -->
+<h3 id="custom-pieces" tabindex="-1" class="page-heading"><a class="header-anchor" href="#custom-pieces">Custom pieces</a></h3>
+<p>Use the <code>customPieceTypes</code> property to map custom FEN letters to piece names.
+This is useful for fairy variants and custom piece sets.</p>
+<p>Rules for <code>customPieceTypes</code>:</p>
+<ul>
+<li>Keys must be a single lowercase letter (<code>a-z</code>).</li>
+<li>Keys must not overlap standard FEN letters (<code>p</code>, <code>n</code>, <code>b</code>, <code>r</code>, <code>q</code>, <code>k</code>).</li>
+<li>Piece names must be unique within the map.</li>
+</ul>
+<!-- prettier-ignore-start -->
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>g-chess-board</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>custom-piece-types-board<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>g-chess-board</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>module<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript">
+<span class="token keyword">const</span> board <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"custom-piece-types-board"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+board<span class="token punctuation">.</span>customPieceTypes <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token literal-property property">a</span><span class="token operator">:</span> <span class="token string">"amazon"</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+board<span class="token punctuation">.</span>fen <span class="token operator">=</span> <span class="token string">"rnbqkbnr/pppp1ppp/8/3a4/3A4/2N2N2/PPPPPPPP/R1BQKB1R"</span><span class="token punctuation">;</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>style</span><span class="token punctuation">></span></span><span class="token style"><span class="token language-css">
+<span class="token selector">#custom-piece-types-board::part(piece-wa)</span> <span class="token punctuation">{</span>
+  <span class="token property">background-image</span><span class="token punctuation">:</span> <span class="token url"><span class="token function">url</span><span class="token punctuation">(</span><span class="token string url">"../demo-assets/w-amazon.svg"</span><span class="token punctuation">)</span></span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token selector">#custom-piece-types-board::part(piece-ba)</span> <span class="token punctuation">{</span>
+  <span class="token property">background-image</span><span class="token punctuation">:</span> <span class="token url"><span class="token function">url</span><span class="token punctuation">(</span><span class="token string url">"../demo-assets/b-amazon.svg"</span><span class="token punctuation">)</span></span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>style</span><span class="token punctuation">></span></span></code></pre>
+<div class="chessboard-wrapper">
+<g-chess-board id="custom-piece-types-board">
+</g-chess-board>
+<script type="module">
+const board = document.getElementById("custom-piece-types-board");
+board.customPieceTypes = { a: "amazon" };
+board.fen = "rnbqkbnr/pppp1ppp/8/3a4/3A4/2N2N2/PPPPPPPP/R1BQKB1R";
+</script>
+<style>
+#custom-piece-types-board::part(piece-wa) {
+  background-image: url("../demo-assets/w-amazon.svg");
+}
+#custom-piece-types-board::part(piece-ba) {
+  background-image: url("../demo-assets/b-amazon.svg");
+}
 </style>
 </div>
 <!-- prettier-ignore-end -->
