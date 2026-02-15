@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `rollup-plugin-dts`. Now we have `vite-plugin-dts` which achieves the same thing.
 - Improve custom piece mapping behavior by validating incompatible map changes,
   forcing part/class re-render on map updates, and adding regression tests for remap
-  and duplicate custom piece names.
+  and duplicate custom piece names. (thanks @lukedawilson for the idea and initial implementation!)
 
 ## [1.3.1] - 2024-07-14
 
