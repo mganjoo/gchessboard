@@ -31,6 +31,7 @@ export class BoardSquare {
   private _tabbable = false;
   private _moveable = false;
   private _boardPiece?: BoardPiece;
+  private _piecePartIdentifier?: string;
   private _secondaryBoardPiece?: BoardPiece;
   private _hasContent?: boolean;
   private _hover = false;
@@ -232,12 +233,19 @@ export class BoardSquare {
   setPiece(
     piece: Piece,
     moveable: boolean,
+    partIdentifier: string,
     animation?: SlideInAnimation | FadeInAnimation
   ) {
-    if (!pieceEqual(this._boardPiece?.piece, piece) || animation) {
+    if (
+      !pieceEqual(this._boardPiece?.piece, piece) ||
+      this._piecePartIdentifier !== partIdentifier ||
+      animation
+    ) {
       this.clearPiece(animation?.durationMs);
+      this._piecePartIdentifier = partIdentifier;
       this._boardPiece = new BoardPiece(this._contentElement, {
         piece,
+        partIdentifier,
         animation,
       });
       this.moveable = moveable;
@@ -250,6 +258,7 @@ export class BoardSquare {
       this.moveable = false;
       this._boardPiece.remove(animationDurationMs);
       this._boardPiece = undefined;
+      this._piecePartIdentifier = undefined;
       this._updateSquareAfterPieceChange();
     }
   }
@@ -260,9 +269,15 @@ export class BoardSquare {
    * piece in the DOM.
    */
   toggleSecondaryPiece(show: boolean) {
-    if (show && !this._secondaryBoardPiece && this._boardPiece) {
+    if (
+      show &&
+      !this._secondaryBoardPiece &&
+      this._boardPiece &&
+      this._piecePartIdentifier
+    ) {
       this._secondaryBoardPiece = new BoardPiece(this._contentElement, {
         piece: this._boardPiece.piece,
+        partIdentifier: this._piecePartIdentifier,
         secondary: true,
       });
     }

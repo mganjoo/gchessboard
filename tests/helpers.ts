@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
-import { Page } from "@playwright/test";
-import { Square } from "../src/utils/chess";
+import type { Page } from "@playwright/test";
+import type { Square } from "../src/utils/chess";
+import type { GChessBoardElement } from "../src/index";
 
 /**
  * Returns a Locator object for a specific chessboard square.
@@ -60,4 +61,31 @@ export async function expectHasFocus(page: Page, square: Square) {
             .square
       )
   ).toEqual(square);
+}
+
+/**
+ * Set custom piece types on the board.
+ */
+export async function setCustomPieceTypes(
+  page: Page,
+  map: Record<string, string>
+) {
+  await page.evaluate((m) => {
+    const board = document.getElementById("board") as GChessBoardElement | null;
+    if (board) {
+      board.customPieceTypes = m;
+    }
+  }, map);
+}
+
+/**
+ * Set FEN string on the board.
+ */
+export async function setFen(page: Page, fen: string) {
+  await page.evaluate((f) => {
+    const board = document.getElementById("board") as GChessBoardElement | null;
+    if (board) {
+      board.fen = f;
+    }
+  }, fen);
 }

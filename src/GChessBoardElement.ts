@@ -6,6 +6,8 @@ import {
   Side,
   Square,
   Piece,
+  CustomPieceTypeMap,
+  validateCustomPieceTypes,
 } from "./utils/chess.js";
 import { Board } from "./components/Board.js";
 import importedStyles from "./style.css?inline";
@@ -132,6 +134,10 @@ import { Arrows, BoardArrow } from "./components/Arrows.js";
  *   `r` (rook), `n` (knight), `b` (bishop), `k` (king), `q` (queen). Thus, `piece-wr`
  *   would be the CSS part corresponding to the white rook.
  *
+ *   Custom pieces registered via the `customPieceTypes` property also get CSS parts
+ *   using their FEN letter. For example, if `customPieceTypes` includes `{ a: "amazon" }`,
+ *   the parts `piece-wa` and `piece-ba` become available for styling.
+ *
  *   The CSS parts can be used to set custom CSS for the pieces (such as changing the image
  *   for a piece by changing the `background-image` property).
  *
@@ -158,6 +164,8 @@ export class GChessBoardElement extends HTMLElement {
   private _fileCoords: Coordinates;
   private _rankCoords: Coordinates;
   private _arrows: Arrows;
+  private _customPieceTypes?: CustomPieceTypeMap;
+  private _pendingFen?: string;
 
   private static _DEFAULT_SIDE: Side = "white";
   private static _DEFAULT_ANIMATION_DURATION_MS = 200;
@@ -332,6 +340,7 @@ export class GChessBoardElement extends HTMLElement {
   }
 
   set position(value: Position) {
+    this._pendingFen = undefined;
     this._board.position = { ...value };
   }
 
@@ -352,16 +361,44 @@ export class GChessBoardElement extends HTMLElement {
    * @attr
    */
   get fen() {
-    return getFen(this._board.position);
+    return getFen(this._board.position, this._customPieceTypes);
   }
 
   set fen(value: string) {
-    const position = getPosition(value);
-    if (position !== undefined) {
-      this.position = position;
+    const result = getPosition(value, this._customPieceTypes);
+    if (result.ok) {
+      this._pendingFen = undefined;
+      this.position = result.position;
+    } else if (result.error === "unknown-pieces") {
+      this._pendingFen = value;
     } else {
       throw new Error(`Invalid FEN position: ${value}`);
     }
+  }
+
+  /**
+   * A map of single lowercase FEN letters to full piece type names, used
+   * for fairy chess variants. For example, `{ a: "amazon", c: "commoner" }`.
+   *
+   * Keys must be single lowercase letters `a-z` that do not conflict with
+   * standard FEN piece letters (`p`, `n`, `b`, `r`, `q`, `k`).
+   *
+   * Custom pieces can be styled via CSS `::part()` selectors using the
+   * FEN letter: e.g. `::part(piece-wa)` for a white amazon (letter `a`).
+   */
+  get customPieceTypes(): CustomPieceTypeMap | undefined {
+    return this._customPieceTypes;
+  }
+
+  set customPieceTypes(value: CustomPieceTypeMap | undefined) {
+    if (value) {
+      validateCustomPieceTypes(value);
+    }
+    // Ensure existing position can still be represented before committing map changes.
+    getFen(this._board.position, value);
+    this._customPieceTypes = value;
+    this._board.customPieceTypes = value;
+    this._applyPendingFen();
   }
 
   /**
@@ -510,6 +547,17 @@ export class GChessBoardElement extends HTMLElement {
    */
   cancelMove() {
     this._board.cancelMove();
+  }
+
+  private _applyPendingFen() {
+    if (this._pendingFen === undefined) {
+      return;
+    }
+    const result = getPosition(this._pendingFen, this._customPieceTypes);
+    if (result.ok) {
+      this._pendingFen = undefined;
+      this.position = result.position;
+    }
   }
 
   private _hasBooleanAttribute(name: string): boolean {
