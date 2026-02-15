@@ -154,6 +154,16 @@ specified by the <code>animationDuration</code> property.</p>
 </code></pre>
 </dd>
   <dt class="prose-code:before:content-none prose-code:after:content-none">
+    <code>customPieceTypes</code>
+  </dt>
+  <dd class="grid -mt-3 prose-pre:mb-6"><p>A map of single lowercase FEN letters to full piece type names, used
+for fairy chess variants. For example, <code>{ a: &quot;amazon&quot;, c: &quot;commoner&quot; }</code>.</p>
+<p>Keys must be single lowercase letters <code>a-z</code> that do not conflict with
+standard FEN piece letters (<code>p</code>, <code>n</code>, <code>b</code>, <code>r</code>, <code>q</code>, <code>k</code>).</p>
+<p>Custom pieces can be styled via CSS <code>::part()</code> selectors using the
+FEN letter: e.g. <code>::part(piece-wa)</code> for a white amazon (letter <code>a</code>).</p>
+</dd>
+  <dt class="prose-code:before:content-none prose-code:after:content-none">
     <code>arrows</code>
   </dt>
   <dd class="grid -mt-3 prose-pre:mb-6"><p>Set of arrows to draw on the board. This is an array of objects specifying
@@ -668,6 +678,9 @@ name is of the form <code>piece-xy</code>, where <code>x</code> corresponds to t
 either <code>w</code> for white or <code>b</code> for black, and <code>y</code> is the piece type -- one of <code>p</code> (pawn),
 <code>r</code> (rook), <code>n</code> (knight), <code>b</code> (bishop), <code>k</code> (king), <code>q</code> (queen). Thus, <code>piece-wr</code>
 would be the CSS part corresponding to the white rook.</p>
+<p>Custom pieces registered via the <code>customPieceTypes</code> property also get CSS parts
+using their FEN letter. For example, if <code>customPieceTypes</code> includes <code>{ a: &quot;amazon&quot; }</code>,
+the parts <code>piece-wa</code> and <code>piece-ba</code> become available for styling.</p>
 <p>The CSS parts can be used to set custom CSS for the pieces (such as changing the image
 for a piece by changing the <code>background-image</code> property).</p>
 </dd>
