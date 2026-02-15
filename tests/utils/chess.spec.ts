@@ -6,8 +6,21 @@ import {
   getSquare,
   getSquareColor,
   getVisualIndex,
+  validateCustomPieceTypes,
+  getPiecePartIdentifier,
+} from "../../src/utils/chess.js";
+import type {
+  GetPositionResult,
+  Position,
   PositionDiff,
 } from "../../src/utils/chess.js";
+
+function extractPosition(result: GetPositionResult): Position {
+  if (!result.ok) {
+    throw new Error(`Expected ok result, got error: ${result.error}`);
+  }
+  return result.position;
+}
 
 test.describe("chess utilities", () => {
   test("getSquare()", () => {
@@ -52,86 +65,95 @@ test.describe("chess utilities", () => {
 
   test("getPosition()", () => {
     expect(getPosition("8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8 w - - 1 2")).toEqual({
-      a2: { pieceType: "rook", color: "white" },
-      g2: { pieceType: "king", color: "white" },
-      e3: { pieceType: "rook", color: "black" },
-      f3: { pieceType: "pawn", color: "white" },
-      g3: { pieceType: "pawn", color: "white" },
-      c4: { pieceType: "pawn", color: "white" },
-      h4: { pieceType: "pawn", color: "white" },
-      c5: { pieceType: "bishop", color: "black" },
-      f5: { pieceType: "king", color: "black" },
-      f7: { pieceType: "pawn", color: "black" },
+      ok: true,
+      position: {
+        a2: { pieceType: "rook", color: "white" },
+        g2: { pieceType: "king", color: "white" },
+        e3: { pieceType: "rook", color: "black" },
+        f3: { pieceType: "pawn", color: "white" },
+        g3: { pieceType: "pawn", color: "white" },
+        c4: { pieceType: "pawn", color: "white" },
+        h4: { pieceType: "pawn", color: "white" },
+        c5: { pieceType: "bishop", color: "black" },
+        f5: { pieceType: "king", color: "black" },
+        f7: { pieceType: "pawn", color: "black" },
+      },
     });
 
     expect(
       getPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     ).toEqual({
-      a1: { color: "white", pieceType: "rook" },
-      b1: { color: "white", pieceType: "knight" },
-      c1: { color: "white", pieceType: "bishop" },
-      d1: { color: "white", pieceType: "queen" },
-      e1: { color: "white", pieceType: "king" },
-      f1: { color: "white", pieceType: "bishop" },
-      g1: { color: "white", pieceType: "knight" },
-      h1: { color: "white", pieceType: "rook" },
-      a2: { color: "white", pieceType: "pawn" },
-      b2: { color: "white", pieceType: "pawn" },
-      c2: { color: "white", pieceType: "pawn" },
-      d2: { color: "white", pieceType: "pawn" },
-      e2: { color: "white", pieceType: "pawn" },
-      f2: { color: "white", pieceType: "pawn" },
-      g2: { color: "white", pieceType: "pawn" },
-      h2: { color: "white", pieceType: "pawn" },
-      a8: { color: "black", pieceType: "rook" },
-      b8: { color: "black", pieceType: "knight" },
-      c8: { color: "black", pieceType: "bishop" },
-      d8: { color: "black", pieceType: "queen" },
-      e8: { color: "black", pieceType: "king" },
-      f8: { color: "black", pieceType: "bishop" },
-      g8: { color: "black", pieceType: "knight" },
-      h8: { color: "black", pieceType: "rook" },
-      a7: { color: "black", pieceType: "pawn" },
-      b7: { color: "black", pieceType: "pawn" },
-      c7: { color: "black", pieceType: "pawn" },
-      d7: { color: "black", pieceType: "pawn" },
-      e7: { color: "black", pieceType: "pawn" },
-      f7: { color: "black", pieceType: "pawn" },
-      g7: { color: "black", pieceType: "pawn" },
-      h7: { color: "black", pieceType: "pawn" },
+      ok: true,
+      position: {
+        a1: { color: "white", pieceType: "rook" },
+        b1: { color: "white", pieceType: "knight" },
+        c1: { color: "white", pieceType: "bishop" },
+        d1: { color: "white", pieceType: "queen" },
+        e1: { color: "white", pieceType: "king" },
+        f1: { color: "white", pieceType: "bishop" },
+        g1: { color: "white", pieceType: "knight" },
+        h1: { color: "white", pieceType: "rook" },
+        a2: { color: "white", pieceType: "pawn" },
+        b2: { color: "white", pieceType: "pawn" },
+        c2: { color: "white", pieceType: "pawn" },
+        d2: { color: "white", pieceType: "pawn" },
+        e2: { color: "white", pieceType: "pawn" },
+        f2: { color: "white", pieceType: "pawn" },
+        g2: { color: "white", pieceType: "pawn" },
+        h2: { color: "white", pieceType: "pawn" },
+        a8: { color: "black", pieceType: "rook" },
+        b8: { color: "black", pieceType: "knight" },
+        c8: { color: "black", pieceType: "bishop" },
+        d8: { color: "black", pieceType: "queen" },
+        e8: { color: "black", pieceType: "king" },
+        f8: { color: "black", pieceType: "bishop" },
+        g8: { color: "black", pieceType: "knight" },
+        h8: { color: "black", pieceType: "rook" },
+        a7: { color: "black", pieceType: "pawn" },
+        b7: { color: "black", pieceType: "pawn" },
+        c7: { color: "black", pieceType: "pawn" },
+        d7: { color: "black", pieceType: "pawn" },
+        e7: { color: "black", pieceType: "pawn" },
+        f7: { color: "black", pieceType: "pawn" },
+        g7: { color: "black", pieceType: "pawn" },
+        h7: { color: "black", pieceType: "pawn" },
+      },
     });
 
     expect(
       getPosition("r3r1k1/1bqn1p1p/ppnpp1p1/6P1/P2NPP2/2N4R/1PP2QBP/5R1K")
     ).toEqual({
-      f1: { color: "white", pieceType: "rook" },
-      h1: { color: "white", pieceType: "king" },
-      b2: { color: "white", pieceType: "pawn" },
-      c2: { color: "white", pieceType: "pawn" },
-      f2: { color: "white", pieceType: "queen" },
-      g2: { color: "white", pieceType: "bishop" },
-      h2: { color: "white", pieceType: "pawn" },
-      c3: { color: "white", pieceType: "knight" },
-      h3: { color: "white", pieceType: "rook" },
-      a4: { color: "white", pieceType: "pawn" },
-      d4: { color: "white", pieceType: "knight" },
-      e4: { color: "white", pieceType: "pawn" },
-      f4: { color: "white", pieceType: "pawn" },
-      g5: { color: "white", pieceType: "pawn" },
-      a6: { color: "black", pieceType: "pawn" },
-      b6: { color: "black", pieceType: "pawn" },
-      c6: { color: "black", pieceType: "knight" },
-      d6: { color: "black", pieceType: "pawn" },
-      e6: { color: "black", pieceType: "pawn" },
-      g6: { color: "black", pieceType: "pawn" },
-      b7: { color: "black", pieceType: "bishop" },
-      c7: { color: "black", pieceType: "queen" },
-      d7: { color: "black", pieceType: "knight" },
-      f7: { color: "black", pieceType: "pawn" },
-      h7: { color: "black", pieceType: "pawn" },
-      a8: { color: "black", pieceType: "rook" },
-      e8: { color: "black", pieceType: "rook" },
-      g8: { color: "black", pieceType: "king" },
+      ok: true,
+      position: {
+        f1: { color: "white", pieceType: "rook" },
+        h1: { color: "white", pieceType: "king" },
+        b2: { color: "white", pieceType: "pawn" },
+        c2: { color: "white", pieceType: "pawn" },
+        f2: { color: "white", pieceType: "queen" },
+        g2: { color: "white", pieceType: "bishop" },
+        h2: { color: "white", pieceType: "pawn" },
+        c3: { color: "white", pieceType: "knight" },
+        h3: { color: "white", pieceType: "rook" },
+        a4: { color: "white", pieceType: "pawn" },
+        d4: { color: "white", pieceType: "knight" },
+        e4: { color: "white", pieceType: "pawn" },
+        f4: { color: "white", pieceType: "pawn" },
+        g5: { color: "white", pieceType: "pawn" },
+        a6: { color: "black", pieceType: "pawn" },
+        b6: { color: "black", pieceType: "pawn" },
+        c6: { color: "black", pieceType: "knight" },
+        d6: { color: "black", pieceType: "pawn" },
+        e6: { color: "black", pieceType: "pawn" },
+        g6: { color: "black", pieceType: "pawn" },
+        b7: { color: "black", pieceType: "bishop" },
+        c7: { color: "black", pieceType: "queen" },
+        d7: { color: "black", pieceType: "knight" },
+        f7: { color: "black", pieceType: "pawn" },
+        h7: { color: "black", pieceType: "pawn" },
+        a8: { color: "black", pieceType: "rook" },
+        e8: { color: "black", pieceType: "rook" },
+        g8: { color: "black", pieceType: "king" },
+      },
     });
   });
 
@@ -241,8 +263,12 @@ test.describe("chess utilities", () => {
       expect(
         normalizeDiff(
           calcPositionDiff(
-            getPosition("5B2/p6K/2P5/2qN1p1k/P1p2P1p/3N4/P7/3R2n1 w - - 0 1")!,
-            getPosition("5B2/2P4K/p7/3N1N1k/q1p2P2/7p/8/3R2n1 w - - 0 6")!
+            extractPosition(
+              getPosition("5B2/p6K/2P5/2qN1p1k/P1p2P1p/3N4/P7/3R2n1 w - - 0 1")
+            ),
+            extractPosition(
+              getPosition("5B2/2P4K/p7/3N1N1k/q1p2P2/7p/8/3R2n1 w - - 0 6")
+            )
           )
         )
       ).toEqual(
@@ -288,12 +314,16 @@ test.describe("chess utilities", () => {
       expect(
         normalizeDiff(
           calcPositionDiff(
-            getPosition(
-              "6QR/1k1K4/qN1p1PP1/b3Pp2/2Pp4/4pPP1/4P2p/r7 w - - 0 1"
-            )!,
-            getPosition(
-              "6r1/1k2K3/1N1p1PP1/b1b1Pp2/2P3q1/4pPP1/1p2P2R/r7 w - - 0 1"
-            )!
+            extractPosition(
+              getPosition(
+                "6QR/1k1K4/qN1p1PP1/b3Pp2/2Pp4/4pPP1/4P2p/r7 w - - 0 1"
+              )
+            ),
+            extractPosition(
+              getPosition(
+                "6r1/1k2K3/1N1p1PP1/b1b1Pp2/2P3q1/4pPP1/1p2P2R/r7 w - - 0 1"
+              )
+            )
           )
         )
       ).toEqual(
@@ -330,6 +360,135 @@ test.describe("chess utilities", () => {
           ],
         })
       );
+    });
+  });
+
+  test.describe("getPosition() with custom pieces", () => {
+    test("custom FEN with registry returns position", () => {
+      const result = getPosition(
+        "rnbakbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBAKBNR",
+        { a: "amazon" }
+      );
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.position.d8).toEqual({
+          pieceType: "amazon",
+          color: "black",
+        });
+        expect(result.position.d1).toEqual({
+          pieceType: "amazon",
+          color: "white",
+        });
+      }
+    });
+
+    test("custom FEN without registry returns unknown-pieces error", () => {
+      const result = getPosition("rnbakbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBAKBNR");
+      expect(result).toEqual({ ok: false, error: "unknown-pieces" });
+    });
+
+    test("structurally invalid FEN returns invalid error", () => {
+      const result = getPosition("invalid/fen", { a: "amazon" });
+      expect(result).toEqual({ ok: false, error: "invalid" });
+    });
+  });
+
+  test.describe("getFen() with custom pieces", () => {
+    test("round-trip with custom pieces", () => {
+      const customPieceTypes = { a: "amazon" };
+      const originalFen = "rnbakbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBAKBNR";
+      const result = getPosition(originalFen, customPieceTypes);
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        const newFen = getFen(result.position, customPieceTypes);
+        expect(newFen).toEqual(originalFen);
+      }
+    });
+
+    test("position with unmapped custom piece throws", () => {
+      expect(() => {
+        getFen({
+          d1: { pieceType: "amazon", color: "white" },
+        });
+      }).toThrow();
+    });
+  });
+
+  test.describe("calcPositionDiff() with custom pieces", () => {
+    test("diff with custom pieces", () => {
+      const customPieceTypes = { a: "amazon" };
+      const pos1 = extractPosition(
+        getPosition(
+          "rnbakbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBAKBNR",
+          customPieceTypes
+        )
+      );
+      const pos2 = extractPosition(
+        getPosition(
+          "rnbakbnr/pppppppp/8/8/4A3/8/PPPPPPPP/RNB1KBNR",
+          customPieceTypes
+        )
+      );
+      const diff = calcPositionDiff(pos1, pos2);
+      expect(diff.moved).toContainEqual({
+        piece: { pieceType: "amazon", color: "white" },
+        oldSquare: "d1",
+        newSquare: "e4",
+      });
+    });
+  });
+
+  test.describe("validateCustomPieceTypes()", () => {
+    test("standard letter key throws", () => {
+      expect(() => validateCustomPieceTypes({ p: "pawn" })).toThrow();
+      expect(() => validateCustomPieceTypes({ q: "queen" })).toThrow();
+    });
+
+    test("multi-char key throws", () => {
+      expect(() => validateCustomPieceTypes({ ab: "piece" })).toThrow();
+    });
+
+    test("valid key does not throw", () => {
+      expect(() => validateCustomPieceTypes({ a: "amazon" })).not.toThrow();
+      expect(() => validateCustomPieceTypes({ z: "zebra" })).not.toThrow();
+    });
+
+    test("duplicate piece names throw", () => {
+      expect(() =>
+        validateCustomPieceTypes({ a: "amazon", c: "amazon" })
+      ).toThrow();
+    });
+  });
+
+  test.describe("getPiecePartIdentifier()", () => {
+    test("standard piece returns standard identifier", () => {
+      expect(
+        getPiecePartIdentifier({ pieceType: "queen", color: "white" })
+      ).toEqual("wq");
+      expect(
+        getPiecePartIdentifier({ pieceType: "pawn", color: "black" })
+      ).toEqual("bp");
+    });
+
+    test("custom piece with registry returns custom identifier", () => {
+      expect(
+        getPiecePartIdentifier(
+          { pieceType: "amazon", color: "white" },
+          { a: "amazon" }
+        )
+      ).toEqual("wa");
+      expect(
+        getPiecePartIdentifier(
+          { pieceType: "amazon", color: "black" },
+          { a: "amazon" }
+        )
+      ).toEqual("ba");
+    });
+
+    test("custom piece without registry returns undefined", () => {
+      expect(
+        getPiecePartIdentifier({ pieceType: "amazon", color: "white" })
+      ).toBeUndefined();
     });
   });
 });

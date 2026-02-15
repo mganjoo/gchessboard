@@ -96,6 +96,38 @@ document.getElementById("custom-board").arrows = [
 {% endchessboard %}
 <!-- prettier-ignore-end -->
 
+### Custom pieces
+
+Use the `customPieceTypes` property to map custom FEN letters to piece names.
+This is useful for fairy variants and custom piece sets.
+
+Rules for `customPieceTypes`:
+
+- Keys must be a single lowercase letter (`a-z`).
+- Keys must not overlap standard FEN letters (`p`, `n`, `b`, `r`, `q`, `k`).
+- Piece names must be unique within the map.
+
+<!-- prettier-ignore-start -->
+
+{% chessboard %}
+<g-chess-board id="custom-piece-types-board">
+</g-chess-board>
+<script type="module">
+const board = document.getElementById("custom-piece-types-board");
+board.customPieceTypes = { a: "amazon" };
+board.fen = "rnbqkbnr/pppp1ppp/8/3a4/3A4/2N2N2/PPPPPPPP/R1BQKB1R";
+</script>
+<style>
+#custom-piece-types-board::part(piece-wa) {
+  background-image: url("../demo-assets/w-amazon.svg");
+}
+#custom-piece-types-board::part(piece-ba) {
+  background-image: url("../demo-assets/b-amazon.svg");
+}
+</style>
+{% endchessboard %}
+<!-- prettier-ignore-end -->
+
 ## Slots
 
 gchessboard provides the ability to place arbitrary content on squares using

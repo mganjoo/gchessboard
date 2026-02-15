@@ -9,6 +9,8 @@ import {
   Square,
   keyIsSquare,
   Piece,
+  CustomPieceTypeMap,
+  getPiecePartIdentifier,
 } from "../utils/chess.js";
 import { makeHTMLElement } from "../utils/dom.js";
 import { BoardState } from "./BoardState.js";
@@ -25,6 +27,7 @@ export class Board {
   private _turn?: Side;
   private _interactive: boolean;
   private _position: Position;
+  private _customPieceTypes?: CustomPieceTypeMap;
   private _boardState: BoardState;
   private _tabbableSquare?: Square;
   private _defaultTabbableSquare: Square;
@@ -154,17 +157,7 @@ export class Board {
     this._cancelMove(false);
     this._orientation = value;
     this._refreshDefaultTabbableSquare();
-    for (let i = 0; i < 64; i++) {
-      const square = getSquare(i, value);
-      const piece = this._position[square];
-      this._boardSquares[i].label = square;
-      this._boardSquares[i].tabbable = this.tabbableSquare === square;
-      if (piece) {
-        this._boardSquares[i].setPiece(piece, this._pieceMoveable(piece));
-      } else {
-        this._boardSquares[i].clearPiece();
-      }
-    }
+    this._renderPosition();
     // Switch focused square, if any, on orientation change
     if (this._focusedSquare) {
       this._focusTabbableSquare();
@@ -240,6 +233,7 @@ export class Board {
         this._getBoardSquare(newSquare).setPiece(
           piece,
           this._pieceMoveable(piece),
+          this._piecePartIdentifier(piece),
           {
             type: "slide-in",
             from: startingPosition,
@@ -252,6 +246,7 @@ export class Board {
         this._getBoardSquare(square).setPiece(
           piece,
           this._pieceMoveable(piece),
+          this._piecePartIdentifier(piece),
           {
             type: "fade-in",
             durationMs: this.animationDurationMs,
@@ -281,6 +276,16 @@ export class Board {
       this._getBoardSquare(value).tabbable = true;
       this._tabbableSquare = value;
     }
+  }
+
+  get customPieceTypes(): CustomPieceTypeMap | undefined {
+    return this._customPieceTypes;
+  }
+
+  set customPieceTypes(value: CustomPieceTypeMap | undefined) {
+    this._cancelMove(false);
+    this._customPieceTypes = value;
+    this._renderPosition();
   }
 
   /**
@@ -378,6 +383,7 @@ export class Board {
         this._getBoardSquare(to).setPiece(
           piece,
           this._pieceMoveable(piece),
+          this._piecePartIdentifier(piece),
           // Animate transition only when piece is displaced to a specific location
           animate
             ? {
@@ -462,8 +468,36 @@ export class Board {
     });
   }
 
+  private _piecePartIdentifier(piece: Piece): string {
+    const identifier = getPiecePartIdentifier(piece, this._customPieceTypes);
+    if (!identifier) {
+      throw new Error(
+        `No part identifier mapping for piece type: ${piece.pieceType}`
+      );
+    }
+    return identifier;
+  }
+
   private _pieceMoveable(piece: Piece): boolean {
     return !this.turn || piece.color === this.turn;
+  }
+
+  private _renderPosition() {
+    for (let i = 0; i < 64; i++) {
+      const square = getSquare(i, this.orientation);
+      const piece = this._position[square];
+      this._boardSquares[i].label = square;
+      this._boardSquares[i].tabbable = this.tabbableSquare === square;
+      if (piece) {
+        this._boardSquares[i].setPiece(
+          piece,
+          this._pieceMoveable(piece),
+          this._piecePartIdentifier(piece)
+        );
+      } else {
+        this._boardSquares[i].clearPiece();
+      }
+    }
   }
 
   private _interactable(square: Square): boolean {

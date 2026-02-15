@@ -1,6 +1,6 @@
-import { PlaywrightTestConfig, devices } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
-export default {
+export default defineConfig({
   projects: [
     {
       name: "chromium",
@@ -24,4 +24,4 @@ export default {
     baseURL: "http://localhost:8000",
     trace: "on-first-retry",
   },
-} satisfies PlaywrightTestConfig;
+});

@@ -70,6 +70,7 @@ The library can be easily integrated with React, using a wrapper class:
 ## Customizing
 
 More details on properties and attributes of the element, events fired, and various customizable CSS properties are available in [the API documentation](https://mganjoo.github.io/gchessboard/api/).
+For fairy chess/custom variants, see the [Custom pieces section](https://mganjoo.github.io/gchessboard/api/#custom-pieces).
 
 ## Developing
 

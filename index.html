@@ -90,6 +90,7 @@
           .getElementById("btn-position-start")
           .addEventListener("click", () => {
             window.placement = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            board.customPieceTypes = undefined;
             board.fen = "start";
             updateGame();
           });
@@ -98,6 +99,7 @@
           .addEventListener("click", () => {
             const fen = "8/5p2/8/2b2k2/2P4P/4rPP1/R5K1/8";
             window.placement = fen;
+            board.customPieceTypes = undefined;
             board.fen = fen;
             updateGame();
           });
@@ -106,6 +108,7 @@
           .addEventListener("click", () => {
             const fen = "r3kb1r/ppp2ppp/8/8/1PPp2bq/P3PP2/1B2K2P/RN1Q1B1R";
             window.placement = fen;
+            board.customPieceTypes = undefined;
             board.fen = fen;
             updateGame();
           });
@@ -114,6 +117,16 @@
           .addEventListener("click", () => {
             const fen = "3r1r1k/pp5P/2p2p2/5q2/2P2P2/2Q1P3/PP2K1P1/3R3R";
             window.placement = fen;
+            board.customPieceTypes = undefined;
+            board.fen = fen;
+            updateGame();
+          });
+        document
+          .getElementById("btn-position-custom")
+          .addEventListener("click", () => {
+            const fen = "rnbakbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBAKBNR";
+            window.placement = fen;
+            board.customPieceTypes = { a: "amazon" };
             board.fen = fen;
             updateGame();
           });
@@ -179,6 +192,12 @@
       g-chess-board.custom-queen::part(arrow-foobar) {
         color: salmon;
         opacity: 0.8;
+      }
+      g-chess-board::part(piece-wa) {
+        background-image: url("demo-assets/w-amazon.svg");
+      }
+      g-chess-board::part(piece-ba) {
+        background-image: url("demo-assets/b-amazon.svg");
       }
     </style>
   </head>
@@ -289,6 +308,7 @@
         <button id="btn-position-puzzle-1" class="btn">Puzzle 1</button>
         <button id="btn-position-puzzle-2" class="btn">Puzzle 2</button>
         <button id="btn-position-puzzle-3" class="btn">Puzzle 3</button>
+        <button id="btn-position-custom" class="btn">Custom pieces</button>
       </div>
     </main>
   </body>

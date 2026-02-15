@@ -1,4 +1,4 @@
-import { Piece, PieceType, Side } from "../utils/chess.js";
+import { Piece } from "../utils/chess.js";
 import { makeHTMLElement } from "../utils/dom.js";
 import { assertUnreachable } from "../utils/typing.js";
 
@@ -7,6 +7,12 @@ export type BoardPieceConfig = {
    * Piece type and color.
    */
   piece: Piece;
+
+  /**
+   * Part identifier for the piece (e.g. "wq", "ba"), used to construct
+   * the CSS part name "piece-<identifier>".
+   */
+  partIdentifier: string;
 
   /**
    * Whether the piece is to be considered a "secondary" piece on the square.
@@ -75,28 +81,6 @@ export class BoardPiece {
   private _explicitPosition?: ExplicitPiecePosition;
 
   /**
-   * Map of piece to background image CSS class name.
-   */
-  private static PIECE_CLASS_MAP: Record<Side, Record<PieceType, string>> = {
-    white: {
-      queen: "wq",
-      king: "wk",
-      knight: "wn",
-      pawn: "wp",
-      bishop: "wb",
-      rook: "wr",
-    },
-    black: {
-      queen: "bq",
-      king: "bk",
-      knight: "bn",
-      pawn: "bp",
-      bishop: "bb",
-      rook: "br",
-    },
-  };
-
-  /**
    * CSS custom property for scale applied to piece while draggging.
    * This is overridden per input method within CSS styles.
    */
@@ -109,14 +93,9 @@ export class BoardPiece {
       attributes: {
         role: "presentation",
         "aria-hidden": "true",
-        part: `piece-${
-          BoardPiece.PIECE_CLASS_MAP[this.piece.color][this.piece.pieceType]
-        }`,
+        part: `piece-${config.partIdentifier}`,
       },
-      classes: [
-        "piece",
-        BoardPiece.PIECE_CLASS_MAP[this.piece.color][this.piece.pieceType],
-      ],
+      classes: ["piece", config.partIdentifier],
     });
 
     if (config.animation !== undefined) {

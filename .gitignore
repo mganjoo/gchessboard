@@ -19,3 +19,6 @@ _site/
 
 # vite-plugin-bundlesize
 bundlemeta.json
+
+# claude
+.claude/settings.local.json

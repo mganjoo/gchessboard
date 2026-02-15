@@ -19,8 +19,22 @@ export const PIECE_TYPES = [
 
 export type SquareColor = (typeof SQUARE_COLORS)[number];
 export type Side = (typeof SIDE_COLORS)[number];
-export type PieceType = (typeof PIECE_TYPES)[number];
+export type StandardPieceType = (typeof PIECE_TYPES)[number];
+export type PieceType = StandardPieceType | string;
 export type Position = Partial<Record<Square, Piece>>;
+
+/**
+ * Map from single lowercase FEN letter to full piece type name.
+ */
+export type CustomPieceTypeMap = Record<string, string>;
+
+/**
+ * Result of parsing a FEN string with custom piece support.
+ */
+export type GetPositionResult =
+  | { ok: true; position: Position }
+  | { ok: false; error: "invalid" }
+  | { ok: false; error: "unknown-pieces" };
 
 export interface Piece {
   pieceType: PieceType;
@@ -101,11 +115,20 @@ export type PositionDiff = {
  * Note that only the first part of the FEN string (piece placement) is
  * parsed; any additional components are ignored.
  *
+ * When `customPieceTypes` is provided, letters in the FEN that are not
+ * standard piece types but appear in the custom map are resolved to
+ * the corresponding piece type name. Letters that are `a-z` but not in
+ * either map result in an "unknown-pieces" error.
+ *
  * @param fen the FEN string
- * @returns an object where key is of type Square (string) and value is
- *          of type Piece
+ * @param customPieceTypes optional map of FEN letter to full piece type name
+ * @returns a `GetPositionResult` indicating success, invalid FEN, or
+ *          unresolved custom piece letters
  */
-export function getPosition(fen: string): Position | undefined {
+export function getPosition(
+  fen: string,
+  customPieceTypes?: CustomPieceTypeMap
+): GetPositionResult {
   if (fen === "initial" || fen === "start") {
     fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
   }
@@ -113,9 +136,10 @@ export function getPosition(fen: string): Position | undefined {
   const parts = fen.split(" ");
   const ranks = parts[0].split("/");
   if (ranks.length !== 8) {
-    return undefined;
+    return { ok: false, error: "invalid" };
   }
 
+  let hasUnknown = false;
   const position: Position = {};
   for (let i = 0; i < 8; i++) {
     const rank = 8 - i;
@@ -129,27 +153,55 @@ export function getPosition(fen: string): Position | undefined {
           color: pieceLetter === ranks[i][j] ? "black" : "white",
         };
         fileOffset += 1;
+      } else if (customPieceTypes && pieceLetter in customPieceTypes) {
+        const square = (String.fromCharCode(97 + fileOffset) + rank) as Square;
+        position[square] = {
+          pieceType: customPieceTypes[pieceLetter],
+          color: pieceLetter === ranks[i][j] ? "black" : "white",
+        };
+        fileOffset += 1;
+      } else if (/^[a-z]$/.test(pieceLetter)) {
+        // Valid letter but not in any map — mark as unknown and skip
+        hasUnknown = true;
+        fileOffset += 1;
       } else {
         const emptySpaces = parseInt(ranks[i][j]);
         if (isNaN(emptySpaces) || emptySpaces === 0 || emptySpaces > 8) {
-          return undefined;
+          return { ok: false, error: "invalid" };
         } else {
           fileOffset += emptySpaces;
         }
       }
     }
     if (fileOffset !== 8) {
-      return undefined;
+      return { ok: false, error: "invalid" };
     }
   }
-  return position;
+  if (hasUnknown) {
+    return { ok: false, error: "unknown-pieces" };
+  }
+  return { ok: true, position };
 }
 
 /**
  * Get FEN string corresponding to Position object. Note that this only returns
  * the first (piece placement) component of the FEN string.
+ *
+ * @param position the position to convert
+ * @param customPieceTypes optional map of FEN letter to full piece type name
  */
-export function getFen(position: Position): string {
+export function getFen(
+  position: Position,
+  customPieceTypes?: CustomPieceTypeMap
+): string {
+  // Build reverse map for custom pieces (full name → FEN letter)
+  const reverseCustomMap: Record<string, string> = {};
+  if (customPieceTypes) {
+    for (const [letter, name] of Object.entries(customPieceTypes)) {
+      reverseCustomMap[name] = letter;
+    }
+  }
+
   const rankSpecs = [];
   for (let i = 0; i < 8; i++) {
     let rankSpec = "";
@@ -158,7 +210,16 @@ export function getFen(position: Position): string {
       const square = REVERSE_SQUARES_MAP[16 * i + j];
       const piece = position[square];
       if (piece !== undefined) {
-        const pieceStr = REVERSE_FEN_PIECE_TYPE_MAP[piece.pieceType];
+        let pieceStr: string | undefined =
+          REVERSE_FEN_PIECE_TYPE_MAP[piece.pieceType as PieceType];
+        if (!pieceStr) {
+          pieceStr = reverseCustomMap[piece.pieceType];
+        }
+        if (!pieceStr) {
+          throw new Error(
+            `No FEN letter mapping for piece type: ${piece.pieceType}`
+          );
+        }
         if (gap > 0) {
           rankSpec += gap;
         }
@@ -304,20 +365,20 @@ export function calcPositionDiff(
     [];
 
   function groupByPiece(position: Position) {
-    const groups = {} as Record<
-      Side,
-      Record<PieceType, { squares: Square[]; piece: Piece }>
-    >;
+    const groups: Record<
+      string,
+      Record<string, { squares: Square[]; piece: Piece }>
+    > = {};
     for (const color of SIDE_COLORS) {
-      groups[color] = {} as Record<
-        PieceType,
-        { squares: Square[]; piece: Piece }
-      >;
-      for (const pieceType of PIECE_TYPES) {
-        groups[color][pieceType] = { squares: [], piece: { color, pieceType } };
-      }
+      groups[color] = {};
     }
     Object.entries(position).forEach(([square, piece]) => {
+      if (!groups[piece.color][piece.pieceType]) {
+        groups[piece.color][piece.pieceType] = {
+          squares: [],
+          piece: { color: piece.color, pieceType: piece.pieceType },
+        };
+      }
       groups[piece.color][piece.pieceType].squares.push(square as Square);
     });
     return groups;
@@ -326,11 +387,26 @@ export function calcPositionDiff(
   const oldPositionGrouped = groupByPiece(oldPositionLimited);
   const newPositionGrouped = groupByPiece(newPositionLimited);
 
-  for (const pieceType of PIECE_TYPES) {
+  // Collect all unique piece types from both positions
+  const allPieceTypes = new Set<string>();
+  for (const color of SIDE_COLORS) {
+    for (const pt of Object.keys(oldPositionGrouped[color])) {
+      allPieceTypes.add(pt);
+    }
+    for (const pt of Object.keys(newPositionGrouped[color])) {
+      allPieceTypes.add(pt);
+    }
+  }
+
+  for (const pieceType of allPieceTypes) {
     for (const color of SIDE_COLORS) {
       const piece = { pieceType, color };
-      const oldSquares = [...oldPositionGrouped[color][pieceType].squares];
-      const newSquares = [...newPositionGrouped[color][pieceType].squares];
+      const oldSquares = [
+        ...(oldPositionGrouped[color][pieceType]?.squares ?? []),
+      ];
+      const newSquares = [
+        ...(newPositionGrouped[color][pieceType]?.squares ?? []),
+      ];
 
       const costMatrix = [];
       for (let i = 0; i < oldSquares.length; i++) {
@@ -367,6 +443,61 @@ export function calcPositionDiff(
   }
 
   return { added, removed, moved };
+}
+
+const STANDARD_FEN_LETTERS = new Set(Object.keys(FEN_PIECE_TYPE_MAP));
+
+/**
+ * Validate a custom piece type map. Throws if any key is not a single
+ * lowercase letter or conflicts with standard FEN letters.
+ */
+export function validateCustomPieceTypes(map: CustomPieceTypeMap) {
+  const seenPieceNames = new Set<string>();
+  for (const key of Object.keys(map)) {
+    if (!/^[a-z]$/.test(key)) {
+      throw new Error(
+        `Invalid custom piece type key "${key}": must be a single lowercase letter a-z`
+      );
+    }
+    if (STANDARD_FEN_LETTERS.has(key)) {
+      throw new Error(
+        `Custom piece type key "${key}" conflicts with standard FEN piece letter`
+      );
+    }
+    const pieceName = map[key];
+    if (seenPieceNames.has(pieceName)) {
+      throw new Error(
+        `Duplicate custom piece type name "${pieceName}": each custom piece type must map to a unique name`
+      );
+    }
+    seenPieceNames.add(pieceName);
+  }
+}
+
+/**
+ * Get the 2-char part identifier for a piece (e.g. "wq", "ba"),
+ * used to construct CSS part names like "piece-wq".
+ * For standard pieces uses the built-in map; for custom pieces
+ * uses the reverse lookup from the custom map.
+ */
+export function getPiecePartIdentifier(
+  piece: Piece,
+  customPieceTypes?: CustomPieceTypeMap
+): string | undefined {
+  const prefix = piece.color === "white" ? "w" : "b";
+  const standardLetter =
+    REVERSE_FEN_PIECE_TYPE_MAP[piece.pieceType as PieceType];
+  if (standardLetter) {
+    return `${prefix}${standardLetter}`;
+  }
+  if (customPieceTypes) {
+    for (const [letter, name] of Object.entries(customPieceTypes)) {
+      if (name === piece.pieceType) {
+        return `${prefix}${letter}`;
+      }
+    }
+  }
+  return undefined;
 }
 
 export function squareDistance(a: Square, b: Square) {
