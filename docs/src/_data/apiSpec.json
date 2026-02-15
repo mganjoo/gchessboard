@@ -59,6 +59,13 @@
             },
             {
               "kind": "field",
+              "name": "customPieceTypes",
+              "privacy": "public",
+              "description": "A map of single lowercase FEN letters to full piece type names, used\nfor fairy chess variants. For example, `{ a: \"amazon\", c: \"commoner\" }`.\n\nKeys must be single lowercase letters `a-z` that do not conflict with\nstandard FEN piece letters (`p`, `n`, `b`, `r`, `q`, `k`).\n\nCustom pieces can be styled via CSS `::part()` selectors using the\nFEN letter: e.g. `::part(piece-wa)` for a white amazon (letter `a`).",
+              "type": "CustomPieceTypeMap | undefined"
+            },
+            {
+              "kind": "field",
               "name": "coordinates",
               "privacy": "public",
               "description": "How to display coordinates for squares. Could be `\"inside\"` the board (default),\n`\"outside\"`, or `\"hidden\"`.",
@@ -376,7 +383,7 @@
           "cssParts": [
             {
               "name": "piece-<b|w><b|r|p|n|k|q>",
-              "description": "CSS parts for each of the piece classes. The part\nname is of the form `piece-xy`, where `x` corresponds to the color of the piece --\neither `w` for white or `b` for black, and `y` is the piece type -- one of `p` (pawn),\n`r` (rook), `n` (knight), `b` (bishop), `k` (king), `q` (queen). Thus, `piece-wr`\nwould be the CSS part corresponding to the white rook.\n\nThe CSS parts can be used to set custom CSS for the pieces (such as changing the image\nfor a piece by changing the `background-image` property)."
+              "description": "CSS parts for each of the piece classes. The part\nname is of the form `piece-xy`, where `x` corresponds to the color of the piece --\neither `w` for white or `b` for black, and `y` is the piece type -- one of `p` (pawn),\n`r` (rook), `n` (knight), `b` (bishop), `k` (king), `q` (queen). Thus, `piece-wr`\nwould be the CSS part corresponding to the white rook.\n\nCustom pieces registered via the `customPieceTypes` property also get CSS parts\nusing their FEN letter. For example, if `customPieceTypes` includes `{ a: \"amazon\" }`,\nthe parts `piece-wa` and `piece-ba` become available for styling.\n\nThe CSS parts can be used to set custom CSS for the pieces (such as changing the image\nfor a piece by changing the `background-image` property)."
             },
             {
               "name": "arrow-<brush_name>",
