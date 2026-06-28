@@ -182,7 +182,7 @@ chess game, with each side taking turns to move!</p>
 </g-chess-board>
 </div>
 <!-- prettier-ignore-start -->
-<pre class="language-js"><code class="language-js"><span class="token keyword">import</span> <span class="token punctuation">{</span> Chess <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"https://cdn.skypack.dev/chess.js"</span><span class="token punctuation">;</span>
+<pre class="language-js"><code class="language-js"><span class="token keyword">import</span> <span class="token punctuation">{</span> Chess <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"https://cdn.jsdelivr.net/npm/chess.js@1.4.0/dist/esm/chess.js"</span><span class="token punctuation">;</span>
 
 <span class="token keyword">const</span> board <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"chessful-board"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">const</span> game <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Chess</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -213,7 +213,7 @@ board<span class="token punctuation">.</span><span class="token function">addEve
   board<span class="token punctuation">.</span>turn <span class="token operator">=</span> game<span class="token punctuation">.</span><span class="token function">turn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token string">"w"</span> <span class="token operator">?</span> <span class="token string">"white"</span> <span class="token operator">:</span> <span class="token string">"black"</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <script type="module">
-import { Chess } from "https://cdn.skypack.dev/chess.js";
+import { Chess } from "https://cdn.jsdelivr.net/npm/chess.js@1.4.0/dist/esm/chess.js";
 
 const board = document.getElementById("chessful-board");
 const game = new Chess();
