@@ -57,6 +57,9 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({
     "../demo-assets": "demo-assets",
   });
+  eleventyConfig.addPassthroughCopy({
+    "node_modules/@fontsource/nunito-sans/files": "css/files",
+  });
   eleventyConfig.addPassthroughCopy("images");
 
   return {
